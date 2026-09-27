@@ -1,0 +1,161 @@
+/* Gym Listing Page Specific Styles */
+
+/* Breadcrumb & Header */
+.page-header {
+    background-color: #ffffff;
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+.breadcrumb {
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.breadcrumb a {
+    color: var(--text-gray);
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    color: var(--primary-color);
+}
+
+.alert-verified {
+    background-color: #f0fdfa;
+    border: 1px solid #ccfbf1;
+    border-radius: 0.5rem;
+    color: #0f766e;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Advanced Filters */
+.filter-bar {
+    background-color: #ffffff;
+    border-radius: 1rem;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #f3f4f6;
+    color: var(--text-gray);
+    border-radius: 2rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.filter-pill:hover {
+    background-color: #e5e7eb;
+}
+
+.filter-pill.active {
+    background-color: var(--primary-color);
+    color: #ffffff;
+}
+
+.filter-pill.active .btn-close-pill {
+    color: #ffffff;
+    opacity: 0.8;
+}
+
+/* Gym Card Tags */
+.gym-card-tag {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--text-dark);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.feature-tag {
+    background-color: #f3f4f6;
+    color: var(--text-gray);
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    display: inline-block;
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Pagination */
+.pagination-container {
+    padding: 2rem 0;
+}
+
+.page-item .page-link {
+    color: var(--text-gray);
+    border: none;
+    font-weight: 600;
+    margin: 0 0.25rem;
+    border-radius: 0.5rem;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.page-item .page-link:hover:not(.active) {
+    background-color: #f3f4f6;
+    color: var(--text-dark);
+}
+
+/* Map Banner */
+.map-banner {
+    background-color: var(--primary-light);
+    border-radius: 1.5rem;
+    padding: 2rem 3rem;
+    margin: 3rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+@media (max-width: 768px) {
+    .map-banner {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+}
+
+/* Favorite Button Enhancements */
+.btn-favorite, .btn-trainer-favorite, #btnFavorite, #btnDetailFav {
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    cursor: pointer;
+}
+
+.btn-favorite:hover, .btn-trainer-favorite:hover, #btnFavorite:hover, #btnDetailFav:hover {
+    transform: scale(1.15);
+    opacity: 0.9;
+}
+
+.btn-favorite:active, .btn-trainer-favorite:active, #btnFavorite:active, #btnDetailFav:active {
+    transform: scale(0.95);
+}

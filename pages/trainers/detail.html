@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết huấn luyện viên - GYMFINDER</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/components.css">
+    <style>
+        .info-card {
+            background-color: #fff;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid #f1f5f9;
+        }
+        .btn-trainer-favorite:hover {
+            color: #ef4444 !important;
+        }
+    </style>
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg bg-white sticky-top shadow-sm border-bottom">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="../../index.html">
+                <div class="border rounded d-flex align-items-center justify-content-center text-primary bg-white shadow-sm" style="width: 36px; height: 36px; border-color: #f3f4f6 !important;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                        <rect x="6" y="6" width="2" height="12" rx="1"></rect>
+                        <rect x="3" y="8" width="2" height="8" rx="1"></rect>
+                        <path d="M1.5 12h1.5"></path>
+                        <rect x="16" y="6" width="2" height="12" rx="1"></rect>
+                        <rect x="19" y="8" width="2" height="8" rx="1"></rect>
+                        <path d="M21 12h1.5"></path>
+                    </svg>
+                </div>
+                <span class="fw-bold" style="font-size: 20px; color: #1e293b;">GYM<span class="text-primary">FINDER</span></span>
+            </a>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="../../index.html">Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../gyms/search.html">Phòng tập</a></li>
+                    <li class="nav-item"><a class="nav-link active fw-semibold text-primary" href="index.html">Huấn luyện viên</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../user/favorites.html">Yêu thích</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0" id="headerAuth">
+                    <a href="../auth/login.html" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-semibold" style="font-size: 14px;">Đăng nhập / Đăng ký</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1" id="trainerDetailContainer">
+        <div class="container py-4">
+            
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="../../index.html" class="text-secondary text-decoration-none"><i class="fa-solid fa-house me-1"></i> Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="index.html" class="text-secondary text-decoration-none">Huấn luyện viên</a></li>
+                    <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page" id="breadcrumbTrainerName">...</li>
+                </ol>
+            </nav>
+
+            <div class="row g-4">
+                <!-- Left Content: Info -->
+                <div class="col-lg-8">
+                    <div class="info-card mb-4 position-relative">
+                        
+                        <!-- Favorite Heart -->
+                        <button id="btnDetailFav" class="position-absolute top-0 end-0 m-4 border-0 bg-transparent text-secondary" style="font-size: 24px; z-index: 2;">
+                            <i class="fa-regular fa-heart transition-all"></i>
+                        </button>
+
+                        <div class="d-flex flex-column flex-md-row gap-4 align-items-center align-items-md-start mb-4">
+                            <img id="tAvatar" src="" alt="Avatar" class="rounded-circle object-fit-cover shadow" style="width: 150px; height: 150px; border: 4px solid #fff;">
+                            <div class="text-center text-md-start">
+                                <div class="badge bg-primary-light text-primary mb-2 rounded-pill px-3 py-1 fw-bold" style="font-size: 11px;">Huấn luyện viên cá nhân</div>
+                                <h1 class="fw-bold mb-2" style="font-size: 28px;" id="tName">...</h1>
+                                <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-3 mb-2" style="font-size: 14px;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fa-solid fa-star text-warning me-1"></i> 
+                                        <strong class="text-dark me-1" id="tRating">...</strong> 
+                                        <span class="text-secondary" id="tReviewCount">...</span>
+                                    </div>
+                                    <div class="text-secondary"><i class="fa-solid fa-location-dot me-1"></i> <span id="tLocation">...</span></div>
+                                    <div class="text-secondary"><i class="fa-solid fa-briefcase me-1"></i> <span id="tExp">...</span></div>
+                                </div>
+                                <div class="text-primary fw-medium" style="font-size: 15px;" id="tSpec">...</div>
+                            </div>
+                        </div>
+                        
+                        <hr class="text-secondary opacity-25 my-4">
+
+                        <h5 class="fw-bold mb-3">Giới thiệu</h5>
+                        <p class="text-secondary" style="line-height: 1.6;" id="tAbout">...</p>
+
+                        <h5 class="fw-bold mb-3 mt-4">Kinh nghiệm & Phong cách huấn luyện</h5>
+                        <p class="text-secondary" style="line-height: 1.6;" id="tStyle">...</p>
+
+                        <h5 class="fw-bold mb-3 mt-4">Các bộ môn chuyên sâu</h5>
+                        <div id="tDisciplines">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Reviews -->
+                    <div class="info-card">
+                        <h5 class="fw-bold mb-4 d-flex align-items-center justify-content-between">
+                            Đánh giá từ học viên
+                            <button class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">Viết đánh giá</button>
+                        </h5>
+                        
+                        <!-- Static Mock Reviews -->
+                        <div class="border-bottom py-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="fw-bold text-dark">Trần Bảo Ngọc</div>
+                                <div class="text-secondary" style="font-size: 12px;">15/05/2026</div>
+                            </div>
+                            <div class="mb-2" style="font-size: 12px;">
+                                <i class="fa-solid fa-star text-warning"></i><i class="fa-solid fa-star text-warning"></i><i class="fa-solid fa-star text-warning"></i><i class="fa-solid fa-star text-warning"></i><i class="fa-solid fa-star text-warning"></i>
+                            </div>
+                            <p class="text-secondary m-0" style="font-size: 14px;">"Huấn luyện viên rất nhiệt tình, theo sát lộ trình. Mình đã giảm được 3kg sau 1 tháng tập."</p>
+                        </div>
+                        <div class="py-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="fw-bold text-dark">Hoàng Minh</div>
+                                <div class="text-secondary" style="font-size: 12px;">02/04/2026</div>
+                            </div>
+                            <div class="mb-2" style="font-size: 12px;">
+                                <i class="fa-solid fa-star text-warning"></i><i class="fa-solid fa-star text-warning"></i><i class="fa-solid fa-star text-warning"></i><i class="fa-solid fa-star text-warning"></i><i class="fa-solid fa-star text-light"></i>
+                            </div>
+                            <p class="text-secondary m-0" style="font-size: 14px;">"Lớp tập rất vui, động tác được hướng dẫn kỹ. Chỉ là thỉnh thoảng lịch bị dời."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Sidebar -->
+                <div class="col-lg-4">
+                    <div class="info-card position-sticky" style="top: 100px;">
+                        <h5 class="fw-bold mb-3">Thông tin liên hệ</h5>
+                        <p class="text-secondary small mb-4">Kết nối ngay để được tư vấn lộ trình tập luyện cá nhân hóa hoàn toàn miễn phí.</p>
+                        
+                        <button class="btn btn-primary w-100 rounded-pill py-3 fw-bold mb-3 btn-trainer-contact shadow-sm" style="font-size: 15px;">
+                            <i class="fa-solid fa-comment-dots me-2"></i> Nhắn tin tư vấn
+                        </button>
+                        
+                        <button class="btn btn-outline-primary w-100 rounded-pill py-3 fw-bold btn-trainer-contact" style="font-size: 15px;">
+                            <i class="fa-solid fa-phone-volume me-2"></i> Gọi điện thoại
+                        </button>
+                        
+                        <hr class="text-secondary opacity-25 my-4">
+                        
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                <i class="fa-solid fa-shield-halved text-success"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold" style="font-size: 14px;">Xác minh danh tính</div>
+                                <div class="text-secondary" style="font-size: 12px;">Đã kiểm duyệt chứng chỉ</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+        <!-- Footer -->
+            <!-- Footer -->
+        <!-- Footer -->
+    <footer class="border-top py-5 mt-auto" style="background-color: #f8fafc;">
+        <div class="container">
+            <div class="row g-4 mb-5">
+                <!-- Brand Area -->
+                <div class="col-12 col-lg-4 pe-lg-5">
+                    <a href="../../index.html" class="d-inline-flex align-items-center gap-2 text-decoration-none mb-4">
+                        <div class="border rounded d-flex align-items-center justify-content-center text-primary bg-white shadow-sm" style="width: 32px; height: 32px; border-color: #f3f4f6 !important;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="8" y1="12" x2="16" y2="12"></line>
+                                <rect x="6" y="6" width="2" height="12" rx="1"></rect>
+                                <rect x="3" y="8" width="2" height="8" rx="1"></rect>
+                                <path d="M1.5 12h1.5"></path>
+                                <rect x="16" y="6" width="2" height="12" rx="1"></rect>
+                                <rect x="19" y="8" width="2" height="8" rx="1"></rect>
+                                <path d="M21 12h1.5"></path>
+                            </svg>
+                        </div>
+                        <span class="fw-bold" style="font-size: 20px; color: #1e293b;">GYM<span class="text-primary">FINDER</span></span>
+                    </a>
+                    <p class="text-secondary mb-4" style="font-size: 14px; line-height: 1.6;">Nền tảng tìm kiếm và so sánh các phòng tập gym, tiện ích, loại hình tập luyện và đội ngũ huấn luyện viên.</p>
+                    <div class="d-flex align-items-center gap-2 text-secondary" style="font-size: 14px;">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>TP. Hồ Chí Minh</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Area -->
+                <div class="col-12 col-lg-8">
+                    <div class="row g-4">
+                        <!-- Column 1: Phòng tập -->
+                        <div class="col-6 col-md-4">
+                            <h5 class="fw-bold text-dark mb-4" style="font-size: 15px;">Phòng tập</h5>
+                            <ul class="list-unstyled mb-0 d-flex flex-column gap-3" style="font-size: 14px;">
+                                <li><a href="../../pages/gyms/search.html" class="text-secondary text-decoration-none">Tất cả phòng tập</a></li>
+                                <li><a href="../../pages/gyms/search.html?district=Quận 1" class="text-secondary text-decoration-none">Quận 1</a></li>
+                                <li><a href="../../pages/gyms/search.html?district=Quận 7" class="text-secondary text-decoration-none">Quận 7</a></li>
+                                <li><a href="../../pages/gyms/search.html?district=Bình Thạnh" class="text-secondary text-decoration-none">Bình Thạnh</a></li>
+                            </ul>
+                        </div>
+
+                        
+
+                        <!-- Column 3: Huấn luyện viên -->
+                        <div class="col-6 col-md-4">
+                            <h5 class="fw-bold text-dark mb-4" style="font-size: 15px;">Huấn luyện viên</h5>
+                            <ul class="list-unstyled mb-0 d-flex flex-column gap-3" style="font-size: 14px;">
+                                <li><a href="../../pages/trainers/index.html" class="text-secondary text-decoration-none">Tìm huấn luyện viên</a></li>
+                                <li><a href="../../pages/trainers/index.html?filter=featured" class="text-secondary text-decoration-none">HLV nổi bật</a></li>
+                                <li><a href="../../pages/trainers/index.html?filter=category" class="text-secondary text-decoration-none">Theo bộ môn</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Column 4: Liên kết -->
+                        <div class="col-6 col-md-4">
+                            <h5 class="fw-bold text-dark mb-4" style="font-size: 15px;">Liên kết</h5>
+                            <ul class="list-unstyled mb-0 d-flex flex-column gap-3" style="font-size: 14px;">
+                                <li><a href="#" class="text-secondary text-decoration-none">Về chúng tôi</a></li>
+                                <li><a href="#" class="text-secondary text-decoration-none">Liên hệ</a></li>
+                                <li><a href="#" class="text-secondary text-decoration-none">Điều khoản</a></li>
+                                <li><a href="#" class="text-secondary text-decoration-none">Bảo mật</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="border-top pt-4" style="border-color: #e2e8f0 !important;">
+                <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+                    <p class="text-secondary mb-0" style="font-size: 14px;">© 2026 GYMFINDER. All rights reserved.</p>
+                    <div class="d-flex align-items-center gap-3">
+                        <a href="#" class="text-secondary text-decoration-none"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="#" class="text-secondary text-decoration-none"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="text-secondary text-decoration-none"><i class="fa-brands fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Data -->
+    <script src="../../data/trainers.js"></script>
+    
+    <!-- Core & Helpers -->
+    <script src="../../assets/js/core/auth.js"></script>
+    <script src="../../assets/js/core/ui.js"></script>
+    
+    <!-- Page Logic -->
+    <script src="../../assets/js/pages/trainer-detail.js"></script>
+</body>
+</html>

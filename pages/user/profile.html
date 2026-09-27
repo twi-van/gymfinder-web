@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ cá nhân - GYMFINDER</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/components.css">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg bg-white sticky-top shadow-sm border-bottom">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="../../index.html">
+                <div class="border rounded d-flex align-items-center justify-content-center text-primary bg-white shadow-sm" style="width: 36px; height: 36px; border-color: #f3f4f6 !important;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                        <rect x="6" y="6" width="2" height="12" rx="1"></rect>
+                        <rect x="3" y="8" width="2" height="8" rx="1"></rect>
+                        <path d="M1.5 12h1.5"></path>
+                        <rect x="16" y="6" width="2" height="12" rx="1"></rect>
+                        <rect x="19" y="8" width="2" height="8" rx="1"></rect>
+                        <path d="M21 12h1.5"></path>
+                    </svg>
+                </div>
+                <span class="fw-bold" style="font-size: 20px; color: #1e293b;">GYM<span class="text-primary">FINDER</span></span>
+            </a>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="../../index.html">Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../gyms/search.html">Phòng tập</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../trainers/index.html">Huấn luyện viên</a></li>
+                    <li class="nav-item"><a class="nav-link" href="favorites.html">Yêu thích</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0" id="headerAuth">
+                    <a href="../auth/login.html" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold" style="font-size: 14px;">Đăng nhập / Đăng ký</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1 py-5">
+        <div class="container" id="profileContent" style="display: none;">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    
+                    <h2 class="fw-bold text-dark mb-4 text-center">HỒ SƠ CÁ NHÂN</h2>
+                    
+                    <!-- 1. THÔNG TIN CÁ NHÂN -->
+                    <div class="bg-white rounded-4 p-4 p-md-5 shadow-sm border mb-4">
+                        <h4 class="fw-bold text-dark mb-4 pb-2 border-bottom">1. Thông tin cá nhân</h4>
+                        
+                        <div class="d-flex align-items-center gap-4 mb-4">
+                            <img src="https://ui-avatars.com/api/?name=Nguyen+Tuan&background=00c9b1&color=fff&rounded=true" alt="Avatar" width="80" height="80" class="rounded-circle shadow-sm" id="profileAvatar">
+                            <div>
+                                <h5 class="fw-bold mb-1" id="profileNameDisplay">Nguyễn Tuấn</h5>
+                                <div class="text-secondary small">Thành viên GYMFINDER</div>
+                            </div>
+                        </div>
+
+                        <form id="personalInfoForm">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium text-secondary small">Họ và tên</label>
+                                    <input type="text" class="form-control bg-light border-0 px-3 py-2" id="inputName" value="Nguyễn Tuấn">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium text-secondary small">Email</label>
+                                    <input type="email" class="form-control bg-light border-0 px-3 py-2" id="inputEmail" value="nguyentuan@example.com" disabled>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium text-secondary small">Số điện thoại</label>
+                                    <input type="tel" class="form-control bg-light border-0 px-3 py-2" id="inputPhone" value="0901234567">
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary rounded-pill px-4 btn-sm fw-semibold" id="btnUpdatePersonal">Cập nhật hồ sơ</button>
+                        </form>
+                    </div>
+
+                    <!-- 2. THÔNG TIN THỂ CHẤT & MỤC TIÊU TẬP LUYỆN -->
+                    <div class="bg-white rounded-4 p-4 p-md-5 shadow-sm border mb-4">
+                        <h4 class="fw-bold text-dark mb-3 pb-2 border-bottom">2. Thông tin thể chất & mục tiêu tập luyện</h4>
+                        <p class="text-secondary small mb-4">Thông tin này giúp bạn quản lý hồ sơ và mục tiêu tập luyện cá nhân.</p>
+                        
+                        <form id="physicalInfoForm">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium text-secondary small">Chiều cao (cm) (Tùy chọn)</label>
+                                    <input type="number" class="form-control bg-light border-0 px-3 py-2" id="inputHeight" placeholder="Ví dụ: 170">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium text-secondary small">Cân nặng (kg) (Tùy chọn)</label>
+                                    <input type="number" class="form-control bg-light border-0 px-3 py-2" id="inputWeight" placeholder="Ví dụ: 65">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-medium text-secondary small">Mục tiêu tập luyện (Tùy chọn)</label>
+                                    <select class="form-select bg-light border-0 px-3 py-2" id="inputFitnessGoal">
+                                        <option value="">Chọn mục tiêu...</option>
+                                        <option value="Giảm cân">Giảm cân</option>
+                                        <option value="Tăng cơ">Tăng cơ</option>
+                                        <option value="Tăng sức mạnh">Tăng sức mạnh</option>
+                                        <option value="Cải thiện sức khỏe">Cải thiện sức khỏe</option>
+                                        <option value="Fitness tổng quát">Fitness tổng quát</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary rounded-pill px-4 btn-sm fw-semibold" id="btnUpdatePhysical">Lưu thông tin thể chất</button>
+                        </form>
+                    </div>
+
+                    <!-- 3. HOẠT ĐỘNG CỦA TÔI -->
+                    <div class="bg-white rounded-4 p-4 p-md-5 shadow-sm border mb-4">
+                        <h4 class="fw-bold text-dark mb-4 pb-2 border-bottom">3. Hoạt động của tôi</h4>
+                        <div class="d-flex flex-column gap-3">
+                            <a href="favorites.html" class="d-flex align-items-center justify-content-between text-decoration-none text-dark p-3 bg-light rounded-3 border">
+                                <div class="d-flex align-items-center gap-3">
+                                    <i class="fa-solid fa-heart text-primary fs-5"></i>
+                                    <span class="fw-medium">Mục yêu thích của tôi</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-secondary small"></i>
+                            </a>
+                            <a href="#" class="d-flex align-items-center justify-content-between text-decoration-none text-dark p-3 bg-light rounded-3 border">
+                                <div class="d-flex align-items-center gap-3">
+                                    <i class="fa-solid fa-star text-warning fs-5"></i>
+                                    <span class="fw-medium">Đánh giá của tôi</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-secondary small"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 4. TÀI KHOẢN -->
+                    <div class="bg-white rounded-4 p-4 p-md-5 shadow-sm border">
+                        <h4 class="fw-bold text-dark mb-4 pb-2 border-bottom">4. Tài khoản</h4>
+                        <div class="d-flex flex-column gap-3">
+                            <button class="btn btn-outline-secondary w-100 py-2 fw-medium rounded-pill text-start px-4">
+                                <i class="fa-solid fa-lock me-2"></i> Đổi mật khẩu
+                            </button>
+                            <button class="btn btn-outline-danger w-100 py-2 fw-medium rounded-pill text-start px-4 btn-logout">
+                                <i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Đăng xuất
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-top py-5 mt-auto" style="background-color: #f8fafc;">
+        <div class="container">
+            <div class="row g-4 mb-5">
+                <!-- Brand Area -->
+                <div class="col-12 col-lg-4 pe-lg-5">
+                    <a href="../../index.html" class="d-inline-flex align-items-center gap-2 text-decoration-none mb-4">
+                        <div class="border rounded d-flex align-items-center justify-content-center text-primary bg-white shadow-sm" style="width: 32px; height: 32px; border-color: #f3f4f6 !important;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="8" y1="12" x2="16" y2="12"></line>
+                                <rect x="6" y="6" width="2" height="12" rx="1"></rect>
+                                <rect x="3" y="8" width="2" height="8" rx="1"></rect>
+                                <path d="M1.5 12h1.5"></path>
+                                <rect x="16" y="6" width="2" height="12" rx="1"></rect>
+                                <rect x="19" y="8" width="2" height="8" rx="1"></rect>
+                                <path d="M21 12h1.5"></path>
+                            </svg>
+                        </div>
+                        <span class="fw-bold" style="font-size: 20px; color: #1e293b;">GYM<span class="text-primary">FINDER</span></span>
+                    </a>
+                    <p class="text-secondary mb-4" style="font-size: 14px; line-height: 1.6;">Nền tảng tìm kiếm và so sánh các phòng tập gym, tiện ích, loại hình tập luyện và đội ngũ huấn luyện viên.</p>
+                    <div class="d-flex align-items-center gap-2 text-secondary" style="font-size: 14px;">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>TP. Hồ Chí Minh</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Area -->
+                <div class="col-12 col-lg-8">
+                    <div class="row g-4">
+                        <div class="col-6 col-md-4">
+                            <h5 class="fw-bold text-dark mb-4" style="font-size: 15px;">Phòng tập</h5>
+                            <ul class="list-unstyled mb-0 d-flex flex-column gap-3" style="font-size: 14px;">
+                                <li><a href="../gyms/search.html" class="text-secondary text-decoration-none">Tất cả phòng tập</a></li>
+                                <li><a href="../gyms/search.html?district=Quận 1" class="text-secondary text-decoration-none">Quận 1</a></li>
+                                <li><a href="../gyms/search.html?district=Quận 7" class="text-secondary text-decoration-none">Quận 7</a></li>
+                                <li><a href="../gyms/search.html?district=Bình Thạnh" class="text-secondary text-decoration-none">Bình Thạnh</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="col-6 col-md-4">
+                            <h5 class="fw-bold text-dark mb-4" style="font-size: 15px;">Huấn luyện viên</h5>
+                            <ul class="list-unstyled mb-0 d-flex flex-column gap-3" style="font-size: 14px;">
+                                <li><a href="../trainers/index.html" class="text-secondary text-decoration-none">Tìm huấn luyện viên</a></li>
+                                <li><a href="../trainers/index.html?filter=featured" class="text-secondary text-decoration-none">HLV nổi bật</a></li>
+                                <li><a href="../trainers/index.html?filter=category" class="text-secondary text-decoration-none">Theo bộ môn</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <h5 class="fw-bold text-dark mb-4" style="font-size: 15px;">Liên kết</h5>
+                            <ul class="list-unstyled mb-0 d-flex flex-column gap-3" style="font-size: 14px;">
+                                <li><a href="#" class="text-secondary text-decoration-none">Về chúng tôi</a></li>
+                                <li><a href="#" class="text-secondary text-decoration-none">Liên hệ</a></li>
+                                <li><a href="#" class="text-secondary text-decoration-none">Điều khoản</a></li>
+                                <li><a href="#" class="text-secondary text-decoration-none">Bảo mật</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="border-top pt-4" style="border-color: #e2e8f0 !important;">
+                <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+                    <p class="text-secondary mb-0" style="font-size: 14px;">© 2026 GYMFINDER. All rights reserved.</p>
+                    <div class="d-flex align-items-center gap-3">
+                        <a href="#" class="text-secondary text-decoration-none"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="#" class="text-secondary text-decoration-none"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="text-secondary text-decoration-none"><i class="fa-brands fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Core UI & Auth -->
+    <script src="../../assets/js/core/auth.js"></script>
+    <script src="../../assets/js/core/ui.js"></script>
+    
+    <!-- Page Logic -->
+    <script src="../../assets/js/pages/profile.js"></script>
+</body>
+</html>
