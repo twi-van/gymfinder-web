@@ -15,7 +15,7 @@ const gymsData = [
             "Tủ đồ",
             "Wifi",
             "Bãi giữ xe",
-            "Xông hơi khô",
+            "Gym cao cấp",
             "Nước uống miễn phí"
         ],
         "openingHours": "06:00 - 22:00",
@@ -61,9 +61,9 @@ const gymsData = [
         ],
         "badge": "<span class=\"gym-card-tag\"><i class=\"fa-solid fa-circle-check text-primary\"></i> Xác minh</span>",
         "tags": [
-            "Mở 24/7",
-            "Tạ tự do",
-            "Xông hơi khô"
+            "Gym 24/7",
+            "Có PT",
+            "Gym cao cấp"
         ],
         "distance": "1.2 km"
     },
@@ -266,7 +266,7 @@ const gymsData = [
         "badge": "<span class=\"gym-card-tag\"><i class=\"fa-solid fa-graduation-cap text-secondary\"></i> Giá sinh viên</span>",
         "tags": [
             "Giữ xe free",
-            "Mở 24/7",
+            "Gym 24/7",
             "Powerlifting"
         ],
         "distance": "3.4 km"
@@ -279,7 +279,7 @@ const gymsData = [
         "address": "32 Cộng Hòa, P.4, Q. Tân Bình",
         "district": "Tân Bình",
         "price": "299.000 - 499.000đ/tháng",
-        "categoryId": 6,
+        "categoryId": 1,
         "description": "The New Gym Tân Bình là không gian tập luyện hiện đại với đầy đủ thiết bị dành cho gym, fitness và strength training. Phòng tập phù hợp cho người mới bắt đầu và người tập luyện chuyên sâu.",
         "facilities": [
             "Điều hòa",

@@ -45,7 +45,6 @@ GYMFINDER hỗ trợ các nhóm nhu cầu:
 - Gym 24/7
 - Gym gần bạn
 - Gym có PT
-- Gym giá tốt
 - Gym cho nữ
 - Gym hỗ trợ giảm cân
 

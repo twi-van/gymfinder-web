@@ -159,3 +159,12 @@
 .btn-favorite:active, .btn-trainer-favorite:active, #btnFavorite:active, #btnDetailFav:active {
     transform: scale(0.95);
 }
+
+/* Info Card (Used in Detail Pages) */
+.info-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    border: 1px solid #f1f5f9;
+}

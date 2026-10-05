@@ -20,13 +20,6 @@
             width: 100%;
             border-radius: 16px;
         }
-        .info-card {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            border: 1px solid #f1f5f9;
-        }
         .section-title {
             font-size: 20px;
             font-weight: 800;
@@ -88,40 +81,9 @@
 <body class="bg-light">
 
     <!-- Header -->
-    <nav class="navbar navbar-expand-lg bg-white sticky-top shadow-sm border-bottom">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center gap-2" href="../../index.html">
-                <div class="border rounded d-flex align-items-center justify-content-center text-primary bg-white shadow-sm" style="width: 36px; height: 36px; border-color: #f3f4f6 !important;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="8" y1="12" x2="16" y2="12"></line>
-                        <rect x="6" y="6" width="2" height="12" rx="1"></rect>
-                        <rect x="3" y="8" width="2" height="8" rx="1"></rect>
-                        <path d="M1.5 12h1.5"></path>
-                        <rect x="16" y="6" width="2" height="12" rx="1"></rect>
-                        <rect x="19" y="8" width="2" height="8" rx="1"></rect>
-                        <path d="M21 12h1.5"></path>
-                    </svg>
-                </div>
-                <span class="fw-bold" style="font-size: 20px; color: #1e293b;">GYM<span class="text-primary">FINDER</span></span>
-            </a>
-            
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarContent">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="../../index.html">Trang chủ</a></li>
-                    <li class="nav-item"><a class="nav-link active fw-semibold text-primary" href="search.html">Phòng tập</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../trainers/index.html">Huấn luyện viên</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../user/favorites.html">Yêu thích</a></li>
-                </ul>
-                <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0" id="headerAuth">
-                    <a href="../auth/login.html" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold" style="font-size: 14px;">Đăng nhập / Đăng ký</a>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <div id="header"></div>
+    <script>window.ROOT_PATH = '../../';</script>
+    <script src="../../assets/js/load-components.js"></script>
 
     <div class="container py-4">
         
@@ -180,7 +142,7 @@
                         </div>
                         <div class="d-flex gap-2">
                             <button class="btn btn-outline-primary fw-semibold px-3 py-2"><i class="fa-solid fa-map-location-dot me-2"></i>Xem bản đồ</button>
-                            <button class="btn btn-primary fw-semibold px-4 py-2"><i class="fa-solid fa-phone me-2"></i>Liên hệ</button>
+                            <button id="btnGymDetailContact" class="btn btn-primary fw-semibold px-4 py-2 btn-global-contact" data-phone="1900 1508"><i class="fa-solid fa-phone me-2"></i>Liên hệ</button>
                         </div>
                     </div>
                 </div>
@@ -298,177 +260,14 @@
         <!-- Có thể bạn quan tâm (Related Gyms) -->
         <div class="mt-5 pt-4 border-top">
             <h3 class="fw-bold mb-4">Có thể bạn cũng quan tâm</h3>
-            <div class="row g-4">
-                <!-- Related Gym Card 1 -->
-                <div class="col-md-6 col-xl-3">
-                    <div class="gym-card">
-                        <div class="position-relative" style="height: 180px;">
-                            <img src="https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=800&auto=format&fit=crop" class="w-100 h-100 object-fit-cover" alt="Gym">
-                            <div class="position-absolute text-white px-2 py-1 rounded" style="bottom: 10px; left: 10px; font-size: 10px; font-weight: 700; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px);">
-                                <i class="fa-solid fa-location-arrow me-1"></i> 1.2 km
-                            </div>
-                        </div>
-                        <div class="p-3 d-flex flex-column flex-grow-1">
-                            <h5 class="fw-bold mb-1" style="font-size: 16px;">Saigon Barbell Club</h5>
-                            <div class="text-warning mb-2" style="font-size: 12px;"><i class="fa-solid fa-star"></i> <span class="text-dark fw-bold">4.7</span> <span class="text-secondary fw-normal">(98)</span></div>
-                            <div class="text-secondary mb-3" style="font-size: 13px;"><i class="fa-solid fa-location-dot me-1"></i> Bình Thạnh</div>
-                            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
-                                <span class="fw-bold" style="font-size: 14px;">400k - 800k</span>
-                                <button class="btn btn-sm btn-primary fw-semibold btn-detail-auth" data-url="detail.html?id=2" style="font-size: 12px;">Chi tiết</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Related Gym Card 2 -->
-                <div class="col-md-6 col-xl-3">
-                    <div class="gym-card">
-                        <div class="position-relative" style="height: 180px;">
-                            <img src="https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?q=80&w=800&auto=format&fit=crop" class="w-100 h-100 object-fit-cover" alt="Gym">
-                            <div class="position-absolute text-white px-2 py-1 rounded" style="bottom: 10px; left: 10px; font-size: 10px; font-weight: 700; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px);">
-                                <i class="fa-solid fa-location-arrow me-1"></i> 2.5 km
-                            </div>
-                        </div>
-                        <div class="p-3 d-flex flex-column flex-grow-1">
-                            <h5 class="fw-bold mb-1" style="font-size: 16px;">Zenith Yoga & Pilates</h5>
-                            <div class="text-warning mb-2" style="font-size: 12px;"><i class="fa-solid fa-star"></i> <span class="text-dark fw-bold">4.9</span> <span class="text-secondary fw-normal">(205)</span></div>
-                            <div class="text-secondary mb-3" style="font-size: 13px;"><i class="fa-solid fa-location-dot me-1"></i> Quận 1</div>
-                            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
-                                <span class="fw-bold" style="font-size: 14px;">600k - 1.2tr</span>
-                                <button class="btn btn-sm btn-primary fw-semibold btn-detail-auth" data-url="detail.html?id=3" style="font-size: 12px;">Chi tiết</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Related Gym Card 3 -->
-                <div class="col-md-6 col-xl-3 d-none d-md-block">
-                    <div class="gym-card">
-                        <div class="position-relative" style="height: 180px;">
-                            <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=800&auto=format&fit=crop" class="w-100 h-100 object-fit-cover" alt="Gym">
-                            <div class="position-absolute text-white px-2 py-1 rounded" style="bottom: 10px; left: 10px; font-size: 10px; font-weight: 700; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px);">
-                                <i class="fa-solid fa-location-arrow me-1"></i> 3.1 km
-                            </div>
-                        </div>
-                        <div class="p-3 d-flex flex-column flex-grow-1">
-                            <h5 class="fw-bold mb-1" style="font-size: 16px;">Iron Temple HCMC</h5>
-                            <div class="text-warning mb-2" style="font-size: 12px;"><i class="fa-solid fa-star"></i> <span class="text-dark fw-bold">4.6</span> <span class="text-secondary fw-normal">(85)</span></div>
-                            <div class="text-secondary mb-3" style="font-size: 13px;"><i class="fa-solid fa-location-dot me-1"></i> Thủ Đức</div>
-                            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
-                                <span class="fw-bold" style="font-size: 14px;">300k - 550k</span>
-                                <button class="btn btn-sm btn-primary fw-semibold btn-detail-auth" data-url="detail.html?id=4" style="font-size: 12px;">Chi tiết</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Related Gym Card 4 -->
-                <div class="col-md-6 col-xl-3 d-none d-xl-block">
-                    <div class="gym-card">
-                        <div class="position-relative" style="height: 180px;">
-                            <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=800&auto=format&fit=crop" class="w-100 h-100 object-fit-cover" alt="Gym">
-                            <div class="position-absolute text-white px-2 py-1 rounded" style="bottom: 10px; left: 10px; font-size: 10px; font-weight: 700; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px);">
-                                <i class="fa-solid fa-location-arrow me-1"></i> 1.5 km
-                            </div>
-                        </div>
-                        <div class="p-3 d-flex flex-column flex-grow-1">
-                            <h5 class="fw-bold mb-1" style="font-size: 16px;">Fitness World</h5>
-                            <div class="text-warning mb-2" style="font-size: 12px;"><i class="fa-solid fa-star"></i> <span class="text-dark fw-bold">4.7</span> <span class="text-secondary fw-normal">(154)</span></div>
-                            <div class="text-secondary mb-3" style="font-size: 13px;"><i class="fa-solid fa-location-dot me-1"></i> Quận 3</div>
-                            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
-                                <span class="fw-bold" style="font-size: 14px;">600k - 1.5tr</span>
-                                <button class="btn btn-sm btn-primary fw-semibold btn-detail-auth" data-url="detail.html?id=5" style="font-size: 12px;">Chi tiết</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="row g-4" id="relatedGymsContainer">
+                <!-- Related Gyms injected by JS -->
             </div>
         </div>
-
     </div>
 
-        <!-- Footer -->
-            <!-- Footer -->
-        <!-- Footer -->
-    <footer class="border-top py-5 mt-auto" style="background-color: #f8fafc;">
-        <div class="container">
-            <div class="row g-4 mb-5">
-                <!-- Brand Area -->
-                <div class="col-12 col-lg-4 pe-lg-5">
-                    <a href="../../index.html" class="d-inline-flex align-items-center gap-2 text-decoration-none mb-4">
-                        <div class="border rounded d-flex align-items-center justify-content-center text-primary bg-white shadow-sm" style="width: 32px; height: 32px; border-color: #f3f4f6 !important;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="8" y1="12" x2="16" y2="12"></line>
-                                <rect x="6" y="6" width="2" height="12" rx="1"></rect>
-                                <rect x="3" y="8" width="2" height="8" rx="1"></rect>
-                                <path d="M1.5 12h1.5"></path>
-                                <rect x="16" y="6" width="2" height="12" rx="1"></rect>
-                                <rect x="19" y="8" width="2" height="8" rx="1"></rect>
-                                <path d="M21 12h1.5"></path>
-                            </svg>
-                        </div>
-                        <span class="fw-bold" style="font-size: 20px; color: #1e293b;">GYM<span class="text-primary">FINDER</span></span>
-                    </a>
-                    <p class="text-secondary mb-4" style="font-size: 14px; line-height: 1.6;">Nền tảng tìm kiếm và so sánh các phòng tập gym, tiện ích, loại hình tập luyện và đội ngũ huấn luyện viên.</p>
-                    <div class="d-flex align-items-center gap-2 text-secondary" style="font-size: 14px;">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <span>TP. Hồ Chí Minh</span>
-                    </div>
-                </div>
-
-                <!-- Navigation Area -->
-                <div class="col-12 col-lg-8">
-                    <div class="row g-4">
-                        <!-- Column 1: Phòng tập -->
-                        <div class="col-6 col-md-4">
-                            <h5 class="fw-bold text-dark mb-4" style="font-size: 15px;">Phòng tập</h5>
-                            <ul class="list-unstyled mb-0 d-flex flex-column gap-3" style="font-size: 14px;">
-                                <li><a href="../../pages/gyms/search.html" class="text-secondary text-decoration-none">Tất cả phòng tập</a></li>
-                                <li><a href="../../pages/gyms/search.html?district=Quận 1" class="text-secondary text-decoration-none">Quận 1</a></li>
-                                <li><a href="../../pages/gyms/search.html?district=Quận 7" class="text-secondary text-decoration-none">Quận 7</a></li>
-                                <li><a href="../../pages/gyms/search.html?district=Bình Thạnh" class="text-secondary text-decoration-none">Bình Thạnh</a></li>
-                            </ul>
-                        </div>
-
-                        
-
-                        <!-- Column 3: Huấn luyện viên -->
-                        <div class="col-6 col-md-4">
-                            <h5 class="fw-bold text-dark mb-4" style="font-size: 15px;">Huấn luyện viên</h5>
-                            <ul class="list-unstyled mb-0 d-flex flex-column gap-3" style="font-size: 14px;">
-                                <li><a href="../../pages/trainers/index.html" class="text-secondary text-decoration-none">Tìm huấn luyện viên</a></li>
-                                <li><a href="../../pages/trainers/index.html?filter=featured" class="text-secondary text-decoration-none">HLV nổi bật</a></li>
-                                <li><a href="../../pages/trainers/index.html?filter=category" class="text-secondary text-decoration-none">Theo bộ môn</a></li>
-                            </ul>
-                        </div>
-
-                        <!-- Column 4: Liên kết -->
-                        <div class="col-6 col-md-4">
-                            <h5 class="fw-bold text-dark mb-4" style="font-size: 15px;">Liên kết</h5>
-                            <ul class="list-unstyled mb-0 d-flex flex-column gap-3" style="font-size: 14px;">
-                                <li><a href="#" class="text-secondary text-decoration-none">Về chúng tôi</a></li>
-                                <li><a href="#" class="text-secondary text-decoration-none">Liên hệ</a></li>
-                                <li><a href="#" class="text-secondary text-decoration-none">Điều khoản</a></li>
-                                <li><a href="#" class="text-secondary text-decoration-none">Bảo mật</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bottom Bar -->
-            <div class="border-top pt-4" style="border-color: #e2e8f0 !important;">
-                <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
-                    <p class="text-secondary mb-0" style="font-size: 14px;">© 2026 GYMFINDER. All rights reserved.</p>
-                    <div class="d-flex align-items-center gap-3">
-                        <a href="#" class="text-secondary text-decoration-none"><i class="fa-brands fa-facebook"></i></a>
-                        <a href="#" class="text-secondary text-decoration-none"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="#" class="text-secondary text-decoration-none"><i class="fa-brands fa-youtube"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <!-- Footer -->
+    <div id="footer"></div>
 
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -476,6 +275,7 @@
     
     <!-- Data -->
     <script src="../../data/gyms.js"></script>
+    <script src="../../data/categories.js"></script>
     
     <!-- Core & Helpers -->
     <script src="../../assets/js/core/auth.js"></script>

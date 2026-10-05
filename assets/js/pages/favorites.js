@@ -8,6 +8,7 @@ $(document).ready(function() {
         // Show guest state
         $('#guestState').removeClass('d-none');
         $('#userState').addClass('d-none');
+        window.Auth.requireAuth();
         return;
     }
 

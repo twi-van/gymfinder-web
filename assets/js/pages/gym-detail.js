@@ -109,7 +109,9 @@ $(document).ready(function() {
 
     // Initialize Favorite Button State
     let favs = [];
-    try { favs = JSON.parse(localStorage.getItem('gymFavorites')) || []; } catch(e) {}
+    if (window.Auth && window.Auth.isLoggedIn()) {
+        try { favs = JSON.parse(localStorage.getItem('gymFavorites')) || []; } catch(e) {}
+    }
     if (favs.includes(gym.id)) {
         $('#btnFavorite').addClass('active').css('color', '#ef4444')
             .find('i').removeClass('fa-regular').addClass('fa-solid text-danger');
@@ -144,9 +146,21 @@ $(document).ready(function() {
     $(document).on('click', '.btn-detail-auth', function(e) {
         e.preventDefault();
         const url = $(this).attr('data-url');
-        if (window.Auth.requireAuth(url)) {
-            window.location.href = url;
-        }
+        window.location.href = url; // No auth required to view details!
     });
+
+    // Populate Related Gyms
+    const relatedContainer = $('#relatedGymsContainer');
+    if (relatedContainer.length && typeof gymsData !== 'undefined') {
+        const relatedGyms = gymsData.filter(g => g.district === gym.district && g.id !== gym.id).slice(0, 4);
+        
+        if (relatedGyms.length > 0) {
+            relatedGyms.forEach(g => {
+                relatedContainer.append(window.UI.renderGymCard(g, false));
+            });
+        } else {
+            relatedContainer.parent().hide();
+        }
+    }
 
 });

@@ -34,13 +34,7 @@ const categoriesData = [
         icon: "fa-solid fa-user-group",
         description: "Phòng tập sở hữu đội ngũ PT chuyên nghiệp, sẵn sàng kèm riêng 1:1."
     },
-    {
-        id: 6,
-        name: "Gym giá tốt",
-        slug: "gym-gia-tot",
-        icon: "fa-solid fa-tag",
-        description: "Lựa chọn tiết kiệm với mức giá phải chăng nhưng vẫn đảm bảo chất lượng."
-    },
+
     {
         id: 7,
         name: "Gym cho nữ",

@@ -1,5 +1,78 @@
 # GYMFINDER - Project Structure
 Tài liệu này mô tả chức năng của các thư mục và file chính trong project GYMFINDER.
+
+## Cấu trúc thư mục hiện tại (Cập nhật liên tục)
+
+```text
+GYMFINDER/
+├── README.md
+├── admin
+│   ├── assets
+│   │   ├── admin.css
+│   │   └── js
+│   │       └── admin.js
+│   ├── components
+│   │   ├── mobile_header.html
+│   │   └── sidebar.html
+│   └── pages
+│       ├── categories.html
+│       ├── dashboard.html
+│       ├── gyms.html
+│       ├── reviews.html
+│       ├── trainers.html
+│       └── users.html
+├── assets
+│   ├── css
+│   │   ├── auth.css
+│   │   ├── components.css
+│   │   └── style.css
+│   ├── images
+│   │   ├── gyms
+│   │   └── trainers
+│   └── js
+│       ├── core
+│       │   ├── auth.js
+│       │   └── ui.js
+│       ├── load-components.js
+│       ├── main.js
+│       └── pages
+│           ├── auth-login.js
+│           ├── auth-register.js
+│           ├── favorites.js
+│           ├── gym-detail.js
+│           ├── gym-search.js
+│           ├── home.js
+│           ├── profile.js
+│           ├── trainer-detail.js
+│           └── trainer.js
+├── components
+│   ├── footer.html
+│   ├── header.html
+│   └── login-required-modal.html
+├── data
+│   ├── categories.js
+│   ├── gyms.js
+│   ├── reviews.js
+│   ├── trainers.js
+│   └── users.js
+├── docs
+│   └── PROJECT_STRUCTURE.md
+├── index.html
+└── pages
+    ├── auth
+    │   ├── login.html
+    │   └── register.html
+    ├── gyms
+    │   ├── detail.html
+    │   └── search.html
+    ├── trainers
+    │   ├── detail.html
+    │   └── index.html
+    └── user
+        ├── favorites.html
+        └── profile.html
+```
+
 ## 1. Root Files
 
 ### README.md
@@ -94,7 +167,3 @@ admin/pages/reviews.html
 
 ## 8. docs/
 → Đặc tả, ERD guide, tài liệu bàn giao.
-
-## 9. scripts/
-→ Các mã lệnh (script) tiện ích hỗ trợ dự án.
-

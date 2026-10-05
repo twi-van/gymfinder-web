@@ -187,9 +187,9 @@ $(document).ready(function() {
                     <td class="text-warning fw-semibold"><i class="fa-solid fa-star me-1"></i>${gym.rating}</td>
                     <td><span class="admin-badge badge-success">Hoạt động</span></td>
                     <td class="text-end">
-                        <button class="btn btn-action btn-action-view me-1" onclick="showModal('Chi tiết', '${gym.name}')"><i class="fa-solid fa-eye"></i></button>
-                        <button class="btn btn-action btn-action-edit me-1" onclick="showModal('Sửa phòng tập', '${gym.name}')"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn btn-action btn-action-delete" onclick="confirmDelete('${gym.name}')"><i class="fa-solid fa-trash"></i></button>
+                        <button class="btn btn-action btn-action-view me-1" onclick="showModal('Chi tiết', '${gym.name}')" title="Xem"><i class="fa-solid fa-eye"></i></button>
+                        <button class="btn btn-action btn-action-edit me-1" onclick="$('#gymFormModalTitle').text('Sửa phòng tập: ${gym.name}'); $('#gymNameInput').val('${gym.name}'); $('#gymFormModal').modal('show');" title="Sửa"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-action btn-action-delete" onclick="confirmDelete('${gym.name}')" title="Xóa"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>`;
         });
@@ -217,9 +217,9 @@ $(document).ready(function() {
                     <td class="text-warning fw-semibold"><i class="fa-solid fa-star me-1"></i>${trainer.rating}</td>
                     <td><span class="admin-badge badge-success">Hoạt động</span></td>
                     <td class="text-end">
-                        <button class="btn btn-action btn-action-view me-1" onclick="showModal('Chi tiết', '${trainer.name}')"><i class="fa-solid fa-eye"></i></button>
-                        <button class="btn btn-action btn-action-edit me-1" onclick="showModal('Sửa', '${trainer.name}')"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn btn-action btn-action-delete" onclick="confirmDelete('${trainer.name}')"><i class="fa-solid fa-trash"></i></button>
+                        <button class="btn btn-action btn-action-view me-1" onclick="showModal('Chi tiết', '${trainer.name}')" title="Xem"><i class="fa-solid fa-eye"></i></button>
+                        <button class="btn btn-action btn-action-edit me-1" onclick="$('#trainerFormModalTitle').text('Sửa HLV: ${trainer.name}'); $('#trainerNameInput').val('${trainer.name}'); $('#trainerFormModal').modal('show');" title="Sửa"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-action btn-action-delete" onclick="confirmDelete('${trainer.name}')" title="Xóa"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>`;
         });
@@ -263,6 +263,22 @@ $(document).ready(function() {
                     for (let i=0; i<5; i++) {
                         stars += `<i class="fa-solid fa-star" style="color: ${i < review.rating ? '#fbbf24' : '#e2e8f0'}"></i>`;
                     }
+                    // Mock random status for demonstration
+                    const isPending = Math.random() > 0.7; // 30% chance to be pending
+                    const statusText = isPending ? 'Chờ duyệt' : 'Đã duyệt';
+                    const statusBadgeClass = isPending ? 'badge-warning text-dark' : 'badge-success';
+
+                    let actionBtns = `<button class="btn btn-action btn-action-view me-1" onclick="showModal('Nội dung đánh giá', '${review.text}')" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>`;
+                    
+                    if (isPending) {
+                        actionBtns += `
+                            <button class="btn btn-action btn-action-view text-success me-1 border-success" onclick="showModal('Duyệt đánh giá', 'Đã duyệt đánh giá của ${review.name}')" title="Duyệt"><i class="fa-solid fa-check"></i></button>
+                            <button class="btn btn-action btn-action-delete me-1" onclick="showModal('Từ chối đánh giá', 'Đã từ chối đánh giá của ${review.name}')" title="Từ chối"><i class="fa-solid fa-xmark"></i></button>
+                        `;
+                    } else {
+                        actionBtns += `<button class="btn btn-action btn-action-delete" onclick="confirmDelete('đánh giá của ${review.name}')" title="Xóa"><i class="fa-solid fa-trash"></i></button>`;
+                    }
+
                     html += `
                         <tr>
                             <td class="fw-medium">
@@ -275,10 +291,9 @@ $(document).ready(function() {
                             <td style="font-size: 11px;">${stars}</td>
                             <td class="text-secondary" style="max-width: 250px;"><div class="text-truncate">${review.text}</div></td>
                             <td class="text-secondary" style="font-size: 13px;">${review.date}</td>
-                            <td><span class="admin-badge badge-success">Đã duyệt</span></td>
-                            <td class="text-end">
-                                <button class="btn btn-action btn-action-view me-1" onclick="showModal('Nội dung đánh giá', '${review.text}')"><i class="fa-solid fa-eye"></i></button>
-                                <button class="btn btn-action btn-action-delete" onclick="confirmDelete('đánh giá của ${review.name}')"><i class="fa-solid fa-trash"></i></button>
+                            <td><span class="admin-badge ${statusBadgeClass}">${statusText}</span></td>
+                            <td class="text-end text-nowrap">
+                                ${actionBtns}
                             </td>
                         </tr>`;
                 });
@@ -321,3 +336,88 @@ $(document).ready(function() {
         $('#categoryTableBody').html(html);
     }
 });
+
+    // --- 5. COMPONENT LOADING ---
+    function loadAdminComponents() {
+        const pathPrefix = window.location.pathname.includes('/pages/') ? '../' : '';
+        
+        const loadComponent = (id, url, callback) => {
+            if ($('#' + id).length) {
+                $.get(pathPrefix + 'components/' + url, function(data) {
+                    $('#' + id).replaceWith(data);
+                    if (callback) callback();
+                }).fail(function() {
+                    console.error("Failed to load component: " + url);
+                });
+            }
+        };
+
+        loadComponent('sidebarPlaceholder', 'sidebar.html', function() {
+            // Update active state based on current URL
+            const currentPage = window.location.pathname.split('/').pop() || 'dashboard.html';
+            $('#sidebar .nav-link').removeClass('active');
+            $(`#sidebar .nav-link[href="${currentPage}"]`).addClass('active');
+
+            // Re-bind events since elements are newly added to DOM
+            $('#sidebarToggle').off('click').on('click', function() {
+                $('#sidebar').addClass('show');
+                $('#sidebarOverlay').addClass('show');
+            });
+            $('#btnAdminLogout').off('click').on('click', function() {
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('currentUser');
+                window.location.href = '../../index.html';
+            });
+            
+            // Set admin name
+            const currentUserObj = JSON.parse(localStorage.getItem('currentUserObj'));
+            if (currentUserObj && currentUserObj.name) {
+                $('#adminUsername').text(currentUserObj.name);
+            }
+        });
+        
+        loadComponent('mobileHeaderPlaceholder', 'mobile_header.html', function() {
+            $('#sidebarToggle').off('click').on('click', function() {
+                $('#sidebar').addClass('show');
+                $('#sidebarOverlay').addClass('show');
+            });
+        });
+    }
+
+    loadAdminComponents();
+
+    // --- 6. FORM LOGIC ---
+    // Populate Trainer Gym Select
+    if ($('#trainerGymInput').length > 0 && typeof gymsData !== 'undefined') {
+        let gymOptions = '<option value="">-- Chọn phòng tập --</option>';
+        gymsData.forEach(g => {
+            gymOptions += `<option value="${g.id}">${g.name}</option>`;
+        });
+        $('#trainerGymInput').html(gymOptions);
+    }
+
+    // Save Gym
+    window.saveGymForm = function() {
+        if(!$('#gymNameInput').val() || !$('#gymDistrictInput').val()) {
+            alert('Vui lòng điền các trường bắt buộc!');
+            return;
+        }
+        $('#gymFormModal').modal('hide');
+        
+        // Mock save logic
+        showModal('Thành công', 'Đã lưu thông tin phòng tập: ' + $('#gymNameInput').val());
+        $('#gymForm')[0].reset();
+    };
+
+    // Save Trainer
+    window.saveTrainerForm = function() {
+        if(!$('#trainerNameInput').val() || !$('#trainerSpecInput').val() || !$('#trainerGymInput').val()) {
+            alert('Vui lòng điền các trường bắt buộc!');
+            return;
+        }
+        $('#trainerFormModal').modal('hide');
+        
+        // Mock save logic
+        showModal('Thành công', 'Đã lưu thông tin huấn luyện viên: ' + $('#trainerNameInput').val());
+        $('#trainerForm')[0].reset();
+    };

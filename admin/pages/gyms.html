@@ -15,86 +15,17 @@
     
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- Sidebar -->
-    <aside class="sidebar d-flex flex-column" id="sidebar">
-        <div class="p-4 border-bottom">
-            <a class="d-flex align-items-center gap-2 text-decoration-none" href="../../index.html">
-                <div class="border rounded d-flex align-items-center justify-content-center text-primary bg-white shadow-sm" style="width: 32px; height: 32px; border-color: #e2e8f0 !important;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="8" y1="12" x2="16" y2="12"></line>
-                        <rect x="6" y="6" width="2" height="12" rx="1"></rect>
-                        <rect x="3" y="8" width="2" height="8" rx="1"></rect>
-                        <path d="M1.5 12h1.5"></path>
-                        <rect x="16" y="6" width="2" height="12" rx="1"></rect>
-                        <rect x="19" y="8" width="2" height="8" rx="1"></rect>
-                        <path d="M21 12h1.5"></path>
-                    </svg>
-                </div>
-                <span class="fw-bold text-dark" style="font-size: 18px;">GYM<span class="text-primary">FINDER</span></span>
-            </a>
-        </div>
-
-        <div class="p-3 flex-grow-1 overflow-auto">
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 mb-1 " href="dashboard.html">
-                        <i class="fa-solid fa-chart-pie me-3" style="width: 20px;"></i>Tổng quan
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 mb-1 active" href="gyms.html">
-                        <i class="fa-solid fa-dumbbell me-3" style="width: 20px;"></i>Phòng tập
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 mb-1 " href="trainers.html">
-                        <i class="fa-solid fa-user-tie me-3" style="width: 20px;"></i>Huấn luyện viên
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 mb-1 " href="users.html">
-                        <i class="fa-solid fa-users me-3" style="width: 20px;"></i>Người dùng
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 mb-1 " href="reviews.html">
-                        <i class="fa-solid fa-star me-3" style="width: 20px;"></i>Đánh giá
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 mb-1 " href="categories.html">
-                        <i class="fa-solid fa-list me-3" style="width: 20px;"></i>Danh mục
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <div class="p-3 border-top bg-light">
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-2">
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=00c9b1&color=fff&rounded=true" alt="Admin" width="36" height="36" class="rounded-circle">
-                    <div>
-                        <div class="fw-bold text-dark" style="font-size: 13px;" id="adminUsername">Admin</div>
-                        <div class="text-secondary" style="font-size: 11px;">Administrator</div>
-                    </div>
-                </div>
-                <button class="btn btn-sm btn-light border text-secondary" id="btnAdminLogout" title="Đăng xuất"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
-            </div>
-        </div>
-    </aside>
+    <div id="sidebarPlaceholder"></div>
 
     <!-- Main Content -->
     <main class="main-content d-flex flex-column h-100 min-vh-100">
-        <div class="bg-white border-bottom p-3 d-md-none d-flex align-items-center justify-content-between sticky-top shadow-sm">
-            <span class="fw-bold text-dark" style="font-size: 18px;">GYM<span class="text-primary">FINDER</span> <span class="text-secondary fw-normal fs-6 ms-1">Admin</span></span>
-            <button class="btn btn-light border" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
-        </div>
+        <div id="mobileHeaderPlaceholder"></div>
 
         <div class="p-4 p-md-5 flex-grow-1 overflow-auto">
             
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold mb-0">Quản lý phòng tập</h2>
-    <button class="btn btn-primary px-3 rounded-3" onclick="showModal('Thêm phòng tập', 'Chức năng thêm phòng tập đang phát triển.')"><i class="fa-solid fa-plus me-2"></i>Thêm mới</button>
+    <button class="btn btn-primary px-3 rounded-3" data-bs-toggle="modal" data-bs-target="#gymFormModal"><i class="fa-solid fa-plus me-2"></i>Thêm mới</button>
 </div>
 
 <div class="admin-card p-3 mb-4">
@@ -110,8 +41,26 @@
                 <option value="">Tất cả khu vực</option>
                 <option value="Quận 1">Quận 1</option>
                 <option value="Quận 3">Quận 3</option>
+                <option value="Quận 4">Quận 4</option>
+                <option value="Quận 5">Quận 5</option>
+                <option value="Quận 6">Quận 6</option>
                 <option value="Quận 7">Quận 7</option>
+                <option value="Quận 8">Quận 8</option>
+                <option value="Quận 10">Quận 10</option>
+                <option value="Quận 11">Quận 11</option>
+                <option value="Quận 12">Quận 12</option>
+                <option value="Bình Tân">Bình Tân</option>
                 <option value="Bình Thạnh">Bình Thạnh</option>
+                <option value="Gò Vấp">Gò Vấp</option>
+                <option value="Phú Nhuận">Phú Nhuận</option>
+                <option value="Tân Bình">Tân Bình</option>
+                <option value="Tân Phú">Tân Phú</option>
+                <option value="TP Thủ Đức">TP Thủ Đức</option>
+                <option value="Huyện Bình Chánh">Huyện Bình Chánh</option>
+                <option value="Huyện Cần Giờ">Huyện Cần Giờ</option>
+                <option value="Huyện Củ Chi">Huyện Củ Chi</option>
+                <option value="Huyện Hóc Môn">Huyện Hóc Môn</option>
+                <option value="Huyện Nhà Bè">Huyện Nhà Bè</option>
             </select>
         </div>
         <div class="col-6 col-md-3">
@@ -195,3 +144,78 @@
     <script src="../assets/js/admin.js"></script>
 </body>
 </html>
+    <!-- Gym Form Modal -->
+    <div class="modal fade" id="gymFormModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow rounded-4">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="gymFormModalTitle">Thêm phòng tập mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <form id="gymForm">
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold small">Tên phòng tập <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control admin-input" id="gymNameInput" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small">Khu vực <span class="text-danger">*</span></label>
+                                <select class="form-select admin-input" id="gymDistrictInput" required>
+                                    <option value="Quận 1">Quận 1</option>
+                                    <option value="Quận 2">Quận 2</option>
+                                    <option value="Quận 3">Quận 3</option>
+                                    <option value="Quận 7">Quận 7</option>
+                                    <option value="Bình Thạnh">Bình Thạnh</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Khoảng giá (VD: 300.000 - 500.000đ/tháng)</label>
+                                <input type="text" class="form-control admin-input" id="gymPriceInput">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Trạng thái</label>
+                                <select class="form-select admin-input" id="gymStatusInput">
+                                    <option value="Hoạt động">Hoạt động</option>
+                                    <option value="Tạm ẩn">Tạm ẩn</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small">Địa chỉ chi tiết</label>
+                                <input type="text" class="form-control admin-input" id="gymAddressInput">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small">Mô tả phòng tập</label>
+                                <textarea class="form-control admin-input" id="gymDescInput" rows="3"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small">Tiện ích nổi bật</label>
+                                <div class="d-flex flex-wrap gap-3 mt-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="fac1" value="Điều hòa">
+                                        <label class="form-check-label" for="fac1">Điều hòa</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="fac2" value="Phòng thay đồ">
+                                        <label class="form-check-label" for="fac2">Phòng thay đồ</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="fac3" value="Tủ đồ">
+                                        <label class="form-check-label" for="fac3">Tủ đồ</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="fac4" value="Bãi giữ xe">
+                                        <label class="form-check-label" for="fac4">Bãi giữ xe</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="saveGymForm()">Lưu thông tin</button>
+                </div>
+            </div>
+        </div>
+    </div>

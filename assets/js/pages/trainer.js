@@ -15,9 +15,16 @@ $(document).ready(function() {
         const rating = parseFloat($('select[name="rating"]').val()) || 0;
 
         const filtered = trainersData.filter(t => {
-            const matchKeyword = t.name.toLowerCase().includes(keyword) || t.specialization.toLowerCase().includes(keyword);
-            const matchSpec = specialization ? t.specialization.toLowerCase().includes(specialization) : true;
-            const matchLocation = location ? t.location.includes(location) : true;
+            const specString = Array.isArray(t.specialization) ? t.specialization.join(', ').toLowerCase() : (t.specialization || '').toLowerCase();
+            const matchKeyword = t.name.toLowerCase().includes(keyword) || specString.includes(keyword);
+            const matchSpec = specialization ? specString.includes(specialization) : true;
+            
+            let district = t.location || '';
+            if (t.gymId && typeof gymsData !== 'undefined') {
+                const gym = gymsData.find(g => g.id === t.gymId);
+                if (gym) district = gym.district;
+            }
+            const matchLocation = location ? district.includes(location) : true;
             
             // parse trainer experience string e.g. "5 năm kinh nghiệm"
             const tExperience = parseInt(t.experience) || 0;

@@ -15,80 +15,11 @@
     
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- Sidebar -->
-    <aside class="sidebar d-flex flex-column" id="sidebar">
-        <div class="p-4 border-bottom">
-            <a class="d-flex align-items-center gap-2 text-decoration-none" href="../../index.html">
-                <div class="border rounded d-flex align-items-center justify-content-center text-primary bg-white shadow-sm" style="width: 32px; height: 32px; border-color: #e2e8f0 !important;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="8" y1="12" x2="16" y2="12"></line>
-                        <rect x="6" y="6" width="2" height="12" rx="1"></rect>
-                        <rect x="3" y="8" width="2" height="8" rx="1"></rect>
-                        <path d="M1.5 12h1.5"></path>
-                        <rect x="16" y="6" width="2" height="12" rx="1"></rect>
-                        <rect x="19" y="8" width="2" height="8" rx="1"></rect>
-                        <path d="M21 12h1.5"></path>
-                    </svg>
-                </div>
-                <span class="fw-bold text-dark" style="font-size: 18px;">GYM<span class="text-primary">FINDER</span></span>
-            </a>
-        </div>
-
-        <div class="p-3 flex-grow-1 overflow-auto">
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 mb-1 " href="dashboard.html">
-                        <i class="fa-solid fa-chart-pie me-3" style="width: 20px;"></i>Tổng quan
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 mb-1 " href="gyms.html">
-                        <i class="fa-solid fa-dumbbell me-3" style="width: 20px;"></i>Phòng tập
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 mb-1 " href="trainers.html">
-                        <i class="fa-solid fa-user-tie me-3" style="width: 20px;"></i>Huấn luyện viên
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 mb-1 " href="users.html">
-                        <i class="fa-solid fa-users me-3" style="width: 20px;"></i>Người dùng
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 mb-1 active" href="reviews.html">
-                        <i class="fa-solid fa-star me-3" style="width: 20px;"></i>Đánh giá
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link rounded-3 px-3 py-2 mb-1 " href="categories.html">
-                        <i class="fa-solid fa-list me-3" style="width: 20px;"></i>Danh mục
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <div class="p-3 border-top bg-light">
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-2">
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=00c9b1&color=fff&rounded=true" alt="Admin" width="36" height="36" class="rounded-circle">
-                    <div>
-                        <div class="fw-bold text-dark" style="font-size: 13px;" id="adminUsername">Admin</div>
-                        <div class="text-secondary" style="font-size: 11px;">Administrator</div>
-                    </div>
-                </div>
-                <button class="btn btn-sm btn-light border text-secondary" id="btnAdminLogout" title="Đăng xuất"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
-            </div>
-        </div>
-    </aside>
+    <div id="sidebarPlaceholder"></div>
 
     <!-- Main Content -->
     <main class="main-content d-flex flex-column h-100 min-vh-100">
-        <div class="bg-white border-bottom p-3 d-md-none d-flex align-items-center justify-content-between sticky-top shadow-sm">
-            <span class="fw-bold text-dark" style="font-size: 18px;">GYM<span class="text-primary">FINDER</span> <span class="text-secondary fw-normal fs-6 ms-1">Admin</span></span>
-            <button class="btn btn-light border" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
-        </div>
+        <div id="mobileHeaderPlaceholder"></div>
 
         <div class="p-4 p-md-5 flex-grow-1 overflow-auto">
             
