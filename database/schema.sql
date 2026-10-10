@@ -1,9 +1,3 @@
--- =====================================================================
--- GYMFINDER – Database Schema
--- MySQL 8.0.16+  |  InnoDB  |  utf8mb4_unicode_ci  |  UTC
--- Spec: ĐẶC TẢ CƠ SỞ DỮ LIỆU v1.0
--- =====================================================================
-
 CREATE DATABASE IF NOT EXISTS gymfinder
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE gymfinder;
@@ -60,7 +54,7 @@ CREATE TABLE districts (
 
 -- =====================================================================
 -- 3. categories
--- description là TEXT (spec §4.2); is_active CHECK (0,1)
+-- description là TEXT; is_active CHECK (0,1)
 -- =====================================================================
 CREATE TABLE categories (
   id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -81,7 +75,7 @@ CREATE TABLE categories (
 
 -- =====================================================================
 -- 4. amenities
--- icon VARCHAR(100): FontAwesome class (spec §4.2)
+-- icon VARCHAR(100): FontAwesome class 
 -- =====================================================================
 CREATE TABLE amenities (
   id   INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -111,8 +105,8 @@ CREATE TABLE specialties (
 
 -- =====================================================================
 -- 6. gyms
--- ON DELETE RESTRICT cho FK districts (spec §3)
--- Không khai báo ON UPDATE (spec §3)
+-- ON DELETE RESTRICT cho FK districts 
+-- Không khai báo ON UPDATE 
 -- =====================================================================
 CREATE TABLE gyms (
   id              INT UNSIGNED  NOT NULL AUTO_INCREMENT,
@@ -140,14 +134,14 @@ CREATE TABLE gyms (
   PRIMARY KEY (id),
   UNIQUE KEY uq_gyms_slug (slug),
 
-  -- Indexes (spec §4.9)
+  -- Indexes 
   KEY idx_gyms_district        (district_id),
   KEY idx_gyms_price           (price_min, price_max),
   KEY idx_gyms_rating          (avg_rating),
   KEY idx_gyms_featured_status (is_featured, status),
   KEY idx_gyms_created_at      (created_at),
 
-  -- FK: không khai báo ON UPDATE (spec §3)
+  -- FK: không khai báo ON UPDATE 
   CONSTRAINT fk_gyms_district
     FOREIGN KEY (district_id) REFERENCES districts(id) ON DELETE RESTRICT,
 
@@ -173,8 +167,8 @@ CREATE TABLE gyms (
 
 -- =====================================================================
 -- 7. gym_images
--- UNIQUE (gym_id, image_url) – spec §4.4
--- ON DELETE CASCADE – spec §3
+-- UNIQUE (gym_id, image_url) 
+-- ON DELETE CASCADE 
 -- =====================================================================
 CREATE TABLE gym_images (
   id         INT UNSIGNED      NOT NULL AUTO_INCREMENT,
@@ -193,7 +187,7 @@ CREATE TABLE gym_images (
   DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================================
--- 8. gym_categories  (N-N; cả hai ON DELETE CASCADE – spec §3)
+-- 8. gym_categories  (N-N; cả hai ON DELETE CASCADE)
 -- =====================================================================
 CREATE TABLE gym_categories (
   gym_id      INT UNSIGNED NOT NULL,
@@ -210,7 +204,7 @@ CREATE TABLE gym_categories (
   DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================================
--- 9. gym_amenities  (N-N; cả hai ON DELETE CASCADE – spec §3)
+-- 9. gym_amenities  (N-N; cả hai ON DELETE CASCADE)
 -- =====================================================================
 CREATE TABLE gym_amenities (
   gym_id     INT UNSIGNED NOT NULL,
@@ -229,7 +223,7 @@ CREATE TABLE gym_amenities (
 -- =====================================================================
 -- 10. trainers
 -- gym_id NOT NULL: mỗi Trainer có đúng một Gym chính
--- district_id denormalized = Gym chính district (spec §10)
+-- district_id denormalized = Gym chính district 
 -- =====================================================================
 CREATE TABLE trainers (
   id               INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -253,14 +247,14 @@ CREATE TABLE trainers (
   PRIMARY KEY (id),
   UNIQUE KEY uq_trainers_slug (slug),
 
-  -- Indexes (spec §4.9)
+  -- Indexes 
   KEY idx_trainers_status_featured (status, is_featured),
   KEY idx_trainers_exp             (years_experience),
   KEY idx_trainers_specialty       (specialty_id),
   KEY idx_trainers_gym             (gym_id),
   KEY idx_trainers_district        (district_id),
 
-  -- FK: không khai báo ON UPDATE (spec §3)
+  -- FK: không khai báo ON UPDATE 
   CONSTRAINT fk_trainers_gym
     FOREIGN KEY (gym_id)       REFERENCES gyms(id)        ON DELETE RESTRICT,
   CONSTRAINT fk_trainers_specialty
@@ -268,7 +262,7 @@ CREATE TABLE trainers (
   CONSTRAINT fk_trainers_district
     FOREIGN KEY (district_id)  REFERENCES districts(id)   ON DELETE RESTRICT,
 
-  -- CHECK (spec §9)
+  -- CHECK 
   CONSTRAINT chk_trainers_slug
     CHECK (slug NOT REGEXP '^[0-9]+$'),
   CONSTRAINT chk_trainers_exp
@@ -286,7 +280,7 @@ CREATE TABLE trainers (
 -- 11. reviews
 -- gym_id / trainer_id nullable; target integrity enforced by Backend
 -- reviewed_by ON DELETE SET NULL (Admin bị xóa → NULL, không CHECK)
--- CHECK chỉ dùng cột không thuộc FK (lý do MySQL – spec §3)
+-- CHECK chỉ dùng cột không thuộc FK 
 -- =====================================================================
 CREATE TABLE reviews (
   id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -305,7 +299,7 @@ CREATE TABLE reviews (
 
   PRIMARY KEY (id),
 
-  -- Mỗi User chỉ review mỗi Gym/Trainer một lần (spec §4.7)
+  -- Mỗi User chỉ review mỗi Gym/Trainer một lần 
   UNIQUE KEY uq_review_user_gym     (user_id, gym_id),
   UNIQUE KEY uq_review_user_trainer (user_id, trainer_id),
 
@@ -314,7 +308,7 @@ CREATE TABLE reviews (
   KEY idx_reviews_trainer (trainer_id, status, created_at),
   KEY idx_reviews_user    (user_id),
 
-  -- FK: không khai báo ON UPDATE (spec §3)
+  -- FK: không khai báo ON UPDATE 
   CONSTRAINT fk_reviews_user
     FOREIGN KEY (user_id)     REFERENCES users(id)    ON DELETE CASCADE,
   CONSTRAINT fk_reviews_gym
@@ -324,7 +318,7 @@ CREATE TABLE reviews (
   CONSTRAINT fk_reviews_reviewer
     FOREIGN KEY (reviewed_by) REFERENCES users(id)    ON DELETE SET NULL,
 
-  -- CHECK chỉ trên cột không tham gia FK (spec §3)
+  -- CHECK chỉ trên cột không tham gia FK 
   CONSTRAINT chk_reviews_rating
     CHECK (rating BETWEEN 1 AND 5),
   CONSTRAINT chk_reviews_comment
@@ -335,7 +329,7 @@ CREATE TABLE reviews (
       (status = 'rejected'  AND reject_reason IS NOT NULL AND CHAR_LENGTH(reject_reason) >= 1)
       OR (status <> 'rejected' AND reject_reason IS NULL)
     ),
-  -- pending → reviewed_at phải NULL (spec §4.7)
+  -- pending → reviewed_at phải NULL 
   CONSTRAINT chk_review_pending
     CHECK (status <> 'pending' OR reviewed_at IS NULL)
 ) ENGINE=InnoDB
@@ -344,7 +338,6 @@ CREATE TABLE reviews (
 -- =====================================================================
 -- 12. favorites
 -- gym_id / trainer_id nullable; target integrity enforced by Backend
--- spec §4.8
 -- =====================================================================
 CREATE TABLE favorites (
   id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -359,12 +352,12 @@ CREATE TABLE favorites (
   UNIQUE KEY uq_fav_user_gym     (user_id, gym_id),
   UNIQUE KEY uq_fav_user_trainer (user_id, trainer_id),
 
-  -- Indexes (spec §4.9)
+  -- Indexes 
   KEY idx_fav_user    (user_id),
   KEY idx_fav_gym     (gym_id),
   KEY idx_fav_trainer (trainer_id),
 
-  -- FK: không khai báo ON UPDATE (spec §3)
+  -- FK: không khai báo ON UPDATE
   CONSTRAINT fk_fav_user
     FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE CASCADE,
   CONSTRAINT fk_fav_gym
