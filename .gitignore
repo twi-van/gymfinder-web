@@ -1,5 +1,7 @@
 # Screenshots
 screenshots/
+database/*.sqlite
+database/*.sqlite-*
 
 # Dependencies
 node_modules/
