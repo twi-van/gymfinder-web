@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment'])) {
     if (!$user) {
         gf_redirect(gf_url('pages/auth/login.php?redirect=' . urlencode($_SERVER['REQUEST_URI'])));
     }
-    $res = gf_add_review((int)$user['id'], 'trainer', $id, (int)($_POST['rating'] ?? 5), (string)$_POST['comment']);
+    $res = gf_create_review((int)$user['id'], 'trainer', $id, (int)($_POST['rating'] ?? 5), (string)$_POST['comment']);
     $msg = $res['ok'] ? 'Đánh giá đã gửi, chờ duyệt.' : $res['error'];
 }
 $reviews = gf_trainer_reviews($id);
