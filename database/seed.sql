@@ -1,8 +1,3 @@
--- =====================================================================
--- GYMFINDER – Seed / Mock Data
--- Spec §14: dữ liệu kiểm thử tối thiểu và cụ thể
--- Mật khẩu seed: 'password' (bcrypt hash – không ghi mật khẩu thật)
--- =====================================================================
 USE gymfinder;
 
 -- =====================================================================
@@ -38,7 +33,7 @@ INSERT INTO districts (id, name, slug) VALUES
 -- 3. categories
 -- C01 Fitness (active); C02 Premium (active); C03 CrossFit (active)
 -- C04 Yoga (active); C05 Boxing (is_active=0)
--- slug sinh theo quy tắc spec §9
+-- slug sinh theo quy tắc 
 -- =====================================================================
 INSERT INTO categories (id, name, slug, description, is_active) VALUES
 (1, 'Fitness',  'fitness',  'Phòng tập thể hình, tạ và cardio',       1),
@@ -50,7 +45,7 @@ INSERT INTO categories (id, name, slug, description, is_active) VALUES
 -- =====================================================================
 -- 4. amenities
 -- A01 Phòng tắm; A02 Bãi giữ xe; A03 Wifi; A04 Xông hơi; A05 Tủ khóa
--- icon: FontAwesome class (spec §4.2)
+-- icon: FontAwesome class
 -- =====================================================================
 INSERT INTO amenities (id, name, slug, icon) VALUES
 (1, 'Phòng tắm',  'phong-tam',  'fa-shower'),
@@ -72,7 +67,7 @@ INSERT INTO specialties (id, name, slug) VALUES
 -- =====================================================================
 -- 6. gyms
 -- Giá tính bằng VND
--- Slug sinh từ name theo quy tắc spec §9
+-- Slug sinh từ name theo quy tắc
 -- G01–G06: active; G07–G08: hidden
 -- =====================================================================
 INSERT INTO gyms (id, name, slug, description, address, district_id,
@@ -178,8 +173,8 @@ INSERT INTO gym_images (gym_id, image_url, caption, sort_order) VALUES
 
 -- =====================================================================
 -- 10. trainers
--- district_id luôn = district của Gym chính (spec §10)
--- Slug sinh từ full_name theo quy tắc spec §9
+-- district_id luôn = district của Gym chính
+-- Slug sinh từ full_name 
 -- =====================================================================
 INSERT INTO trainers (id, full_name, slug, avatar_url,
                        specialty_id, years_experience, bio, phone, email,
@@ -236,7 +231,7 @@ INSERT INTO trainers (id, full_name, slug, avatar_url,
      2, 1, 0, 0, 0, 'active');
 
 -- =====================================================================
--- 11. reviews (13 bản ghi – spec §14)
+-- 11. reviews
 -- reviewed_by: dùng id của U01 (Admin) = 1
 -- Cache kỳ vọng:
 --   G01 = 4.5/2 (R01+R02); G02 = 4.0/1 (R13); G03 = 4.5/2 (R05+R06)
@@ -313,7 +308,7 @@ INSERT INTO favorites (id, user_id, target_type, gym_id, trainer_id) VALUES
 (7, 4, 'trainer', NULL, 8);     -- F07 U04→T08 (Gym chính hidden)
 
 -- =====================================================================
--- 13. Cập nhật rating cache (spec §11 – recalcRating)
+-- 13. Cập nhật rating cache 
 -- Chỉ tính review status='approved'
 -- avg_rating = ROUND(AVG(rating), 1); review_count = COUNT(*)
 -- Kỳ vọng: G01=4.5/2; G02=4.0/1; G03=4.5/2; G07=4.0/1
@@ -342,7 +337,7 @@ SET
     WHERE r.trainer_id = t.id AND r.status = 'approved');
 
 -- =====================================================================
--- Kiểm tra toàn vẹn district Trainer–Gym (spec §10)
+-- Kiểm tra toàn vẹn district Trainer–Gym
 -- Truy vấn sau phải trả 0 dòng:
 -- SELECT t.id FROM trainers t JOIN gyms g ON g.id=t.gym_id
 -- WHERE t.district_id <> g.district_id;
