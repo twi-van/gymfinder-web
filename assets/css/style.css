@@ -83,6 +83,10 @@ body {
     color: var(--primary-color);
 }
 
+.navbar-nav .nav-link.active {
+    color: var(--primary-color) !important;
+}
+
 /* Hero Section */
 .hero-section {
     padding: 5rem 0;
@@ -278,7 +282,9 @@ body {
 }
 
 .trainer-card:hover {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+    transform: translateY(-5px);
+    border-color: #e2e8f0;
 }
 
 .trainer-avatar {
