@@ -22,12 +22,31 @@ INSERT INTO users (id, full_name, email, phone, password_hash, role, status, goa
 
 -- =====================================================================
 -- 2. districts
--- D01 Quận 1 (quan-1); D02 Quận 7 (quan-7); D03 Thủ Đức (thu-duc)
+-- Toàn bộ 22 quận, huyện, thành phố thuộc TP.HCM
 -- =====================================================================
 INSERT INTO districts (id, name, slug) VALUES
-(1, 'Quận 1',   'quan-1'),
-(2, 'Quận 7',   'quan-7'),
-(3, 'Thủ Đức',  'thu-duc');
+(1, 'Quận 1',          'quan-1'),
+(2, 'Quận 7',          'quan-7'),
+(3, 'TP Thủ Đức',      'tp-thu-duc'),
+(4, 'Quận 3',          'quan-3'),
+(5, 'Quận 4',          'quan-4'),
+(6, 'Quận 5',          'quan-5'),
+(7, 'Quận 6',          'quan-6'),
+(8, 'Quận 8',          'quan-8'),
+(9, 'Quận 10',         'quan-10'),
+(10, 'Quận 11',        'quan-11'),
+(11, 'Quận 12',        'quan-12'),
+(12, 'Bình Tân',       'binh-tan'),
+(13, 'Bình Thạnh',     'binh-thanh'),
+(14, 'Gò Vấp',         'go-vap'),
+(15, 'Phú Nhuận',      'phu-nhuan'),
+(16, 'Tân Bình',       'tan-binh'),
+(17, 'Tân Phú',        'tan-phu'),
+(18, 'Huyện Bình Chánh', 'huyen-binh-chanh'),
+(19, 'Huyện Cần Giờ',    'huyen-can-gio'),
+(20, 'Huyện Củ Chi',     'huyen-cu-chi'),
+(21, 'Huyện Hóc Môn',    'huyen-hoc-mon'),
+(22, 'Huyện Nhà Bè',     'huyen-nha-be');
 
 -- =====================================================================
 -- 3. categories
@@ -36,30 +55,33 @@ INSERT INTO districts (id, name, slug) VALUES
 -- slug sinh theo quy tắc 
 -- =====================================================================
 INSERT INTO categories (id, name, slug, description, is_active) VALUES
-(1, 'Fitness',  'fitness',  'Phòng tập thể hình, tạ và cardio',       1),
-(2, 'Premium',  'premium',  'Phòng tập cao cấp, đầy đủ tiện ích',     1),
-(3, 'CrossFit', 'crossfit', 'Tập luyện cường độ cao theo nhóm',        1),
-(4, 'Yoga',     'yoga',     'Yoga, thiền và các bài tập thư giãn',     1),
-(5, 'Boxing',   'boxing',   'Boxing, MMA và các môn võ thuật đối kháng', 0); -- inactive
+(1, 'Fitness',     'fitness',     'Phòng tập thể hình, tạ và cardio',                          1),
+(2, 'Premium',     'premium',     'Phòng tập cao cấp, đầy đủ tiện ích',                        1),
+(3, 'CrossFit',    'crossfit',    'Tập luyện cường độ cao theo nhóm',                           1),
+(4, 'Yoga',        'yoga',        'Yoga, thiền và các bài tập thư giãn',                        1),
+(5, 'Boxing',      'boxing',      'Boxing, MMA và các môn võ thuật đối kháng',                   0), -- inactive
+(6, 'Gym cho nữ',  'gym-cho-nu',  'Không gian tập luyện riêng tư, an toàn và thoải mái dành cho phái nữ.', 1);
 
 -- =====================================================================
 -- 4. amenities
--- A01 Phòng tắm; A02 Bãi giữ xe; A03 Wifi; A04 Xông hơi; A05 Tủ khóa
+-- A01 Phòng tắm; A02 Bãi giữ xe; A03 Wifi; A04 Xông hơi; A05 Tủ khóa; A06 Điều hòa; A07 Nước uống miễn phí
 -- icon: FontAwesome class
 -- =====================================================================
 INSERT INTO amenities (id, name, slug, icon) VALUES
-(1, 'Phòng tắm',  'phong-tam',  'fa-shower'),
-(2, 'Bãi giữ xe', 'bai-giu-xe', 'fa-square-parking'),
-(3, 'Wifi',       'wifi',       'fa-wifi'),
-(4, 'Xông hơi',   'xong-hoi',   'fa-hot-tub-person'),
-(5, 'Tủ khóa',    'tu-khoa',    'fa-lock');
+(1, 'Phòng tắm',          'phong-tam',          'fa-shower'),
+(2, 'Bãi giữ xe',         'bai-giu-xe',         'fa-square-parking'),
+(3, 'Wifi',               'wifi',               'fa-wifi'),
+(4, 'Xông hơi',           'xong-hoi',           'fa-hot-tub-person'),
+(5, 'Tủ khóa',            'tu-khoa',            'fa-lock'),
+(6, 'Điều hòa',           'dieu-hoa',           'fa-snowflake'),
+(7, 'Nước uống miễn phí', 'nuoc-uong-mien-phi', 'fa-bottle-water');
 
 -- =====================================================================
 -- 5. specialties
 -- S01 Strength; S02 Cardio & giảm cân; S03 Yoga; S04 Boxing
 -- =====================================================================
 INSERT INTO specialties (id, name, slug) VALUES
-(1, 'Strength',         'strength'),
+(1, 'Sức mạnh',         'strength'),
 (2, 'Cardio & giảm cân','cardio-giam-can'),
 (3, 'Yoga',             'yoga-specialty'),
 (4, 'Boxing',           'boxing-specialty');
@@ -92,7 +114,7 @@ INSERT INTO gyms (id, name, slug, description, address, district_id,
 
 -- G03: D02, active, featured, 250k–700k, Cat: C04, Amenity: A01+A03
 (3, 'Zen Yoga Studio', 'zen-yoga-studio',
-    'Không gian yoga yên tĩnh, lớp nhỏ, giáo viên chứng chỉ quốc tế.',
+    'Không gian yoga yên tĩnh, lớp nhỏ, giáo viên quốc tế, phù hợp cho phái nữ và mọi học viên.',
     '45 Nguyễn Thị Thập, Quận 7', 2,
     '+84287654321', 'hello@zenyoga.test', 'https://zenyoga.test',
     250000, 700000, '06:00 - 21:00', '/uploads/g03-cover.jpg',
@@ -146,8 +168,8 @@ INSERT INTO gyms (id, name, slug, description, address, district_id,
 INSERT INTO gym_categories (gym_id, category_id) VALUES
 (1, 1), (1, 2),      -- G01: C01 Fitness, C02 Premium
 (2, 1), (2, 3),      -- G02: C01 Fitness, C03 CrossFit
-(3, 4),              -- G03: C04 Yoga
-(4, 1), (4, 2),      -- G04: C01 Fitness, C02 Premium
+(3, 4), (3, 6),      -- G03: C04 Yoga, C06 Gym cho nữ
+(4, 1), (4, 2), (4, 6), -- G04: C01 Fitness, C02 Premium, C06 Gym cho nữ
 (5, 5),              -- G05: C05 Boxing (inactive)
 (7, 1);              -- G07: C01 Fitness (hidden gym)
 
@@ -155,11 +177,12 @@ INSERT INTO gym_categories (gym_id, category_id) VALUES
 -- 8. gym_amenities
 -- =====================================================================
 INSERT INTO gym_amenities (gym_id, amenity_id) VALUES
-(1, 1), (1, 2), (1, 3), (1, 5),          -- G01: A01,A02,A03,A05
-(2, 1), (2, 2),                           -- G02: A01,A02
-(3, 1), (3, 3),                           -- G03: A01,A03
-(4, 1), (4, 2), (4, 3), (4, 4), (4, 5),  -- G04: A01–A05
-(7, 1);                                   -- G07: A01
+(1, 1), (1, 2), (1, 3), (1, 5), (1, 6), (1, 7), -- G01: A01,A02,A03,A05,A06,A07
+(2, 1), (2, 2), (2, 6),                         -- G02: A01,A02,A06
+(3, 1), (3, 3), (3, 6), (3, 7),                 -- G03: A01,A03,A06,A07
+(4, 1), (4, 2), (4, 3), (4, 4), (4, 5), (4, 6), (4, 7), -- G04: A01–A07
+(5, 6),                                         -- G05: A06
+(7, 1);                                         -- G07: A01
 
 -- =====================================================================
 -- 9. gym_images
@@ -182,7 +205,7 @@ INSERT INTO trainers (id, full_name, slug, avatar_url,
                        avg_rating, review_count, is_featured, status) VALUES
 -- T01: G01/D01, S01 Strength, 0 năm (biên 0 – nhóm 0–2), active, featured
 (1,  'Nguyễn Anh Tuấn',    'nguyen-anh-tuan',    '/uploads/t01.jpg',
-     1, 0,  'Chuyên gia Strength & Conditioning.', '+84901000001', 't01@gymfinder.test',
+     1, 0,  'Chuyên gia Huấn luyện Sức mạnh & Thể lực.', '+84901000001', 't01@gymfinder.test',
      1, 1, 0, 0, 1, 'active'),
 
 -- T02: G01/D01, S02 Cardio, 2 năm (biên 2 – nhóm 0–2), active, not featured

@@ -37,22 +37,74 @@ body {
     transition: all 0.3s ease;
 }
 .admin-brand {
-    font-size: 22px;
+    font-size: 20px;
     letter-spacing: -0.5px;
     white-space: nowrap;
+    text-decoration: none;
+    color: #1e293b;
 }
+
+/* Logo Brand Typography Standardization */
+.brand-logo,
+.logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none !important;
+    color: inherit;
+    vertical-align: middle;
+}
+
+.brand-logo-mark,
+.logo-mark,
 .admin-brand-mark {
-    width: 42px;
-    height: 42px;
-    flex: 0 0 42px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    background-color: #ffffff;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 8px;
     color: var(--primary-color);
-    background: #fff;
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(15, 23, 42, .08);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .05);
+    flex-shrink: 0;
+    line-height: 0;
+}
+
+.brand-logo-svg,
+.logo-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.brand-logo-text,
+.logo-text {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    color: #1e293b;
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.brand-logo-text .text-primary,
+.logo-text .text-primary {
+    color: var(--primary-color, #00c9b1) !important;
+}
+
+.brand-logo--admin .brand-logo-mark,
+.logo--admin .logo-mark {
+    width: 36px;
+    height: 36px;
+    padding: 7px;
+    border-radius: 8px;
+}
+.brand-logo--admin .brand-logo-text,
+.logo--admin .logo-text {
+    font-size: 20px;
 }
 .nav-link {
     color: var(--secondary-color);
@@ -137,56 +189,199 @@ body {
     background-color: #f8fafc;
 }
 
-/* Keep the admin tables within the content panel like the static Figma pages. */
-.admin-users-table,
-.admin-reviews-table,
-.admin-categories-table,
-.admin-gyms-table,
-.admin-trainers-table {
+/* ==========================================================================
+   Common Admin Table Component Styles - GYMFINDER
+   ========================================================================== */
+.admin-table-card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.admin-table-responsive {
+    border-radius: 8px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f8fafc;
+}
+
+.admin-table-responsive::-webkit-scrollbar {
+    height: 6px;
+}
+.admin-table-responsive::-webkit-scrollbar-track {
+    background: #f8fafc;
+}
+.admin-table-responsive::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+/* Base table standards */
+.admin-table,
+.admin-common-table {
     width: 100%;
     table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.admin-table th,
+.admin-common-table th {
+    background-color: #f8fafc;
+    color: var(--secondary-color, #64748b);
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--border-color, #e2e8f0);
+    padding: 14px 16px;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.admin-table td,
+.admin-common-table td {
+    padding: 14px 16px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+    color: var(--dark-color, #1e293b);
+    font-size: 14px;
+    overflow-wrap: normal;
+    word-break: normal;
+}
+
+.admin-table tbody tr,
+.admin-common-table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.admin-table tbody tr:hover td,
+.admin-common-table tbody tr:hover td {
+    background-color: #f8fafc;
+}
+
+/* Last child: actions column */
+.admin-table td:last-child,
+.admin-table th:last-child,
+.admin-common-table td:last-child,
+.admin-common-table th:last-child {
+    white-space: nowrap;
+}
+
+/* Shared cell styling utilities */
+.admin-cell-title {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 14px;
+    line-height: 1.35;
+    display: block;
+    overflow-wrap: break-word;
+    word-break: normal;
+}
+
+.admin-cell-subtitle {
+    font-size: 12.5px;
+    color: #64748b;
+    line-height: 1.35;
+    margin-top: 2px;
+    overflow-wrap: break-word;
+    word-break: normal;
+}
+
+.admin-cell-price {
+    white-space: nowrap;
+    color: var(--primary-color, #00c9b1) !important;
+    font-weight: 700;
+    font-size: 13.5px;
+    display: inline-block;
+}
+
+.admin-cell-rating {
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+}
+
+.admin-cell-nowrap {
+    white-space: nowrap;
+}
+
+.admin-table-footer {
+    border-top: 1px solid var(--border-color, #e2e8f0);
+    background-color: #ffffff;
+}
+
+/* Page specific minimum widths for responsive scrolling */
+.admin-gyms-table {
+    min-width: 1140px;
+}
+.admin-trainers-table {
+    min-width: 1080px;
 }
 .admin-users-table {
-    min-width: 1120px;
+    min-width: 1040px;
 }
 .admin-reviews-table {
-    min-width: 1550px;
+    min-width: 1150px;
 }
-.admin-reviews-table td:nth-child(4) {
+.admin-categories-table {
+    min-width: 960px;
+}
+.admin-gyms-table .gym-info-cell {
+    overflow-wrap: break-word;
+    word-break: normal;
+}
+.admin-gyms-table .gym-name {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 14px;
+    line-height: 1.35;
+    margin-bottom: 3px;
+    display: block;
+}
+.admin-gyms-table .gym-address {
+    font-size: 12.5px;
+    color: #64748b;
+    line-height: 1.35;
+}
+.admin-gyms-table .gym-price {
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    color: var(--primary-color, #00c9b1) !important;
+    font-weight: 700;
+    font-size: 13.5px;
+    display: inline-block;
 }
-.admin-users-table th,
-.admin-users-table td,
-.admin-reviews-table th,
-.admin-reviews-table td,
-.admin-categories-table th,
-.admin-categories-table td,
-.admin-gyms-table th,
-.admin-gyms-table td,
-.admin-trainers-table th,
-.admin-trainers-table td {
-    overflow-wrap: anywhere;
+.admin-gyms-table .gym-rating {
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
 }
-.admin-users-table td:last-child,
-.admin-users-table th:last-child,
-.admin-reviews-table td:last-child,
-.admin-reviews-table th:last-child,
-.admin-categories-table td:last-child,
-.admin-categories-table th:last-child,
-.admin-gyms-table td:last-child,
-.admin-gyms-table th:last-child,
-.admin-trainers-table td:last-child,
-.admin-trainers-table th:last-child {
+.admin-gyms-table .gym-actions {
     white-space: nowrap;
 }
-.admin-users-table th:nth-child(6),
-.admin-users-table td:nth-child(6),
-.admin-users-table th:nth-child(7),
-.admin-users-table td:nth-child(7) {
+
+/* Category Badges */
+.admin-cat-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    border-radius: 6px;
+    line-height: 1.3;
     white-space: nowrap;
 }
+.cat-badge-fitness { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+.cat-badge-premium { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
+.cat-badge-yoga { background: rgba(168, 85, 247, 0.12); color: #a855f7; }
+.cat-badge-crossfit { background: rgba(249, 115, 22, 0.12); color: #f97316; }
+.cat-badge-default { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+
 .admin-avatar {
     display: block;
     width: 52px;
@@ -200,42 +395,89 @@ body {
 
 /* Buttons */
 .btn-action {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
-    font-size: 14px;
-    transition: all 0.2s;
+    border-radius: 8px;
+    font-size: 13.5px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
 }
 .btn-action-view {
-    color: var(--secondary-color);
-    background: var(--light-bg);
-    border: 1px solid var(--border-color);
+    color: #64748b;
+    background: #f1f5f9;
+    border-color: #e2e8f0;
 }
 .btn-action-view:hover {
     background: #e2e8f0;
-    color: var(--dark-color);
+    color: #1e293b;
+    border-color: #cbd5e1;
 }
 .btn-action-edit {
-    color: var(--primary-color);
-    background: var(--primary-light);
-    border: 1px solid transparent;
+    color: var(--primary-color, #00c9b1);
+    background: rgba(0, 201, 177, 0.12);
 }
 .btn-action-edit:hover {
-    background: var(--primary-color);
-    color: #fff;
+    background: var(--primary-color, #00c9b1);
+    color: #ffffff;
 }
 .btn-action-delete {
-    color: var(--danger-color);
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid transparent;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.12);
 }
 .btn-action-delete:hover {
-    background: var(--danger-color);
-    color: #fff;
+    background: #ef4444;
+    color: #ffffff;
+}
+
+/* Filter Bar */
+.btn-filter {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.btn-filter:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+    border-color: #94a3b8;
+}
+
+/* Pagination Buttons */
+.admin-pagination-btn {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #475569;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.admin-pagination-btn:hover {
+    background: #f8fafc;
+    color: #1e293b;
+    border-color: #cbd5e1;
+}
+.admin-pagination-btn.active {
+    background: var(--primary-color, #00c9b1);
+    border-color: var(--primary-color, #00c9b1);
+    color: #ffffff;
+}
+.admin-pagination-btn.disabled {
+    opacity: 0.45;
+    pointer-events: none;
 }
 
 /* Badges */
@@ -293,3 +535,158 @@ body {
     border-color: var(--primary-color);
     color: white;
 }
+
+/* ==========================================================================
+   Admin Modal Dialog & Internal Scrolling - GYMFINDER
+   ========================================================================== */
+body.modal-open {
+    overflow: hidden !important;
+}
+
+.modal-dialog-scrollable {
+    max-height: calc(100vh - 2rem);
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+@media (min-width: 576px) {
+    .modal-dialog-scrollable {
+        max-height: calc(100vh - 3.5rem);
+        margin-top: 1.75rem;
+        margin-bottom: 1.75rem;
+    }
+}
+
+.modal-dialog-scrollable .modal-content,
+.modal-dialog-scrollable form.modal-content {
+    max-height: 90vh;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+}
+
+.modal-dialog-scrollable .modal-header {
+    flex-shrink: 0;
+    z-index: 1055;
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--border-color, #e2e8f0) !important;
+}
+
+.modal-dialog-scrollable .modal-footer {
+    flex-shrink: 0;
+    z-index: 1055;
+    background-color: #ffffff;
+    border-top: 1px solid var(--border-color, #e2e8f0) !important;
+}
+
+.modal-dialog-scrollable .modal-body {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f8fafc;
+}
+
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-track {
+    background: #f8fafc;
+}
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+/* ==========================================================================
+   Admin Dashboard - Modern SaaS Style
+   ========================================================================== */
+.stat-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 14px;
+    padding: 20px;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    color: inherit;
+    text-decoration: none !important;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    border-color: #cbd5e1;
+    color: inherit;
+}
+.stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.stat-icon-teal {
+    background: rgba(0, 201, 177, 0.12);
+    color: var(--primary-color, #00c9b1);
+}
+.stat-icon-warning {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+}
+
+.dashboard-action-banner {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0.02) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: 12px;
+    padding: 14px 20px;
+}
+
+.dashboard-review-item {
+    transition: background-color 0.15s ease;
+}
+.dashboard-review-item:hover {
+    background-color: #f8fafc;
+}
+.dashboard-review-item:last-child {
+    border-bottom: none !important;
+}
+
+.dashboard-gym-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-decoration: none !important;
+    color: inherit;
+}
+.dashboard-gym-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    border-color: #cbd5e1;
+    color: inherit;
+}
+.dashboard-gym-card .gym-cover-wrap {
+    position: relative;
+    height: 135px;
+    background-color: #f1f5f9;
+}
+.dashboard-gym-card .gym-cover-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+

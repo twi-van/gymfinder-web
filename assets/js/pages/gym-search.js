@@ -7,8 +7,7 @@ $(document).ready(function() {
 
     // Define amenity mappings (based on HTML IDs)
     const amenityMap = {
-        'amenity1': 'Xông hơi khô',
-        'amenity2': 'Xông hơi ướt',
+        'amenity1': 'Xông hơi',
         'amenity3': 'Locker',
         'amenity4': 'Bãi đỗ xe',
         'amenity5': 'Điều hòa',
@@ -23,7 +22,7 @@ $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
     const initialKeyword = urlParams.get('keyword');
     const initialDistrict = urlParams.get('district');
-    const initialPrice = urlParams.get('price'); // '500' or '1000'
+    const initialPrice = urlParams.get('price_range') || urlParams.get('price');
     const initialCategory = urlParams.get('category'); // slug
 
     if (initialKeyword) {
@@ -34,11 +33,14 @@ $(document).ready(function() {
         $('#districtFilter').val(initialDistrict);
     }
     if (initialPrice) {
-        if (initialPrice === '500') {
-            $('#priceMax').val(500000);
-        } else if (initialPrice === '1000') {
-            $('#priceMin').val(500000);
-            $('#priceMax').val(1000000);
+        if (initialPrice === '500' || initialPrice === '300_500') {
+            $(`#price_300_500`).prop('checked', true);
+        } else if (initialPrice === '1000' || initialPrice === '500_1000') {
+            $(`#price_500_1000`).prop('checked', true);
+        } else if (initialPrice === 'under_300') {
+            $(`#price_under_300`).prop('checked', true);
+        } else if (initialPrice === 'over_1000') {
+            $(`#price_over_1000`).prop('checked', true);
         }
     }
     if (initialCategory && typeof categoriesData !== 'undefined') {
@@ -71,12 +73,36 @@ $(document).ready(function() {
         }
 
         // 3. Price
-        const minPriceStr = $('#priceMin').val();
-        const maxPriceStr = $('#priceMax').val();
-        const minP = minPriceStr ? parseInt(minPriceStr) : null;
-        const maxP = maxPriceStr ? parseInt(maxPriceStr) : null;
+        const selectedRange = $('input[name="price_range"]:checked').val() || '';
+        let minP = null;
+        let maxP = null;
+        let priceText = '';
 
-        if (minP !== null || maxP !== null) {
+        if (selectedRange === 'under_300') {
+            maxP = 300000;
+            priceText = 'Dưới 300.000đ';
+        } else if (selectedRange === '300_500') {
+            minP = 300000;
+            maxP = 500000;
+            priceText = '300.000đ - 500.000đ';
+        } else if (selectedRange === '500_1000') {
+            minP = 500000;
+            maxP = 1000000;
+            priceText = '500.000đ - 1.000.000đ';
+        } else if (selectedRange === 'over_1000') {
+            minP = 1000000;
+            priceText = 'Trên 1.000.000đ';
+        } else {
+            const minPriceStr = $('#priceMin').val();
+            const maxPriceStr = $('#priceMax').val();
+            minP = minPriceStr ? parseInt(minPriceStr) : null;
+            maxP = maxPriceStr ? parseInt(maxPriceStr) : null;
+            if (minP !== null && maxP !== null) priceText = `${minP.toLocaleString('vi-VN')} - ${maxP.toLocaleString('vi-VN')}đ`;
+            else if (minP !== null) priceText = `Từ ${minP.toLocaleString('vi-VN')}đ`;
+            else if (maxP !== null) priceText = `Đến ${maxP.toLocaleString('vi-VN')}đ`;
+        }
+
+        if (minP !== null || maxP !== null || selectedRange !== '') {
             filtered = filtered.filter(g => {
                 if (!g.price) return false;
                 const matches = g.price.match(/\d+(\.\d+)?/g);
@@ -85,17 +111,16 @@ $(document).ready(function() {
                 const gMin = getVal(matches[0]);
                 const gMax = matches.length > 1 ? getVal(matches[1]) : gMin;
                 
+                if (selectedRange === 'under_300') return gMin < 300000;
+                if (selectedRange === 'over_1000') return gMax > 1000000;
                 if (minP !== null && gMax < minP) return false;
                 if (maxP !== null && gMin > maxP) return false;
                 return true;
             });
             
-            let priceText = '';
-            if (minP !== null && maxP !== null) priceText = `${minP.toLocaleString('vi-VN')} - ${maxP.toLocaleString('vi-VN')}đ`;
-            else if (minP !== null) priceText = `Từ ${minP.toLocaleString('vi-VN')}đ`;
-            else if (maxP !== null) priceText = `Đến ${maxP.toLocaleString('vi-VN')}đ`;
-            
-            chips.push({ id: 'chip-price', text: priceText, type: 'price' });
+            if (priceText) {
+                chips.push({ id: 'chip-price', text: priceText, type: 'price' });
+            }
         }
 
         // 4. Rating
@@ -226,6 +251,7 @@ $(document).ready(function() {
         
         // Reset UI
         $('#districtFilter').val('');
+        $('#price_all').prop('checked', true);
         $('#priceMin').val('');
         $('#priceMax').val('');
         $('#rating0').prop('checked', true); // Check "Tất cả"
@@ -243,6 +269,7 @@ $(document).ready(function() {
             const targetId = $(this).data('target');
             $(`#${targetId}`).val('');
         } else if (type === 'price') {
+            $('#price_all').prop('checked', true);
             $('#priceMin').val('');
             $('#priceMax').val('');
         } else if (type === 'checkbox') {

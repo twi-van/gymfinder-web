@@ -16,7 +16,7 @@ $reviews = (int) ($gym['review_count'] ?? 0);
 <div id="favorite-gym-<?= (int)$gym['id'] ?>" class="col-12 col-md-6 col-lg-4 col-xl-3">
     <div class="gym-card bg-white h-100 d-flex flex-column rounded-4 border-0 shadow-sm position-relative" style="border: 1px solid #f1f5f9 !important;">
         <div class="card-img-wrapper position-relative" style="height: 180px;">
-            <img src="<?= gf_h($gym['cover'] ?? gf_cover_image(null, (int)$gym['id'])) ?>" class="card-img-top w-100 h-100 object-fit-cover rounded-top-4" alt="<?= gf_h($gym['name']) ?>">
+            <img src="<?= gf_h($gym['cover'] ?? gf_cover_image(null, (int)$gym['id'])) ?>" class="card-img-top w-100 h-100 object-fit-cover rounded-top-4" alt="<?= gf_h($gym['name']) ?>" onerror="this.onerror=null;this.src='<?= gf_h(gf_cover_image(null, (int)$gym['id'])) ?>';">
             <?= $badge ?>
             <form method="post" action="<?= gf_h(gf_url('pages/user/favorite_toggle.php')) ?>" class="js-favorite-toggle position-absolute" data-api-url="<?= gf_h(gf_url('api/favorites')) ?>" data-login-url="<?= gf_h(gf_url('pages/auth/login.php')) ?>" data-favorited="<?= $isFav ? '1' : '0' ?>" style="top:10px;right:10px;z-index:2;">
                 <?= gf_csrf_field() ?>

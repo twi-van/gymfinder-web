@@ -3,6 +3,9 @@ screenshots/
 database/*.sqlite
 database/*.sqlite-*
 
+# User uploads (runtime files, not committed)
+uploads/
+
 # Dependencies
 node_modules/
 

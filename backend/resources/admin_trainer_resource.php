@@ -131,7 +131,12 @@ function gf_admin_save_trainer(array $d, ?int $id): array
                 $params[] = $id;
                 $pdo->prepare('UPDATE trainers SET ' . implode(',', $sets) . ' WHERE id=?')->execute($params);
             }
+            $oldAvatar = $existing['avatar_url'] ?? null;
+            $newAvatar = $merged['avatar_url'] ?? null;
             $pdo->commit();
+            if (array_key_exists('avatar_url', $d) && $oldAvatar && $oldAvatar !== $newAvatar) {
+                gf_delete_unreferenced_files([$oldAvatar]);
+            }
             return ['ok' => true, 'id' => $id];
         }
 

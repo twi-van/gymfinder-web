@@ -304,6 +304,15 @@ function gf_validate_gym_search_params(array $get, bool $throw = true): array
         }
     }
 
+    $pRange = (string) ($get['price_range'] ?? $get['price'] ?? '');
+    if ($pRange !== '') {
+        if (!in_array($pRange, ['under_300', '300_500', '500_1000', 'over_1000', '500', '1000'], true)) {
+            $details['price_range'] = 'price_range không hợp lệ.';
+        } else {
+            $params['price_range'] = $pRange;
+        }
+    }
+
     $pFrom = $get['price_from'] ?? $get['min_price'] ?? $get['price_min'] ?? null;
     $pTo   = $get['price_to']   ?? $get['max_price'] ?? $get['price_max'] ?? null;
     if ($pFrom !== null && $pFrom !== '') {
@@ -315,7 +324,7 @@ function gf_validate_gym_search_params(array $get, bool $throw = true): array
         else { $params['price_to'] = (int) $pTo; }
     }
     if (isset($params['price_from'], $params['price_to']) && $params['price_from'] > $params['price_to']) {
-        $details['price_range'] = 'price_from không được lớn hơn price_to.';
+        $details['price_range_order'] = 'price_from không được lớn hơn price_to.';
     }
 
     $minR = $get['min_rating'] ?? $get['rating'] ?? null;

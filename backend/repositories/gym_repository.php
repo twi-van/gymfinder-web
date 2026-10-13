@@ -53,15 +53,36 @@ function gf_search_gyms_paged(array $f): array
         $params[] = (int) $f['district_id'];
     }
 
-    $priceFrom = $f['price_from'] ?? $f['price_min'] ?? '';
-    $priceTo   = $f['price_to']   ?? $f['price_max'] ?? '';
-    if ($priceFrom !== '' && $priceFrom !== null) {
-        $sql     .= ' AND g.price_max >= ?';
-        $params[] = (int) $priceFrom;
-    }
-    if ($priceTo !== '' && $priceTo !== null) {
+    // Lọc theo khoảng giá (hỗ trợ cả preset price_range và tùy chỉnh min/max)
+    $priceRange = (string) ($f['price_range'] ?? $f['price'] ?? '');
+    if ($priceRange === 'under_300') {
+        $sql     .= ' AND g.price_min < ?';
+        $params[] = 300000;
+    } elseif ($priceRange === '300_500') {
+        $sql     .= ' AND g.price_min <= ? AND g.price_max >= ?';
+        $params[] = 500000;
+        $params[] = 300000;
+    } elseif ($priceRange === '500_1000' || $priceRange === '1000') {
+        $sql     .= ' AND g.price_min <= ? AND g.price_max >= ?';
+        $params[] = 1000000;
+        $params[] = 500000;
+    } elseif ($priceRange === 'over_1000') {
+        $sql     .= ' AND g.price_max > ?';
+        $params[] = 1000000;
+    } elseif ($priceRange === '500') {
         $sql     .= ' AND g.price_min <= ?';
-        $params[] = (int) $priceTo;
+        $params[] = 500000;
+    } else {
+        $priceFrom = $f['price_from'] ?? $f['price_min'] ?? '';
+        $priceTo   = $f['price_to']   ?? $f['price_max'] ?? '';
+        if ($priceFrom !== '' && $priceFrom !== null) {
+            $sql     .= ' AND g.price_max >= ?';
+            $params[] = (int) $priceFrom;
+        }
+        if ($priceTo !== '' && $priceTo !== null) {
+            $sql     .= ' AND g.price_min <= ?';
+            $params[] = (int) $priceTo;
+        }
     }
     if (!empty($f['price_max_cap'])) {
         $sql     .= ' AND g.price_min <= ?';
@@ -113,12 +134,15 @@ function gf_search_gyms_paged(array $f): array
     if (!empty($f['weight_loss'])) {
         $sql .= " AND EXISTS (SELECT 1 FROM trainers t JOIN specialties s ON s.id=t.specialty_id WHERE t.gym_id=g.id AND t.status='active' AND s.slug='cardio-giam-can')";
     }
+    if (!empty($f['women'])) {
+        $sql .= " AND (g.description LIKE '%nữ%' OR EXISTS (SELECT 1 FROM gym_categories gc JOIN categories c ON c.id=gc.category_id WHERE gc.gym_id=g.id AND (c.slug='gym-cho-nu' OR c.slug='yoga')))";
+    }
 
     $sort  = (string) ($f['sort'] ?? '');
     $order = match ($sort) {
         'rating_asc'  => 'g.avg_rating ASC, g.id DESC',
         'price_asc'   => 'g.price_min ASC, g.id DESC',
-        'price_desc'  => 'g.price_min DESC, g.id DESC',
+        'price_desc'  => 'g.price_max DESC, g.price_min DESC, g.id DESC',
         'rating_desc' => 'g.avg_rating DESC, g.id DESC',
         default       => 'g.is_featured DESC, g.avg_rating DESC, g.id DESC',
     };
@@ -292,19 +316,3 @@ function gf_sync_gym_relations(int $gymId, array $d, string $cover): array
     return $deleteFiles;
 }
 
-/**
- * Lưu file upload đã không còn được reference.
- */
-function gf_delete_unreferenced_files(array $urls): void
-{
-    $root = $GLOBALS['GF_ROOT'] ?? dirname(__DIR__, 2);
-    foreach (array_unique(array_filter($urls)) as $url) {
-        if (!gf_uploads_url_ok((string) $url)) {
-            continue;
-        }
-        $path = $root . str_replace('/', DIRECTORY_SEPARATOR, (string) $url);
-        if (is_file($path)) {
-            @unlink($path);
-        }
-    }
-}

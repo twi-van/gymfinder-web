@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__DIR__, 2) . '/backend/bootstrap.php';
+require_once dirname(__DIR__) . '/components/table.php';
 gf_require_admin();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['id']) && isset($_POST['name'])) {
     $data = ['name' => trim((string)$_POST['name']), 'description' => trim((string)($_POST['description'] ?? '')), 'is_active' => isset($_POST['is_active']) ? 1 : 0];
@@ -28,22 +29,82 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 <div class="modal fade" id="categoryCreate" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 rounded-4"><form method="post"><?= gf_csrf_field() ?><div class="modal-header border-0"><h5 class="modal-title fw-bold">Thêm danh mục</h5><button class="btn-close" data-bs-dismiss="modal" type="button"></button></div><div class="modal-body">
 <label class="form-label">Tên danh mục</label><input class="form-control admin-input mb-3" name="name" placeholder="Tên danh mục mới" required><label class="form-label">Mô tả</label><textarea class="form-control admin-input" name="description" rows="3"></textarea></div><div class="modal-footer border-0"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button><button class="btn btn-primary">Thêm</button></div></form></div></div></div>
 <form method="get" class="admin-card p-3 mb-4"><div class="position-relative"><i class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i><input class="form-control admin-input ps-5" name="q" value="<?= gf_h($_GET['q']??'') ?>" placeholder="Tìm kiếm danh mục..."></div></form>
-<div class="admin-card overflow-hidden"><div class="table-responsive"><table class="table admin-table admin-categories-table mb-0">
-<colgroup><col style="width:7%"><col style="width:20%"><col style="width:31%"><col style="width:15%"><col style="width:14%"><col style="width:13%"></colgroup>
-<thead><tr><th>ID</th><th>TÊN DANH MỤC</th><th>MÔ TẢ</th><th>SỐ PHÒNG TẬP</th><th>TRẠNG THÁI</th><th>THAO TÁC</th></tr></thead>
-<tbody>
+<?php
+gf_admin_table_open([
+    'id'        => 'categoriesTable',
+    'class'     => 'admin-categories-table',
+    'min_width' => '960px',
+    'columns'   => [
+        ['label' => 'ID', 'width' => '60px', 'align' => 'center'],
+        ['label' => 'TÊN DANH MỤC', 'width' => '220px'],
+        ['label' => 'MÔ TẢ', 'width' => '320px'],
+        ['label' => 'SỐ PHÒNG TẬP', 'width' => '140px', 'align' => 'center'],
+        ['label' => 'TRẠNG THÁI', 'width' => '120px', 'align' => 'center'],
+        ['label' => 'THAO TÁC', 'width' => '110px', 'align' => 'right', 'th_class' => 'text-end pe-3'],
+    ]
+]);
+?>
+<?php
+$categoryGymCounts = [];
+$catCountStmt = gf_pdo()->query('SELECT category_id, COUNT(*) AS total FROM gym_categories GROUP BY category_id');
+if ($catCountStmt) {
+    foreach ($catCountStmt->fetchAll() as $cRow) {
+        $categoryGymCounts[(int)$cRow['category_id']] = (int)$cRow['total'];
+    }
+}
+?>
 <?php foreach ($rows as $r): ?>
 <tr>
-    <td><?= (int)$r['id'] ?></td>
-    <td><?= gf_h($r['name']) ?></td>
-    <td><?= gf_h($r['description'] ?? '') ?></td>
-    <td><span class="badge-neutral"><?php $countQuery=gf_pdo()->prepare('SELECT COUNT(*) FROM gym_categories WHERE category_id=?');$countQuery->execute([(int)$r['id']]);echo (int)$countQuery->fetchColumn(); ?> phòng</span></td>
-    <td><span class="admin-badge <?= $r['is_active'] ? 'badge-success' : 'badge-neutral' ?>"><?= $r['is_active'] ? 'Hoạt động' : 'Tạm ẩn' ?></span></td>
-    <td><div class="d-inline-flex gap-1"><button type="button" class="btn btn-action btn-action-edit" data-bs-toggle="modal" data-bs-target="#categoryEdit<?= (int)$r['id'] ?>" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button><form method="post"><?= gf_csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><input type="hidden" name="is_active" value="<?= $r['is_active'] ? '0' : '1' ?>"><button class="btn btn-action <?= $r['is_active']?'btn-action-delete':'btn-action-edit' ?>" title="<?= $r['is_active']?'Ẩn':'Hiện' ?>"><i class="fa-solid <?= $r['is_active']?'fa-trash':'fa-eye' ?>"></i></button></form></div>
-    <div class="modal fade" id="categoryEdit<?= (int)$r['id'] ?>" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 rounded-4"><form method="post"><?= gf_csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><div class="modal-header border-0"><h5 class="modal-title fw-bold">Sửa danh mục</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><label class="form-label">Tên danh mục</label><input class="form-control admin-input mb-3" name="name" value="<?= gf_h($r['name']) ?>" required><label class="form-label">Mô tả</label><textarea class="form-control admin-input mb-3" name="description" rows="3"><?= gf_h($r['description'] ?? '') ?></textarea><div class="form-check"><input class="form-check-input" type="checkbox" name="is_active" id="category-active-<?= (int)$r['id'] ?>" value="1" <?= $r['is_active'] ? 'checked' : '' ?>><label class="form-check-label" for="category-active-<?= (int)$r['id'] ?>">Đang hoạt động</label></div></div><div class="modal-footer border-0"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button><button class="btn btn-primary">Lưu thông tin</button></div></form></div></div></div></td>
+    <td class="text-center text-muted fw-semibold"><?= (int)$r['id'] ?></td>
+    <td><span class="admin-cell-title"><?= gf_h($r['name']) ?></span></td>
+    <td><span class="text-secondary"><?= gf_h($r['description'] ?? '—') ?></span></td>
+    <td class="text-center text-secondary"><?= (int)($categoryGymCounts[(int)$r['id']] ?? 0) ?> phòng</td>
+    <td class="text-center"><span class="admin-badge <?= $r['is_active'] ? 'badge-success' : 'badge-neutral' ?>"><?= $r['is_active'] ? 'Hoạt động' : 'Tạm ẩn' ?></span></td>
+    <td class="text-end pe-3 text-nowrap">
+        <button type="button" class="btn btn-action btn-action-edit" data-bs-toggle="modal" data-bs-target="#categoryEdit<?= (int)$r['id'] ?>" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+        <form method="post" class="d-inline"><?= gf_csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><input type="hidden" name="is_active" value="<?= $r['is_active'] ? '0' : '1' ?>"><button class="btn btn-action <?= $r['is_active']?'btn-action-delete':'btn-action-edit' ?>" title="<?= $r['is_active']?'Ẩn':'Hiện' ?>"><i class="fa-solid <?= $r['is_active']?'fa-trash':'fa-eye' ?>"></i></button></form>
+    </td>
 </tr>
 <?php endforeach; ?>
-</tbody></table></div></div>
+<?php
+gf_admin_table_close([
+    'empty' => empty($rows),
+    'empty_message' => 'Không tìm thấy danh mục nào phù hợp.',
+    'colspan' => 6,
+]);
+?>
+
+<!-- Render category edit modals outside table -->
+<?php foreach ($rows as $r): ?>
+<div class="modal fade" id="categoryEdit<?= (int)$r['id'] ?>" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <form method="post">
+                <?= gf_csrf_field() ?>
+                <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Sửa danh mục</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label">Tên danh mục</label>
+                    <input class="form-control admin-input mb-3" name="name" value="<?= gf_h($r['name']) ?>" required>
+                    <label class="form-label">Mô tả</label>
+                    <textarea class="form-control admin-input mb-3" name="description" rows="3"><?= gf_h($r['description'] ?? '') ?></textarea>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="is_active" id="category-active-<?= (int)$r['id'] ?>" value="1" <?= $r['is_active'] ? 'checked' : '' ?>>
+                        <label class="form-check-label" for="category-active-<?= (int)$r['id'] ?>">Đang hoạt động</label>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+                    <button class="btn btn-primary">Lưu thông tin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<?php endforeach; ?>
 </main></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body></html>

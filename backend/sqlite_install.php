@@ -165,8 +165,33 @@ SQL);
         $insU->execute([$u[0], $u[1], $u[2], $u[3], $hash, $u[4], $u[5], $u[6]]);
     }
 
-    foreach ([[1, 'Quận 1', 'quan-1'], [2, 'Quận 7', 'quan-7'], [3, 'Thủ Đức', 'thu-duc']] as $d) {
-        $pdo->prepare('INSERT INTO districts (id, name, slug) VALUES (?,?,?)')->execute($d);
+    $districts = [
+        [1, 'Quận 1', 'quan-1'],
+        [2, 'Quận 7', 'quan-7'],
+        [3, 'TP Thủ Đức', 'tp-thu-duc'],
+        [4, 'Quận 3', 'quan-3'],
+        [5, 'Quận 4', 'quan-4'],
+        [6, 'Quận 5', 'quan-5'],
+        [7, 'Quận 6', 'quan-6'],
+        [8, 'Quận 8', 'quan-8'],
+        [9, 'Quận 10', 'quan-10'],
+        [10, 'Quận 11', 'quan-11'],
+        [11, 'Quận 12', 'quan-12'],
+        [12, 'Bình Tân', 'binh-tan'],
+        [13, 'Bình Thạnh', 'binh-thanh'],
+        [14, 'Gò Vấp', 'go-vap'],
+        [15, 'Phú Nhuận', 'phu-nhuan'],
+        [16, 'Tân Bình', 'tan-binh'],
+        [17, 'Tân Phú', 'tan-phu'],
+        [18, 'Huyện Bình Chánh', 'huyen-binh-chanh'],
+        [19, 'Huyện Cần Giờ', 'huyen-can-gio'],
+        [20, 'Huyện Củ Chi', 'huyen-cu-chi'],
+        [21, 'Huyện Hóc Môn', 'huyen-hoc-mon'],
+        [22, 'Huyện Nhà Bè', 'huyen-nha-be'],
+    ];
+    $insDist = $pdo->prepare('INSERT INTO districts (id, name, slug) VALUES (?,?,?)');
+    foreach ($districts as $d) {
+        $insDist->execute($d);
     }
 
     $cats = [
@@ -175,6 +200,7 @@ SQL);
         [3, 'CrossFit', 'crossfit', 'Tập luyện cường độ cao theo nhóm', 1],
         [4, 'Yoga', 'yoga', 'Yoga, thiền và các bài tập thư giãn', 1],
         [5, 'Boxing', 'boxing', 'Boxing, MMA và các môn võ thuật đối kháng', 0],
+        [6, 'Gym cho nữ', 'gym-cho-nu', 'Không gian tập luyện riêng tư, an toàn và thoải mái dành riêng cho phái nữ.', 1],
     ];
     $insC = $pdo->prepare('INSERT INTO categories (id, name, slug, description, is_active) VALUES (?,?,?,?,?)');
     foreach ($cats as $c) {
@@ -187,20 +213,22 @@ SQL);
         [3, 'Wifi', 'wifi', 'fa-wifi'],
         [4, 'Xông hơi', 'xong-hoi', 'fa-hot-tub-person'],
         [5, 'Tủ khóa', 'tu-khoa', 'fa-lock'],
+        [6, 'Điều hòa', 'dieu-hoa', 'fa-snowflake'],
+        [7, 'Nước uống miễn phí', 'nuoc-uong-mien-phi', 'fa-bottle-water'],
     ];
     $insA = $pdo->prepare('INSERT INTO amenities (id, name, slug, icon) VALUES (?,?,?,?)');
     foreach ($ams as $a) {
         $insA->execute($a);
     }
 
-    foreach ([[1, 'Strength', 'strength'], [2, 'Cardio & giảm cân', 'cardio-giam-can'], [3, 'Yoga', 'yoga-specialty'], [4, 'Boxing', 'boxing-specialty']] as $s) {
+    foreach ([[1, 'Sức mạnh', 'strength'], [2, 'Cardio & giảm cân', 'cardio-giam-can'], [3, 'Yoga', 'yoga-specialty'], [4, 'Boxing', 'boxing-specialty']] as $s) {
         $pdo->prepare('INSERT INTO specialties (id, name, slug) VALUES (?,?,?)')->execute($s);
     }
 
     $gyms = [
         [1, 'Iron Fitness Center', 'iron-fitness-center', 'Phòng tập thể hình cao cấp với đầy đủ máy móc nhập khẩu.', '12 Nguyễn Huệ, Quận 1', 1, '+84281234567', 'contact@ironfitness.test', 'https://ironfitness.test', 300000, 900000, '05:30 - 22:30', 1, 'active'],
         [2, 'CrossFit Quận 1', 'crossfit-quan-1', 'Phòng tập CrossFit chuyên nghiệp, lớp nhóm hàng ngày.', '88 Lê Lợi, Quận 1', 1, '+84281234568', 'info@crossfitq1.test', 'https://crossfitq1.test', 200000, 500000, '06:00 - 21:00', 0, 'active'],
-        [3, 'Zen Yoga Studio', 'zen-yoga-studio', 'Không gian yoga yên tĩnh, lớp nhỏ, giáo viên chứng chỉ quốc tế.', '45 Nguyễn Thị Thập, Quận 7', 2, '+84287654321', 'hello@zenyoga.test', 'https://zenyoga.test', 250000, 700000, '06:00 - 21:00', 1, 'active'],
+        [3, 'Zen Yoga Studio', 'zen-yoga-studio', 'Không gian yoga yên tĩnh, lớp nhỏ, giáo viên quốc tế, phù hợp cho phái nữ và mọi học viên.', '45 Nguyễn Thị Thập, Quận 7', 2, '+84287654321', 'hello@zenyoga.test', 'https://zenyoga.test', 250000, 700000, '06:00 - 21:00', 1, 'active'],
         [4, 'Elite Premium Gym', 'elite-premium-gym', 'Trải nghiệm tập luyện đẳng cấp, đầy đủ tiện ích cao cấp.', '200 Nguyễn Văn Linh, Quận 7', 2, '+84287654322', 'vip@elitepremium.test', 'https://elitepremium.test', 800000, 2000000, '05:00 - 23:00', 0, 'active'],
         [5, 'Boxing Club Thủ Đức', 'boxing-club-thu-duc', 'Phòng tập boxing và MMA tại Thủ Đức.', '10 Võ Văn Ngân, Thủ Đức', 3, '+84289999001', null, null, 150000, 400000, '07:00 - 21:00', 0, 'active'],
         [6, 'Gym Thủ Đức Cơ Bản', 'gym-thu-duc-co-ban', 'Phòng tập cơ bản, giá sinh viên.', '55 Kha Vạn Cân, Thủ Đức', 3, '+84289999002', null, null, 100000, 300000, '06:00 - 22:00', 0, 'active'],
@@ -212,10 +240,10 @@ SQL);
         $insG->execute($g);
     }
 
-    foreach ([[1, 1], [1, 2], [2, 1], [2, 3], [3, 4], [4, 1], [4, 2], [5, 5], [7, 1]] as $gc) {
+    foreach ([[1, 1], [1, 2], [2, 1], [2, 3], [3, 4], [3, 6], [4, 1], [4, 2], [4, 6], [5, 5], [7, 1]] as $gc) {
         $pdo->prepare('INSERT INTO gym_categories (gym_id, category_id) VALUES (?,?)')->execute($gc);
     }
-    foreach ([[1, 1], [1, 2], [1, 3], [1, 5], [2, 1], [2, 2], [3, 1], [3, 3], [4, 1], [4, 2], [4, 3], [4, 4], [4, 5], [7, 1]] as $ga) {
+    foreach ([[1, 1], [1, 2], [1, 3], [1, 5], [1, 6], [1, 7], [2, 1], [2, 2], [2, 6], [3, 1], [3, 3], [3, 6], [3, 7], [4, 1], [4, 2], [4, 3], [4, 4], [4, 5], [4, 6], [4, 7], [5, 6], [7, 1]] as $ga) {
         $pdo->prepare('INSERT INTO gym_amenities (gym_id, amenity_id) VALUES (?,?)')->execute($ga);
     }
     $pdo->prepare('INSERT INTO gym_images (gym_id, image_url, caption, sort_order) VALUES (?,?,?,?)')->execute([1, 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 'Khu tập tạ', 1]);
@@ -223,7 +251,7 @@ SQL);
     $pdo->prepare('INSERT INTO gym_images (gym_id, image_url, caption, sort_order) VALUES (?,?,?,?)')->execute([3, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', 'Studio yoga', 1]);
 
     $trainers = [
-        [1, 'Nguyễn Anh Tuấn', 'nguyen-anh-tuan', 1, 0, 'Chuyên gia Strength & Conditioning.', '+84901000001', 't01@gymfinder.test', 1, 1, 1, 'active'],
+        [1, 'Nguyễn Anh Tuấn', 'nguyen-anh-tuan', 1, 0, 'Chuyên gia Huấn luyện Sức mạnh & Thể lực.', '+84901000001', 't01@gymfinder.test', 1, 1, 1, 'active'],
         [2, 'Trần Thị Kim Lan', 'tran-thi-kim-lan', 2, 2, 'PT giảm cân và cardio.', '+84901000002', 't02@gymfinder.test', 1, 1, 0, 'active'],
         [3, 'Lê Văn Bình', 'le-van-binh', 1, 3, 'Huấn luyện viên CrossFit chuyên nghiệp.', '+84901000003', 't03@gymfinder.test', 2, 1, 0, 'active'],
         [4, 'Phạm Thu Hà', 'pham-thu-ha', 3, 5, 'Giáo viên Yoga chứng chỉ RYT-500.', '+84901000004', 't04@gymfinder.test', 3, 2, 1, 'active'],

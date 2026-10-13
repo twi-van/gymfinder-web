@@ -41,12 +41,5 @@ const categoriesData = [
         slug: "gym-cho-nu",
         icon: "fa-solid fa-person-dress",
         description: "Không gian tập luyện riêng tư, thoải mái và an toàn dành riêng cho phái nữ."
-    },
-    {
-        id: 8,
-        name: "Gym hỗ trợ giảm cân",
-        slug: "gym-giam-can",
-        icon: "fa-solid fa-fire",
-        description: "Các phòng tập có lộ trình và máy móc chuyên dụng giúp đốt mỡ hiệu quả."
     }
 ];

@@ -1,5 +1,26 @@
 <?php
 require_once dirname(__DIR__, 2) . '/backend/bootstrap.php';
+$priceRanges = [
+    '' => 'Tất cả mức giá',
+    'under_300' => 'Dưới 300.000đ',
+    '300_500' => '300.000đ - 500.000đ',
+    '500_1000' => '500.000đ - 1.000.000đ',
+    'over_1000' => 'Trên 1.000.000đ',
+];
+
+$rawPriceRange = trim((string)($_GET['price_range'] ?? $_GET['price'] ?? ''));
+if ($rawPriceRange === '500') {
+    $rawPriceRange = '300_500';
+} elseif ($rawPriceRange === '1000') {
+    $rawPriceRange = '500_1000';
+}
+$selectedPriceRange = array_key_exists($rawPriceRange, $priceRanges) ? $rawPriceRange : '';
+
+$rawMin = isset($_GET['price_min']) && $_GET['price_min'] !== '' ? filter_var($_GET['price_min'], FILTER_VALIDATE_INT) : false;
+$rawMax = isset($_GET['price_max']) && $_GET['price_max'] !== '' ? filter_var($_GET['price_max'], FILTER_VALIDATE_INT) : false;
+$customPriceMin = $rawMin !== false && $rawMin >= 0 ? (string)$rawMin : '';
+$customPriceMax = $rawMax !== false && $rawMax >= 0 ? (string)$rawMax : '';
+
 $filters = [
     'keyword' => trim((string) ($_GET['keyword'] ?? '')),
     'district_id' => $_GET['district_id'] ?? '',
@@ -9,48 +30,153 @@ $filters = [
     'amenity_ids' => [],
     'has_pt' => $_GET['has_pt'] ?? '',
     'open_247' => $_GET['open_247'] ?? '',
+    'women' => $_GET['women'] ?? '',
     'weight_loss' => $_GET['weight_loss'] ?? '',
     'featured' => $_GET['featured'] ?? '',
-    'price_min' => $_GET['price_min'] ?? '',
-    'price_max' => $_GET['price_max'] ?? '',
+    'price_range' => $selectedPriceRange,
+    'price_min' => $selectedPriceRange !== '' ? '' : $customPriceMin,
+    'price_max' => $selectedPriceRange !== '' ? '' : $customPriceMax,
     'sort' => $_GET['sort'] ?? '',
     'page' => max(1, (int)($_GET['page'] ?? 1)),
     'limit' => 4,
 ];
-$amenityIdMap = ['dry_steam' => 4, 'wet_steam' => 4, 'locker' => 5, 'parking' => 2, 'shower' => 1];
+$amenityIdMap = ['sauna' => 4, 'steam' => 4, 'dry_steam' => 4, 'wet_steam' => 4, 'locker' => 5, 'parking' => 2, 'shower' => 1, 'ac' => 6, 'water' => 7];
 $filters['amenity_ids'] = array_values(array_unique(array_filter(array_map(
     static fn ($option) => $amenityIdMap[$option] ?? 0,
     $filters['amenity_options']
 ))));
-$price = $_GET['price'] ?? '';
-if ($price === '500') {
-    $filters['price_max'] = 500000;
-}
-if ($price === '1000') {
-    $filters['price_min'] = 500000;
-    $filters['price_max'] = 1000000;
-}
+
 $gymPage = gf_search_gyms_paged($filters);
 $gyms = $gymPage['items'];
 $districts = gf_list_districts();
 $categories = gf_list_categories();
 $amenities = gf_list_amenities();
+
+// Xây dựng danh sách Active Filter Chips
+$activeChips = [];
+if ($selectedPriceRange !== '') {
+    $q = $_GET;
+    unset($q['price_range'], $q['price'], $q['page']);
+    $activeChips[] = [
+        'label' => $priceRanges[$selectedPriceRange],
+        'remove_url' => '?' . http_build_query($q),
+    ];
+} elseif ($customPriceMin !== '' || $customPriceMax !== '') {
+    $pLabel = '';
+    if ($customPriceMin !== '' && $customPriceMax !== '') {
+        $pLabel = gf_format_price((int)$customPriceMin, (int)$customPriceMax);
+    } elseif ($customPriceMin !== '') {
+        $pLabel = 'Từ ' . number_format((int)$customPriceMin, 0, ',', '.') . 'đ';
+    } else {
+        $pLabel = 'Đến ' . number_format((int)$customPriceMax, 0, ',', '.') . 'đ';
+    }
+    $q = $_GET;
+    unset($q['price_min'], $q['price_max'], $q['page']);
+    $activeChips[] = [
+        'label' => $pLabel,
+        'remove_url' => '?' . http_build_query($q),
+    ];
+}
+if (!empty($filters['district_id'])) {
+    $distName = '';
+    foreach ($districts as $d) {
+        if ((int)$d['id'] === (int)$filters['district_id']) {
+            $distName = $d['name'];
+            break;
+        }
+    }
+    if ($distName !== '') {
+        $q = $_GET;
+        unset($q['district_id'], $q['page']);
+        $activeChips[] = [
+            'label' => $distName,
+            'remove_url' => '?' . http_build_query($q),
+        ];
+    }
+}
+if (!empty($filters['rating'])) {
+    $q = $_GET;
+    unset($q['rating'], $q['page']);
+    $activeChips[] = [
+        'label' => $filters['rating'] . '★ trở lên',
+        'remove_url' => '?' . http_build_query($q),
+    ];
+}
+if (!empty($filters['category_ids'])) {
+    foreach ($categories as $cat) {
+        if (in_array((int)$cat['id'], $filters['category_ids'], true)) {
+            $q = $_GET;
+            $q['category_ids'] = array_values(array_filter($filters['category_ids'], static fn($id) => $id !== (int)$cat['id']));
+            if (empty($q['category_ids'])) unset($q['category_ids']);
+            unset($q['page']);
+            $activeChips[] = [
+                'label' => $cat['name'],
+                'remove_url' => '?' . http_build_query($q),
+            ];
+        }
+    }
+}
+if (!empty($filters['has_pt'])) {
+    $q = $_GET;
+    unset($q['has_pt'], $q['page']);
+    $activeChips[] = [
+        'label' => 'Có PT',
+        'remove_url' => '?' . http_build_query($q),
+    ];
+}
+if (!empty($filters['open_247'])) {
+    $q = $_GET;
+    unset($q['open_247'], $q['page']);
+    $activeChips[] = [
+        'label' => 'Mở cửa 24/7',
+        'remove_url' => '?' . http_build_query($q),
+    ];
+}
+if (!empty($filters['women'])) {
+    $q = $_GET;
+    unset($q['women'], $q['page']);
+    $activeChips[] = [
+        'label' => 'Dành cho nữ',
+        'remove_url' => '?' . http_build_query($q),
+    ];
+}
+if (!empty($filters['amenity_options'])) {
+    $amenityNames = [
+        'sauna' => 'Xông hơi',
+        'steam' => 'Xông hơi',
+        'dry_steam' => 'Xông hơi',
+        'wet_steam' => 'Xông hơi',
+        'locker' => 'Locker',
+        'parking' => 'Bãi đỗ xe',
+        'shower' => 'Phòng tắm',
+        'ac' => 'Điều hòa',
+        'water' => 'Nước uống miễn phí',
+    ];
+    foreach ($filters['amenity_options'] as $opt) {
+        $q = $_GET;
+        $q['amenities'] = array_values(array_filter($filters['amenity_options'], static fn($o) => $o !== $opt));
+        if (empty($q['amenities'])) unset($q['amenities']);
+        unset($q['page']);
+        $activeChips[] = [
+            'label' => $amenityNames[$opt] ?? $opt,
+            'remove_url' => '?' . http_build_query($q),
+        ];
+    }
+}
 $figmaFeatures = [
     ['id' => 'feature_fitness', 'label' => 'Gym phổ thông', 'category_id' => 1],
     ['id' => 'feature_premium', 'label' => 'Gym cao cấp', 'category_id' => 2],
     ['id' => 'feature_247', 'label' => 'Mở cửa 24/7', 'name' => 'open_247'],
     ['id' => 'feature_pt', 'label' => 'Có huấn luyện viên (PT)', 'name' => 'has_pt'],
-    ['id' => 'feature_women', 'label' => 'Dành cho nữ', 'disabled' => true],
-    ['id' => 'feature_weight_loss', 'label' => 'Hỗ trợ giảm cân', 'name' => 'weight_loss'],
+    ['id' => 'feature_women', 'label' => 'Dành cho nữ', 'name' => 'women'],
 ];
 $figmaAmenities = [
-    ['id' => 'amenity_dry_steam', 'key' => 'dry_steam', 'label' => 'Xông hơi khô', 'amenity_id' => 4],
-    ['id' => 'amenity_wet_steam', 'key' => 'wet_steam', 'label' => 'Xông hơi ướt', 'amenity_id' => 4],
+    ['id' => 'amenity_sauna', 'key' => 'sauna', 'label' => 'Xông hơi', 'amenity_id' => 4],
     ['id' => 'amenity_locker', 'key' => 'locker', 'label' => 'Locker', 'amenity_id' => 5],
     ['id' => 'amenity_parking', 'key' => 'parking', 'label' => 'Bãi đỗ xe', 'amenity_id' => 2],
-    ['id' => 'amenity_ac', 'label' => 'Điều hòa', 'disabled' => true],
+    ['id' => 'amenity_ac', 'key' => 'ac', 'label' => 'Điều hòa', 'amenity_id' => 6],
     ['id' => 'amenity_shower', 'key' => 'shower', 'label' => 'Phòng tắm', 'amenity_id' => 1],
-    ['id' => 'amenity_water', 'label' => 'Nước uống miễn phí', 'disabled' => true],
+    ['id' => 'amenity_water', 'key' => 'water', 'label' => 'Nước uống miễn phí', 'amenity_id' => 7],
 ];
 $user = gf_current_user();
 $favGymIds = $user ? array_map(static fn ($g) => (int) $g['id'], gf_user_favorites((int)$user['id'])['gyms']) : [];
@@ -92,10 +218,19 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 </div>
                 <div class="filter-group">
                     <div class="filter-group-title">Khoảng giá (VNĐ/tháng)</div>
-                    <div class="d-flex align-items-center gap-2">
-                        <input type="number" name="price_min" class="form-control form-control-sm text-center" placeholder="Từ" value="<?= gf_h((string)$filters['price_min']) ?>" style="font-size:13px">
-                        <span class="text-secondary">-</span>
-                        <input type="number" name="price_max" class="form-control form-control-sm text-center" placeholder="Đến" value="<?= gf_h((string)$filters['price_max']) ?>" style="font-size:13px">
+                    <?php foreach ($priceRanges as $key => $label): $pId = $key === '' ? 'price_all' : 'price_' . $key; ?>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="price_range" id="<?= $pId ?>" value="<?= gf_h($key) ?>" <?= $selectedPriceRange === $key ? 'checked' : '' ?> onchange="if(this.value){document.getElementById('customPriceMin').value='';document.getElementById('customPriceMax').value='';}">
+                            <label class="form-check-label" for="<?= $pId ?>"><?= gf_h($label) ?></label>
+                        </div>
+                    <?php endforeach; ?>
+                    <div class="mt-2 pt-2 border-top">
+                        <label class="small text-secondary mb-1 d-block" style="font-size:12px">Hoặc khoảng giá tùy chỉnh:</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="number" id="customPriceMin" name="price_min" class="form-control form-control-sm text-center" placeholder="Từ" value="<?= gf_h((string)$customPriceMin) ?>" style="font-size:13px" min="0" step="50000" oninput="document.getElementById('price_all').checked=true">
+                            <span class="text-secondary">-</span>
+                            <input type="number" id="customPriceMax" name="price_max" class="form-control form-control-sm text-center" placeholder="Đến" value="<?= gf_h((string)$customPriceMax) ?>" style="font-size:13px" min="0" step="50000" oninput="document.getElementById('price_all').checked=true">
+                        </div>
                     </div>
                 </div>
                 <div class="filter-group">
@@ -139,6 +274,18 @@ require dirname(__DIR__, 2) . '/includes/header.php';
             </div>
         </div>
         <div class="col-lg-9">
+            <?php if (!empty($activeChips)): ?>
+                <div class="mb-4 p-3 bg-white rounded-3 shadow-sm border d-flex flex-wrap gap-2 align-items-center">
+                    <span class="text-secondary fw-semibold small me-1"><i class="fa-solid fa-filter me-1 text-primary"></i>Đang lọc:</span>
+                    <?php foreach ($activeChips as $chip): ?>
+                        <span class="badge bg-primary-light text-primary border border-primary-subtle px-3 py-2 fw-medium rounded-pill d-inline-flex align-items-center gap-2" style="font-size:13px">
+                            <?= gf_h($chip['label']) ?>
+                            <a href="<?= gf_h($chip['remove_url']) ?>" class="text-primary text-decoration-none" title="Bỏ điều kiện này" style="opacity:0.75;line-height:1"><i class="fa-solid fa-xmark"></i></a>
+                        </span>
+                    <?php endforeach; ?>
+                    <a href="<?= gf_h(gf_url('pages/gyms/search.php' . (!empty($filters['keyword']) ? '?keyword=' . urlencode($filters['keyword']) : ''))) ?>" class="btn btn-sm btn-link text-decoration-none text-danger fw-semibold ms-auto p-0" style="font-size:13px"><i class="fa-solid fa-trash-can me-1"></i>Xóa tất cả</a>
+                </div>
+            <?php endif; ?>
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3 pb-3 border-bottom">
                 <h2 class="fw-bold text-dark m-0" style="font-size:16px"><?= (int)$gymPage['total'] ?> phòng tập được tìm thấy</h2>
                 <form method="get" class="d-flex align-items-center gap-2">

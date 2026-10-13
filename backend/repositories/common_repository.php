@@ -93,11 +93,27 @@ function gf_unique_slug(string $table, string $base, int $maxLen = 120): string
 }
 
 /**
- * Lấy danh sách quận/huyện.
+ * Lấy danh sách quận/huyện (sắp xếp hợp lý theo thứ tự quận/huyện TP.HCM).
  */
 function gf_list_districts(): array
 {
-    return gf_pdo()->query('SELECT * FROM districts ORDER BY name')->fetchAll();
+    $rows = gf_pdo()->query('SELECT * FROM districts')->fetchAll();
+    $order = [
+        'Quận 1', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 'Quận 7', 'Quận 8',
+        'Quận 10', 'Quận 11', 'Quận 12', 'Bình Tân', 'Bình Thạnh', 'Gò Vấp',
+        'Phú Nhuận', 'Tân Bình', 'Tân Phú', 'TP Thủ Đức', 'Thủ Đức',
+        'Huyện Bình Chánh', 'Huyện Cần Giờ', 'Huyện Củ Chi', 'Huyện Hóc Môn', 'Huyện Nhà Bè'
+    ];
+    $orderMap = array_flip($order);
+    usort($rows, static function (array $a, array $b) use ($orderMap): int {
+        $pa = $orderMap[$a['name']] ?? 999;
+        $pb = $orderMap[$b['name']] ?? 999;
+        if ($pa !== $pb) {
+            return $pa <=> $pb;
+        }
+        return strcmp($a['name'], $b['name']);
+    });
+    return $rows;
 }
 
 /**

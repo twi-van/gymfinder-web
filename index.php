@@ -58,10 +58,12 @@ require __DIR__ . '/includes/header.php';
                 <div class="search-divider d-none d-md-block" style="height: 24px;"></div>
                 <div class="d-flex align-items-center px-3 w-100" style="max-width: 200px;">
                     <i class="fa-solid fa-coins text-secondary me-2"></i>
-                    <select class="form-select px-0" name="price">
+                    <select class="form-select px-0" name="price_range">
                         <option value="">Khoảng giá</option>
-                        <option value="500">Dưới 500k</option>
-                        <option value="1000">500k - 1tr</option>
+                        <option value="under_300">Dưới 300k</option>
+                        <option value="300_500">300k - 500k</option>
+                        <option value="500_1000">500k - 1tr</option>
+                        <option value="over_1000">Trên 1tr</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center gap-2">

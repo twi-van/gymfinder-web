@@ -2,12 +2,7 @@
     <div class="container">
         <div class="row g-4 mb-5">
             <div class="col-12 col-lg-4 pe-lg-5">
-                <a href="<?= gf_h(gf_url('index.php')) ?>" class="d-inline-flex align-items-center gap-2 text-decoration-none mb-4">
-                    <span class="border rounded d-flex align-items-center justify-content-center text-primary bg-white shadow-sm" style="width:32px;height:32px;border-color:#f3f4f6!important;">
-                        <i class="fa-solid fa-dumbbell"></i>
-                    </span>
-                    <span class="fw-bold" style="font-size: 20px; color: #1e293b;">GYM<span class="text-primary">FINDER</span></span>
-                </a>
+                <?= gf_logo('footer', null, 'mb-4') ?>
                 <p class="text-secondary mb-4" style="font-size: 14px; line-height: 1.6;">Nền tảng tìm kiếm và so sánh các phòng tập gym, tiện ích, loại hình tập luyện và đội ngũ huấn luyện viên.</p>
                 <div class="d-flex align-items-center gap-2 text-secondary" style="font-size: 14px;">
                     <i class="fa-solid fa-location-dot"></i>

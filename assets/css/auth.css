@@ -8,6 +8,32 @@ body.auth-page {
     color: var(--text-dark);
 }
 
+/* Logo Brand Typography Standardization */
+.brand-logo,
+.logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none !important;
+}
+
+.brand-logo-text,
+.logo-text {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    color: #1e293b;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.brand-logo-text .text-primary,
+.logo-text .text-primary {
+    color: var(--primary-color, #00c9b1) !important;
+}
+
 .auth-wrapper {
     width: 100%;
     max-width: 1400px;
@@ -20,18 +46,24 @@ body.auth-page {
     padding-right: 4rem;
 }
 
+.auth-brand {
+    display: flex;
+    margin-bottom: 2.5rem;
+}
+
 .auth-badge {
     background-color: var(--primary-light);
     color: var(--primary-color);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.5px;
-    padding: 6px 12px;
+    padding: 6px 14px;
     border-radius: 20px;
     display: inline-flex;
     align-items: center;
     gap: 6px;
     margin-bottom: 24px;
+    width: fit-content;
 }
 
 .auth-heading {

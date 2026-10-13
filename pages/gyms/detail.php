@@ -32,11 +32,15 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
 require dirname(__DIR__, 2) . '/includes/header.php';
 ?>
 <div class="container py-4">
-    <nav class="mb-4"><a href="<?= gf_h(gf_url('index.php')) ?>">Trang chủ</a> / <a href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>">Phòng tập</a> / <strong><?= gf_h($gym['name']) ?></strong></nav>
+    <nav aria-label="breadcrumb" class="mb-4"><ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="<?= gf_h(gf_url('index.php')) ?>" class="text-secondary text-decoration-none"><i class="fa-solid fa-house me-1"></i>Trang chủ</a></li>
+        <li class="breadcrumb-item"><a href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>" class="text-secondary text-decoration-none">Phòng tập</a></li>
+        <li class="breadcrumb-item active text-dark fw-semibold"><?= gf_h($gym['name']) ?></li>
+    </ol></nav>
     <?php if ($msg): ?><div class="alert alert-info"><?= gf_h($msg) ?></div><?php endif; ?>
     <div class="row g-3 mb-4">
         <div class="col-lg-8">
-            <img src="<?= gf_h($gym['cover']) ?>" class="w-100 rounded-4" style="height:400px;object-fit:cover;" alt="">
+            <img src="<?= gf_h($gym['cover']) ?>" class="w-100 rounded-4" style="height:400px;object-fit:cover;" alt="<?= gf_h($gym['name']) ?>" onerror="this.onerror=null;this.src='<?= gf_h(gf_cover_image(null, (int)$gym['id'])) ?>';">
         </div>
         <div class="col-lg-4">
             <div class="row g-3">

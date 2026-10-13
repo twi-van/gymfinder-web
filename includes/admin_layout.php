@@ -11,10 +11,10 @@ function gf_admin_nav(string $key, string $href, string $icon, string $label, st
 <div class="d-flex">
 <aside class="sidebar d-flex flex-column" id="sidebar" style="width:285px;min-height:100vh;background:#fff;border-right:1px solid #e2e8f0;">
     <div class="p-4 border-bottom">
-        <a class="d-flex align-items-center gap-2 fw-bold text-decoration-none text-dark admin-brand" href="<?= gf_h(gf_url('index.php')) ?>"><span class="admin-brand-mark"><i class="fa-solid fa-dumbbell"></i></span><span>GYM<span class="text-primary">FINDER</span></span></a>
+        <?= gf_logo('admin', null, 'admin-brand') ?>
     </div>
     <div class="p-3 flex-grow-1">
-        <ul class="nav flex-column">
+        <ul class="nav flex-column gap-1">
             <?php
             gf_admin_nav('dashboard', 'admin/pages/dashboard.php', 'fa-chart-pie', 'Tổng quan', $adminActive);
             gf_admin_nav('gyms', 'admin/pages/gyms.php', 'fa-dumbbell', 'Phòng tập', $adminActive);
@@ -27,8 +27,8 @@ function gf_admin_nav(string $key, string $href, string $icon, string $label, st
     </div>
     <div class="p-3 border-top mt-auto">
         <div class="d-flex align-items-center gap-2">
-            <span class="rounded-circle d-inline-flex align-items-center justify-content-center text-white fw-bold" style="width:44px;height:44px;background:#00c9b1;flex:0 0 44px">AD</span>
-            <div class="min-w-0"><div class="fw-bold"><?= gf_h($adminUser['full_name']) ?></div><div class="small text-secondary">Administrator</div></div>
+            <img src="<?= gf_h(gf_avatar($adminUser['avatar_url'] ?? null, !empty($adminUser['avatar_url']) ? (int) $adminUser['id'] : 0, $adminUser['full_name'])) ?>" class="rounded-circle shadow-sm" style="width:44px;height:44px;object-fit:cover;aspect-ratio:1/1;flex:0 0 44px;" alt="<?= gf_h($adminUser['full_name']) ?>">
+            <div class="min-w-0"><div class="fw-bold"><?= gf_h($adminUser['full_name']) ?></div><div class="small text-secondary">Quản trị viên</div></div>
             <form method="post" action="<?= gf_h(gf_url('pages/auth/logout.php')) ?>" class="ms-auto"><?= gf_csrf_field() ?><button class="btn btn-action btn-action-view" title="Đăng xuất"><i class="fa-solid fa-arrow-right-from-bracket"></i></button></form>
         </div>
     </div>

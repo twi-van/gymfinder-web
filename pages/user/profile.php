@@ -4,9 +4,14 @@ $user = gf_require_login();
 $msg = '';
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $avatarUrl = $user['avatar_url'] ?? null;
+    gf_require_csrf();
+    $oldAvatar = $user['avatar_url'] ?? null;
+    $avatarUrl = $oldAvatar;
+    $avatarChanged = false;
+
     if (!empty($_POST['remove_avatar'])) {
         $avatarUrl = null;
+        $avatarChanged = true;
     }
     if (isset($_FILES['avatar_file']) && ($_FILES['avatar_file']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
         $upload = gf_save_upload($_FILES['avatar_file'], 'user_avatar', $user);
@@ -14,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = $upload['error'];
         } else {
             $avatarUrl = $upload['url'];
+            $avatarChanged = true;
         }
     }
     if (!$error) {
@@ -23,8 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'goal' => $_POST['goal'] ?? null,
             'avatar_url' => $avatarUrl,
         ]);
+        if ($avatarChanged && $oldAvatar && $oldAvatar !== $avatarUrl) {
+            gf_delete_unreferenced_files([$oldAvatar]);
+        }
         $user = gf_current_user();
-        $msg = 'Đã lưu hồ sơ.';
+        $msg = 'Đã lưu hồ sơ thành công.';
     }
 }
 $pageTitle = 'Hồ sơ cá nhân - GYMFINDER';
@@ -35,11 +44,11 @@ require dirname(__DIR__, 2) . '/includes/header.php';
 ?>
 <style>
 .profile-page{width:min(1100px,calc(100% - 40px));max-width:1100px;margin:0 auto;padding:24px 20px 64px}.profile-panel{background:#fff;border:1px solid #dbe2e8;border-radius:22px;padding:48px 56px;box-shadow:0 3px 8px #0f172a0d;margin-bottom:24px}.profile-hero{display:flex;align-items:center;gap:28px;padding-bottom:32px;border-bottom:1px solid #dbe2e8}.profile-avatar{width:144px;height:144px;object-fit:cover;border-radius:50%;background:#00c9b1}.profile-label{color:#64748b;margin-bottom:10px}.profile-value{font-size:18px;color:#0f172a}.profile-goals{display:grid;grid-template-columns:1fr 1fr;gap:14px}.profile-goal{padding:18px 22px;border:2px solid #e2e8f0;border-radius:16px;color:#64748b;font-size:17px}.profile-goal.active{border-color:#36d4c0;color:#36cbbb;background:#f3fdfa}.profile-edit-grid{display:none}.profile-page.editing .profile-view{display:none}.profile-page.editing .profile-edit-grid{display:block}.profile-account{min-height:230px}.profile-account .btn-logout{min-width:270px;border:1px solid #ef4444;color:#ef4444;border-radius:30px;padding:14px 28px;font-size:17px}.profile-account .btn-logout:hover{background:#fff1f2}@media(max-width:767px){.profile-panel{padding:26px 20px}.profile-hero{gap:16px}.profile-avatar{width:88px;height:88px}.profile-goals{grid-template-columns:1fr}}
-.profile-avatar-wrap{position:relative;flex:0 0 auto}.profile-page.editing .edit-only-element{display:inline-flex}.edit-only-element{display:none}.avatar-camera{position:absolute;right:0;bottom:0;width:42px;height:42px;align-items:center;justify-content:center;border:0;border-radius:50%;background:#00c9b1;color:#fff;box-shadow:0 2px 8px #0f172a26}.btn-remove-avatar{margin-top:12px;padding:0;border:0;background:none;color:#ef3340;font-size:16px}.profile-edit-input{min-height:56px;border-color:#dbe2e8;border-radius:10px;background:#f8fafc;font-size:18px}.profile-goal-choice{display:flex;align-items:center;gap:16px;min-height:78px;padding:14px 22px;border:2px solid #e2e8f0;border-radius:16px;color:#64748b;font-size:17px;cursor:pointer}.profile-goal-choice input{position:absolute;opacity:0;pointer-events:none}.profile-goal-choice i{font-size:24px}.profile-goal-choice:has(input:checked){border-color:#00c9b1;background:#f0fdfa;color:#00bfae}.profile-goal-choice:focus-within{outline:3px solid #00c9b133}
+.profile-avatar-wrap{position:relative;flex:0 0 auto}.profile-page.editing .edit-only-element{display:inline-flex}.edit-only-element{display:none}.avatar-camera{position:absolute;right:0;bottom:0;width:42px;height:42px;align-items:center;justify-content:center;border:0;border-radius:50%;background:#00c9b1;color:#fff;box-shadow:0 2px 8px #0f172a26;cursor:pointer}.btn-remove-avatar{margin-top:12px;padding:0;border:0;background:none;color:#ef3340;font-size:16px;cursor:pointer}.profile-edit-input{min-height:56px;border-color:#dbe2e8;border-radius:10px;background:#f8fafc;font-size:18px}.profile-goal-choice{display:flex;align-items:center;gap:16px;min-height:78px;padding:14px 22px;border:2px solid #e2e8f0;border-radius:16px;color:#64748b;font-size:17px;cursor:pointer}.profile-goal-choice input{position:absolute;opacity:0;pointer-events:none}.profile-goal-choice i{font-size:24px}.profile-goal-choice:has(input:checked){border-color:#00c9b1;background:#f0fdfa;color:#00bfae}.profile-goal-choice:focus-within{outline:3px solid #00c9b133}
 </style>
 <div class="profile-page" id="profilePage">
-    <?php if ($msg): ?><div class="alert alert-success"><?= gf_h($msg) ?></div><?php endif; ?>
-    <?php if ($error): ?><div class="alert alert-danger"><?= gf_h($error) ?></div><?php endif; ?>
+    <?php if ($msg): ?><div class="alert alert-success"><i class="fa-solid fa-circle-check me-2"></i><?= gf_h($msg) ?></div><?php endif; ?>
+    <?php if ($error): ?><div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation me-2"></i><?= gf_h($error) ?></div><?php endif; ?>
     <div class="profile-panel">
         <div class="profile-hero">
             <div class="profile-avatar-wrap">
@@ -83,7 +92,10 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                     </label>
                 <?php endforeach; ?>
             </div>
-            <button class="btn btn-primary">Lưu thay đổi</button> <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('profilePage').classList.remove('editing')">Hủy</button>
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-primary rounded-pill px-4">Lưu thay đổi</button>
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" onclick="cancelProfileEdit()">Hủy</button>
+            </div>
         </form>
     </div>
     <div class="profile-panel profile-account">
@@ -94,22 +106,50 @@ require dirname(__DIR__, 2) . '/includes/header.php';
 <script>
 const savedProfileAvatar = <?= json_encode(gf_avatar($user['avatar_url'] ?? null, !empty($user['avatar_url']) ? (int)$user['id'] : 0, $user['full_name']), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
 const emptyProfileAvatar = <?= json_encode(gf_avatar(null, 0, $user['full_name']), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
+let activeObjectUrl = null;
+
+function revokeActiveObjectUrl() {
+    if (activeObjectUrl) {
+        URL.revokeObjectURL(activeObjectUrl);
+        activeObjectUrl = null;
+    }
+}
+
 function previewProfileAvatar(input) {
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) {
-        alert('Chọn ảnh JPG, PNG hoặc WEBP tối đa 5MB.');
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        alert('File không hợp lệ. Vui lòng chọn ảnh định dạng JPG, PNG hoặc WEBP.');
         input.value = '';
         return;
     }
-    document.getElementById('profileAvatar').src = URL.createObjectURL(file);
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Dung lượng file vượt quá giới hạn 5 MB. Vui lòng chọn ảnh nhỏ hơn.');
+        input.value = '';
+        return;
+    }
+    revokeActiveObjectUrl();
+    activeObjectUrl = URL.createObjectURL(file);
+    document.getElementById('profileAvatar').src = activeObjectUrl;
     document.getElementById('removeAvatar').value = '0';
 }
+
 function removeProfileAvatar() {
+    revokeActiveObjectUrl();
     document.getElementById('profileAvatar').src = emptyProfileAvatar;
     document.getElementById('avatarFile').value = '';
     document.getElementById('removeAvatar').value = '1';
 }
+
+function cancelProfileEdit() {
+    revokeActiveObjectUrl();
+    document.getElementById('profileAvatar').src = savedProfileAvatar;
+    document.getElementById('avatarFile').value = '';
+    document.getElementById('removeAvatar').value = '0';
+    document.getElementById('profilePage').classList.remove('editing');
+}
+
 document.getElementById('avatarFile').addEventListener('change', function () { previewProfileAvatar(this); });
+window.addEventListener('beforeunload', revokeActiveObjectUrl);
 </script>
 <?php require dirname(__DIR__, 2) . '/includes/footer.php'; ?>

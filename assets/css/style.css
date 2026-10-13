@@ -6,10 +6,14 @@
     --text-gray: #6b7280;
     --bg-light: #f9fafb;
     --border-color: #f3f4f6;
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --bs-body-font-family: var(--font-sans);
+    --bs-font-sans-serif: var(--font-sans);
+    --bs-btn-font-family: var(--font-sans);
 }
 
 body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: var(--font-sans);
     color: var(--text-dark);
     background-color: #ffffff;
 }
@@ -59,32 +63,215 @@ body {
     color: var(--primary-color);
 }
 
-/* Navbar */
+/* ==========================================================================
+   Navbar Typography & Styling Standardization
+   ========================================================================== */
 .navbar {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    font-family: var(--font-sans);
+}
+
+.navbar .nav-link,
+.navbar .dropdown-item,
+.navbar .btn,
+.navbar-brand {
+    font-family: var(--font-sans);
+}
+
+/* Guard: Ensure Font Awesome icon fonts inside .navbar are never overridden */
+.navbar [class*="fa-"],
+.navbar .fa,
+.navbar .fas,
+.navbar .far,
+.navbar .fa-solid,
+.navbar .fa-regular {
+    font-family: "Font Awesome 6 Free" !important;
+}
+.navbar .fa-solid,
+.navbar .fas {
+    font-weight: 900 !important;
+}
+.navbar .fa-regular,
+.navbar .far {
+    font-weight: 400 !important;
+}
+.navbar .fab,
+.navbar .fa-brands {
+    font-family: "Font Awesome 6 Brands" !important;
+    font-weight: 400 !important;
+}
+
+.navbar {
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
 }
 
 .navbar-brand {
-    font-weight: 800;
-    font-size: 1.5rem;
     color: var(--text-dark);
+    text-decoration: none;
+    font-family: var(--font-sans);
 }
 
-.nav-link {
+/* ==========================================================================
+   GYMFINDER Unified Brand Logo Component
+   ========================================================================== */
+.brand-logo,
+.logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none !important;
+    color: inherit;
+    vertical-align: middle;
+    transition: opacity 0.15s ease;
+}
+
+.brand-logo:hover,
+.logo:hover {
+    color: inherit;
+    text-decoration: none;
+    opacity: 0.95;
+}
+
+.brand-logo-mark,
+.logo-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px;
+    color: var(--primary-color, #00c9b1);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+    flex-shrink: 0;
+    line-height: 0;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.brand-logo-svg,
+.logo-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.brand-logo-text,
+.logo-text {
+    font-family: var(--font-sans, 'Inter', system-ui, -apple-system, sans-serif);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    color: #1e293b;
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.brand-logo-text .text-primary,
+.logo-text .text-primary {
+    color: var(--primary-color, #00c9b1) !important;
+}
+
+/* Modifiers */
+/* Header Variant (Default) */
+.brand-logo--header,
+.logo--header {
+    gap: 0.5rem;
+}
+.brand-logo--header .brand-logo-mark,
+.logo--header .logo-mark {
+    width: 36px;
+    height: 36px;
+    padding: 7px;
+    border-radius: 8px;
+}
+.brand-logo--header .brand-logo-text,
+.logo--header .logo-text {
+    font-size: 20px;
+}
+
+/* Admin Sidebar / Header Variant */
+.brand-logo--admin,
+.logo--admin {
+    gap: 0.5rem;
+}
+.brand-logo--admin .brand-logo-mark,
+.logo--admin .logo-mark {
+    width: 36px;
+    height: 36px;
+    padding: 7px;
+    border-radius: 8px;
+}
+.brand-logo--admin .brand-logo-text,
+.logo--admin .logo-text {
+    font-size: 20px;
+}
+
+/* Footer Variant */
+.brand-logo--footer,
+.logo--footer {
+    gap: 0.5rem;
+}
+.brand-logo--footer .brand-logo-mark,
+.logo--footer .logo-mark {
+    width: 32px;
+    height: 32px;
+    padding: 7px;
+    border-radius: 8px;
+}
+.brand-logo--footer .brand-logo-text,
+.logo--footer .logo-text {
+    font-size: 20px;
+}
+
+/* Auth / Login / Register Hero Variant */
+.brand-logo--login,
+.logo--login,
+.brand-logo--auth,
+.logo--auth {
+    gap: 0.75rem;
+}
+.brand-logo--login .brand-logo-mark,
+.logo--login .logo-mark,
+.brand-logo--auth .brand-logo-mark,
+.logo--auth .logo-mark {
+    width: 50px;
+    height: 50px;
+    padding: 11px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+.brand-logo--login .brand-logo-text,
+.logo--login .logo-text,
+.brand-logo--auth .brand-logo-text,
+.logo--auth .logo-text {
+    font-size: 32px;
+}
+
+.navbar-nav .nav-link {
+    font-family: var(--font-sans);
+    font-size: 15px;
     font-weight: 500;
-    color: var(--text-gray);
-    margin: 0 0.5rem;
-    transition: color 0.2s;
+    color: #4b5563;
+    padding: 0.5rem 0.85rem;
+    transition: color 0.2s ease, font-weight 0.2s ease;
 }
 
-.nav-link:hover, .nav-link.active {
+.navbar-nav .nav-link:hover {
     color: var(--primary-color);
 }
 
 .navbar-nav .nav-link.active {
     color: var(--primary-color) !important;
+    font-weight: 600;
+}
+
+.navbar .btn {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.1px;
 }
 
 /* Hero Section */

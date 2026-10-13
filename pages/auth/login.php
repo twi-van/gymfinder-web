@@ -25,10 +25,9 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
         <div class="row align-items-center">
             <div class="col-lg-6 mb-5 mb-lg-0">
                 <div class="auth-left pe-lg-4">
-                    <a class="d-flex align-items-center gap-2 text-decoration-none mb-5" href="<?= gf_h(gf_url('index.php')) ?>">
-                        <span class="border rounded d-inline-flex align-items-center justify-content-center text-primary bg-white shadow-sm" style="width:50px;height:50px;border-color:#f3f4f6!important"><i class="fa-solid fa-dumbbell fa-lg"></i></span>
-                        <span class="fw-bold" style="font-size:32px;color:#1e293b;letter-spacing:-.5px">GYM<span class="text-primary">FINDER</span></span>
-                    </a>
+                    <div class="auth-brand mb-5">
+                        <?= gf_logo('login') ?>
+                    </div>
                     <div class="auth-badge"><i class="fa-solid fa-circle" style="font-size:6px"></i> KHÁM PHÁ • KẾT NỐI • TẬP LUYỆN</div>
                     <h1 class="auth-heading">Hành trình <span class="text-primary">khỏe mạnh</span><br>bắt đầu từ hôm nay</h1>
                     <p class="auth-desc">Đăng nhập để lưu phòng tập yêu thích, quản lý thông tin cá nhân và kết nối với huấn luyện viên tại TP.HCM.</p>

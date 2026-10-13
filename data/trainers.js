@@ -9,7 +9,7 @@ const trainersData = [
         rating: 4.9,
         reviewCount: 120,
         about: "Huấn luyện viên cá nhân với 5 năm kinh nghiệm. Chuyên về các bài tập cải thiện vóc dáng, tăng cơ giảm mỡ hiệu quả cho cả nam và nữ.",
-        disciplines: ["Gym", "Fitness", "Strength Training"],
+        disciplines: ["Gym", "Fitness", "Sức mạnh"],
         trainingStyle: "Nhiệt tình, kỷ luật cao, tập trung vào kỹ thuật và lộ trình dinh dưỡng.",
         contact: "0901 234 567"
     },

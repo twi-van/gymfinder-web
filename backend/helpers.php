@@ -220,21 +220,73 @@ function gf_redirect(string $path): void
     exit;
 }
 
+function gf_resolve_image_url(?string $url): ?string
+{
+    if ($url === null) {
+        return null;
+    }
+    $url = trim($url);
+    if ($url === '') {
+        return null;
+    }
+
+    // 1. URL bên ngoài hợp lệ (http / https)
+    if (preg_match('#^https?://#i', $url)) {
+        return filter_var($url, FILTER_VALIDATE_URL) ? $url : null;
+    }
+
+    // 2. Không cho phép path traversal
+    if (str_contains($url, '..')) {
+        return null;
+    }
+
+    // 3. Đường dẫn thuộc thư mục uploads do hệ thống quản lý
+    if (!preg_match('#^/?uploads/([A-Za-z0-9._-]+\.(?:jpg|jpeg|png|webp))$#i', $url, $m)) {
+        return null;
+    }
+
+    $filename = $m[1];
+    $root = $GLOBALS['GF_ROOT'] ?? dirname(__DIR__);
+    $uploadDir = $root . DIRECTORY_SEPARATOR . 'uploads';
+    $filePath = $uploadDir . DIRECTORY_SEPARATOR . $filename;
+
+    if (!is_file($filePath) || !@getimagesize($filePath)) {
+        return null;
+    }
+
+    $realUploadDir = realpath($uploadDir);
+    $realFile = realpath($filePath);
+    if (!$realUploadDir || !$realFile) {
+        return null;
+    }
+
+    $normUploadDir = rtrim(str_replace('\\', '/', $realUploadDir), '/');
+    $normFile = str_replace('\\', '/', $realFile);
+    if (!str_starts_with($normFile, $normUploadDir . '/')) {
+        return null;
+    }
+
+    return gf_url('uploads/' . $filename);
+}
+
 function gf_cover_image(?string $url, int $id = 0): string
 {
     $stock = [
         1 => 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80',
         2 => 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=1200&q=80',
         3 => 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=1200&q=80',
-        4 => 'https://images.unsplash.com/photo-1593079831268-3381b0c13c75?auto=format&fit=crop&w=1200&q=80',
+        4 => 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=1200&q=80',
         5 => 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?auto=format&fit=crop&w=1200&q=80',
         6 => 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=80',
         7 => 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=1200&q=80',
-        8 => 'https://images.unsplash.com/photo-1576678927484-8bf88267b0b8?auto=format&fit=crop&w=1200&q=80',
+        8 => 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=1200&q=80',
     ];
-    if ($url && !str_starts_with($url, '/uploads/')) {
-        return $url;
+
+    $resolved = gf_resolve_image_url($url);
+    if ($resolved !== null) {
+        return $resolved;
     }
+
     return $stock[$id] ?? $stock[($id % 8) + 1] ?? $stock[1];
 }
 
@@ -252,13 +304,21 @@ function gf_avatar(?string $url, int $id = 0, string $name = 'User'): string
         9 => 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80',
         10 => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
     ];
-    if ($url && !str_starts_with($url, '/uploads/')) {
-        return $url;
+
+    $resolved = gf_resolve_image_url($url);
+    if ($resolved !== null) {
+        return $resolved;
     }
-    if (isset($stock[$id])) {
+
+    if ($id > 0 && isset($stock[$id])) {
         return $stock[$id];
     }
     return 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&background=00c9b1&color=fff';
+}
+
+function gf_gym_image_url(?string $url, int $fallbackId = 1): string
+{
+    return gf_cover_image($url, $fallbackId);
 }
 
 function gf_stars(float $rating): string
@@ -289,3 +349,99 @@ function gf_goal_label(?string $goal): string
         default => 'Chưa chọn',
     };
 }
+
+/**
+ * Kiểm tra xem một URL ảnh upload có đang được tham chiếu bởi bất kỳ bản ghi nào trong hệ thống hay không.
+ */
+function gf_is_image_referenced(string $url): bool
+{
+    $pdo = gf_pdo();
+
+    $st1 = $pdo->prepare('SELECT 1 FROM users WHERE avatar_url = ? LIMIT 1');
+    $st1->execute([$url]);
+    if ($st1->fetchColumn()) {
+        return true;
+    }
+
+    $st2 = $pdo->prepare('SELECT 1 FROM gyms WHERE cover_image_url = ? LIMIT 1');
+    $st2->execute([$url]);
+    if ($st2->fetchColumn()) {
+        return true;
+    }
+
+    $st3 = $pdo->prepare('SELECT 1 FROM gym_images WHERE image_url = ? LIMIT 1');
+    $st3->execute([$url]);
+    if ($st3->fetchColumn()) {
+        return true;
+    }
+
+    $st4 = $pdo->prepare('SELECT 1 FROM trainers WHERE avatar_url = ? LIMIT 1');
+    $st4->execute([$url]);
+    if ($st4->fetchColumn()) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Xóa an toàn các file upload không còn được tham chiếu trong hệ thống.
+ * Chỉ xóa nếu:
+ * 1. Thuộc định dạng /uploads/... hợp lệ.
+ * 2. Nằm trong thư mục uploads của dự án (không vượt quyền, không phải static asset).
+ * 3. Không còn bất kỳ bản ghi nào trong database tham chiếu đến file đó.
+ */
+function gf_delete_unreferenced_files(array $urls): void
+{
+    $root = $GLOBALS['GF_ROOT'] ?? dirname(__DIR__);
+    $uploadDir = realpath($root . DIRECTORY_SEPARATOR . 'uploads');
+    if (!$uploadDir) {
+        return;
+    }
+    $normUploadDir = rtrim(str_replace('\\', '/', $uploadDir), '/');
+
+    foreach (array_unique(array_filter($urls)) as $url) {
+        $urlStr = (string) $url;
+        if (!gf_uploads_url_ok($urlStr)) {
+            continue;
+        }
+
+        $path = $root . str_replace('/', DIRECTORY_SEPARATOR, $urlStr);
+        $realPath = realpath($path);
+        if (!$realPath || !is_file($realPath)) {
+            continue;
+        }
+
+        $normPath = str_replace('\\', '/', $realPath);
+        if (!str_starts_with($normPath, $normUploadDir . '/')) {
+            continue;
+        }
+
+        if (gf_is_image_referenced($urlStr)) {
+            continue;
+        }
+
+        @unlink($realPath);
+    }
+}
+
+/**
+ * Render standardized GYMFINDER brand logo HTML
+ *
+ * @param string $variant 'header' | 'admin' | 'login' | 'footer'
+ * @param string|null $href Custom target link. Defaults by variant.
+ * @param string $extraClass Additional CSS classes
+ * @param bool $asLink Whether output is wrapped in <a>
+ * @return string HTML
+ */
+function gf_logo(string $variant = 'header', ?string $href = null, string $extraClass = '', bool $asLink = true): string
+{
+    $logoVariant = $variant;
+    $logoHref = $href;
+    $logoClass = $extraClass;
+    $logoAsLink = $asLink;
+    ob_start();
+    require dirname(__DIR__) . '/includes/components/logo.php';
+    return ob_get_clean() ?: '';
+}
+
