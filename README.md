@@ -17,7 +17,6 @@ Hệ thống gồm hai khu vực chính:
 
 - Tìm kiếm và lọc phòng tập theo tên, khu vực, giá, đánh giá, loại hình và tiện ích.
 - Xem danh sách và chi tiết phòng tập.
-- Xem vị trí phòng tập trên bản đồ.
 - Tìm kiếm và xem thông tin Huấn luyện viên.
 - Lưu phòng tập và HLV yêu thích.
 - Quản lý thông tin cá nhân.

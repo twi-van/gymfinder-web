@@ -100,42 +100,4 @@ require __DIR__ . '/includes/header.php';
         </div>
     </div>
 </section>
-
-<section class="py-5" id="map">
-    <div class="container">
-        <div class="map-section">
-            <div class="row align-items-center g-5">
-                <div class="col-lg-6">
-                    <div class="section-label"><i class="fa-solid fa-gem me-1"></i> BẢN ĐỒ VỊ TRÍ</div>
-                    <h2 class="section-title">Bản đồ phòng tập trực quan</h2>
-                    <p class="text-secondary mb-4">
-                        Tích hợp công nghệ bản đồ hiện đại giúp bạn nhanh chóng tra cứu khoảng cách, đường đi và vị
-                        trí các phòng gym xung quanh khu vực sinh sống.
-                    </p>
-                    <ul class="list-unstyled mb-4">
-                        <li class="d-flex align-items-start mb-3">
-                            <i class="fa-solid fa-circle-check text-primary mt-1 me-3 fs-5"></i>
-                            <span class="text-secondary">Tìm kiếm phòng tập dễ dàng theo bán kính và quận/huyện.</span>
-                        </li>
-                        <li class="d-flex align-items-start mb-3">
-                            <i class="fa-solid fa-circle-check text-primary mt-1 me-3 fs-5"></i>
-                            <span class="text-secondary">Tích hợp xem nhanh bảng giá, số sao ngay trên bản đồ.</span>
-                        </li>
-                    </ul>
-                    <button class="btn btn-primary rounded-pill px-4 py-2 btn-detail-auth" data-url="<?= gf_h(gf_url('index.php#map')) ?>">
-                        <i class="fa-regular fa-map me-2"></i> Khám phá bản đồ
-                    </button>
-                </div>
-                <div class="col-lg-6">
-                    <div class="map-placeholder bg-light rounded-4 d-flex flex-column align-items-center justify-content-center text-secondary border shadow-sm"
-                        style="height: 400px; width: 100%;">
-                        <i class="fa-solid fa-map-location-dot mb-3" style="font-size: 48px; color: var(--primary-color);"></i>
-                        <h5 class="fw-bold text-dark">Bản đồ TP.HCM</h5>
-                        <span class="small">(Chờ tích hợp API Bản đồ)</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 <?php require __DIR__ . '/includes/footer.php'; ?>
