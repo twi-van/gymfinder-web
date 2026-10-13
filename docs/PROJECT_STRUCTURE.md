@@ -1,6 +1,6 @@
 # GYMFINDER — Project Structure
 
-Tài liệu mô tả chức năng các thư mục và file chính trong project GYMFINDER.
+Tài liệu mô tả chức năng các thư mục và file chính trong project GYMFINDER sau khi tinh gọn cấu trúc.  
 **Cập nhật:** 2026-10-13
 
 ---
@@ -9,210 +9,168 @@ Tài liệu mô tả chức năng các thư mục và file chính trong project 
 
 ```text
 GYMFINDER/
-├── .gitignore                         # Bỏ qua: .sqlite, uploads/, node_modules/, .DS_Store
+├── .gitignore                         # Bỏ qua: .sqlite, uploads/, node_modules/, .DS_Store, .env, file tạm Office
 ├── .htaccess                          # Rewrite rules cho Apache (mod_rewrite)
 ├── .oxlintrc.json                     # Cấu hình linter JS
 ├── README.md                          # Giới thiệu dự án, hướng dẫn chạy
 ├── router.php                         # PHP built-in server router (php -S localhost:8000 router.php)
-├── index.php                          # Trang chủ PHP (kết nối DB, hiển thị gym cards)
-├── index.html                         # Prototype HTML tĩnh của trang chủ
+├── index.php                          # Trang chủ PHP (kết nối DB, hiển thị gym/trainer nổi bật)
+├── favicon.ico                        # Favicon root domain
 │
 ├── api/
 │   ├── .htaccess                      # Route tất cả request qua index.php
-│   └── index.php                      # REST API: /api/gyms, /api/trainers, /api/favorites, /api/reviews, ...
+│   └── index.php                      # REST API Gateway: /api/gyms, /api/trainers, /api/favorites, /api/reviews, ...
 │
 ├── backend/
-│   ├── bootstrap.php                  # Khởi tạo: require config, db, helpers, auth
+│   ├── bootstrap.php                  # Khởi tạo: session, require config, db, helpers, auth, repositories, resources
 │   ├── config.php                     # Cấu hình DB (SQLite mặc định / MySQL qua env vars)
 │   ├── db.php                         # Kết nối PDO singleton (SQLite & MySQL)
-│   ├── auth.php                       # Session, login, logout, phân quyền user/admin
-│   ├── helpers.php                    # Hàm tiện ích: gf_url(), gf_h(), gf_logo(),
-│   │                                  #   gf_cover_image(), gf_avatar(), gf_csrf_*(),
-│   │                                  #   gf_resolve_image_url(), gf_like_contains(), ...
-│   ├── sqlite_install.php             # Tạo bảng + seed data SQLite lần đầu chạy
-│   ├── repositories/
-│   │   ├── common_repository.php      # Query dùng chung: phân trang, tìm kiếm
-│   │   ├── gym_repository.php         # CRUD + filter phòng gym
+│   ├── auth.php                       # Session, login, logout, phân quyền user/admin, password hash
+│   ├── helpers.php                    # Hàm tiện ích: gf_url(), gf_h(), gf_logo(), gf_format_price(),
+│   │                                  #   gf_csrf_*(), gf_like_contains(), gf_json(), gf_api_error(), ...
+│   ├── sqlite_install.php             # Tự động tạo 12 bảng + seed data SQLite khi khởi chạy lần đầu
+│   ├── repositories/                  # Tầng Data Access Layer (100% PDO Prepared Statements & Transactions)
+│   │   ├── common_repository.php      # Query quận huyện, danh mục, tiện ích, chuyên môn
+│   │   ├── gym_repository.php         # CRUD + filter tìm kiếm phòng gym đa tiêu chí
 │   │   ├── trainer_repository.php     # CRUD + filter huấn luyện viên
-│   │   ├── favorite_repository.php    # Yêu thích: thêm/xóa/lấy danh sách
-│   │   └── review_repository.php      # Đánh giá: tạo mới, duyệt/từ chối, thống kê
-│   └── resources/
-│       ├── common.php                 # Response helpers: gf_json(), gf_redirect(), ...
-│       ├── admin_resource.php         # Middleware xác thực admin
-│       ├── admin_dashboard_resource.php   # API thống kê dashboard
-│       ├── admin_gym_resource.php     # CRUD gym (admin)
-│       ├── admin_trainer_resource.php # CRUD trainer (admin)
-│       ├── admin_user_resource.php    # Quản lý user, ban/unban (admin)
-│       ├── admin_category_resource.php    # Quản lý danh mục (admin)
-│       ├── admin_review_resource.php  # Duyệt / từ chối review (admin)
-│       ├── review_resource.php        # Gửi review (user)
-│       └── upload_resource.php        # Upload ảnh gym/trainer/avatar
+│   │   ├── favorite_repository.php    # Quản lý yêu thích theo User ID
+│   │   └── review_repository.php      # Đánh giá: tạo mới, duyệt/từ chối, tính lại avg_rating
+│   └── resources/                     # Tầng Business Logic Layer (xử lý nghiệp vụ API & Admin)
+│       ├── common.php                 # Validation tham số, phân trang, serialize dữ liệu
+│       ├── upload_resource.php        # Upload ảnh: magic bytes, giới hạn 5MB, dọn dẹp file mồ côi
+│       ├── review_resource.php        # Nghiệp vụ gửi, sửa, xóa review của người dùng
+│       ├── admin_resource.php         # Loader tập trung cho các handler của admin
+│       ├── admin_dashboard_resource.php   # Thống kê số liệu dashboard admin
+│       ├── admin_gym_resource.php     # CRUD & ẩn phòng gym phía admin
+│       ├── admin_trainer_resource.php # CRUD & ẩn huấn luyện viên phía admin
+│       ├── admin_category_resource.php    # Quản lý danh mục phía admin
+│       ├── admin_review_resource.php  # Kiểm duyệt đánh giá (duyệt, từ chối kèm lý do)
+│       └── admin_user_resource.php    # Quản lý người dùng, khóa/mở khóa tài khoản
 │
 ├── database/
-│   ├── schema.sql                     # DDL MySQL đầy đủ: bảng, FK, index, CHECK
-│   ├── seed.sql                       # Dữ liệu mẫu: gym, trainer, user, quận, danh mục, review
-│   └── ERD.png                        # Sơ đồ quan hệ thực thể
+│   ├── schema.sql                     # DDL MySQL đầy đủ: 12 bảng, khóa ngoại, chỉ mục, ràng buộc CHECK
+│   ├── seed.sql                       # Dữ liệu mẫu khởi tạo cho MySQL
+│   ├── ERD.png                        # Sơ đồ quan hệ thực thể CSDL chuẩn
+│   └── gymfinder.sqlite               # CSDL SQLite runtime demo (được .gitignore bảo vệ)
 │
-├── includes/
-│   ├── layout_head.php                # <head> dùng chung: Bootstrap, Font Awesome, Inter, CSS
-│   ├── header.php                     # Thanh điều hướng chính (logo, nav, user dropdown)
-│   ├── footer.php                     # Footer chung
-│   ├── admin_layout.php               # Layout bọc trang admin: sidebar + main content
-│   ├── gym_card.php                   # Component thẻ phòng gym
-│   ├── trainer_card.php               # Component thẻ huấn luyện viên
-│   └── components/
-│       └── logo.php                   # Logo GYMFINDER chuẩn hóa (SVG inline + typography)
+├── includes/                          # Components giao diện dùng chung cho Web PHP
+│   ├── layout_head.php                # <head> dùng chung: Bootstrap, Font Awesome, Inter, CSS, favicon
+│   ├── header.php                     # Thanh điều hướng chính (logo chuẩn, menu, user dropdown)
+│   ├── footer.php                     # Footer chung + modal đăng nhập + AJAX toggle yêu thích
+│   ├── logo.php                       # Component Logo GYMFINDER chuẩn hóa (SVG inline quả tạ teal)
+│   ├── gym_card.php                   # Component thẻ phòng gym SSR
+│   ├── trainer_card.php               # Component thẻ huấn luyện viên SSR
+│   └── admin_layout.php               # Layout khung bao bọc Admin Portal (sidebar + header admin)
 │
-├── pages/
+├── pages/                             # Các trang Web PHP người dùng (SSR + Session)
 │   ├── auth/
-│   │   ├── login.php                  # Đăng nhập PHP (POST, CSRF, session)
-│   │   ├── login.html                 # Prototype HTML tĩnh login
-│   │   ├── register.php               # Đăng ký PHP (validate, bcrypt, insert user)
-│   │   ├── register.html              # Prototype HTML tĩnh register
-│   │   └── logout.php                 # Đăng xuất (hủy session, POST + CSRF)
+│   │   ├── login.php                  # Đăng nhập PHP (POST, CSRF, session an toàn)
+│   │   ├── register.php               # Đăng ký PHP (validate, password_hash, lưu DB)
+│   │   └── logout.php                 # Đăng xuất PHP (hủy session an toàn)
 │   ├── gyms/
-│   │   ├── search.php                 # Tìm kiếm & lọc gym PHP (quận, giá, rating, danh mục)
-│   │   ├── search.html                # Prototype HTML tĩnh tìm kiếm
-│   │   ├── detail.php                 # Chi tiết gym PHP (ảnh, trainer, review)
-│   │   └── detail.html                # Prototype HTML tĩnh gym detail
+│   │   ├── search.php                 # Tìm kiếm & lọc gym PHP (quận, giá, rating, tiện ích)
+│   │   └── detail.php                 # Chi tiết gym PHP (thông tin, HLV liên kết, reviews đã duyệt)
 │   ├── trainers/
-│   │   ├── index.php                  # Danh sách HLV PHP (lọc, phân trang)
-│   │   ├── index.html                 # Prototype HTML tĩnh trainer list
-│   │   ├── detail.php                 # Chi tiết HLV PHP (thông tin, chuyên môn, gym)
-│   │   └── detail.html                # Prototype HTML tĩnh trainer detail
+│   │   ├── index.php                  # Danh sách & lọc HLV PHP
+│   │   └── detail.php                 # Chi tiết HLV PHP & form gửi đánh giá
 │   └── user/
-│       ├── profile.php                # Hồ sơ cá nhân PHP (xem/sửa, đổi mật khẩu, review)
-│       ├── profile.html               # Prototype HTML tĩnh profile
-│       ├── favorites.php              # Danh sách yêu thích PHP (gym + trainer)
-│       ├── favorites.html             # Prototype HTML tĩnh favorites
-│       └── favorite_toggle.php        # Xử lý POST toggle yêu thích
+│       ├── favorites.php              # Xem danh sách gym & HLV yêu thích từ DB
+│       ├── profile.php                # Hồ sơ cá nhân, đổi mật khẩu, upload avatar
+│       └── favorite_toggle.php        # Endpoint fallback xử lý toggle yêu thích
 │
-├── admin/
+├── admin/                             # Khu vực quản trị Admin Portal PHP
 │   ├── assets/
-│   │   ├── admin.css                  # CSS riêng khu vực Admin
-│   │   └── js/
-│   │       └── admin.js               # JS riêng Admin (datatable, modal, form)
+│   │   └── admin.css                  # CSS giao diện quản trị Admin
 │   ├── components/
-│   │   ├── sidebar.html               # Sidebar điều hướng Admin (HTML prototype)
-│   │   ├── mobile_header.html         # Header mobile Admin (HTML prototype)
-│   │   └── table.php                  # Component bảng dùng chung trong PHP Admin pages
+│   │   └── table.php                  # Component helper render bảng dữ liệu dùng chung
 │   └── pages/
-│       ├── dashboard.php              # Dashboard PHP: thống kê, top gym/trainer, review gần đây
-│       ├── dashboard.html             # Prototype HTML tĩnh dashboard
-│       ├── gyms.php                   # Quản lý gym PHP: danh sách, thêm/sửa/xóa/ẩn
-│       ├── gyms.html                  # Prototype HTML tĩnh quản lý gym
-│       ├── trainers.php               # Quản lý HLV PHP: CRUD, gán gym, ảnh
-│       ├── trainers.html              # Prototype HTML tĩnh quản lý HLV
-│       ├── users.php                  # Quản lý người dùng PHP: danh sách, ban/unban
-│       ├── users.html                 # Prototype HTML tĩnh quản lý user
-│       ├── categories.php             # Quản lý danh mục PHP: CRUD, icon FA
-│       ├── categories.html            # Prototype HTML tĩnh quản lý category
-│       ├── reviews.php                # Quản lý đánh giá PHP: duyệt, từ chối, xóa
-│       └── reviews.html               # Prototype HTML tĩnh quản lý review
+│       ├── dashboard.php              # Dashboard admin: 4 chỉ số thực tế, biểu đồ, review mới
+│       ├── gyms.php                   # Quản lý phòng gym: danh sách, thêm/sửa, tải ảnh
+│       ├── trainers.php               # Quản lý HLV: danh sách, thêm/sửa, phân bổ phòng tập
+│       ├── categories.php             # Quản lý danh mục phòng tập
+│       ├── reviews.php                # Kiểm duyệt đánh giá (chờ duyệt, duyệt, từ chối, xóa)
+│       ├── users.php                  # Quản lý tài khoản người dùng, khóa/mở khóa
+│       └── profile.php                # Hồ sơ cá nhân quản trị viên: cập nhật thông tin, đổi mật khẩu
 │
-├── assets/
+├── assets/                            # Tài nguyên tĩnh hoạt động (Production Assets)
 │   ├── css/
-│   │   ├── style.css                  # CSS hệ thống: design tokens, typography, navbar, hero, cards
-│   │   ├── components.css             # CSS components tái sử dụng: badges, skeleton, cards
+│   │   ├── style.css                  # CSS toàn hệ thống: typography, navbar, hero, cards
+│   │   ├── components.css             # CSS components: badges, buttons, cards, logo
 │   │   └── auth.css                   # CSS riêng trang login/register
-│   ├── images/
-│   │   ├── gyms/                      # Ảnh gym (placeholder)
-│   │   └── trainers/                  # Ảnh trainer (placeholder)
-│   └── js/
-│       ├── load-components.js         # Load HTML components động cho prototype HTML
-│       ├── main.js                    # JS chung: khởi tạo Bootstrap, global event
-│       ├── core/
-│       │   ├── auth.js                # Auth state: login/logout, user dropdown, admin badge
-│       │   └── ui.js                  # UI helpers: toast, loading, modal
-│       └── pages/
-│           ├── auth-login.js          # Logic trang login (HTML prototype)
-│           ├── auth-register.js       # Logic trang register (HTML prototype)
-│           ├── gym-search.js          # Filter, search, sort gym (PHP & HTML)
-│           ├── gym-detail.js          # Gallery, reviews, actions
-│           ├── trainer.js             # Filter, list trainer
-│           ├── trainer-detail.js      # Chi tiết HLV, yêu thích
-│           ├── favorites.js           # Toggle yêu thích, sync localStorage (HTML prototype)
-│           ├── home.js                # Logic trang chủ HTML
-│           └── profile.js             # Cập nhật hồ sơ, preview avatar (HTML prototype)
+│   └── images/
+│       ├── favicon.svg                # Vector icon quả tạ teal nhận diện thương hiệu
+│       ├── favicon-32x32.png          # Favicon kích thước 32x32px
+│       ├── gyms/                      # Thư mục ảnh phòng tập
+│       └── trainers/                  # Thư mục ảnh huấn luyện viên
 │
-├── components/                        # HTML components cho prototype HTML tĩnh
-│   ├── header.html                    # Header prototype (load bằng load-components.js)
-│   ├── footer.html                    # Footer prototype
-│   └── login-required-modal.html      # Modal yêu cầu đăng nhập
+├── uploads/                           # Ảnh người dùng tải lên runtime (được .gitignore bảo vệ)
+├── DOCS/                              # Hồ sơ tài liệu thiết kế & đồ án
+│   ├── GymFinder_ThietKeCSDL.docx     # Thiết kế CSDL chi tiết 12 bảng
+│   ├── GymFinder_HuongDanChay.docx    # Hướng dẫn chạy & kiểm thử
+│   ├── GymFinder_DacTaDuAn.docx       # Đặc tả yêu cầu hệ thống
+│   ├── BACKEND_AUDIT_REPORT.md        # Báo cáo audit backend & bảo mật
+│   └── PROJECT_STRUCTURE.md           # Tài liệu cấu trúc thư mục này
 │
-├── data/                              # Mock data JS (prototype HTML tĩnh, không dùng khi có DB)
-│   ├── gyms.js
-│   ├── trainers.js
-│   ├── categories.js
-│   ├── reviews.js
-│   └── users.js
-│
-└── uploads/                           # Ảnh user upload (runtime — KHÔNG commit vào git)
+└── prototypes/                        # [LƯU TRỮ] Nhóm HTML Prototype tĩnh & Mock Data
+    ├── index.html                     # Prototype trang chủ HTML
+    ├── components/                    # HTML template tĩnh: header.html, footer.html, modal...
+    ├── data/                          # Mock data JS: categories.js, gyms.js, trainers.js...
+    ├── pages/                         # Các trang .html người dùng (login, search, detail...)
+    ├── admin/                         # Các trang .html admin & mobile_header.html, sidebar.html
+    └── assets/                        # load-components.js, auth.js, ui.js, page scripts...
 ```
 
 ---
 
-## Luồng hoạt động
+## Luồng hoạt động hệ thống
 
-### PHP Backend (chính)
+### 1. PHP Web Portal (Ứng dụng chính)
 
-```
-Browser Request
-    → router.php                     (PHP built-in dev server routing)
-    → pages/*/[page].php             (UI page — require bootstrap.php)
-       → backend/bootstrap.php       (config → db → helpers → auth)
-       → backend/repositories/*.php  (SQL queries qua PDO)
-       → includes/[component].php    (render HTML)
-```
-
-### REST API
-
-```
-/api/*  → api/index.php
-          → backend/resources/[resource].php
-          → backend/repositories/[repository].php
-          → JSON response
+```text
+Trình duyệt gửi Request (GET/POST)
+    → router.php / .htaccess           (Điều hướng request tới file tương ứng)
+    → pages/*/[page].php               (Mã nguồn trang — require bootstrap.php)
+       → backend/bootstrap.php         (Khởi tạo session, config, PDO, CSRF token)
+       → backend/repositories/*.php    (Truy vấn SQL an toàn qua PDO Prepared Statements)
+       → includes/[component].php      (Render HTML SSR: layout_head, header, logo, footer)
 ```
 
-### HTML Prototype (tĩnh)
+### 2. RESTful API Gateway
 
+```text
+Request /api/*
+    → api/index.php                    (API Router: validate JSON/Form, kiểm tra CSRF & Role)
+       → backend/resources/*.php       (Xử lý Business Logic: upload, review, admin CRUD)
+       → backend/repositories/*.php    (Data Access Layer thực thi DB transaction)
+       → JSON Response                 (Trả về JSON HTTP 200, 201, 400, 401, 403, 404, 422)
 ```
-[page].html
-    → load-components.js    (inject header.html, footer.html)
-    → auth.js               (localStorage auth state)
-    → data/[entity].js      (mock data)
-    → pages/[page].js       (page logic)
+
+### 3. Lưu trữ Prototype tĩnh (`prototypes/`)
+
+```text
+Trực tiếp mở file [page].html trong prototypes/
+    → load-components.js               (Inject header.html, footer.html)
+    → auth.js                          (Giả lập session lưu tại localStorage)
+    → data/*.js                        (Nạp mock data dạng JS array)
+    → pages/*.js                       (Render DOM client-side)
 ```
 
 ---
 
 ## Stack công nghệ
 
-| Lớp | Công nghệ |
+| Thành phần | Công nghệ sử dụng |
 |---|---|
-| Frontend | HTML5, Vanilla CSS, JavaScript (ES6+), jQuery |
-| CSS Framework | Bootstrap 5.3 |
-| Icons | Font Awesome 6 |
-| Fonts | Google Fonts — Inter |
-| Backend | PHP 8.0+ (built-in server / Apache) |
-| Database | SQLite (dev mặc định) / MySQL (production) |
-| ORM/Query | PDO với prepared statements |
-| Auth | PHP Session + CSRF token |
-| Upload | PHP `move_uploaded_file()`, validate MIME |
+| Frontend | HTML5, Vanilla CSS, Bootstrap 5.3, Font Awesome 6, Google Fonts Inter |
+| Backend | PHP 8.0+ (hỗ trợ cả PHP Built-in Server và Apache/XAMPP) |
+| Database | SQLite (chạy mặc định tiện lợi) / MySQL (hỗ trợ sẵn qua schema.sql) |
+| Bảo mật | PDO Prepared Statements chống SQL Injection, CSRF Token, Password Hash, Phân quyền Role, Upload Magic Bytes |
+| Favicon | Icon quả tạ Teal nền trắng đa kích cỡ (`favicon.svg`, `favicon-32x32.png`, `favicon.ico`) |
 
 ---
 
-## Ghi chú quan trọng
+## Ghi chú các điểm chuẩn hóa kiến trúc
 
-| Ký hiệu | Ý nghĩa |
-|---|---|
-| `*.php` | Trang PHP thực tế, kết nối database, xử lý auth/session |
-| `*.html` | Prototype HTML tĩnh, dùng mock data JS, không kết nối DB |
-| `includes/` | PHP components tái sử dụng (layout, header, footer, card) |
-| `components/` | HTML components cho prototype (load bằng JS) |
-| `uploads/` | Thư mục runtime — **không commit vào git** |
-| `database/*.sqlite` | File DB local — **không commit vào git** |
-
-- Mọi câu truy vấn động đều dùng **PDO prepared statements** (chống SQL Injection)
-- CSRF token bắt buộc với tất cả POST form
-- Logo GYMFINDER được chuẩn hóa qua `includes/components/logo.php` (SVG inline)
+1. **Thống nhất Components:** Toàn bộ components giao diện PHP được tập trung tại [`includes/`](file:///Users/tvan/Projects/GYMFINDER/includes) (`layout_head.php`, `header.php`, `footer.php`, `logo.php`, `gym_card.php`, `trainer_card.php`, `admin_layout.php`). Đã xóa bỏ thư mục con lồng nhau `includes/components/`.
+2. **Tách biệt Prototype:** Toàn bộ bản mẫu tĩnh HTML và mock data JS được gom gọn vào [`prototypes/`](file:///Users/tvan/Projects/GYMFINDER/prototypes) để giữ sạch không gian mã nguồn chạy thật nhưng vẫn bảo toàn đầy đủ tài nguyên cho việc nộp bài/báo cáo.
+3. **Không có mã mồ côi:** Loại bỏ các file trùng lặp hoặc không sử dụng (`assets/images/favicon.png`, `assets/js/main.js`).

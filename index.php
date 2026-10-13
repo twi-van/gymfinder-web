@@ -18,7 +18,7 @@ if (count($featuredTrainers) < 3) {
     $featuredTrainers = array_slice(gf_search_trainers(['limit' => 20]), 0, 3);
 }
 $districts = gf_list_districts();
-$pageTitle = 'GYMFINDER - Tìm kiếm phòng tập phù hợp';
+$pageTitle = 'GYMFINDER - Tìm kiếm phòng tập';
 require __DIR__ . '/includes/layout_head.php';
 require __DIR__ . '/includes/header.php';
 ?>
@@ -60,10 +60,10 @@ require __DIR__ . '/includes/header.php';
                     <i class="fa-solid fa-coins text-secondary me-2"></i>
                     <select class="form-select px-0" name="price_range">
                         <option value="">Khoảng giá</option>
-                        <option value="under_300">Dưới 300k</option>
-                        <option value="300_500">300k - 500k</option>
-                        <option value="500_1000">500k - 1tr</option>
-                        <option value="over_1000">Trên 1tr</option>
+                        <option value="under_300">Dưới 300.000đ</option>
+                        <option value="300_500">300.000đ - 500.000đ</option>
+                        <option value="500_1000">500.000đ - 1.000.000đ</option>
+                        <option value="over_1000">Trên 1.000.000đ</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center gap-2">
@@ -89,7 +89,7 @@ require __DIR__ . '/includes/header.php';
     <div class="container">
         <div class="section-label"><i class="fa-solid fa-user-tie me-1"></i> HUẤN LUYỆN VIÊN</div>
         <h2 class="section-title">Đội ngũ huấn luyện viên</h2>
-        <p class="section-subtitle">Khám phá thông tin các huấn luyện viên và tìm người phù hợp với mục tiêu tập luyện của bạn.</p>
+        <p class="section-subtitle">Khám phá thông tin các huấn luyện viên và tìm người phù hợp với nhu cầu tập luyện của bạn.</p>
         <div class="row g-4">
             <?php foreach ($featuredTrainers as $trainer): $isFav = in_array((int)$trainer['id'], $favTrainerIds, true); require __DIR__ . '/includes/trainer_card.php'; endforeach; ?>
         </div>

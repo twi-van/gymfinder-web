@@ -27,41 +27,6 @@
             border-radius: 0.375rem;
             padding-left: 0.75rem !important;
         }
-        .goal-checkbox-card {
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 12px 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            height: 100%;
-        }
-        .goal-checkbox-card:hover {
-            border-color: #00c9b1;
-            background-color: #f0fdfa;
-        }
-        .goal-checkbox-input:checked + .goal-checkbox-card {
-            border-color: #00c9b1;
-            background-color: #f0fdfa;
-        }
-        .goal-checkbox-input:checked + .goal-checkbox-card .goal-icon {
-            color: #00c9b1 !important;
-        }
-        .goal-checkbox-input:checked + .goal-checkbox-card .goal-text {
-            color: #00c9b1 !important;
-            font-weight: 600;
-        }
-        .goal-checkbox-input:disabled + .goal-checkbox-card {
-            opacity: 0.7;
-            cursor: default;
-        }
-        .goal-checkbox-input:disabled + .goal-checkbox-card:hover {
-            border-color: #e2e8f0;
-            background-color: transparent;
-        }
-        .goal-checkbox-input:checked:disabled + .goal-checkbox-card {
-            border-color: #00c9b1;
-            background-color: #f0fdfa;
-        }
     </style>
 </head>
 <body class="bg-light d-flex flex-column min-vh-100">
@@ -116,42 +81,6 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-medium text-secondary small mb-1">Email (Không thể thay đổi)</label>
                                     <input type="email" class="form-control profile-readonly-field" id="inputEmail" readonly disabled>
-                                </div>
-                            </div>
-
-                            <hr class="my-4 text-light">
-
-                            <!-- MỤC TIÊU TẬP LUYỆN -->
-                            <h5 class="fw-bold text-dark mb-3">Mục tiêu tập luyện</h5>
-                            <div id="goalsFeedback" class="text-danger small mb-2 d-none">Vui lòng chọn ít nhất 1 mục tiêu tập luyện.</div>
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-6">
-                                    <input type="checkbox" class="btn-check goal-checkbox-input" id="goal_weight_loss" value="weight_loss" disabled>
-                                    <label class="w-100 goal-checkbox-card d-flex align-items-center gap-3" for="goal_weight_loss">
-                                        <i class="fa-solid fa-fire text-secondary fs-5 goal-icon"></i>
-                                        <span class="text-dark fw-medium goal-text">Giảm cân / Giảm mỡ</span>
-                                    </label>
-                                </div>
-                                <div class="col-md-6">
-                                    <input type="checkbox" class="btn-check goal-checkbox-input" id="goal_muscle_gain" value="muscle_gain" disabled>
-                                    <label class="w-100 goal-checkbox-card d-flex align-items-center gap-3" for="goal_muscle_gain">
-                                        <i class="fa-solid fa-dumbbell text-secondary fs-5 goal-icon"></i>
-                                        <span class="text-dark fw-medium goal-text">Tăng cơ</span>
-                                    </label>
-                                </div>
-                                <div class="col-md-6">
-                                    <input type="checkbox" class="btn-check goal-checkbox-input" id="goal_strength" value="strength" disabled>
-                                    <label class="w-100 goal-checkbox-card d-flex align-items-center gap-3" for="goal_strength">
-                                        <i class="fa-solid fa-hand-fist text-secondary fs-5 goal-icon"></i>
-                                        <span class="text-dark fw-medium goal-text">Tăng sức mạnh</span>
-                                    </label>
-                                </div>
-                                <div class="col-md-6">
-                                    <input type="checkbox" class="btn-check goal-checkbox-input" id="goal_health" value="health" disabled>
-                                    <label class="w-100 goal-checkbox-card d-flex align-items-center gap-3" for="goal_health">
-                                        <i class="fa-solid fa-heart-pulse text-secondary fs-5 goal-icon"></i>
-                                        <span class="text-dark fw-medium goal-text">Cải thiện sức khỏe</span>
-                                    </label>
                                 </div>
                             </div>
 

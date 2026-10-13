@@ -38,7 +38,7 @@ $filters = [
     'price_max' => $selectedPriceRange !== '' ? '' : $customPriceMax,
     'sort' => $_GET['sort'] ?? '',
     'page' => max(1, (int)($_GET['page'] ?? 1)),
-    'limit' => 4,
+    'limit' => 8,
 ];
 $amenityIdMap = ['sauna' => 4, 'steam' => 4, 'dry_steam' => 4, 'wet_steam' => 4, 'locker' => 5, 'parking' => 2, 'shower' => 1, 'ac' => 6, 'water' => 7];
 $filters['amenity_ids'] = array_values(array_unique(array_filter(array_map(
@@ -47,6 +47,11 @@ $filters['amenity_ids'] = array_values(array_unique(array_filter(array_map(
 ))));
 
 $gymPage = gf_search_gyms_paged($filters);
+// Tự động lùi về trang hợp lệ gần nhất nếu trang hiện tại bị rỗng
+if ($filters['page'] > 1 && empty($gymPage['items']) && (int)$gymPage['total'] > 0) {
+    $filters['page'] = max(1, (int) ceil((int)$gymPage['total'] / $filters['limit']));
+    $gymPage = gf_search_gyms_paged($filters);
+}
 $gyms = $gymPage['items'];
 $districts = gf_list_districts();
 $categories = gf_list_categories();
@@ -311,14 +316,6 @@ require dirname(__DIR__, 2) . '/includes/header.php';
             </div>
         </div>
     </div>
-    <?php $totalPages = (int)ceil($gymPage['total'] / $gymPage['limit']); if ($totalPages > 1): $currentPage = (int)$gymPage['page']; $prevQuery = $_GET; $prevQuery['page'] = max(1, $currentPage - 1); $nextQuery = $_GET; $nextQuery['page'] = min($totalPages, $currentPage + 1); ?>
-        <nav aria-label="Page navigation" class="mb-5"><ul class="pagination justify-content-center">
-            <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>"><a class="page-link" href="?<?= gf_h(http_build_query($prevQuery)) ?>" <?= $currentPage <= 1 ? 'tabindex="-1" aria-disabled="true"' : '' ?>><i class="fa-solid fa-arrow-left me-2"></i> Trước</a></li>
-            <?php for ($page = 1; $page <= $totalPages; $page++): $pageQuery = $_GET; $pageQuery['page'] = $page; ?>
-                <li class="page-item <?= $page === $currentPage ? 'active' : '' ?>"><a class="page-link" href="?<?= gf_h(http_build_query($pageQuery)) ?>"><?= $page ?></a></li>
-            <?php endfor; ?>
-            <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>"><a class="page-link" href="?<?= gf_h(http_build_query($nextQuery)) ?>" <?= $currentPage >= $totalPages ? 'tabindex="-1" aria-disabled="true"' : '' ?>>Sau <i class="fa-solid fa-arrow-right ms-2"></i></a></li>
-        </ul></nav>
-    <?php endif; ?>
+    <?= gf_render_user_pagination((int)$gymPage['page'], (int)$gymPage['limit'], (int)$gymPage['total'], $_GET) ?>
 </div>
 <?php require dirname(__DIR__, 2) . '/includes/footer.php'; ?>

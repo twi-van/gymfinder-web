@@ -46,7 +46,6 @@ $isAdmin = ($user && ($user['role'] ?? '') === 'admin');
                                 <li><hr class="dropdown-divider my-1"></li>
                             <?php endif; ?>
                             <li><a class="dropdown-item py-2" href="<?= gf_h(gf_url('pages/user/profile.php')) ?>"><i class="fa-regular fa-user me-2 text-secondary"></i>Hồ sơ cá nhân</a></li>
-                            <li><a class="dropdown-item py-2" href="<?= gf_h(gf_url('pages/user/favorites.php')) ?>"><i class="fa-regular fa-heart me-2 text-secondary"></i>Yêu thích</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form method="post" action="<?= gf_h(gf_url('pages/auth/logout.php')) ?>">

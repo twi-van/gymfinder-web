@@ -20,11 +20,7 @@ $(document).ready(function() {
         name: "Nguyễn Tuấn",
         email: "nguyentuan@gmail.com",
         phone: "0901234567",
-        avatar: "", // Will be dynamically generated if empty
-        fitness_goals: [
-            "weight_loss",
-            "muscle_gain"
-        ]
+        avatar: "" // Will be dynamically generated if empty
     };
 
     let currentUser = {};
@@ -64,16 +60,6 @@ $(document).ready(function() {
         $('#inputName').val(currentUser.name);
         $('#inputPhone').val(currentUser.phone);
         $('#inputEmail').val(currentUser.email);
-
-        // Reset checkboxes
-        $('.goal-checkbox-input').prop('checked', false);
-
-        // Check goals
-        if (currentUser.fitness_goals && Array.isArray(currentUser.fitness_goals)) {
-            currentUser.fitness_goals.forEach(goal => {
-                $(`#goal_${goal}`).prop('checked', true);
-            });
-        }
         
         // Ensure Header is also in sync
         if ($('#headerName').length) {
@@ -99,7 +85,6 @@ $(document).ready(function() {
         if (isEditing) {
             // Enter Edit Mode
             $('#inputName, #inputPhone').removeClass('profile-readonly-field').addClass('profile-edit-field').prop('readonly', false);
-            $('.goal-checkbox-input').prop('disabled', false);
             $('.edit-only-element').removeClass('d-none');
             
             $('#viewActions').addClass('d-none');
@@ -107,7 +92,6 @@ $(document).ready(function() {
         } else {
             // Exit Edit Mode (Read Only)
             $('#inputName, #inputPhone').removeClass('profile-edit-field').addClass('profile-readonly-field').prop('readonly', true);
-            $('.goal-checkbox-input').prop('disabled', true);
             $('.edit-only-element').addClass('d-none');
             
             $('#viewActions').removeClass('d-none');
@@ -115,7 +99,6 @@ $(document).ready(function() {
             
             // Remove validation errors
             $('.is-invalid').removeClass('is-invalid');
-            $('#goalsFeedback').addClass('d-none');
         }
     }
 
@@ -135,7 +118,6 @@ $(document).ready(function() {
         
         // Reset validation UI
         $('.is-invalid').removeClass('is-invalid');
-        $('#goalsFeedback').addClass('d-none');
 
         const newName = $('#inputName').val().trim();
         const newPhone = $('#inputPhone').val().trim();
@@ -153,23 +135,11 @@ $(document).ready(function() {
             isValid = false;
         }
 
-        // Validation: Fitness Goals (at least 1)
-        const selectedGoals = [];
-        $('.goal-checkbox-input:checked').each(function() {
-            selectedGoals.push($(this).val());
-        });
-
-        if (selectedGoals.length === 0) {
-            $('#goalsFeedback').removeClass('d-none');
-            isValid = false;
-        }
-
         if (!isValid) return;
 
         // Save to currentUser
         currentUser.name = newName;
         currentUser.phone = newPhone;
-        currentUser.fitness_goals = selectedGoals;
         
         // Save pending avatar if selected
         if (pendingAvatarBase64 !== null) {

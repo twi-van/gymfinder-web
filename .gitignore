@@ -18,5 +18,17 @@ node_modules/
 ehthumbs.db
 Thumbs.db
 
+# Environment variables
+.env
+.env.*
+
+# Office / Temporary files
+~$*
+*.tmp
+
+# Scratch / Local tests
+scratch/
+
 # Gemini / IDE
 .gemini/
+

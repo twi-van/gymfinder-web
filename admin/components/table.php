@@ -70,6 +70,7 @@ if (!function_exists('gf_admin_table_close')) {
      *
      * @param array $options [
      *   'footer_html'   => '...',
+     *   'pagination'    => ['page' => 1, 'limit' => 8, 'total' => 20, 'query_params' => []],
      *   'empty'         => false,
      *   'empty_message' => 'Không tìm thấy dữ liệu phù hợp.',
      *   'colspan'       => 8,
@@ -81,6 +82,17 @@ if (!function_exists('gf_admin_table_close')) {
         $emptyMsg = htmlspecialchars($options['empty_message'] ?? 'Không tìm thấy dữ liệu phù hợp.', ENT_QUOTES, 'UTF-8');
         $colspan = (int) ($options['colspan'] ?? 8);
         $footerHtml = $options['footer_html'] ?? null;
+
+        // Tự động render phân trang nếu truyền cấu hình 'pagination' mà chưa có 'footer_html'
+        if ($footerHtml === null && isset($options['pagination']) && is_array($options['pagination'])) {
+            $p = $options['pagination'];
+            $footerHtml = gf_render_admin_pagination(
+                (int)($p['page'] ?? 1),
+                (int)($p['limit'] ?? 8),
+                (int)($p['total'] ?? 0),
+                (array)($p['query_params'] ?? array_diff_key($_GET, ['page' => '']))
+            );
+        }
         ?>
                     <?php if ($isEmpty): ?>
                         <tr>
@@ -95,7 +107,7 @@ if (!function_exists('gf_admin_table_close')) {
                     </tbody>
                 </table>
             </div>
-            <?php if (!empty($footerHtml)): ?>
+            <?php if (!empty($footerHtml) && trim((string)$footerHtml) !== ''): ?>
                 <div class="admin-table-footer px-4 py-3 border-top d-flex flex-wrap justify-content-between align-items-center gap-3 bg-white">
                     <?= $footerHtml ?>
                 </div>
@@ -108,36 +120,52 @@ if (!function_exists('gf_admin_table_close')) {
 if (!function_exists('gf_render_admin_pagination')) {
     /**
      * Render thanh phân trang chuẩn hóa giao diện GYMFINDER
+     *
+     * Quy tắc:
+     * - Mặc định 8 bản ghi mỗi trang
+     * - Chỉ hiển thị khi tổng số bản ghi lớn hơn giới hạn (mặc định > 8)
+     * - Định dạng: "Hiển thị 1–8 trên tổng N bản ghi"
+     * - Giữ nguyên query params khi chuyển trang
      */
-    function gf_render_admin_pagination(int $currentPage, int $limit, int $total, array $queryParams = []): string
+    function gf_render_admin_pagination(int $currentPage, int $limit = 8, int $total = 0, array $queryParams = []): string
     {
-        $totalPages = max(1, (int) ceil($total / max(1, $limit)));
-        $from = $total ? (($currentPage - 1) * $limit + 1) : 0;
+        $limit = max(1, $limit);
+
+        // Chỉ hiển thị phân trang khi tổng số bản ghi lớn hơn limit (mặc định 8)
+        if ($total <= $limit || $total <= 0) {
+            return '';
+        }
+
+        $totalPages = max(1, (int) ceil($total / $limit));
+        $currentPage = max(1, min($currentPage, $totalPages));
+        $from = ($currentPage - 1) * $limit + 1;
         $to = min($currentPage * $limit, $total);
+
+        $cleanParams = array_diff_key($queryParams, ['page' => '']);
 
         ob_start();
         ?>
         <span class="small text-secondary">
-            Hiển thị <?= $from ?> - <?= $to ?> trong <?= $total ?> kết quả
+            Hiển thị <?= $from ?>–<?= $to ?> trên tổng <?= $total ?> bản ghi
         </span>
         <div class="d-flex align-items-center gap-1">
             <?php
-            $prevParams = array_merge($queryParams, ['page' => max(1, $currentPage - 1)]);
-            $nextParams = array_merge($queryParams, ['page' => min($totalPages, $currentPage + 1)]);
+            $prevParams = array_merge($cleanParams, ['page' => max(1, $currentPage - 1)]);
+            $nextParams = array_merge($cleanParams, ['page' => min($totalPages, $currentPage + 1)]);
             ?>
-            <a class="admin-pagination-btn <?= $currentPage <= 1 ? 'disabled' : '' ?>" href="?<?= http_build_query($prevParams) ?>" title="Trang trước">
+            <a class="admin-pagination-btn <?= $currentPage <= 1 ? 'disabled' : '' ?>" href="?<?= htmlspecialchars(http_build_query($prevParams), ENT_QUOTES, 'UTF-8') ?>" title="Trang trước">
                 <i class="fa-solid fa-chevron-left" style="font-size: 11px;"></i>
             </a>
             <?php for ($p = 1; $p <= $totalPages; $p++): ?>
                 <?php if ($p === $currentPage): ?>
-                    <span class="admin-pagination-btn active"><?= $p ?></span>
+                    <span class="admin-pagination-btn active" aria-current="page"><?= $p ?></span>
                 <?php elseif ($p === 1 || $p === $totalPages || abs($p - $currentPage) <= 1): ?>
-                    <a class="admin-pagination-btn" href="?<?= http_build_query(array_merge($queryParams, ['page' => $p])) ?>"><?= $p ?></a>
+                    <a class="admin-pagination-btn" href="?<?= htmlspecialchars(http_build_query(array_merge($cleanParams, ['page' => $p])), ENT_QUOTES, 'UTF-8') ?>"><?= $p ?></a>
                 <?php elseif (abs($p - $currentPage) === 2): ?>
                     <span class="text-muted px-1">...</span>
                 <?php endif; ?>
             <?php endfor; ?>
-            <a class="admin-pagination-btn <?= $currentPage >= $totalPages ? 'disabled' : '' ?>" href="?<?= http_build_query($nextParams) ?>" title="Trang sau">
+            <a class="admin-pagination-btn <?= $currentPage >= $totalPages ? 'disabled' : '' ?>" href="?<?= htmlspecialchars(http_build_query($nextParams), ENT_QUOTES, 'UTF-8') ?>" title="Trang sau">
                 <i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i>
             </a>
         </div>

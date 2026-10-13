@@ -8,9 +8,14 @@ $filters = [
     'exp' => $_GET['exp'] ?? '',
     'min_rating' => $_GET['rating'] ?? '',
     'page' => max(1, (int)($_GET['page'] ?? 1)),
-    'limit' => 6,
+    'limit' => 8,
 ];
 $trainerPage = gf_search_trainers_paged($filters);
+// Tự động lùi về trang hợp lệ gần nhất nếu trang hiện tại bị rỗng
+if ($filters['page'] > 1 && empty($trainerPage['items']) && (int)$trainerPage['total'] > 0) {
+    $filters['page'] = max(1, (int) ceil((int)$trainerPage['total'] / $filters['limit']));
+    $trainerPage = gf_search_trainers_paged($filters);
+}
 $trainers = $trainerPage['items'];
 $specialties = gf_list_specialties();
 $districts = gf_list_districts();
@@ -25,7 +30,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         <h1 class="hero-title text-uppercase">ĐỘI NGŨ <span class="text-primary position-relative">HUẤN LUYỆN VIÊN
             <svg class="position-absolute w-100 bottom-0 start-0 translate-middle-y text-primary opacity-50" style="height:10px" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="4" fill="transparent" /></svg>
         </span> TẠI CÁC PHÒNG TẬP</h1>
-        <p class="text-secondary mb-5" style="font-size:16px">Khám phá các huấn luyện viên giàu kinh nghiệm đang làm việc tại các hệ thống phòng gym để giúp bạn đạt được mục tiêu.</p>
+        <p class="text-secondary mb-5" style="font-size:16px">Khám phá các huấn luyện viên giàu kinh nghiệm đang làm việc tại các hệ thống phòng gym để giúp bạn đạt hiệu quả tập luyện tốt nhất.</p>
         <form method="get" class="bg-white rounded-4 p-4 shadow-sm mx-auto border" style="max-width:1000px;">
             <div class="d-flex align-items-center bg-light rounded-pill px-3 py-2 mb-3 border">
                 <i class="fa-solid fa-magnifying-glass text-secondary mx-2"></i>
@@ -85,23 +90,6 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         <?php endif; ?>
         <?php foreach ($trainers as $trainer): $isFav = $user && gf_is_fav((int)$user['id'], 'trainer', (int)$trainer['id']); require dirname(__DIR__, 2).'/includes/trainer_card.php'; endforeach; ?>
     </div>
-    <?php $totalPages = (int)ceil($trainerPage['total'] / $trainerPage['limit']); if ($totalPages > 1): ?>
-        <nav aria-label="Phân trang huấn luyện viên" class="mt-5">
-            <ul class="pagination justify-content-center">
-                <?php $currentPage = (int)$trainerPage['page']; $prevQuery = $_GET; $prevQuery['page'] = max(1, $currentPage - 1); $nextQuery = $_GET; $nextQuery['page'] = min($totalPages, $currentPage + 1); ?>
-                <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
-                    <a class="page-link border-0 fw-semibold text-secondary" href="?<?= gf_h(http_build_query($prevQuery)) ?>" <?= $currentPage <= 1 ? 'tabindex="-1" aria-disabled="true"' : '' ?>><i class="fa-solid fa-arrow-left me-2"></i> Trước</a>
-                </li>
-                <?php for ($page = 1; $page <= $totalPages; $page++): $pageQuery = $_GET; $pageQuery['page'] = $page; ?>
-                    <li class="page-item <?= $page === $currentPage ? 'active' : '' ?>">
-                        <a class="page-link border-0 rounded-3 mx-1 <?= $page === $currentPage ? 'bg-primary text-white' : 'text-dark' ?>" href="?<?= gf_h(http_build_query($pageQuery)) ?>"><?= $page ?></a>
-                    </li>
-                <?php endfor; ?>
-                <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
-                    <a class="page-link border-0 fw-semibold text-dark" href="?<?= gf_h(http_build_query($nextQuery)) ?>" <?= $currentPage >= $totalPages ? 'tabindex="-1" aria-disabled="true"' : '' ?>>Sau <i class="fa-solid fa-arrow-right ms-2"></i></a>
-                </li>
-            </ul>
-        </nav>
-    <?php endif; ?>
+    <?= gf_render_user_pagination((int)$trainerPage['page'], (int)$trainerPage['limit'], (int)$trainerPage['total'], $_GET) ?>
 </div>
 <?php require dirname(__DIR__, 2) . '/includes/footer.php'; ?>

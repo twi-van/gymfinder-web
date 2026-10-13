@@ -16,7 +16,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['id']) && isset($_POS
     gf_admin_save_category(['is_active' => $on ? 1 : 0], (int)$_POST['id']);
     gf_redirect(gf_url('admin/pages/categories.php'));
 }
-$rows = gf_admin_categories_paged(['limit'=>100,'sort'=>'oldest','q'=>$_GET['q']??''])['items'];
+$categoryPage = max(1, (int)($_GET['page'] ?? 1));
+$categoryLimit = 8;
+$catFilters = [
+    'limit' => $categoryLimit,
+    'page'  => $categoryPage,
+    'sort'  => 'oldest',
+    'q'     => $_GET['q'] ?? '',
+];
+$categoryResult = gf_admin_categories_paged($catFilters);
+if ($categoryPage > 1 && empty($categoryResult['items']) && (int)$categoryResult['total'] > 0) {
+    $categoryPage = max(1, (int) ceil((int)$categoryResult['total'] / $categoryLimit));
+    $catFilters['page'] = $categoryPage;
+    $categoryResult = gf_admin_categories_paged($catFilters);
+}
+$rows = $categoryResult['items'];
+$categoryPaginationHtml = gf_render_admin_pagination(
+    $categoryPage,
+    $categoryLimit,
+    (int)$categoryResult['total'],
+    array_diff_key($_GET, ['page' => ''])
+);
+
 $pageTitle = 'Quản lý danh mục';
 $extraCss = ['admin/assets/admin.css'];
 $adminActive = 'categories';
@@ -68,9 +89,10 @@ if ($catCountStmt) {
 <?php endforeach; ?>
 <?php
 gf_admin_table_close([
-    'empty' => empty($rows),
+    'empty'         => empty($rows),
     'empty_message' => 'Không tìm thấy danh mục nào phù hợp.',
-    'colspan' => 6,
+    'colspan'       => 6,
+    'footer_html'   => $categoryPaginationHtml,
 ]);
 ?>
 

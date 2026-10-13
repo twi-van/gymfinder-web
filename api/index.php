@@ -87,13 +87,12 @@ if ($path === '/auth/csrf' && $method === 'GET') {
 }
 
 if ($path === '/auth/register' && $method === 'POST') {
-    gf_require_known_body($body, ['full_name', 'email', 'phone', 'password', 'goal'], ['id', 'role', 'status', 'avatar_url', 'created_at', 'updated_at']);
+    gf_require_known_body($body, ['full_name', 'email', 'phone', 'password'], ['id', 'role', 'status', 'avatar_url', 'created_at', 'updated_at']);
     $res = gf_register(
         (string) ($body['full_name'] ?? ''),
         (string) ($body['email'] ?? ''),
         (string) ($body['password'] ?? ''),
-        isset($body['phone']) ? (string) $body['phone'] : null,
-        isset($body['goal']) ? (string) $body['goal'] : null
+        isset($body['phone']) ? (string) $body['phone'] : null
     );
     if (!$res['ok']) {
         $code = $res['code'] ?? 'VALIDATION_ERROR';
@@ -105,7 +104,6 @@ if ($path === '/auth/register' && $method === 'POST') {
         'full_name' => $u['full_name'],
         'email' => $u['email'],
         'phone' => $u['phone'],
-        'goal' => $u['goal'],
         'role' => $u['role'],
         'status' => $u['status'],
         'avatar_url' => $u['avatar_url'],
@@ -183,25 +181,19 @@ if ($path === '/auth/change-password' && $method === 'POST') {
 
 if ($path === '/profile' && $method === 'GET') {
     $u = gf_api_require_user();
-    if (($u['role'] ?? '') === 'admin') {
-        gf_api_error('FORBIDDEN', 'Admin không dùng /profile user.', 403);
-    }
     gf_json(['data' => [
         'id' => (int) $u['id'],
         'full_name' => $u['full_name'],
         'email' => $u['email'],
         'phone' => $u['phone'],
-        'goal' => $u['goal'],
         'avatar_url' => $u['avatar_url'],
+        'role' => $u['role'],
     ]]);
 }
 
 if ($path === '/profile' && $method === 'PATCH') {
     $u = gf_api_require_user();
-    if (($u['role'] ?? '') === 'admin') {
-        gf_api_error('FORBIDDEN', 'Admin không dùng /profile user.', 403);
-    }
-    gf_require_known_body($body, ['avatar_url', 'full_name', 'phone', 'goal'], ['id', 'email', 'role', 'status', 'created_at', 'updated_at']);
+    gf_require_known_body($body, ['avatar_url', 'full_name', 'phone'], ['id', 'email', 'role', 'status', 'created_at', 'updated_at']);
     if ($body === []) {
         gf_api_error('VALIDATION_ERROR', 'PATCH body rỗng.', 422, ['body' => 'Cần ít nhất một field.']);
     }
@@ -215,11 +207,6 @@ if ($path === '/profile' && $method === 'PATCH') {
     if (array_key_exists('phone', $body) && $body['phone'] !== null && $body['phone'] !== '') {
         if (!gf_phone_ok((string) $body['phone'])) {
             $details['phone'] = 'Số điện thoại không hợp lệ.';
-        }
-    }
-    if (array_key_exists('goal', $body) && $body['goal'] !== null && $body['goal'] !== '') {
-        if (!in_array($body['goal'], ['giam_can', 'tang_co', 'tang_suc_manh', 'cai_thien_suc_khoe'], true)) {
-            $details['goal'] = 'Mục tiêu không hợp lệ.';
         }
     }
     if (array_key_exists('avatar_url', $body) && $body['avatar_url'] !== null && $body['avatar_url'] !== '') {
@@ -237,7 +224,6 @@ if ($path === '/profile' && $method === 'PATCH') {
         'full_name' => $fresh['full_name'],
         'email' => $fresh['email'],
         'phone' => $fresh['phone'],
-        'goal' => $fresh['goal'],
         'avatar_url' => $fresh['avatar_url'],
     ]]);
 }

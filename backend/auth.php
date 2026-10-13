@@ -7,7 +7,7 @@ function gf_current_user(): ?array
     if (!$id) {
         return null;
     }
-    $st = gf_pdo()->prepare('SELECT id, full_name, email, phone, avatar_url, goal, role, status, created_at, updated_at FROM users WHERE id = ?');
+    $st = gf_pdo()->prepare('SELECT id, full_name, email, phone, avatar_url, role, status, created_at, updated_at FROM users WHERE id = ?');
     $st->execute([(int) $id]);
     $user = $st->fetch() ?: null;
     return $user ?: null;
@@ -66,12 +66,11 @@ function gf_logout(): void
     }
 }
 
-function gf_register(string $fullName, string $email, string $password, ?string $phone = null, ?string $goal = null): array
+function gf_register(string $fullName, string $email, string $password, ?string $phone = null): array
 {
     $fullName = trim($fullName);
     $email = strtolower(trim($email));
     $phone = $phone !== null && trim($phone) !== '' ? trim($phone) : null;
-    $goals = ['giam_can', 'tang_co', 'tang_suc_manh', 'cai_thien_suc_khoe'];
     if ($fullName === '' || mb_strlen($fullName) > 100 || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 255) {
         return ['ok' => false, 'error' => 'Họ tên và email hợp lệ là bắt buộc.', 'code' => 'VALIDATION_ERROR'];
     }
@@ -81,15 +80,12 @@ function gf_register(string $fullName, string $email, string $password, ?string 
     if ($phone !== null && !preg_match('/^\+?[0-9]{9,14}$/', $phone)) {
         return ['ok' => false, 'error' => 'Số điện thoại không hợp lệ.', 'code' => 'VALIDATION_ERROR'];
     }
-    if ($goal !== null && $goal !== '' && !in_array($goal, $goals, true)) {
-        return ['ok' => false, 'error' => 'Mục tiêu không hợp lệ.', 'code' => 'VALIDATION_ERROR'];
-    }
     $hash = password_hash($password, PASSWORD_BCRYPT);
     try {
         $st = gf_pdo()->prepare(
-            'INSERT INTO users (full_name, email, phone, password_hash, goal, role, status) VALUES (?,?,?,?,?,\'user\',\'active\')'
+            'INSERT INTO users (full_name, email, phone, password_hash, role, status) VALUES (?,?,?,?,\'user\',\'active\')'
         );
-        $st->execute([$fullName, $email, $phone, $hash, $goal ?: null]);
+        $st->execute([$fullName, $email, $phone, $hash]);
     } catch (PDOException $e) {
         if ((string) $e->getCode() === '23000') {
             return ['ok' => false, 'error' => 'Email đã được sử dụng.', 'code' => 'DUPLICATE_EMAIL'];
@@ -97,7 +93,7 @@ function gf_register(string $fullName, string $email, string $password, ?string 
         throw $e;
     }
     $id = (int) gf_pdo()->lastInsertId();
-    $row = gf_pdo()->prepare('SELECT id, full_name, email, phone, goal, role, status, avatar_url, created_at FROM users WHERE id=?');
+    $row = gf_pdo()->prepare('SELECT id, full_name, email, phone, role, status, avatar_url, created_at FROM users WHERE id=?');
     $row->execute([$id]);
     return ['ok' => true, 'user' => $row->fetch()];
 }
@@ -106,7 +102,7 @@ function gf_update_profile(int $userId, array $data): void
 {
     $fields = [];
     $params = [];
-    foreach (['full_name', 'phone', 'goal', 'avatar_url'] as $col) {
+    foreach (['full_name', 'phone', 'avatar_url'] as $col) {
         if (array_key_exists($col, $data)) {
             $fields[] = "$col = ?";
             $val = $data[$col];

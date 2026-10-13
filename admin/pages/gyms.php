@@ -30,6 +30,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = gf_admin_save_gym($data, $id);
             if (!empty($result['ok'])) gf_redirect(gf_url('admin/pages/gyms.php?updated=1'));
             $error = $result['error'] ?? 'Không thể cập nhật phòng tập.';
+            if (!empty($result['details'])) {
+                $error .= ' (' . implode(', ', $result['details']) . ')';
+            }
         }
     } elseif (isset($_POST['id'], $_POST['status'])) {
         gf_set_entity_status('gyms', (int) $_POST['id'], $_POST['status'] === 'hidden' ? 'hidden' : 'active');
@@ -61,21 +64,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 gf_redirect(gf_url('admin/pages/gyms.php?created=1'));
             }
             $error = $result['error'] ?? 'Không thể lưu phòng tập.';
+            if (!empty($result['details'])) {
+                $error .= ' (' . implode(', ', $result['details']) . ')';
+            }
         }
     }
 }
 $districts = gf_list_districts();
 $districtNames = [];
 foreach ($districts as $district) { $districtNames[(int)$district['id']] = $district['name']; }
-$gymPage = max(1,(int)($_GET['page']??1));
+$gymPage = max(1, (int)($_GET['page'] ?? 1));
+$gymLimit = 8;
 $gymResult = gf_admin_gyms_paged([
-    'limit' => 10,
-    'page' => $gymPage,
-    'sort' => 'oldest',
-    'q' => $_GET['q'] ?? '',
-    'status' => $_GET['status'] ?? '',
+    'limit'       => $gymLimit,
+    'page'        => $gymPage,
+    'sort'        => 'oldest',
+    'q'           => $_GET['q'] ?? '',
+    'status'      => $_GET['status'] ?? '',
     'district_id' => $_GET['district_id'] ?? '',
 ]);
+if ($gymPage > 1 && empty($gymResult['items']) && (int)$gymResult['total'] > 0) {
+    $gymPage = max(1, (int) ceil((int)$gymResult['total'] / $gymLimit));
+    $gymResult = gf_admin_gyms_paged([
+        'limit'       => $gymLimit,
+        'page'        => $gymPage,
+        'sort'        => 'oldest',
+        'q'           => $_GET['q'] ?? '',
+        'status'      => $_GET['status'] ?? '',
+        'district_id' => $_GET['district_id'] ?? '',
+    ]);
+}
 $rows = $gymResult['items'];
 $gymCategoryNames = $gymCategoryIds = $gymAmenityIds = $gymDescriptions = $gymGalleries = [];
 $categoryQuery = gf_pdo()->prepare('SELECT c.id,c.name FROM gym_categories gc JOIN categories c ON c.id=gc.category_id WHERE gc.gym_id=? ORDER BY c.name');
@@ -194,6 +212,9 @@ gf_admin_table_open([
                             <div class="min-w-0 flex-grow-1">
                                 <span class="gym-name"><?= gf_h($r['name']) ?></span>
                                 <div class="gym-address"><i class="fa-solid fa-location-dot me-1 text-muted" style="font-size: 11px;"></i><?= gf_h($r['address']) ?></div>
+                                <div class="small text-muted mt-1" style="font-size: 11px;">
+                                    <i class="fa-solid fa-phone me-1 text-primary" style="font-size: 10px;"></i><?= !empty($r['phone']) ? gf_h($r['phone']) : '<span class="text-secondary fst-italic">Chưa có SĐT</span>' ?>
+                                </div>
                                 <?php if (!empty($gymGalleries[(int)$r['id']])): ?>
                                     <div class="mt-1">
                                         <span class="badge bg-light text-secondary border px-2 py-0" style="font-size: 10.5px; font-weight: 500;">
@@ -236,7 +257,7 @@ gf_admin_table_open([
                     <td class="text-end gym-actions pe-3">
                         <div class="d-inline-flex align-items-center justify-content-end gap-2">
                             <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#gymView<?= (int)$r['id'] ?>" title="Chi tiết"><i class="fa-solid fa-eye"></i></button>
-                            <button type="button" class="btn btn-action btn-action-edit" data-id="<?= (int)$r['id'] ?>" data-name="<?= gf_h($r['name']) ?>" data-address="<?= gf_h($r['address']) ?>" data-district="<?= (int)$r['district_id'] ?>" data-min="<?= (int)$r['price_min'] ?>" data-max="<?= (int)$r['price_max'] ?>" data-description="<?= gf_h($gymDescriptions[(int)$r['id']] ?? '') ?>" data-cover="<?= gf_h($r['cover_image_url'] ?? '') ?>" data-cover-display="<?= gf_h(gf_cover_image($r['cover_image_url'] ?? null, (int)$r['id'])) ?>" data-gallery='<?= htmlspecialchars(json_encode($gymGalleries[(int)$r['id']] ?? []), ENT_QUOTES, 'UTF-8') ?>' data-categories="<?= gf_h(implode(',', $gymCategoryIds[(int)$r['id']] ?? [])) ?>" data-amenities="<?= gf_h(implode(',', $gymAmenityIds[(int)$r['id']] ?? [])) ?>" onclick="gymModalEdit(this)" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+                            <button type="button" class="btn btn-action btn-action-edit" data-id="<?= (int)$r['id'] ?>" data-name="<?= gf_h($r['name']) ?>" data-phone="<?= gf_h($r['phone'] ?? '') ?>" data-address="<?= gf_h($r['address']) ?>" data-district="<?= (int)$r['district_id'] ?>" data-min="<?= (int)$r['price_min'] ?>" data-max="<?= (int)$r['price_max'] ?>" data-description="<?= gf_h($gymDescriptions[(int)$r['id']] ?? '') ?>" data-cover="<?= gf_h($r['cover_image_url'] ?? '') ?>" data-cover-display="<?= gf_h(gf_cover_image($r['cover_image_url'] ?? null, (int)$r['id'])) ?>" data-gallery='<?= htmlspecialchars(json_encode($gymGalleries[(int)$r['id']] ?? []), ENT_QUOTES, 'UTF-8') ?>' data-categories="<?= gf_h(implode(',', $gymCategoryIds[(int)$r['id']] ?? [])) ?>" data-amenities="<?= gf_h(implode(',', $gymAmenityIds[(int)$r['id']] ?? [])) ?>" onclick="gymModalEdit(this)" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
                             <form method="post" class="d-inline m-0 p-0"><?= gf_csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><input type="hidden" name="status" value="<?= $r['status'] === 'active' ? 'hidden' : 'active' ?>"><button class="btn btn-action <?= $r['status']==='active'?'btn-action-delete':'btn-action-edit' ?>" title="<?= $r['status']==='active'?'Tạm ẩn':'Kích hoạt' ?>"><i class="fa-solid <?= $r['status']==='active'?'fa-trash':'fa-eye' ?>"></i></button></form>
                         </div>
                     </td>
@@ -315,6 +336,7 @@ gf_admin_table_close([
                         <div class="p-3 bg-light rounded-3 mb-3 border">
                             <div class="row g-2 small">
                                 <div class="col-6"><strong>Khu vực:</strong> <?= gf_h($districtNames[(int)$r['district_id']] ?? '—') ?></div>
+                                <div class="col-6"><strong>Số điện thoại:</strong> <?= !empty($r['phone']) ? gf_h($r['phone']) : '<span class="text-muted fst-italic">Chưa cập nhật</span>' ?></div>
                                 <div class="col-6"><strong>Đánh giá:</strong> <i class="fa-solid fa-star text-warning"></i> <?= number_format((float)($r['avg_rating'] ?? 0), 1) ?> (<?= (int)$r['review_count'] ?> đánh giá)</div>
                                 <div class="col-6"><strong>Khoảng giá:</strong> <span class="text-primary fw-bold"><?= gf_h(gf_format_price((int)$r['price_min'], (int)$r['price_max'])) ?></span></div>
                                 <div class="col-6"><strong>Trạng thái:</strong> <span class="admin-badge <?= $r['status'] === 'active' ? 'badge-success' : 'badge-neutral' ?>"><?= $r['status'] === 'active' ? 'Hoạt động' : 'Tạm ẩn' ?></span></div>
@@ -362,10 +384,11 @@ gf_admin_table_close([
                 <div id="gym-error-alert" class="alert alert-danger d-none"></div>
                 <div class="row g-3">
                     <div class="col-md-6"><label class="form-label">Tên phòng tập *</label><input class="form-control admin-input" name="name" id="gym-name" required></div>
+                    <div class="col-md-6"><label class="form-label">Số điện thoại liên hệ</label><input class="form-control admin-input" name="phone" id="gym-phone" placeholder="VD: +84281234567 hoặc 0901234567" pattern="^\+?[0-9]{9,14}$" title="Từ 9 đến 14 chữ số, có thể bắt đầu bằng dấu +"></div>
                     <div class="col-md-6"><label class="form-label">Địa chỉ *</label><input class="form-control admin-input" name="address" id="gym-address" required></div>
-                    <div class="col-md-4"><label class="form-label">Khu vực *</label><select class="form-select admin-input" name="district_id" id="gym-district" required><?php foreach ($districts as $d): ?><option value="<?= (int)$d['id'] ?>"><?= gf_h($d['name']) ?></option><?php endforeach; ?></select></div>
-                    <div class="col-md-4"><label class="form-label">Giá từ</label><input class="form-control admin-input" type="number" min="0" name="price_min" id="gym-min" value="200000"></div>
-                    <div class="col-md-4"><label class="form-label">Giá đến</label><input class="form-control admin-input" type="number" min="0" name="price_max" id="gym-max" value="800000"></div>
+                    <div class="col-md-6"><label class="form-label">Khu vực *</label><select class="form-select admin-input" name="district_id" id="gym-district" required><?php foreach ($districts as $d): ?><option value="<?= (int)$d['id'] ?>"><?= gf_h($d['name']) ?></option><?php endforeach; ?></select></div>
+                    <div class="col-md-6"><label class="form-label">Giá từ</label><input class="form-control admin-input" type="number" min="0" name="price_min" id="gym-min" value="200000"></div>
+                    <div class="col-md-6"><label class="form-label">Giá đến</label><input class="form-control admin-input" type="number" min="0" name="price_max" id="gym-max" value="800000"></div>
                     <div class="col-12"><label class="form-label">Mô tả</label><textarea class="form-control admin-input" name="description" id="gym-description" rows="3"></textarea></div>
                     <div class="col-md-6"><label class="form-label fw-semibold">Danh mục</label><div><?php foreach ($categories as $c): ?><label class="form-check"><input class="form-check-input gym-category" type="checkbox" name="category_ids[]" value="<?= (int)$c['id'] ?>"><span class="form-check-label"><?= gf_h($c['name']) ?></span></label><?php endforeach; ?></div></div>
                     <div class="col-md-6"><label class="form-label fw-semibold">Tiện ích</label><div><?php foreach ($amenities as $a): ?><label class="form-check"><input class="form-check-input gym-amenity" type="checkbox" name="amenity_ids[]" value="<?= (int)$a['id'] ?>"><span class="form-check-label"><?= gf_h($a['name']) ?></span></label><?php endforeach; ?></div></div>
@@ -438,6 +461,7 @@ function gymModalCreate(){
     const f=document.getElementById('gymEditor');
     f.querySelector('form').reset();
     document.getElementById('gym-id').value='';
+    document.getElementById('gym-phone').value='';
     document.getElementById('gym-cover-url').value='';
     document.getElementById('gym-remove-cover').value='0';
     document.getElementById('gym-images-json').value='[]';
@@ -464,6 +488,7 @@ function gymModalEdit(b){
     f.querySelector('form').reset();
     document.getElementById('gym-id').value=b.dataset.id;
     document.getElementById('gym-name').value=b.dataset.name;
+    document.getElementById('gym-phone').value=b.dataset.phone || '';
     document.getElementById('gym-address').value=b.dataset.address;
     document.getElementById('gym-district').value=b.dataset.district;
     document.getElementById('gym-min').value=b.dataset.min;

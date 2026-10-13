@@ -56,6 +56,46 @@ $(document).ready(function() {
         });
     };
 
+    window.showRejectReviewModal = function(reviewerName) {
+        $('#sharedModalTitle').text('Từ chối đánh giá');
+        $('#sharedModalBody').html(`
+            <div class="mb-2">
+                <p class="text-secondary small mb-2">Bạn đang từ chối đánh giá của <strong>${reviewerName}</strong>.</p>
+                <label class="form-label fw-semibold small" for="protoRejectReason">Lý do từ chối <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="protoRejectReason" rows="3" placeholder="Nhập lý do từ chối (bắt buộc, không được để trống)..." maxlength="255"></textarea>
+                <div class="form-text small text-danger d-none" id="protoRejectError">
+                    Vui lòng nhập lý do từ chối. Không được để trống hoặc chỉ chứa khoảng trắng.
+                </div>
+            </div>
+        `);
+
+        const confirmBtn = $('#sharedModalConfirm');
+        confirmBtn.removeClass('btn-primary').addClass('btn-danger').text('Xác nhận từ chối');
+
+        const modalEl = document.getElementById('sharedAdminModal');
+        const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+
+        confirmBtn.off('click').on('click', function () {
+            const reason = $('#protoRejectReason').val() ? $('#protoRejectReason').val().trim() : '';
+            if (!reason) {
+                $('#protoRejectError').removeClass('d-none');
+                $('#protoRejectReason').focus();
+                return;
+            }
+            modal.hide();
+            setTimeout(() => {
+                alert(`Đã từ chối đánh giá của ${reviewerName} với lý do: "${reason}"`);
+            }, 300);
+        });
+
+        $('#sharedAdminModal').one('hidden.bs.modal', function () {
+            confirmBtn.removeClass('btn-danger').addClass('btn-primary').text('Xác nhận');
+            confirmBtn.off('click');
+        });
+
+        modal.show();
+    };
+
     // --- 4. POPULATE MOCK DATA ---
 
     // A. Dashboard Stats & Charts
@@ -230,7 +270,7 @@ $(document).ready(function() {
     if ($('#userTableBody').length > 0 && typeof usersData !== 'undefined') {
         let html = '';
         usersData.forEach(user => {
-            const roleBadge = user.role === 'Admin' ? '<span class="admin-badge badge-warning text-white">Admin</span>' : '<span class="admin-badge badge-neutral">User</span>';
+            const roleBadge = user.role === 'Admin' ? '<span class="admin-badge badge-warning text-white">Quản trị viên</span>' : '<span class="admin-badge badge-neutral">Người dùng</span>';
             const statusBadge = user.status === 'Hoạt động' ? '<span class="admin-badge badge-success">Hoạt động</span>' : '<span class="admin-badge badge-danger">Bị khóa</span>';
             const lockIcon = user.status === 'Hoạt động' ? 'fa-lock' : 'fa-unlock';
             const lockAction = user.status === 'Hoạt động' ? 'Khóa' : 'Mở khóa';
@@ -273,7 +313,7 @@ $(document).ready(function() {
                     if (isPending) {
                         actionBtns += `
                             <button class="btn btn-action btn-action-view text-success me-1 border-success" onclick="showModal('Duyệt đánh giá', 'Đã duyệt đánh giá của ${review.name}')" title="Duyệt"><i class="fa-solid fa-check"></i></button>
-                            <button class="btn btn-action btn-action-delete me-1" onclick="showModal('Từ chối đánh giá', 'Đã từ chối đánh giá của ${review.name}')" title="Từ chối"><i class="fa-solid fa-xmark"></i></button>
+                            <button class="btn btn-action btn-action-delete me-1" onclick="showRejectReviewModal('${review.name}')" title="Từ chối"><i class="fa-solid fa-xmark"></i></button>
                         `;
                     } else {
                         actionBtns += `<button class="btn btn-action btn-action-delete" onclick="confirmDelete('đánh giá của ${review.name}')" title="Xóa"><i class="fa-solid fa-trash"></i></button>`;

@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (empty($_POST['agree'])) {
         $error = 'Bạn cần đồng ý điều khoản.';
     } else {
-        $res = gf_register((string)($_POST['full_name'] ?? ''), (string)($_POST['email'] ?? ''), (string)($_POST['password'] ?? ''), $_POST['phone'] ?? null, $_POST['goal'] ?? null);
+        $res = gf_register((string)($_POST['full_name'] ?? ''), (string)($_POST['email'] ?? ''), (string)($_POST['password'] ?? ''), $_POST['phone'] ?? null);
         if ($res['ok']) {
             gf_redirect(gf_url('pages/auth/login.php?registered=1'));
         }

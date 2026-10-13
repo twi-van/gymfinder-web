@@ -12,7 +12,6 @@ CREATE TABLE IF NOT EXISTS users (
   phone TEXT,
   password_hash TEXT NOT NULL,
   avatar_url TEXT,
-  goal TEXT,
   role TEXT NOT NULL DEFAULT 'user',
   status TEXT NOT NULL DEFAULT 'active',
   last_login_at TEXT,
@@ -149,20 +148,24 @@ SQL);
     $pdo->exec('PRAGMA foreign_keys = ON');
 
     $hash = password_hash('password', PASSWORD_BCRYPT);
+    $hashAdmin = password_hash('Admin@123456', PASSWORD_BCRYPT);
+    $hashUser = password_hash('User@123456', PASSWORD_BCRYPT);
 
-    $pdo->prepare('INSERT INTO users (id, full_name, email, phone, password_hash, role, status, goal) VALUES (?,?,?,?,?,?,?,?)')->execute(
-        [1, 'Admin GymFinder', 'u01@gymfinder.test', '0900000001', $hash, 'admin', 'active', null]
+    $pdo->prepare('INSERT INTO users (id, full_name, email, phone, password_hash, role, status) VALUES (?,?,?,?,?,?,?)')->execute(
+        [1, 'Admin GymFinder', 'u01@gymfinder.test', '0900000001', $hash, 'admin', 'active']
     );
     $users = [
-        [2, 'Nguyễn Văn An', 'u02@gymfinder.test', '0900000002', 'user', 'active', 'tang_co'],
-        [3, 'Trần Thị Bình', 'u03@gymfinder.test', '0900000003', 'user', 'active', 'giam_can'],
-        [4, 'Lê Minh Châu', 'u04@gymfinder.test', '0900000004', 'user', 'active', 'cai_thien_suc_khoe'],
-        [5, 'Phạm Quang Dũng', 'u05@gymfinder.test', '0900000005', 'user', 'active', 'tang_suc_manh'],
-        [6, 'Võ Thị Em', 'u06@gymfinder.test', '0900000006', 'user', 'locked', null],
+        [2, 'Nguyễn Văn An', 'u02@gymfinder.test', '0900000002', $hash, 'user', 'active'],
+        [3, 'Trần Thị Bình', 'u03@gymfinder.test', '0900000003', $hash, 'user', 'active'],
+        [4, 'Lê Minh Châu', 'u04@gymfinder.test', '0900000004', $hash, 'user', 'active'],
+        [5, 'Phạm Quang Dũng', 'u05@gymfinder.test', '0900000005', $hash, 'user', 'active'],
+        [6, 'Võ Thị Em', 'u06@gymfinder.test', '0900000006', $hash, 'user', 'locked'],
+        [7, 'Quản trị viên GymFinder', 'admin@gymfinder.vn', '0901234567', $hashAdmin, 'admin', 'active'],
+        [8, 'Thành viên GymFinder', 'user@gymfinder.vn', '0909876543', $hashUser, 'user', 'active'],
     ];
-    $insU = $pdo->prepare('INSERT INTO users (id, full_name, email, phone, password_hash, role, status, goal) VALUES (?,?,?,?,?,?,?,?)');
+    $insU = $pdo->prepare('INSERT INTO users (id, full_name, email, phone, password_hash, role, status) VALUES (?,?,?,?,?,?,?)');
     foreach ($users as $u) {
-        $insU->execute([$u[0], $u[1], $u[2], $u[3], $hash, $u[4], $u[5], $u[6]]);
+        $insU->execute([$u[0], $u[1], $u[2], $u[3], $u[4], $u[5], $u[6]]);
     }
 
     $districts = [

@@ -1,17 +1,17 @@
 <footer class="border-top py-5 mt-auto" style="background-color: #f8fafc;">
     <div class="container">
         <div class="row g-4 mb-5">
-            <div class="col-12 col-lg-4 pe-lg-5">
+            <div class="col-12 col-md-5 col-lg-5 pe-lg-4">
                 <?= gf_logo('footer', null, 'mb-4') ?>
-                <p class="text-secondary mb-4" style="font-size: 14px; line-height: 1.6;">Nền tảng tìm kiếm và so sánh các phòng tập gym, tiện ích, loại hình tập luyện và đội ngũ huấn luyện viên.</p>
+                <p class="text-secondary mb-4" style="font-size: 14px; line-height: 1.6; max-width: 380px;">Nền tảng tìm kiếm và so sánh các phòng tập gym, tiện ích, loại hình tập luyện và đội ngũ huấn luyện viên.</p>
                 <div class="d-flex align-items-center gap-2 text-secondary" style="font-size: 14px;">
                     <i class="fa-solid fa-location-dot"></i>
                     <span>TP. Hồ Chí Minh</span>
                 </div>
             </div>
-            <div class="col-12 col-lg-8">
-                <div class="row g-4">
-                    <div class="col-6 col-md-4">
+            <div class="col-12 col-md-7 col-lg-6 offset-lg-1">
+                <div class="row g-4 justify-content-between">
+                    <div class="col-6 col-sm-6">
                         <h5 class="fw-bold text-dark mb-4" style="font-size: 15px;">Phòng tập</h5>
                         <ul class="list-unstyled mb-0 d-flex flex-column gap-3" style="font-size: 14px;">
                             <li><a href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>" class="text-secondary text-decoration-none">Tất cả phòng tập</a></li>
@@ -20,21 +20,12 @@
                             <li><a href="<?= gf_h(gf_url('pages/gyms/search.php?has_pt=1')) ?>" class="text-secondary text-decoration-none">Phòng tập có PT</a></li>
                         </ul>
                     </div>
-                    <div class="col-6 col-md-4">
+                    <div class="col-6 col-sm-6">
                         <h5 class="fw-bold text-dark mb-4" style="font-size: 15px;">Huấn luyện viên</h5>
                         <ul class="list-unstyled mb-0 d-flex flex-column gap-3" style="font-size: 14px;">
                             <li><a href="<?= gf_h(gf_url('pages/trainers/index.php')) ?>" class="text-secondary text-decoration-none">Tìm huấn luyện viên</a></li>
                             <li><a href="<?= gf_h(gf_url('pages/trainers/index.php?featured=1')) ?>" class="text-secondary text-decoration-none">HLV nổi bật</a></li>
                             <li><a href="<?= gf_h(gf_url('pages/trainers/index.php')) ?>" class="text-secondary text-decoration-none">Theo bộ môn</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-6 col-md-4">
-                        <h5 class="fw-bold text-dark mb-4" style="font-size: 15px;">Liên kết</h5>
-                        <ul class="list-unstyled mb-0 d-flex flex-column gap-3" style="font-size: 14px;">
-                            <li><a href="#about" class="text-secondary text-decoration-none">Về chúng tôi</a></li>
-                            <li><a href="#contact" class="text-secondary text-decoration-none">Liên hệ</a></li>
-                            <li><a href="#terms" class="text-secondary text-decoration-none">Điều khoản</a></li>
-                            <li><a href="#privacy" class="text-secondary text-decoration-none">Bảo mật</a></li>
                         </ul>
                     </div>
                 </div>
@@ -61,6 +52,7 @@
         </div>
     </div>
 </div>
+<?php require __DIR__ . '/contact_modal.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.querySelectorAll('.js-favorite-toggle').forEach((form) => {
@@ -123,6 +115,193 @@ document.querySelectorAll('.js-favorite-toggle').forEach((form) => {
         }
     });
 });
+
+// Xử lý modal Liên hệ (Dùng chung cho Gym & Huấn luyện viên)
+(function() {
+    let copyTimeout = null;
+    const contactModalEl = document.getElementById('contactModal');
+    if (!contactModalEl) return;
+
+    const modalTitle = document.getElementById('contactModalTitle');
+    const modalSubtitle = document.getElementById('contactModalSubtitle');
+    const modalAvatar = document.getElementById('contactModalAvatar');
+    const modalCategory = document.getElementById('contactModalCategory');
+    const modalTypeIcon = document.getElementById('contactModalTypeIcon');
+    const phoneWrapper = document.getElementById('contactModalPhoneWrapper');
+    const phoneText = document.getElementById('contactModalPhone');
+    const noPhoneNotice = document.getElementById('contactModalNoPhone');
+    const copyBtn = document.getElementById('contactModalCopyBtn');
+    const copyText = document.getElementById('contactModalCopyText');
+    const copyIcon = document.getElementById('contactModalCopyIcon');
+    const copyAlert = document.getElementById('contactModalCopyAlert');
+    const callBtn = document.getElementById('contactModalCallBtn');
+
+    let currentPhone = '';
+
+    function resetCopyFeedback() {
+        if (copyTimeout) {
+            clearTimeout(copyTimeout);
+            copyTimeout = null;
+        }
+        if (copyAlert) {
+            copyAlert.classList.add('d-none');
+            copyAlert.classList.remove('d-flex');
+        }
+        if (copyBtn) {
+            copyBtn.classList.remove('btn-success');
+            copyBtn.classList.add('btn-primary');
+        }
+        if (copyIcon) {
+            copyIcon.className = 'fa-regular fa-copy';
+        }
+        if (copyText) {
+            copyText.textContent = 'Sao chép số điện thoại';
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.btn-global-contact');
+        if (!btn) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        resetCopyFeedback();
+
+        const name = (btn.dataset.name || 'Thông tin liên hệ').trim();
+        const type = (btn.dataset.type || 'trainer').trim();
+        const typeLabel = (btn.dataset.typeLabel || (type === 'gym' ? 'Phòng tập thể hình' : 'Huấn luyện viên cá nhân')).trim();
+        const avatar = (btn.dataset.avatar || '').trim();
+        const subtitle = (btn.dataset.subtitle || '').trim();
+        let phone = (btn.dataset.phone || '').trim();
+
+        // Kiểm tra loại bỏ null/undefined
+        if (phone.toLowerCase() === 'null' || phone.toLowerCase() === 'undefined') {
+            phone = '';
+        }
+        currentPhone = phone;
+
+        if (modalTitle) modalTitle.textContent = name;
+        if (modalCategory) modalCategory.textContent = typeLabel;
+        if (modalSubtitle) {
+            modalSubtitle.textContent = subtitle;
+            modalSubtitle.style.display = subtitle ? 'block' : 'none';
+        }
+
+        if (modalAvatar) {
+            modalAvatar.alt = name;
+            modalAvatar.src = avatar;
+            if (type === 'gym') {
+                modalAvatar.style.borderRadius = '16px';
+                modalAvatar.style.width = '96px';
+                modalAvatar.style.height = '80px';
+                modalAvatar.onerror = function() {
+                    this.onerror = null;
+                    this.src = 'https://placehold.co/120x100?text=Gym';
+                };
+            } else {
+                modalAvatar.style.borderRadius = '50%';
+                modalAvatar.style.width = '88px';
+                modalAvatar.style.height = '88px';
+                modalAvatar.onerror = function() {
+                    this.onerror = null;
+                    this.src = 'https://placehold.co/100x100?text=Trainer';
+                };
+            }
+        }
+
+        if (modalTypeIcon) {
+            modalTypeIcon.className = type === 'gym' ? 'fa-solid fa-dumbbell' : 'fa-solid fa-user';
+        }
+
+        if (phone) {
+            if (phoneWrapper) phoneWrapper.classList.remove('d-none');
+            if (phoneText) phoneText.textContent = phone;
+            if (noPhoneNotice) noPhoneNotice.classList.add('d-none');
+            if (copyBtn) {
+                copyBtn.disabled = false;
+                copyBtn.classList.remove('opacity-50');
+            }
+            if (callBtn) {
+                callBtn.classList.remove('d-none');
+                callBtn.classList.add('d-flex');
+                callBtn.href = 'tel:' + phone.replace(/[^\d+]/g, '');
+            }
+        } else {
+            if (phoneWrapper) phoneWrapper.classList.add('d-none');
+            if (noPhoneNotice) {
+                noPhoneNotice.classList.remove('d-none');
+                noPhoneNotice.textContent = 'Chưa cập nhật số điện thoại';
+            }
+            if (copyBtn) {
+                copyBtn.disabled = true;
+                copyBtn.classList.add('opacity-50');
+            }
+            if (callBtn) {
+                callBtn.classList.add('d-none');
+                callBtn.classList.remove('d-flex');
+            }
+        }
+
+        if (window.bootstrap?.Modal) {
+            window.bootstrap.Modal.getOrCreateInstance(contactModalEl).show();
+        }
+    });
+
+    if (copyBtn) {
+        copyBtn.addEventListener('click', async function() {
+            if (!currentPhone) return;
+
+            const cleanPhone = currentPhone.trim();
+            let success = false;
+
+            if (navigator.clipboard && window.isSecureContext) {
+                try {
+                    await navigator.clipboard.writeText(cleanPhone);
+                    success = true;
+                } catch (err) {
+                    success = false;
+                }
+            }
+
+            if (!success) {
+                const ta = document.createElement('textarea');
+                ta.value = cleanPhone;
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                ta.style.top = '-9999px';
+                document.body.appendChild(ta);
+                ta.focus();
+                ta.select();
+                try {
+                    success = document.execCommand('copy');
+                } catch (err) {
+                    success = false;
+                }
+                ta.remove();
+            }
+
+            if (success) {
+                if (copyIcon) copyIcon.className = 'fa-solid fa-check';
+                if (copyText) copyText.textContent = 'Đã sao chép!';
+                copyBtn.classList.remove('btn-primary');
+                copyBtn.classList.add('btn-success');
+
+                if (copyAlert) {
+                    copyAlert.classList.remove('d-none');
+                    copyAlert.classList.add('d-flex');
+                }
+
+                if (copyTimeout) clearTimeout(copyTimeout);
+                copyTimeout = setTimeout(resetCopyFeedback, 2500);
+            }
+        });
+    }
+
+    contactModalEl.addEventListener('hidden.bs.modal', function() {
+        resetCopyFeedback();
+    });
+})();
 </script>
 </body>
 </html>

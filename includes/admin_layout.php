@@ -22,13 +22,16 @@ function gf_admin_nav(string $key, string $href, string $icon, string $label, st
             gf_admin_nav('users', 'admin/pages/users.php', 'fa-users', 'Người dùng', $adminActive);
             gf_admin_nav('reviews', 'admin/pages/reviews.php', 'fa-star', 'Đánh giá', $adminActive);
             gf_admin_nav('categories', 'admin/pages/categories.php', 'fa-list', 'Danh mục', $adminActive);
+            gf_admin_nav('profile', 'admin/pages/profile.php', 'fa-user-shield', 'Hồ sơ cá nhân', $adminActive);
             ?>
         </ul>
     </div>
     <div class="p-3 border-top mt-auto">
         <div class="d-flex align-items-center gap-2">
-            <img src="<?= gf_h(gf_avatar($adminUser['avatar_url'] ?? null, !empty($adminUser['avatar_url']) ? (int) $adminUser['id'] : 0, $adminUser['full_name'])) ?>" class="rounded-circle shadow-sm" style="width:44px;height:44px;object-fit:cover;aspect-ratio:1/1;flex:0 0 44px;" alt="<?= gf_h($adminUser['full_name']) ?>">
-            <div class="min-w-0"><div class="fw-bold"><?= gf_h($adminUser['full_name']) ?></div><div class="small text-secondary">Quản trị viên</div></div>
+            <a href="<?= gf_h(gf_url('admin/pages/profile.php')) ?>" class="d-flex align-items-center gap-2 text-decoration-none min-w-0 flex-grow-1 text-dark" title="Xem và sửa hồ sơ quản trị">
+                <img src="<?= gf_h(gf_avatar($adminUser['avatar_url'] ?? null, !empty($adminUser['avatar_url']) ? (int) $adminUser['id'] : 0, $adminUser['full_name'])) ?>" class="rounded-circle shadow-sm" style="width:40px;height:40px;object-fit:cover;aspect-ratio:1/1;flex:0 0 40px;" alt="<?= gf_h($adminUser['full_name']) ?>">
+                <div class="min-w-0 text-truncate"><div class="fw-bold small text-truncate"><?= gf_h($adminUser['full_name']) ?></div><div class="text-secondary" style="font-size:11.5px;">Quản trị viên</div></div>
+            </a>
             <form method="post" action="<?= gf_h(gf_url('pages/auth/logout.php')) ?>" class="ms-auto"><?= gf_csrf_field() ?><button class="btn btn-action btn-action-view" title="Đăng xuất"><i class="fa-solid fa-arrow-right-from-bracket"></i></button></form>
         </div>
     </div>

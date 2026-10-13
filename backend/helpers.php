@@ -339,14 +339,14 @@ function gf_stars(float $rating): string
     return $html;
 }
 
-function gf_goal_label(?string $goal): string
+/**
+ * Chuyển đổi mã vai trò người dùng sang nhãn hiển thị tiếng Việt.
+ */
+function gf_role_label(?string $role): string
 {
-    return match ($goal) {
-        'giam_can' => 'Giảm cân',
-        'tang_co' => 'Tăng cơ',
-        'tang_suc_manh' => 'Tăng sức mạnh',
-        'cai_thien_suc_khoe' => 'Cải thiện sức khỏe',
-        default => 'Chưa chọn',
+    return match ($role) {
+        'admin' => 'Quản trị viên',
+        default => 'Người dùng',
     };
 }
 
@@ -441,7 +441,7 @@ function gf_logo(string $variant = 'header', ?string $href = null, string $extra
     $logoClass = $extraClass;
     $logoAsLink = $asLink;
     ob_start();
-    require dirname(__DIR__) . '/includes/components/logo.php';
+    require dirname(__DIR__) . '/includes/logo.php';
     return ob_get_clean() ?: '';
 }
 

@@ -16,6 +16,24 @@ require dirname(__DIR__, 2) . '/includes/header.php';
     </div>
 <?php else:
     $favs = gf_user_favorites((int)$user['id']);
+    $activeTab = in_array($_GET['tab'] ?? '', ['trainers', 'gyms'], true) ? $_GET['tab'] : 'gyms';
+    $limit = 8;
+
+    // Phân trang Phòng tập yêu thích
+    $totalGyms = count($favs['gyms']);
+    $gymPage = max(1, (int)($_GET['g_page'] ?? ($activeTab === 'gyms' ? ($_GET['page'] ?? 1) : 1)));
+    if ($gymPage > 1 && $gymPage > (int)ceil($totalGyms / $limit)) {
+        $gymPage = max(1, (int)ceil($totalGyms / $limit));
+    }
+    $pagedGyms = array_slice($favs['gyms'], ($gymPage - 1) * $limit, $limit);
+
+    // Phân trang Huấn luyện viên yêu thích
+    $totalTrainers = count($favs['trainers']);
+    $trainerPage = max(1, (int)($_GET['t_page'] ?? ($activeTab === 'trainers' ? ($_GET['page'] ?? 1) : 1)));
+    if ($trainerPage > 1 && $trainerPage > (int)ceil($totalTrainers / $limit)) {
+        $trainerPage = max(1, (int)ceil($totalTrainers / $limit));
+    }
+    $pagedTrainers = array_slice($favs['trainers'], ($trainerPage - 1) * $limit, $limit);
 ?>
     <div class="container py-5">
         <div class="mb-4 text-center">
@@ -23,21 +41,23 @@ require dirname(__DIR__, 2) . '/includes/header.php';
             <p class="text-secondary">Lưu lại những phòng tập và huấn luyện viên bạn quan tâm.</p>
         </div>
         <ul class="nav nav-pills justify-content-center mb-4">
-            <li class="nav-item"><button class="nav-link active" id="gyms-tab" data-bs-toggle="pill" data-bs-target="#fg" type="button" role="tab">Phòng tập (<?= count($favs['gyms']) ?>)</button></li>
-            <li class="nav-item"><button class="nav-link" id="trainers-tab" data-bs-toggle="pill" data-bs-target="#ft" type="button" role="tab">Huấn luyện viên (<?= count($favs['trainers']) ?>)</button></li>
+            <li class="nav-item"><button class="nav-link <?= $activeTab === 'gyms' ? 'active' : '' ?>" id="gyms-tab" data-bs-toggle="pill" data-bs-target="#fg" type="button" role="tab">Phòng tập (<?= $totalGyms ?>)</button></li>
+            <li class="nav-item"><button class="nav-link <?= $activeTab === 'trainers' ? 'active' : '' ?>" id="trainers-tab" data-bs-toggle="pill" data-bs-target="#ft" type="button" role="tab">Huấn luyện viên (<?= $totalTrainers ?>)</button></li>
         </ul>
         <div class="tab-content">
-            <div class="tab-pane fade show active" id="fg">
-                <div class="row g-4">
-                    <?php foreach ($favs['gyms'] as $gym): $isFav = true; require dirname(__DIR__, 2).'/includes/gym_card.php'; endforeach; ?>
-                    <?php if (!$favs['gyms']): ?><p class="text-center text-secondary">Chưa lưu phòng tập nào.</p><?php endif; ?>
+            <div class="tab-pane fade <?= $activeTab === 'gyms' ? 'show active' : '' ?>" id="fg">
+                <div class="row g-4 mb-4">
+                    <?php foreach ($pagedGyms as $gym): $isFav = true; require dirname(__DIR__, 2).'/includes/gym_card.php'; endforeach; ?>
+                    <?php if (!$pagedGyms): ?><p class="text-center text-secondary py-4">Chưa lưu phòng tập nào.</p><?php endif; ?>
                 </div>
+                <?= gf_render_user_pagination($gymPage, $limit, $totalGyms, array_merge(array_diff_key($_GET, ['page' => '', 'g_page' => '']), ['tab' => 'gyms']), 'page') ?>
             </div>
-            <div class="tab-pane fade" id="ft">
-                <div class="row g-4">
-                    <?php foreach ($favs['trainers'] as $trainer): $isFav = true; require dirname(__DIR__, 2).'/includes/trainer_card.php'; endforeach; ?>
-                    <?php if (!$favs['trainers']): ?><p class="text-center text-secondary">Chưa lưu HLV nào.</p><?php endif; ?>
+            <div class="tab-pane fade <?= $activeTab === 'trainers' ? 'show active' : '' ?>" id="ft">
+                <div class="row g-4 mb-4">
+                    <?php foreach ($pagedTrainers as $trainer): $isFav = true; require dirname(__DIR__, 2).'/includes/trainer_card.php'; endforeach; ?>
+                    <?php if (!$pagedTrainers): ?><p class="text-center text-secondary py-4">Chưa lưu HLV nào.</p><?php endif; ?>
                 </div>
+                <?= gf_render_user_pagination($trainerPage, $limit, $totalTrainers, array_merge(array_diff_key($_GET, ['page' => '', 't_page' => '']), ['tab' => 'trainers']), 'page') ?>
             </div>
         </div>
     </div>

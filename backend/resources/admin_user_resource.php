@@ -57,7 +57,6 @@ function gf_admin_users_paged(array $q): array
             'full_name'    => $u['full_name'],
             'email'        => $u['email'],
             'phone'        => $u['phone'],
-            'goal'         => $u['goal'],
             'avatar_url'   => $u['avatar_url'],
             'role'         => $u['role'],
             'status'       => $u['status'],
@@ -85,7 +84,6 @@ function gf_admin_user_payload(int $id): ?array
         'full_name'     => $u['full_name'],
         'email'         => $u['email'],
         'phone'         => $u['phone'],
-        'goal'          => $u['goal'],
         'avatar_url'    => $u['avatar_url'],
         'role'          => $u['role'],
         'status'        => $u['status'],
@@ -103,7 +101,7 @@ function gf_admin_patch_user(int $id, array $d, array $admin): array
     if ((int) $admin['id'] === $id) { gf_api_error('BUSINESS_RULE', 'Admin không được tự khóa chính mình.', 422, ['status' => 'Không tự khóa chính mình.']); }
     $u = gf_admin_user_payload($id);
     if (!$u) { gf_api_error('NOT_FOUND', 'Không tìm thấy người dùng.', 404); }
-    gf_require_known_body($d, ['status'], ['id', 'full_name', 'email', 'phone', 'goal', 'avatar_url', 'role', 'last_login_at', 'created_at']);
+    gf_require_known_body($d, ['status'], ['id', 'full_name', 'email', 'phone', 'avatar_url', 'role', 'last_login_at', 'created_at']);
     if (!isset($d['status']) || !in_array($d['status'], ['active', 'locked'], true)) { gf_api_error('VALIDATION_ERROR', 'status chỉ active|locked.', 422, ['status' => 'active|locked']); }
     gf_pdo()->prepare('UPDATE users SET status=? WHERE id=?')->execute([(string) $d['status'], $id]);
     return gf_admin_user_payload($id);

@@ -30,7 +30,20 @@ $heart = $isFav ? '<i class="fa-solid fa-heart text-danger"></i>' : '<i class="f
         <p class="text-secondary small text-center mb-4 flex-grow-1" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;"><?= gf_h($trainer['bio'] ?? '') ?></p>
         <div class="d-flex gap-2 mt-auto">
             <a href="<?= gf_h($href) ?>" class="btn btn-outline-secondary flex-grow-1 py-2 fw-semibold" style="font-size:14px;border-radius:8px;">Xem hồ sơ</a>
-            <button type="button" class="btn btn-primary flex-grow-1 py-2 fw-semibold btn-global-contact" data-phone="<?= gf_h($trainer['phone'] ?? '') ?>" style="font-size:14px;border-radius:8px;"><i class="fa-solid fa-phone me-1"></i> Liên hệ</button>
+            <?php
+            $trainerAvatar = !empty($trainer['avatar']) ? $trainer['avatar'] : gf_avatar($trainer['avatar_url'] ?? null, (int)($trainer['id'] ?? 0), $trainer['full_name'] ?? '');
+            $trainerSubtitle = ($trainer['specialty_name'] ?? '') . (!empty($trainer['district_name']) ? ' • ' . $trainer['district_name'] : '');
+            ?>
+            <button type="button" class="btn btn-primary flex-grow-1 py-2 fw-semibold btn-global-contact"
+                data-type="trainer"
+                data-type-label="Huấn luyện viên cá nhân"
+                data-name="<?= gf_h($trainer['full_name'] ?? '') ?>"
+                data-avatar="<?= gf_h($trainerAvatar) ?>"
+                data-subtitle="<?= gf_h($trainerSubtitle) ?>"
+                data-phone="<?= gf_h($trainer['phone'] ?? '') ?>"
+                style="font-size:14px;border-radius:8px;">
+                <i class="fa-solid fa-phone me-1"></i> Liên hệ
+            </button>
         </div>
     </div>
 </div>

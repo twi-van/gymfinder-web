@@ -55,8 +55,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-$filters = ['limit'=>100, 'sort'=>'oldest', 'q'=>$_GET['q'] ?? '', 'status'=>$_GET['status'] ?? '', 'specialty_id'=>$_GET['specialty_id'] ?? ''];
-$rows = gf_admin_trainers_paged($filters)['items'];
+$trainerPage = max(1, (int)($_GET['page'] ?? 1));
+$trainerLimit = 8;
+$filters = [
+    'limit'        => $trainerLimit,
+    'page'         => $trainerPage,
+    'sort'         => 'oldest',
+    'q'            => $_GET['q'] ?? '',
+    'status'       => $_GET['status'] ?? '',
+    'specialty_id' => $_GET['specialty_id'] ?? '',
+];
+$trainerResult = gf_admin_trainers_paged($filters);
+
+// Tự động lùi về trang hợp lệ gần nhất nếu trang hiện tại bị rỗng (sau khi xóa)
+if ($trainerPage > 1 && empty($trainerResult['items']) && (int)$trainerResult['total'] > 0) {
+    $trainerPage = max(1, (int) ceil((int)$trainerResult['total'] / $trainerLimit));
+    $filters['page'] = $trainerPage;
+    $trainerResult = gf_admin_trainers_paged($filters);
+}
+$rows = $trainerResult['items'];
 $gyms = gf_admin_gyms_paged(['limit' => 100])['items'];
 $specs = gf_list_specialties();
 $pageTitle = 'Quản lý HLV - Admin GYMFINDER';
@@ -106,6 +123,13 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 </form></div></div></div></div>
 <form method="get" class="admin-card p-3 mb-4"><div class="row g-3"><div class="col-md-5"><input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q']??'') ?>" placeholder="⌕  Tìm kiếm HLV..."></div><div class="col-md-3"><select class="form-select admin-input" name="specialty_id"><option value="">Tất cả chuyên môn</option><?php foreach($specs as $s): ?><option value="<?= (int)$s['id'] ?>" <?= (string)($_GET['specialty_id']??'')===(string)$s['id']?'selected':'' ?>><?= gf_h($s['name']) ?></option><?php endforeach; ?></select></div><div class="col-md-2"><select class="form-select admin-input" name="status"><option value="">Trạng thái</option><option value="active">Hoạt động</option><option value="hidden">Tạm ẩn</option></select></div><div class="col-md-2"><button class="btn btn-light border w-100">Lọc</button></div></div></form>
 <?php
+$trainerPaginationHtml = gf_render_admin_pagination(
+    $trainerPage,
+    $trainerLimit,
+    (int)$trainerResult['total'],
+    array_diff_key($_GET, ['page' => ''])
+);
+
 gf_admin_table_open([
     'id'        => 'trainersTable',
     'class'     => 'admin-trainers-table',
@@ -113,7 +137,7 @@ gf_admin_table_open([
     'columns'   => [
         ['label' => 'ID', 'width' => '55px', 'align' => 'center'],
         ['label' => 'HUẤN LUYỆN VIÊN', 'width' => '280px'],
-        ['label' => 'CHUYÊN MÔN', 'width' => '180px'],
+        ['label' => 'CHUYÊN MÔN', 'width' => '200px'],
         ['label' => 'PHÒNG TẬP', 'width' => '210px'],
         ['label' => 'ĐÁNH GIÁ', 'width' => '110px', 'align' => 'center'],
         ['label' => 'TRẠNG THÁI', 'width' => '120px', 'align' => 'center'],
@@ -122,13 +146,28 @@ gf_admin_table_open([
 ]);
 ?>
 <?php foreach ($rows as $r): 
-    $specName = ''; 
-    foreach ($specs as $sp) { 
-        if ((int)$sp['id'] === (int)$r['specialty_id']) { 
-            $specName = $sp['name']; 
-            break; 
-        } 
-    } 
+    // Trích xuất chuyên môn hỗ trợ cả 1 chuyên môn hoặc nhiều chuyên môn
+    $specNames = [];
+    if (!empty($r['specialties']) && is_array($r['specialties'])) {
+        foreach ($r['specialties'] as $sp) {
+            $specNames[] = is_array($sp) ? ($sp['name'] ?? '') : (string)$sp;
+        }
+    } elseif (!empty($r['specialties']) && is_string($r['specialties'])) {
+        $specNames = array_map('trim', explode(',', $r['specialties']));
+    } elseif (!empty($r['specialty_names']) && is_array($r['specialty_names'])) {
+        $specNames = $r['specialty_names'];
+    } elseif (!empty($r['specialty_names']) && is_string($r['specialty_names'])) {
+        $specNames = array_map('trim', explode(',', $r['specialty_names']));
+    } elseif (!empty($r['specialty_id'])) {
+        foreach ($specs as $sp) {
+            if ((int)$sp['id'] === (int)$r['specialty_id']) {
+                $specNames[] = $sp['name'];
+                break;
+            }
+        }
+    }
+    $specNames = array_values(array_filter($specNames));
+
     $gymName = ''; 
     foreach ($gyms as $g) { 
         if ((int)$g['id'] === (int)$r['gym_id']) { 
@@ -145,7 +184,17 @@ gf_admin_table_open([
             <span class="admin-cell-title"><?= gf_h($r['full_name']) ?></span>
         </div>
     </td>
-    <td><span class="badge-neutral"><?= gf_h($specName ?: 'Chung') ?></span></td>
+    <td>
+        <div class="d-flex flex-wrap gap-1 align-items-center" style="max-width: 220px;">
+            <?php if (empty($specNames)): ?>
+                <span class="text-muted small">—</span>
+            <?php else: ?>
+                <?php foreach ($specNames as $specItem): ?>
+                    <span class="admin-spec-badge"><?= gf_h($specItem) ?></span>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+    </td>
     <td><span class="text-secondary"><?= gf_h($gymName ?: 'Nhiều phòng tập') ?></span></td>
     <td class="text-center admin-cell-rating text-nowrap"><i class="fa-solid fa-star"></i> <?= gf_h((string)($r['avg_rating']??0)) ?></td>
     <td class="text-center"><span class="admin-badge <?= $r['status']==='active'?'badge-success':'badge-neutral' ?>"><?= $r['status']==='active'?'Hoạt động':'Tạm ẩn' ?></span></td>
@@ -163,16 +212,43 @@ gf_admin_table_open([
 <?php endforeach; ?>
 <?php
 gf_admin_table_close([
-    'empty' => empty($rows),
+    'empty'         => empty($rows),
     'empty_message' => 'Không tìm thấy huấn luyện viên nào phù hợp.',
-    'colspan' => 7,
+    'colspan'       => 7,
+    'footer_html'   => $trainerPaginationHtml,
 ]);
 ?>
 
 <!-- Render view modals outside table -->
 <?php foreach ($rows as $r): 
-    $specName = ''; foreach ($specs as $sp) { if ((int)$sp['id'] === (int)$r['specialty_id']) { $specName = $sp['name']; break; } }
-    $gymName = ''; foreach ($gyms as $g) { if ((int)$g['id'] === (int)$r['gym_id']) { $gymName = $g['name']; break; } }
+    $specNames = [];
+    if (!empty($r['specialties']) && is_array($r['specialties'])) {
+        foreach ($r['specialties'] as $sp) {
+            $specNames[] = is_array($sp) ? ($sp['name'] ?? '') : (string)$sp;
+        }
+    } elseif (!empty($r['specialties']) && is_string($r['specialties'])) {
+        $specNames = array_map('trim', explode(',', $r['specialties']));
+    } elseif (!empty($r['specialty_names']) && is_array($r['specialty_names'])) {
+        $specNames = $r['specialty_names'];
+    } elseif (!empty($r['specialty_names']) && is_string($r['specialty_names'])) {
+        $specNames = array_map('trim', explode(',', $r['specialty_names']));
+    } elseif (!empty($r['specialty_id'])) {
+        foreach ($specs as $sp) {
+            if ((int)$sp['id'] === (int)$r['specialty_id']) {
+                $specNames[] = $sp['name'];
+                break;
+            }
+        }
+    }
+    $specNames = array_values(array_filter($specNames));
+
+    $gymName = ''; 
+    foreach ($gyms as $g) { 
+        if ((int)$g['id'] === (int)$r['gym_id']) { 
+            $gymName = $g['name']; 
+            break; 
+        } 
+    } 
 ?>
 <div class="modal fade" id="trainerView<?= (int)$r['id'] ?>" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -186,7 +262,15 @@ gf_admin_table_close([
                     <img src="<?= gf_h(gf_avatar($r['avatar_url']??null,(int)$r['id'],$r['full_name'])) ?>" class="rounded-circle shadow-sm object-fit-cover" style="width:64px;height:64px;" alt="">
                     <div>
                         <p class="fs-5 fw-bold mb-0"><?= gf_h($r['full_name']) ?></p>
-                        <span class="badge-neutral mt-1 d-inline-block"><?= gf_h($specName ?: 'Chuyên môn chung') ?></span>
+                        <div class="d-flex flex-wrap gap-1 mt-1">
+                            <?php if (empty($specNames)): ?>
+                                <span class="text-muted small">Chưa thiết lập chuyên môn</span>
+                            <?php else: ?>
+                                <?php foreach ($specNames as $specItem): ?>
+                                    <span class="admin-spec-badge"><?= gf_h($specItem) ?></span>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
                 <div class="bg-light p-3 rounded-3 mb-3 small">

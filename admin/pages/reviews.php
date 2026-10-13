@@ -13,11 +13,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['action'
     gf_admin_moderate_review((int)$_POST['id'], $body, $me);
     gf_redirect(gf_url('admin/pages/reviews.php'));
 }
-$reviewQuery = gf_pdo()->prepare("SELECT r.*, u.full_name, g.name AS gym_name, t.full_name AS trainer_name FROM reviews r JOIN users u ON u.id=r.user_id LEFT JOIN gyms g ON g.id=r.gym_id LEFT JOIN trainers t ON t.id=r.trainer_id WHERE (?='' OR r.status=?) AND (?='' OR r.comment LIKE ? OR u.full_name LIKE ?) ORDER BY r.created_at DESC, r.id DESC LIMIT 100");
-$reviewStatus = (string)($_GET['status'] ?? ''); $reviewSearch = trim((string)($_GET['q'] ?? ''));
-$reviewLike = '%'.$reviewSearch.'%';
-$reviewQuery->execute([$reviewStatus,$reviewStatus,$reviewSearch,$reviewLike,$reviewLike]);
+$reviewPage = max(1, (int)($_GET['page'] ?? 1));
+$reviewLimit = 8;
+$reviewStatus = (string)($_GET['status'] ?? ''); 
+$reviewSearch = trim((string)($_GET['q'] ?? ''));
+$reviewLike = '%' . $reviewSearch . '%';
+
+$whereSql = "WHERE (?='' OR r.status=?) AND (?='' OR r.comment LIKE ? OR u.full_name LIKE ?)";
+$whereParams = [$reviewStatus, $reviewStatus, $reviewSearch, $reviewLike, $reviewLike];
+
+// Đếm tổng số bản ghi phù hợp điều kiện lọc
+$countQuery = gf_pdo()->prepare("SELECT COUNT(*) FROM reviews r JOIN users u ON u.id=r.user_id LEFT JOIN gyms g ON g.id=r.gym_id LEFT JOIN trainers t ON t.id=r.trainer_id {$whereSql}");
+$countQuery->execute($whereParams);
+$reviewTotal = (int)$countQuery->fetchColumn();
+
+// Tự động lùi về trang hợp lệ gần nhất nếu trang hiện tại bị rỗng (sau khi xóa)
+if ($reviewPage > 1 && $reviewPage > (int)ceil($reviewTotal / $reviewLimit)) {
+    $reviewPage = max(1, (int)ceil($reviewTotal / $reviewLimit));
+}
+$reviewOffset = ($reviewPage - 1) * $reviewLimit;
+
+$reviewQuery = gf_pdo()->prepare("SELECT r.*, u.full_name, g.name AS gym_name, t.full_name AS trainer_name FROM reviews r JOIN users u ON u.id=r.user_id LEFT JOIN gyms g ON g.id=r.gym_id LEFT JOIN trainers t ON t.id=r.trainer_id {$whereSql} ORDER BY r.created_at DESC, r.id DESC LIMIT {$reviewLimit} OFFSET {$reviewOffset}");
+$reviewQuery->execute($whereParams);
 $rows = $reviewQuery->fetchAll();
+
+$reviewPaginationHtml = gf_render_admin_pagination(
+    $reviewPage,
+    $reviewLimit,
+    $reviewTotal,
+    array_diff_key($_GET, ['page' => ''])
+);
+
 $pageTitle = 'Quản lý đánh giá';
 $extraCss = ['admin/assets/admin.css'];
 $adminActive = 'reviews';
@@ -60,16 +86,17 @@ gf_admin_table_open([
         <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#reviewModal<?= (int)$r['id'] ?>" title="Xem"><i class="fa-solid fa-eye"></i></button>
         <?php if ($r['status']==='pending'): ?>
         <form method="post" class="d-inline"><?= gf_csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><input type="hidden" name="action" value="approve"><button class="btn btn-action btn-outline-success" title="Duyệt"><i class="fa-solid fa-check"></i></button></form>
-        <form method="post" class="d-inline"><?= gf_csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><input type="hidden" name="action" value="reject"><input type="hidden" name="reason" value="Không phù hợp"><button class="btn btn-action btn-action-delete" title="Từ chối"><i class="fa-solid fa-xmark"></i></button></form>
+        <button type="button" class="btn btn-action btn-action-delete" data-bs-toggle="modal" data-bs-target="#rejectModal<?= (int)$r['id'] ?>" title="Từ chối"><i class="fa-solid fa-xmark"></i></button>
         <?php else: ?><form method="post" class="d-inline" onsubmit="return confirm('Xóa đánh giá này?')"><?= gf_csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><input type="hidden" name="action" value="delete"><button class="btn btn-action btn-action-delete" title="Xóa đánh giá"><i class="fa-solid fa-trash"></i></button></form><?php endif; ?>
     </td>
 </tr>
 <?php endforeach; ?>
 <?php
 gf_admin_table_close([
-    'empty' => empty($rows),
+    'empty'         => empty($rows),
     'empty_message' => 'Không tìm thấy đánh giá nào phù hợp.',
-    'colspan' => 7,
+    'colspan'       => 7,
+    'footer_html'   => $reviewPaginationHtml,
 ]);
 ?>
 
@@ -95,6 +122,11 @@ gf_admin_table_close([
                 <div class="p-3 bg-white border rounded-3 small text-secondary">
                     <?= nl2br(gf_h($r['comment'])) ?>
                 </div>
+                <?php if ($r['status'] === 'rejected' && !empty($r['reject_reason'])): ?>
+                    <div class="mt-3 p-3 bg-danger-subtle text-danger rounded-3 small">
+                        <i class="fa-solid fa-circle-exclamation me-1"></i><strong>Lý do từ chối:</strong> <?= gf_h($r['reject_reason']) ?>
+                    </div>
+                <?php endif; ?>
                 <div class="mt-2 text-end text-muted small">
                     Ngày gửi: <?= gf_h(date('d/m/Y H:i', strtotime($r['created_at']))) ?>
                 </div>
@@ -105,10 +137,71 @@ gf_admin_table_close([
         </div>
     </div>
 </div>
+
+<?php if ($r['status'] === 'pending'): ?>
+<!-- Modal Nhập Lý Do Từ Chối Đánh Giá -->
+<div class="modal fade" id="rejectModal<?= (int)$r['id'] ?>" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <form method="post" onsubmit="return validateRejectForm(this);">
+                <?= gf_csrf_field() ?>
+                <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
+                <input type="hidden" name="action" value="reject">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Từ chối đánh giá</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body py-3">
+                    <div class="bg-light p-3 rounded-3 mb-3 small">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary">Người đánh giá:</span>
+                            <span class="fw-semibold text-dark"><?= gf_h($r['full_name']) ?></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary">Đối tượng:</span>
+                            <span class="fw-semibold text-dark"><?= gf_h($r['gym_name'] ?: ($r['trainer_name'] ? 'HLV: ' . $r['trainer_name'] : '—')) ?></span>
+                        </div>
+                        <div class="mt-2 text-muted fst-italic border-top pt-2">
+                            "<?= gf_h(mb_strimwidth($r['comment'], 0, 120, '...')) ?>"
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold small" for="rejectReasonInput<?= (int)$r['id'] ?>">Lý do từ chối <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="reason" id="rejectReasonInput<?= (int)$r['id'] ?>" rows="3" required placeholder="Nhập lý do từ chối đánh giá (bắt buộc, không được để trống)..." maxlength="255"></textarea>
+                        <div class="form-text small text-secondary">
+                            Lý do là trường bắt buộc (1–255 ký tự). Không được để trống hoặc chỉ chứa khoảng trắng.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-semibold">Xác nhận từ chối</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 <?php endforeach; ?>
 </main></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+function validateRejectForm(form) {
+    const textarea = form.querySelector('textarea[name="reason"]');
+    if (!textarea) return true;
+    const reason = textarea.value.trim();
+    if (!reason) {
+        alert('Vui lòng nhập lý do từ chối. Không được để trống hoặc chỉ chứa khoảng trắng.');
+        textarea.focus();
+        return false;
+    }
+    if (reason.length > 255) {
+        alert('Lý do từ chối không được vượt quá 255 ký tự.');
+        textarea.focus();
+        return false;
+    }
+    return true;
+}
 (() => {
     const scroller = document.getElementById('reviewTableScroll');
     if (!scroller) return;

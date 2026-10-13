@@ -22,7 +22,6 @@ CREATE TABLE users (
   phone         VARCHAR(20)  NULL,
   password_hash VARCHAR(255) NOT NULL,
   avatar_url    VARCHAR(255) NULL,
-  goal          ENUM('giam_can','tang_co','tang_suc_manh','cai_thien_suc_khoe') NULL,
   role          ENUM('user','admin')    NOT NULL DEFAULT 'user',
   status        ENUM('active','locked') NOT NULL DEFAULT 'active',
   last_login_at DATETIME NULL,

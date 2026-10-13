@@ -6,19 +6,23 @@ USE gymfinder;
 -- email dạng uXX@gymfinder.test (chữ thường)
 -- password_hash là bcrypt của 'password' (chỉ dùng test)
 -- =====================================================================
-INSERT INTO users (id, full_name, email, phone, password_hash, role, status, goal) VALUES
+INSERT INTO users (id, full_name, email, phone, password_hash, role, status) VALUES
 (1, 'Admin GymFinder',  'u01@gymfinder.test', '0900000001',
-    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin',  'active', NULL),
+    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin',  'active'),
 (2, 'Nguyễn Văn An',   'u02@gymfinder.test', '0900000002',
-    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user',   'active', 'tang_co'),
+    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user',   'active'),
 (3, 'Trần Thị Bình',   'u03@gymfinder.test', '0900000003',
-    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user',   'active', 'giam_can'),
+    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user',   'active'),
 (4, 'Lê Minh Châu',    'u04@gymfinder.test', '0900000004',
-    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user',   'active', 'cai_thien_suc_khoe'),
+    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user',   'active'),
 (5, 'Phạm Quang Dũng', 'u05@gymfinder.test', '0900000005',
-    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user',   'active', 'tang_suc_manh'),
+    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user',   'active'),
 (6, 'Võ Thị Em',       'u06@gymfinder.test', '0900000006',
-    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user',   'locked', NULL);
+    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user',   'locked'),
+(7, 'Quản trị viên GymFinder', 'admin@gymfinder.vn', '0901234567',
+    '$2y$10$e802r/C2EsVyPmk17YJNxeKc9HoJk9bO9TMNx48KfvV9FFlqONuLu', 'admin',  'active'),
+(8, 'Thành viên GymFinder',    'user@gymfinder.vn',  '0909876543',
+    '$2y$10$IwQ7Q2FAh7sD6fl3rzNq1OZpnPYb3D5Stx0RsUCfBjgn8Sfs0YLK2', 'user',   'active');
 
 -- =====================================================================
 -- 2. districts
