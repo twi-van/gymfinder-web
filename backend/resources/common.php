@@ -258,7 +258,8 @@ function gf_public_trainer_detail(array $t, ?array $user): array
         'is_featured'      => (int) $t['is_featured'],
         'avg_rating'       => gf_num1($t['avg_rating']),
         'review_count'     => (int) $t['review_count'],
-        'specialty'        => ['id' => (int) $t['specialty_id'], 'name' => $t['specialty_name'], 'slug' => $t['specialty_slug']],
+        'specialty'        => ['id' => (int) $t['specialty_id'], 'name' => $t['specialty_name'], 'slug' => $t['specialty_slug'] ?? ''],
+        'specialties'      => $t['specialties'] ?? [['id' => (int) $t['specialty_id'], 'name' => $t['specialty_name'], 'slug' => $t['specialty_slug'] ?? '']],
         'gym'              => [
             'id'              => (int) $t['gym_id'],
             'name'            => $t['gym_name'],
@@ -266,7 +267,14 @@ function gf_public_trainer_detail(array $t, ?array $user): array
             'address'         => $t['gym_address'],
             'cover_image_url' => $t['gym_cover'],
         ],
-        'district'         => ['id' => (int) $t['district_id'], 'name' => $t['district_name'], 'slug' => $t['district_slug']],
+        'gyms'             => $t['gyms'] ?? [[
+            'id'              => (int) $t['gym_id'],
+            'name'            => $t['gym_name'],
+            'slug'            => $t['gym_slug'],
+            'address'         => $t['gym_address'],
+            'cover_image_url' => $t['gym_cover'],
+        ]],
+        'district'         => ['id' => (int) $t['district_id'], 'name' => $t['district_name'], 'slug' => $t['district_slug'] ?? ''],
         'reviews'          => gf_preview_reviews('trainer', $id),
         'is_favorited'     => $user && ($user['role'] ?? '') !== 'admin' ? gf_is_fav((int) $user['id'], 'trainer', $id) : false,
     ];

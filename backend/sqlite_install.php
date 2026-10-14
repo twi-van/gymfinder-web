@@ -5,11 +5,26 @@ function gf_sqlite_install(PDO $pdo): void
 {
     $pdo->exec('PRAGMA foreign_keys = OFF');
     $pdo->exec(<<<'SQL'
+DROP TABLE IF EXISTS favorites;
+DROP TABLE IF EXISTS reviews;
+DROP TABLE IF EXISTS gym_amenities;
+DROP TABLE IF EXISTS gym_categories;
+DROP TABLE IF EXISTS gym_images;
+DROP TABLE IF EXISTS gym_trainers;
+DROP TABLE IF EXISTS trainer_specialties;
+DROP TABLE IF EXISTS trainers;
+DROP TABLE IF EXISTS gyms;
+DROP TABLE IF EXISTS specialties;
+DROP TABLE IF EXISTS amenities;
+DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS districts;
+DROP TABLE IF EXISTS users;
+
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   full_name TEXT NOT NULL,
-  email TEXT NOT NULL UNIQUE,
-  phone TEXT,
+  email TEXT UNIQUE,
+  phone TEXT UNIQUE,
   password_hash TEXT NOT NULL,
   avatar_url TEXT,
   role TEXT NOT NULL DEFAULT 'user',
@@ -94,13 +109,13 @@ CREATE TABLE IF NOT EXISTS trainers (
   full_name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
   avatar_url TEXT,
-  specialty_id INTEGER NOT NULL,
+  specialty_id INTEGER,
   years_experience INTEGER NOT NULL,
   bio TEXT,
   phone TEXT,
   email TEXT,
-  gym_id INTEGER NOT NULL,
-  district_id INTEGER NOT NULL,
+  gym_id INTEGER,
+  district_id INTEGER,
   avg_rating REAL NOT NULL DEFAULT 0,
   review_count INTEGER NOT NULL DEFAULT 0,
   is_featured INTEGER NOT NULL DEFAULT 0,
@@ -110,6 +125,20 @@ CREATE TABLE IF NOT EXISTS trainers (
   FOREIGN KEY (gym_id) REFERENCES gyms(id),
   FOREIGN KEY (specialty_id) REFERENCES specialties(id),
   FOREIGN KEY (district_id) REFERENCES districts(id)
+);
+CREATE TABLE IF NOT EXISTS trainer_specialties (
+  trainer_id INTEGER NOT NULL,
+  specialty_id INTEGER NOT NULL,
+  PRIMARY KEY (trainer_id, specialty_id),
+  FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE CASCADE,
+  FOREIGN KEY (specialty_id) REFERENCES specialties(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS gym_trainers (
+  gym_id INTEGER NOT NULL,
+  trainer_id INTEGER NOT NULL,
+  PRIMARY KEY (gym_id, trainer_id),
+  FOREIGN KEY (gym_id) REFERENCES gyms(id) ON DELETE CASCADE,
+  FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS reviews (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -164,23 +193,47 @@ SQL);
     $hashAdmin = password_hash('Admin@123456', PASSWORD_BCRYPT);
     $hashUser = password_hash('User@123456', PASSWORD_BCRYPT);
 
-    $pdo->prepare('INSERT INTO users (id, full_name, email, phone, password_hash, role, status) VALUES (?,?,?,?,?,?,?)')->execute(
-        [1, 'Admin GymFinder', 'u01@gymfinder.test', '0900000001', $hash, 'admin', 'active']
+    // 1. Users (Admin u01, Active Users u02-u24, Locked User u25)
+    $pdo->prepare('INSERT INTO users (id, full_name, email, phone, password_hash, role, status, goal) VALUES (?,?,?,?,?,?,?,?)')->execute(
+        [1, 'Admin GymFinder', 'u01@gymfinder.test', '0900000001', $hash, 'admin', 'active', null]
     );
-    $users = [
-        [2, 'Nguyễn Văn An', 'u02@gymfinder.test', '0900000002', $hash, 'user', 'active'],
-        [3, 'Trần Thị Bình', 'u03@gymfinder.test', '0900000003', $hash, 'user', 'active'],
-        [4, 'Lê Minh Châu', 'u04@gymfinder.test', '0900000004', $hash, 'user', 'active'],
-        [5, 'Phạm Quang Dũng', 'u05@gymfinder.test', '0900000005', $hash, 'user', 'active'],
-        [6, 'Võ Thị Em', 'u06@gymfinder.test', '0900000006', $hash, 'user', 'locked'],
-        [7, 'Quản trị viên GymFinder', 'admin@gymfinder.vn', '0901234567', $hashAdmin, 'admin', 'active'],
-        [8, 'Thành viên GymFinder', 'user@gymfinder.vn', '0909876543', $hashUser, 'user', 'active'],
+
+    $userNames = [
+        2 => ['Nguyễn Văn An', 'tang_co'],
+        3 => ['Trần Thị Bình', 'giam_can'],
+        4 => ['Lê Minh Châu', 'cai_thien_suc_khoe'],
+        5 => ['Phạm Quang Dũng', 'tang_suc_manh'],
+        6 => ['Võ Quốc Đạt', 'tang_co'],
+        7 => ['Bùi Phương Giang', 'giam_can'],
+        8 => ['Đặng Hữu Hiếu', 'tang_suc_manh'],
+        9 => ['Trịnh Mỹ Linh', 'cai_thien_suc_khoe'],
+        10 => ['Phan Tuấn Kiệt', 'tang_co'],
+        11 => ['Hoàng Khánh Ly', 'giam_can'],
+        12 => ['Lý Gia Huy', 'tang_suc_manh'],
+        13 => ['Đỗ Thanh Thảo', 'cai_thien_suc_khoe'],
+        14 => ['Ngô Bảo Nam', 'tang_co'],
+        15 => ['Vũ Kim Oanh', 'giam_can'],
+        16 => ['Hồ Đức Phát', 'tang_suc_manh'],
+        17 => ['Dương Như Quỳnh', 'cai_thien_suc_khoe'],
+        18 => ['Lâm Quốc Thịnh', 'tang_co'],
+        19 => ['Mai Thu Uyên', 'giam_can'],
+        20 => ['Trương Việt Vỹ', 'tang_suc_manh'],
+        21 => ['Đoàn Phương Vy', 'cai_thien_suc_khoe'],
+        22 => ['Tạ Minh Khang', 'tang_co'],
+        23 => ['Cao Bích Thủy', 'giam_can'],
+        24 => ['Bạch Gia Phúc', 'tang_suc_manh'],
+        25 => ['Võ Thị Em (Khóa)', null], // locked user
     ];
-    $insU = $pdo->prepare('INSERT INTO users (id, full_name, email, phone, password_hash, role, status) VALUES (?,?,?,?,?,?,?)');
-    foreach ($users as $u) {
-        $insU->execute([$u[0], $u[1], $u[2], $u[3], $u[4], $u[5], $u[6]]);
+
+    $insU = $pdo->prepare('INSERT INTO users (id, full_name, email, phone, password_hash, role, status, goal) VALUES (?,?,?,?,?,?,?,?)');
+    foreach ($userNames as $uId => $uData) {
+        $email = sprintf("u%02d@gymfinder.test", $uId);
+        $phone = sprintf("090%07d", $uId);
+        $status = ($uId === 25) ? 'locked' : 'active';
+        $insU->execute([$uId, $uData[0], $email, $phone, $hash, 'user', $status, $uData[1]]);
     }
 
+    // 2. Districts (22 districts of HCMC)
     $districts = [
         [1, 'Quận 1', 'quan-1'],
         [2, 'Quận 7', 'quan-7'],
@@ -210,19 +263,21 @@ SQL);
         $insDist->execute($d);
     }
 
+    // 3. Categories
     $cats = [
         [1, 'Gym phổ thông', 'fitness', 'Phòng tập thể hình, tạ và cardio', 1],
-        [2, 'Gym cao cấp', 'premium', 'Phòng tập cao cấp, đầy đủ tiện ích', 1],
+        [2, 'Gym cao cấp', 'premium', 'Phòng tập cao cấp, đầy đủ tiện ích chuẩn quốc tế', 1],
         [3, 'CrossFit', 'crossfit', 'Tập luyện cường độ cao theo nhóm', 1],
-        [4, 'Yoga', 'yoga', 'Yoga, thiền và các bài tập thư giãn', 1],
-        [5, 'Boxing', 'boxing', 'Boxing, MMA và các môn võ thuật đối kháng', 0],
-        [6, 'Gym cho nữ', 'gym-cho-nu', 'Không gian tập luyện riêng tư, an toàn và thoải mái dành riêng cho phái nữ.', 1],
+        [4, 'Yoga', 'yoga', 'Yoga, thiền và các bài tập thư giãn cân bằng', 1],
+        [5, 'Boxing', 'boxing', 'Boxing, Kickboxing, Muay Thái và võ thuật đối kháng', 1],
+        [6, 'Gym cho nữ', 'gym-cho-nu', 'Không gian tập luyện riêng tư, an toàn và thoải mái dành cho phái nữ.', 1],
     ];
     $insC = $pdo->prepare('INSERT INTO categories (id, name, slug, description, is_active) VALUES (?,?,?,?,?)');
     foreach ($cats as $c) {
         $insC->execute($c);
     }
 
+    // 4. Amenities
     $ams = [
         [1, 'Phòng tắm', 'phong-tam', 'fa-shower'],
         [2, 'Bãi giữ xe', 'bai-giu-xe', 'fa-square-parking'],
@@ -237,87 +292,365 @@ SQL);
         $insA->execute($a);
     }
 
-    foreach ([[1, 'Sức mạnh', 'strength'], [2, 'Cardio & giảm cân', 'cardio-giam-can'], [3, 'Yoga', 'yoga-specialty'], [4, 'Boxing', 'boxing-specialty']] as $s) {
+    // 5. Specialties
+    $specs = [
+        [1, 'Sức mạnh & Tăng cơ', 'strength'],
+        [2, 'Cardio & Giảm cân', 'cardio-giam-can'],
+        [3, 'Yoga & Phục hồi', 'yoga-specialty'],
+        [4, 'Boxing & Đối kháng', 'boxing-specialty'],
+    ];
+    foreach ($specs as $s) {
         $pdo->prepare('INSERT INTO specialties (id, name, slug) VALUES (?,?,?)')->execute($s);
     }
 
-    $gyms = [
-        [1, 'Iron Fitness Center', 'iron-fitness-center', 'Phòng tập thể hình cao cấp với đầy đủ máy móc nhập khẩu.', '12 Nguyễn Huệ, Quận 1', 1, '+84281234567', 'contact@ironfitness.test', 'https://ironfitness.test', 300000, 900000, '05:30 - 22:30', 1, 'active'],
-        [2, 'CrossFit Quận 1', 'crossfit-quan-1', 'Phòng tập CrossFit chuyên nghiệp, lớp nhóm hàng ngày.', '88 Lê Lợi, Quận 1', 1, '+84281234568', 'info@crossfitq1.test', 'https://crossfitq1.test', 200000, 500000, '06:00 - 21:00', 0, 'active'],
-        [3, 'Zen Yoga Studio', 'zen-yoga-studio', 'Không gian yoga yên tĩnh, lớp nhỏ, giáo viên quốc tế, phù hợp cho phái nữ và mọi học viên.', '45 Nguyễn Thị Thập, Quận 7', 2, '+84287654321', 'hello@zenyoga.test', 'https://zenyoga.test', 250000, 700000, '06:00 - 21:00', 1, 'active'],
-        [4, 'Elite Premium Gym', 'elite-premium-gym', 'Trải nghiệm tập luyện đẳng cấp, đầy đủ tiện ích cao cấp.', '200 Nguyễn Văn Linh, Quận 7', 2, '+84287654322', 'vip@elitepremium.test', 'https://elitepremium.test', 800000, 2000000, '05:00 - 23:00', 0, 'active'],
-        [5, 'Boxing Club Thủ Đức', 'boxing-club-thu-duc', 'Phòng tập boxing và MMA tại Thủ Đức.', '10 Võ Văn Ngân, Thủ Đức', 3, '+84289999001', null, null, 150000, 400000, '07:00 - 21:00', 0, 'active'],
-        [6, 'Gym Thủ Đức Cơ Bản', 'gym-thu-duc-co-ban', 'Phòng tập cơ bản, giá sinh viên.', '55 Kha Vạn Cân, Thủ Đức', 3, '+84289999002', null, null, 100000, 300000, '06:00 - 22:00', 0, 'active'],
-        [7, 'Fit Zone Pro', 'fit-zone-pro', 'Phòng tập hiện đại đang tạm ngưng hoạt động.', '99 Đinh Tiên Hoàng, Quận 1', 1, '+84281234569', null, null, 300000, 600000, '06:00 - 22:00', 1, 'hidden'],
-        [8, 'Aqua Fitness', 'aqua-fitness', 'Phòng tập kết hợp hồ bơi.', '77 Hoàng Diệu, Quận 7', 2, '+84287654323', null, null, 400000, 800000, '06:00 - 20:00', 0, 'hidden'],
+    // 6. Gyms (60 gyms according to the 10 sample districts quota)
+    $districtsQuota = [
+        1  => ['name' => 'Quận 1', 'count' => 8],
+        4  => ['name' => 'Quận 3', 'count' => 6],
+        6  => ['name' => 'Quận 5', 'count' => 5],
+        2  => ['name' => 'Quận 7', 'count' => 8],
+        9  => ['name' => 'Quận 10', 'count' => 7],
+        13 => ['name' => 'Bình Thạnh', 'count' => 7],
+        14 => ['name' => 'Gò Vấp', 'count' => 6],
+        16 => ['name' => 'Tân Bình', 'count' => 5],
+        3  => ['name' => 'TP Thủ Đức', 'count' => 6],
+        12 => ['name' => 'Bình Tân', 'count' => 2],
     ];
-    $insG = $pdo->prepare('INSERT INTO gyms (id, name, slug, description, address, district_id, phone, email, website, price_min, price_max, opening_hours, is_featured, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-    foreach ($gyms as $g) {
-        $insG->execute($g);
-    }
 
-    // Gym cao cấp (premium) và Gym phổ thông (fitness) không gán cùng lúc
-    foreach ([[1, 2], [2, 1], [2, 3], [3, 4], [3, 6], [4, 2], [4, 6], [5, 5], [7, 1]] as $gc) {
-        $pdo->prepare('INSERT INTO gym_categories (gym_id, category_id) VALUES (?,?)')->execute($gc);
-    }
-    foreach ([[1, 1], [1, 2], [1, 3], [1, 5], [1, 6], [1, 7], [2, 1], [2, 2], [2, 6], [3, 1], [3, 3], [3, 6], [3, 7], [4, 1], [4, 2], [4, 3], [4, 4], [4, 5], [4, 6], [4, 7], [5, 6], [7, 1]] as $ga) {
-        $pdo->prepare('INSERT INTO gym_amenities (gym_id, amenity_id) VALUES (?,?)')->execute($ga);
-    }
-    $pdo->prepare('INSERT INTO gym_images (gym_id, image_url, caption, sort_order) VALUES (?,?,?,?)')->execute([1, 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 'Khu tập tạ', 1]);
-    $pdo->prepare('INSERT INTO gym_images (gym_id, image_url, caption, sort_order) VALUES (?,?,?,?)')->execute([1, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Khu cardio', 2]);
-    $pdo->prepare('INSERT INTO gym_images (gym_id, image_url, caption, sort_order) VALUES (?,?,?,?)')->execute([3, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', 'Studio yoga', 1]);
-
-    $trainers = [
-        [1, 'Nguyễn Anh Tuấn', 'nguyen-anh-tuan', 1, 0, 'Chuyên gia Huấn luyện Sức mạnh & Thể lực.', '+84901000001', 't01@gymfinder.test', 1, 1, 1, 'active'],
-        [2, 'Trần Thị Kim Lan', 'tran-thi-kim-lan', 2, 2, 'PT giảm cân và cardio.', '+84901000002', 't02@gymfinder.test', 1, 1, 0, 'active'],
-        [3, 'Lê Văn Bình', 'le-van-binh', 1, 3, 'Huấn luyện viên CrossFit chuyên nghiệp.', '+84901000003', 't03@gymfinder.test', 2, 1, 0, 'active'],
-        [4, 'Phạm Thu Hà', 'pham-thu-ha', 3, 5, 'Giáo viên Yoga chứng chỉ RYT-500.', '+84901000004', 't04@gymfinder.test', 3, 2, 1, 'active'],
-        [5, 'Võ Thị Mai', 'vo-thi-mai', 3, 6, 'Yoga therapy và phục hồi chức năng.', '+84901000005', 't05@gymfinder.test', 3, 2, 0, 'active'],
-        [6, 'Hoàng Quốc Cường', 'hoang-quoc-cuong', 1, 60, 'Huyền thoại thể hình với 60 năm kinh nghiệm.', '+84901000006', 't06@gymfinder.test', 4, 2, 1, 'active'],
-        [7, 'Ngô Thanh Hà', 'ngo-thanh-ha', 2, 4, 'PT cardio và HIIT.', '+84901000007', 't07@gymfinder.test', 4, 2, 0, 'hidden'],
-        [8, 'Đinh Văn Khoa', 'dinh-van-khoa', 1, 8, 'PT Strength thuộc Gym hiện tạm ngưng.', '+84901000008', 't08@gymfinder.test', 7, 1, 0, 'active'],
-        [9, 'Bùi Thị Nga', 'bui-thi-nga', 4, 1, 'Mới bắt đầu huấn luyện boxing.', '+84901000009', 't09@gymfinder.test', 6, 3, 0, 'hidden'],
-        [10, 'Chu Minh Phúc', 'chu-minh-phuc', 4, 10, 'Võ sĩ boxing chuyên nghiệp.', '+84901000010', 't10@gymfinder.test', 2, 1, 0, 'active'],
+    $gymNamesByDist = [
+        1 => ['The New Gym Nguyễn Thị Minh Khai', 'California Centuryon Saigon Centre', 'Fit Center Bến Thành', 'MMA Gym Fitness Cống Quỳnh', 'Advance Fitness & Gym Hàm Nghi', 'Curves Lê Thánh Tôn', 'S Fitness Pasteur', 'Diamond Fitness Center Đồng Khởi'],
+        4 => ['CityGym Cao Thắng', 'Ares Gym & Fitness Lê Văn Sỹ', 'Power Gym Nam Kỳ Khởi Nghĩa', 'Boutique Fitness Võ Văn Tần', 'Victory Gym & Yoga Điện Biên Phủ', 'ProGym CMT8'],
+        6 => ['Gym Tài Nguyên Trần Hưng Đạo', 'V-Fitness Nguyễn Trãi', 'CLB Thể Hình Hùng Vương', 'Olympia Gym An Dương Vương', 'KingSport Fitness Hồng Bàng'],
+        2 => ['Fit24 Fitness & Yoga Phú Mỹ Hưng', 'UFC Gym Nguyễn Thị Thập', 'Bodyfit Fitness & Yoga Him Lam', 'B-Fit Center Huỳnh Tấn Phát', 'Elite Fitness Crescent Mall', 'Lion Gym Tân Phú Q7', 'Star Fitness Sky Garden', 'Zen Yoga & Fitness Riverside'],
+        9 => ['California Fitness Vạn Hạnh Mall', 'K-Gym Tô Hiến Thành', 'Fit Center 3 Tháng 2', 'CLB Thể Dục Kỳ Hòa', 'MegaFit Sư Vạn Hạnh', 'Gold Gym Lý Thường Kiệt', 'Titan Gym Thành Thái'],
+        13 => ['The New Gym Điện Biên Phủ', 'Level Fitness & Yoga Pearl Plaza', 'Vinhomes Central Park Fitness Club', 'Stronger Gym Bạch Đằng', 'CLB Thể Hình Phan Văn Trị', 'Titan Fitness D2 Bình Thạnh', 'Aura Gym Nơ Trang Long'],
+        14 => ['California Fitness Quang Trung', 'The New Gym Quang Trung', 'Fit Center Cityland Phan Văn Trị', 'Hoàng Long Fitness Lê Đức Thọ', 'CLB Gym Thống Nhất Gò Vấp', 'Gym New Life Nguyễn Văn Lượng'],
+        16 => ['Phòng Gym Hoàng Gia Cộng Hòa', 'Fit Center Trường Chinh', 'The New Gym Hoàng Hoa Thám', 'Body Shape Fitness Bạch Đằng', 'Khang Gym Phổ Quang'],
+        3 => ['Thủ Đức Fitness Center Võ Văn Ngân', 'Rạng Đông Gym Kha Vạn Cân', 'The Gym House Đặng Văn Bi', 'Sparta Gym & Boxing Hiệp Bình Phước', 'S-Fitness Song Hành Thảo Điền', 'King Gym Linh Trung'],
+        12 => ['Aeon Mall Fitness Club Bình Tân', 'Bình Tân Strong Gym Tên Lửa']
     ];
-    $insT = $pdo->prepare('INSERT INTO trainers (id, full_name, slug, specialty_id, years_experience, bio, phone, email, gym_id, district_id, is_featured, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
-    foreach ($trainers as $t) {
-        $insT->execute($t);
-    }
 
-    $reviews = [
-        [1, 2, 'gym', 1, null, 5, 'Máy móc hiện đại, đội ngũ PT nhiệt tình. Rất hài lòng!', 'approved', 1, '2026-09-01 04:00:00', null],
-        [2, 3, 'gym', 1, null, 4, 'Phòng tập sạch sẽ, thoáng mát. Hơi đông vào buổi tối.', 'approved', 1, '2026-09-02 04:00:00', null],
-        [3, 4, 'gym', 1, null, 3, 'Tạm được, chờ Admin duyệt.', 'pending', null, null, null],
-        [4, 5, 'gym', 1, null, 2, 'Không hài lòng.', 'rejected', 1, '2026-09-03 04:00:00', 'Nội dung không phù hợp'],
-        [5, 2, 'gym', 3, null, 4, 'Studio yoga rất yên tĩnh, giáo viên chuyên nghiệp.', 'approved', 1, '2026-09-04 04:00:00', null],
-        [6, 3, 'gym', 3, null, 5, 'Lớp yoga nhỏ, tập trung được. Giáo viên tận tâm.', 'approved', 1, '2026-09-05 04:00:00', null],
-        [7, 2, 'trainer', null, 1, 5, 'PT Tuấn xây giáo án rất bài bản, hiệu quả rõ rệt.', 'approved', 1, '2026-09-06 04:00:00', null],
-        [8, 3, 'trainer', null, 1, 3, 'PT nhiệt tình nhưng đôi khi thiếu linh hoạt về lịch.', 'approved', 1, '2026-09-07 04:00:00', null],
-        [9, 4, 'trainer', null, 1, 4, 'Khá tốt, đang chờ duyệt.', 'pending', null, null, null],
-        [10, 5, 'trainer', null, 4, 1, 'Spam comment.', 'rejected', 1, '2026-09-08 04:00:00', 'Spam'],
-        [11, 2, 'gym', 7, null, 4, 'Phòng tập ổn, tiếc là tạm ngưng hoạt động.', 'approved', 1, '2026-09-09 04:00:00', null],
-        [12, 3, 'trainer', null, 8, 5, 'PT Khoa dạy rất tốt dù phòng tập tạm đóng.', 'approved', 1, '2026-09-10 04:00:00', null],
-        [13, 6, 'gym', 2, null, 4, 'Crossfit hấp dẫn, lớp nhóm vui.', 'approved', 1, '2026-09-11 04:00:00', null],
+    $gymImages = [
+        'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80'
     ];
-    $insR = $pdo->prepare('INSERT INTO reviews (id, user_id, target_type, gym_id, trainer_id, rating, comment, status, reviewed_by, reviewed_at, reject_reason) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
-    foreach ($reviews as $r) {
-        $insR->execute($r);
+
+    $priceRanges = [
+        ['min' => 200000, 'max' => 450000],
+        ['min' => 250000, 'max' => 500000],
+        ['min' => 300000, 'max' => 600000],
+        ['min' => 500000, 'max' => 1000000],
+        ['min' => 600000, 'max' => 1200000],
+        ['min' => 700000, 'max' => 1500000],
+        ['min' => 1200000, 'max' => 2500000],
+        ['min' => 1500000, 'max' => 3500000],
+    ];
+
+    $hiddenGymIds = [7, 8, 23, 35, 48, 59]; // 6 hidden gyms
+    $featuredGymIds = [1, 2, 9, 15, 20, 24, 28, 36, 42, 49, 54, 57]; // 12 featured gyms
+
+    $insGym = $pdo->prepare('INSERT INTO gyms (id, name, slug, description, address, district_id, latitude, longitude, phone, email, website, price_min, price_max, opening_hours, cover_image_url, is_featured, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+    $insGC = $pdo->prepare('INSERT INTO gym_categories (gym_id, category_id) VALUES (?,?)');
+    $insGA = $pdo->prepare('INSERT INTO gym_amenities (gym_id, amenity_id) VALUES (?,?)');
+    $insGI = $pdo->prepare('INSERT INTO gym_images (gym_id, image_url, caption, sort_order) VALUES (?,?,?,?)');
+
+    $gymId = 1;
+    $gymsMeta = [];
+
+    foreach ($districtsQuota as $distId => $info) {
+        $names = $gymNamesByDist[$distId];
+        foreach ($names as $name) {
+            $slug = gf_slugify($name) . '-' . $gymId;
+            $pRange = $priceRanges[$gymId % count($priceRanges)];
+            $isFeatured = in_array($gymId, $featuredGymIds, true) ? 1 : 0;
+            $status = in_array($gymId, $hiddenGymIds, true) ? 'hidden' : 'active';
+            $cover = $gymImages[($gymId - 1) % count($gymImages)];
+
+            $phone = sprintf("+8428%07d", 1000000 + $gymId);
+            $email = "contact.gym{$gymId}@gymfinder.test";
+            $website = "https://gym{$gymId}.gymfinder.test";
+            $hours = ($gymId % 3 === 0) ? "05:00 - 23:00" : (($gymId % 2 === 0) ? "06:00 - 22:00" : "05:30 - 21:30");
+            $address = "Số " . (10 + $gymId * 3) . " Đường " . $name . ", " . $info['name'];
+            $desc = "Phòng tập {$name} tại {$info['name']} sở hữu không gian tập luyện chuyên nghiệp, trang bị máy tập cao cấp, không gian rộng rãi thoáng mát cùng nhiều tiện ích đẳng cấp.";
+
+            $insGym->execute([
+                $gymId, $name, $slug, $desc, $address, $distId,
+                null, null, $phone, $email, $website,
+                $pRange['min'], $pRange['max'], $hours, $cover,
+                $isFeatured, $status
+            ]);
+
+            $gymsMeta[$gymId] = ['district_id' => $distId, 'name' => $name];
+
+            // Categories
+            $catCount = 1 + ($gymId % 3);
+            for ($c = 1; $c <= $catCount; $c++) {
+                $catId = (($gymId + $c) % 6) + 1;
+                $insGC->execute([$gymId, $catId]);
+            }
+
+            // Amenities
+            $amCount = 3 + ($gymId % 4);
+            for ($a = 1; $a <= $amCount; $a++) {
+                $amId = (($gymId + $a) % 7) + 1;
+                $insGA->execute([$gymId, $amId]);
+            }
+
+            // Additional image
+            $subImg = $gymImages[($gymId + 2) % count($gymImages)];
+            $insGI->execute([$gymId, $subImg, 'Khu tập luyện đa năng', 1]);
+
+            $gymId++;
+        }
     }
 
+    // 7. Trainers (30 trainers, 12 with 1 spec, 12 with 2 specs, 6 with 3 specs)
+    // Assigned to 22 gyms (leaving 38 gyms with no PT)
+    // 1 PT can work at multiple gyms, 1 gym can have multiple PTs (N-N)
+    $activeGymsWithPT = [1, 2, 3, 4, 5, 9, 10, 11, 15, 16, 20, 21, 24, 25, 29, 30, 36, 42, 45, 50, 54, 57]; // 22 gyms
+
+    $trainerNames = [
+        1 => 'Nguyễn Anh Tuấn', 2 => 'Trần Thị Kim Lan', 3 => 'Lê Văn Bình', 4 => 'Phạm Thu Hà',
+        5 => 'Võ Thị Mai', 6 => 'Hoàng Quốc Cường', 7 => 'Ngô Thanh Hà', 8 => 'Đinh Văn Khoa',
+        9 => 'Bùi Thị Nga', 10 => 'Chu Minh Phúc', 11 => 'Trương Gia Bảo', 12 => 'Đặng Thảo Vy',
+        13 => 'Phan Thành Long', 14 => 'Lý Quốc Hưng', 15 => 'Dương Thúy Kiều', 16 => 'Vũ Đình Trọng',
+        17 => 'Đỗ Hoài Nam', 18 => 'Hồ Ngọc Ánh', 19 => 'Lâm Khắc Tiệp', 20 => 'Mai Hải Đăng',
+        21 => 'Nguyễn Bích Ngọc', 22 => 'Trần Quang Khải', 23 => 'Lê Hoàng Yến', 24 => 'Phạm Minh Đức',
+        25 => 'Võ Hữu Tín', 26 => 'Hoàng Thùy Linh', 27 => 'Đoàn Nhật Minh', 28 => 'Tạ Anh Khoa',
+        29 => 'Cao Mỹ Duyên', 30 => 'Bạch Trọng Hiếu'
+    ];
+
+    $trainerAvatars = [
+        'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
+    ];
+
+    $insTr = $pdo->prepare('INSERT INTO trainers (id, full_name, slug, avatar_url, specialty_id, years_experience, bio, phone, email, gym_id, district_id, is_featured, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)');
+    $insTS = $pdo->prepare('INSERT INTO trainer_specialties (trainer_id, specialty_id) VALUES (?,?)');
+    $insGT = $pdo->prepare('INSERT INTO gym_trainers (gym_id, trainer_id) VALUES (?,?)');
+
+    for ($tId = 1; $tId <= 30; $tId++) {
+        $name = $trainerNames[$tId];
+        $slug = gf_slugify($name) . '-' . $tId;
+        $exp = ($tId % 15) + 1;
+        $bio = "Huấn luyện viên {$name} có {$exp} năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.";
+        $phone = sprintf("+84901%06d", $tId);
+        $email = "trainer{$tId}@gymfinder.test";
+        $avatar = $trainerAvatars[($tId - 1) % count($trainerAvatars)];
+        $isFeatured = ($tId % 5 === 0) ? 1 : 0;
+        $status = ($tId === 28 || $tId === 29) ? 'hidden' : 'active';
+
+        // 12 trainers have 1 specialty, 12 have 2, 6 have 3
+        $sCount = ($tId <= 12) ? 1 : (($tId <= 24) ? 2 : 3);
+        $assignedSpecs = [];
+        for ($sc = 0; $sc < $sCount; $sc++) {
+            $specId = (($tId + $sc) % 4) + 1;
+            if (!in_array($specId, $assignedSpecs, true)) {
+                $assignedSpecs[] = $specId;
+            }
+        }
+        $primSpecId = $assignedSpecs[0];
+
+        // Gyms: each trainer works at 1 to 3 gyms
+        $gCount = ($tId <= 15) ? 1 : (($tId <= 25) ? 2 : 3);
+        $assignedGyms = [];
+        $primGymId = $activeGymsWithPT[($tId - 1) % count($activeGymsWithPT)];
+        $assignedGyms[] = $primGymId;
+
+        if ($gCount >= 2) {
+            $secondGymId = $activeGymsWithPT[($tId + 5) % count($activeGymsWithPT)];
+            if (!in_array($secondGymId, $assignedGyms, true)) {
+                $assignedGyms[] = $secondGymId;
+            }
+        }
+        if ($gCount >= 3) {
+            $thirdGymId = $activeGymsWithPT[($tId + 11) % count($activeGymsWithPT)];
+            if (!in_array($thirdGymId, $assignedGyms, true)) {
+                $assignedGyms[] = $thirdGymId;
+            }
+        }
+
+        $districtId = $gymsMeta[$primGymId]['district_id'];
+
+        // Insert trainer first
+        $insTr->execute([
+            $tId, $name, $slug, $avatar, $primSpecId, $exp, $bio,
+            $phone, $email, $primGymId, $districtId, $isFeatured, $status
+        ]);
+
+        // Insert trainer_specialties
+        foreach ($assignedSpecs as $specId) {
+            $insTS->execute([$tId, $specId]);
+        }
+
+        // Insert gym_trainers
+        foreach ($assignedGyms as $gId) {
+            $insGT->execute([$gId, $tId]);
+        }
+    }
+
+    // 8. Reviews (210 reviews: 135 gyms, 75 trainers)
+    // 75% approved (158), 15% pending (31), 10% rejected (21)
+    $commentsGoodGym = [
+        'Không gian tập cực kỳ sạch sẽ, máy móc hiện đại và mới toanh!',
+        'Rất hài lòng với dịch vụ tại đây, nhân viên và HLV luôn niềm nở, hỗ trợ nhiệt tình.',
+        'Trải nghiệm tuyệt vời, giáo án bài bản và theo sát từng buổi tập.',
+        'Phòng tập thoáng mát, không bị quá tải vào giờ cao điểm, rất đáng tiền!',
+        'Thiết bị tạ và cardio rất đa dạng, cơ sở vật chất chuẩn 5 sao.',
+        'Đã tập ở đây được 6 tháng và thấy sức khỏe cải thiện rõ rệt, 10/10.',
+        'Môi trường năng động, âm nhạc truyền cảm hứng, phòng tắm và xông hơi rất sạch.'
+    ];
+    $commentsMediumGym = [
+        'Phòng tập nhìn chung ổn trong tầm giá, giờ cao điểm hơi đông một chút.',
+        'Cơ sở vật chất tốt, tuy nhiên bãi giữ xe hơi hẹp vào khung giờ tan tầm.',
+        'Máy móc phong phú nhưng một số máy cardio cần được bảo dưỡng thường xuyên hơn.',
+        'HLV hướng dẫn nhiệt tình, giá vé tháng hơi cao nhưng chấp nhận được.'
+    ];
+    $commentsPendingGym = [
+        'Vừa đăng ký gói tập 3 tháng, ấn tượng ban đầu khá tốt, đang chờ theo dõi thêm.',
+        'Mới trải nghiệm buổi đầu tiên, phòng tập sạch sẽ và HLV khá nhiệt tình.',
+        'Cần cải thiện thêm hệ thống điều hòa ở khu vực tạ nặng vào buổi trưa.'
+    ];
+    $commentsRejected = [
+        'Quảng cáo bán thực phẩm chức năng giá rẻ, liên hệ Zalo 0988xxxxxx!',
+        'Dịch vụ tệ hại lừa đảo đừng ai vào đây nhé!',
+        'Vào trang web xyz.com để nhận voucher giảm 90% ngay hôm nay!'
+    ];
+    $reasons = [
+        'Nội dung chứa liên kết hoặc thông tin quảng cáo spam.',
+        'Đánh giá chứa ngôn từ thiếu chuẩn mực và xúc phạm.',
+        'Nội dung không liên quan đến trải nghiệm tập luyện thực tế.'
+    ];
+
+    $insRev = $pdo->prepare('INSERT INTO reviews (id, user_id, target_type, gym_id, trainer_id, rating, comment, status, reviewed_by, reviewed_at, reject_reason, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
+
+    $revId = 1;
+
+    // Gym reviews: 135 (101 approved, 20 pending, 14 rejected)
+    $gymStatusPool = array_merge(
+        array_fill(0, 101, 'approved'),
+        array_fill(0, 20, 'pending'),
+        array_fill(0, 14, 'rejected')
+    );
+    shuffle($gymStatusPool);
+
+    $userGymPairs = [];
+    for ($i = 0; $i < 135; $i++) {
+        $st = $gymStatusPool[$i];
+        if ($i < 65) {
+            $targetGym = ($i % 18) + 1; // 1..18 (frequent)
+        } elseif ($i < 125) {
+            $targetGym = 19 + (($i - 65) % 30); // 19..48 (medium)
+        } else {
+            $targetGym = 49 + (($i - 125) % 12); // 49..60 (few)
+        }
+
+        $assignedUser = 2;
+        for ($u = 2; $u <= 24; $u++) {
+            $pairKey = "{$u}-{$targetGym}";
+            if (!isset($userGymPairs[$pairKey])) {
+                $assignedUser = $u;
+                $userGymPairs[$pairKey] = true;
+                break;
+            }
+        }
+
+        $rating = ($st === 'rejected') ? 1 : (($i % 4 === 0) ? 4 : 5);
+        $dateStr = sprintf("2026-%02d-%02d 10:00:00", 8 + ($i % 2), 1 + ($i % 28));
+
+        if ($st === 'rejected') {
+            $comment = $commentsRejected[$i % count($commentsRejected)];
+            $reason = $reasons[$i % count($reasons)];
+            $insRev->execute([$revId, $assignedUser, 'gym', $targetGym, null, $rating, $comment, 'rejected', 1, $dateStr, $reason, $dateStr]);
+        } elseif ($st === 'pending') {
+            $comment = $commentsPendingGym[$i % count($commentsPendingGym)];
+            $insRev->execute([$revId, $assignedUser, 'gym', $targetGym, null, $rating, $comment, 'pending', null, null, null, $dateStr]);
+        } else {
+            $comment = ($rating === 5) ? $commentsGoodGym[$i % count($commentsGoodGym)] : $commentsMediumGym[$i % count($commentsMediumGym)];
+            $insRev->execute([$revId, $assignedUser, 'gym', $targetGym, null, $rating, $comment, 'approved', 1, $dateStr, null, $dateStr]);
+        }
+        $revId++;
+    }
+
+    // Trainer reviews: 75 (57 approved, 11 pending, 7 rejected)
+    $trStatusPool = array_merge(
+        array_fill(0, 57, 'approved'),
+        array_fill(0, 11, 'pending'),
+        array_fill(0, 7, 'rejected')
+    );
+    shuffle($trStatusPool);
+
+    $commentsGoodTr = [
+        'PT hướng dẫn rất tận tình, chỉnh từng động tác form chuẩn, tạo động lực rất lớn.',
+        'Giáo án giảm cân hiệu quả cực kỳ, sau 2 tháng mình đã giảm được 4kg mỡ thừa.',
+        'Thầy dạy rất chuyên nghiệp, luôn đúng giờ và giải đáp mọi thắc mắc dinh dưỡng.',
+        'Phong cách huấn luyện kiên nhẫn, luôn động viên học viên vượt qua giới hạn bản thân.'
+    ];
+
+    $userTrPairs = [];
+    for ($j = 0; $j < 75; $j++) {
+        $st = $trStatusPool[$j];
+        if ($j < 45) {
+            $targetTr = ($j % 10) + 1; // 1..10 (frequent)
+        } elseif ($j < 65) {
+            $targetTr = 11 + (($j - 45) % 12); // 11..22 (medium)
+        } else {
+            $targetTr = 23 + (($j - 65) % 8); // 23..30 (few)
+        }
+
+        $assignedUser = 2;
+        for ($u = 2; $u <= 24; $u++) {
+            $pairKey = "{$u}-{$targetTr}";
+            if (!isset($userTrPairs[$pairKey])) {
+                $assignedUser = $u;
+                $userTrPairs[$pairKey] = true;
+                break;
+            }
+        }
+
+        $rating = ($st === 'rejected') ? 1 : (($j % 3 === 0) ? 4 : 5);
+        $dateStr = sprintf("2026-%02d-%02d 14:00:00", 8 + ($j % 2), 1 + ($j % 28));
+
+        if ($st === 'rejected') {
+            $comment = $commentsRejected[$j % count($commentsRejected)];
+            $reason = $reasons[$j % count($reasons)];
+            $insRev->execute([$revId, $assignedUser, 'trainer', null, $targetTr, $rating, $comment, 'rejected', 1, $dateStr, $reason, $dateStr]);
+        } elseif ($st === 'pending') {
+            $comment = 'Mới đăng ký học kèm thử, HLV khá nhiệt tình, cần thời gian đánh giá tiếp.';
+            $insRev->execute([$revId, $assignedUser, 'trainer', null, $targetTr, $rating, $comment, 'pending', null, null, null, $dateStr]);
+        } else {
+            $comment = $commentsGoodTr[$j % count($commentsGoodTr)];
+            $insRev->execute([$revId, $assignedUser, 'trainer', null, $targetTr, $rating, $comment, 'approved', 1, $dateStr, null, $dateStr]);
+        }
+        $revId++;
+    }
+
+    // 9. Recalculate avg_rating and review_count (ONLY approved reviews count!)
+    $pdo->exec("UPDATE gyms SET avg_rating = COALESCE((SELECT ROUND(AVG(rating),1) FROM reviews WHERE gym_id = gyms.id AND status='approved'), 0), review_count = (SELECT COUNT(*) FROM reviews WHERE gym_id = gyms.id AND status='approved')");
+    $pdo->exec("UPDATE trainers SET avg_rating = COALESCE((SELECT ROUND(AVG(rating),1) FROM reviews WHERE trainer_id = trainers.id AND status='approved'), 0), review_count = (SELECT COUNT(*) FROM reviews WHERE trainer_id = trainers.id AND status='approved')");
+
+    // 10. Sample Favorites
     $favs = [
         [1, 2, 'gym', 1, null],
         [2, 2, 'gym', 3, null],
         [3, 2, 'trainer', null, 1],
         [4, 3, 'gym', 1, null],
         [5, 3, 'trainer', null, 4],
-        [6, 4, 'gym', 7, null],
+        [6, 4, 'gym', 9, null],
         [7, 4, 'trainer', null, 8],
     ];
     $insF = $pdo->prepare('INSERT INTO favorites (id, user_id, target_type, gym_id, trainer_id) VALUES (?,?,?,?,?)');
     foreach ($favs as $f) {
         $insF->execute($f);
     }
-
-    $pdo->exec("UPDATE gyms SET avg_rating = COALESCE((SELECT ROUND(AVG(rating),1) FROM reviews WHERE gym_id = gyms.id AND status='approved'),0), review_count = (SELECT COUNT(*) FROM reviews WHERE gym_id = gyms.id AND status='approved')");
-    $pdo->exec("UPDATE trainers SET avg_rating = COALESCE((SELECT ROUND(AVG(rating),1) FROM reviews WHERE trainer_id = trainers.id AND status='approved'),0), review_count = (SELECT COUNT(*) FROM reviews WHERE trainer_id = trainers.id AND status='approved')");
 }

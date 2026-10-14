@@ -51,6 +51,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             gf_update_profile((int)$user['id'], [
                 'full_name' => trim((string)($_POST['full_name'] ?? '')),
                 'phone' => trim((string)($_POST['phone'] ?? '')),
+                'goal' => $_POST['goal'] ?? null,
                 'avatar_url' => $avatarUrl,
             ]);
             if ($avatarChanged && $oldAvatar && $oldAvatar !== $avatarUrl) {

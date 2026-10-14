@@ -87,16 +87,17 @@ if ($path === '/auth/csrf' && $method === 'GET') {
 }
 
 if ($path === '/auth/register' && $method === 'POST') {
-    gf_require_known_body($body, ['full_name', 'email', 'phone', 'password'], ['id', 'role', 'status', 'avatar_url', 'created_at', 'updated_at']);
+    gf_require_known_body($body, ['full_name', 'email', 'email_or_phone', 'identifier', 'phone', 'password', 'goal'], ['id', 'role', 'status', 'avatar_url', 'created_at', 'updated_at']);
     $res = gf_register(
         (string) ($body['full_name'] ?? ''),
-        (string) ($body['email'] ?? ''),
+        (string) ($body['email_or_phone'] ?? $body['identifier'] ?? $body['email'] ?? ''),
         (string) ($body['password'] ?? ''),
         isset($body['phone']) ? (string) $body['phone'] : null
     );
     if (!$res['ok']) {
         $code = $res['code'] ?? 'VALIDATION_ERROR';
-        gf_api_error($code, $res['error'], $code === 'DUPLICATE_EMAIL' ? 409 : 422);
+        $status = in_array($code, ['DUPLICATE_EMAIL', 'DUPLICATE_PHONE', 'DUPLICATE_IDENTIFIER'], true) ? 409 : 422;
+        gf_api_error($code, $res['error'], $status);
     }
     $u = $res['user'];
     gf_json(['data' => [
@@ -112,16 +113,16 @@ if ($path === '/auth/register' && $method === 'POST') {
 }
 
 if ($path === '/auth/login' && $method === 'POST') {
-    gf_require_known_body($body, ['email', 'password', 'login']);
-    $email = trim((string) ($body['email'] ?? $body['login'] ?? ''));
+    gf_require_known_body($body, ['email', 'email_or_phone', 'identifier', 'phone', 'password', 'login']);
+    $identifier = trim((string) ($body['email_or_phone'] ?? $body['identifier'] ?? $body['login'] ?? $body['phone'] ?? $body['email'] ?? ''));
     $pass = (string) ($body['password'] ?? '');
-    if ($email === '' || $pass === '') {
-        gf_api_error('VALIDATION_ERROR', 'Email và mật khẩu là bắt buộc.', 422, [
-            'email' => $email === '' ? 'Bắt buộc.' : null,
+    if ($identifier === '' || $pass === '') {
+        gf_api_error('VALIDATION_ERROR', 'Email hoặc số điện thoại và mật khẩu là bắt buộc.', 422, [
+            'email_or_phone' => $identifier === '' ? 'Bắt buộc.' : null,
             'password' => $pass === '' ? 'Bắt buộc.' : null,
         ]);
     }
-    $res = gf_login($email, $pass);
+    $res = gf_login($identifier, $pass);
     if (!$res['ok']) {
         $isLocked = ($res['code'] ?? '') === 'ACCOUNT_LOCKED';
         gf_api_error($isLocked ? 'ACCOUNT_LOCKED' : 'INVALID_CREDENTIALS', $res['error'], $isLocked ? 403 : 401);
@@ -186,14 +187,15 @@ if ($path === '/profile' && $method === 'GET') {
         'full_name' => $u['full_name'],
         'email' => $u['email'],
         'phone' => $u['phone'],
+        'goal' => $u['goal'] ?? null,
+        'role' => $u['role'] ?? 'user',
+        'status' => $u['status'] ?? 'active',
         'avatar_url' => $u['avatar_url'],
-        'role' => $u['role'],
     ]]);
 }
 
 if ($path === '/profile' && $method === 'PATCH') {
     $u = gf_api_require_user();
-    gf_require_known_body($body, ['avatar_url', 'full_name', 'phone'], ['id', 'email', 'role', 'status', 'created_at', 'updated_at']);
     if ($body === []) {
         gf_api_error('VALIDATION_ERROR', 'PATCH body rỗng.', 422, ['body' => 'Cần ít nhất một field.']);
     }

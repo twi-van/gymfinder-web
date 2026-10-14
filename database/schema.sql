@@ -6,6 +6,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS
   password_reset_otps, favorites, reviews,
   gym_amenities, gym_categories, gym_images,
+  gym_trainers, trainer_specialties,
   trainers, gyms,
   specialties, amenities, categories, districts,
   users;
@@ -18,7 +19,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 CREATE TABLE users (
   id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
   full_name     VARCHAR(100) NOT NULL,
-  email         VARCHAR(255) NOT NULL,
+  email         VARCHAR(255) NULL,
   phone         VARCHAR(20)  NULL,
   password_hash VARCHAR(255) NOT NULL,
   avatar_url    VARCHAR(255) NULL,
@@ -30,6 +31,7 @@ CREATE TABLE users (
 
   PRIMARY KEY (id),
   UNIQUE KEY uq_users_email (email),
+  UNIQUE KEY uq_users_phone (phone),
   KEY idx_users_role_status (role, status),
 
   CONSTRAINT chk_users_phone
@@ -221,21 +223,20 @@ CREATE TABLE gym_amenities (
 
 -- =====================================================================
 -- 10. trainers
--- gym_id NOT NULL: mỗi Trainer có đúng một Gym chính
--- district_id denormalized = Gym chính district 
+-- specialty_id / gym_id / district_id nullable (được chuẩn hóa qua trainer_specialties và gym_trainers N-N)
 -- =====================================================================
 CREATE TABLE trainers (
   id               INT UNSIGNED NOT NULL AUTO_INCREMENT,
   full_name        VARCHAR(100) NOT NULL,
   slug             VARCHAR(130) NOT NULL,
   avatar_url       VARCHAR(255) NULL,
-  specialty_id     INT UNSIGNED NOT NULL,
+  specialty_id     INT UNSIGNED NULL,
   years_experience TINYINT UNSIGNED NOT NULL,
   bio              TEXT         NULL,
   phone            VARCHAR(20)  NULL,
   email            VARCHAR(255) NULL,
-  gym_id           INT UNSIGNED NOT NULL,
-  district_id      INT UNSIGNED NOT NULL,
+  gym_id           INT UNSIGNED NULL,
+  district_id      INT UNSIGNED NULL,
   avg_rating       DECIMAL(2,1) NOT NULL DEFAULT 0,
   review_count     INT UNSIGNED NOT NULL DEFAULT 0,
   is_featured      TINYINT(1)   NOT NULL DEFAULT 0,
@@ -255,11 +256,11 @@ CREATE TABLE trainers (
 
   -- FK: không khai báo ON UPDATE 
   CONSTRAINT fk_trainers_gym
-    FOREIGN KEY (gym_id)       REFERENCES gyms(id)        ON DELETE RESTRICT,
+    FOREIGN KEY (gym_id)       REFERENCES gyms(id)        ON DELETE SET NULL,
   CONSTRAINT fk_trainers_specialty
-    FOREIGN KEY (specialty_id) REFERENCES specialties(id) ON DELETE RESTRICT,
+    FOREIGN KEY (specialty_id) REFERENCES specialties(id) ON DELETE SET NULL,
   CONSTRAINT fk_trainers_district
-    FOREIGN KEY (district_id)  REFERENCES districts(id)   ON DELETE RESTRICT,
+    FOREIGN KEY (district_id)  REFERENCES districts(id)   ON DELETE SET NULL,
 
   -- CHECK 
   CONSTRAINT chk_trainers_slug
@@ -272,6 +273,41 @@ CREATE TABLE trainers (
     CHECK (phone IS NULL OR phone REGEXP '^\\+?[0-9]{9,14}$'),
   CONSTRAINT chk_trainers_featured
     CHECK (is_featured IN (0, 1))
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================================
+-- 10a. trainer_specialties (N-N; cả hai ON DELETE CASCADE)
+-- =====================================================================
+CREATE TABLE trainer_specialties (
+  trainer_id   INT UNSIGNED NOT NULL,
+  specialty_id INT UNSIGNED NOT NULL,
+
+  PRIMARY KEY (trainer_id, specialty_id),
+  KEY idx_ts_specialty (specialty_id),
+
+  CONSTRAINT fk_ts_trainer
+    FOREIGN KEY (trainer_id)   REFERENCES trainers(id)    ON DELETE CASCADE,
+  CONSTRAINT fk_ts_specialty
+    FOREIGN KEY (specialty_id) REFERENCES specialties(id) ON DELETE CASCADE
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================================
+-- 10b. gym_trainers (N-N; cả hai ON DELETE CASCADE)
+-- 1 HLV có thể làm việc ở nhiều phòng gym khác nhau, 1 phòng gym có nhiều HLV
+-- =====================================================================
+CREATE TABLE gym_trainers (
+  gym_id     INT UNSIGNED NOT NULL,
+  trainer_id INT UNSIGNED NOT NULL,
+
+  PRIMARY KEY (gym_id, trainer_id),
+  KEY idx_gt_trainer (trainer_id),
+
+  CONSTRAINT fk_gt_gym
+    FOREIGN KEY (gym_id)     REFERENCES gyms(id)     ON DELETE CASCADE,
+  CONSTRAINT fk_gt_trainer
+    FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE CASCADE
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

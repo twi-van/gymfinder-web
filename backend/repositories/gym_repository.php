@@ -27,8 +27,8 @@ function gf_attach_gym_extras(array $gym): array
     $gym['cover']       = gf_cover_image($gym['cover_image_url'] ?? null, $id);
     $gym['price_label'] = gf_format_price((int) $gym['price_min'], (int) $gym['price_max']);
 
-    $st = gf_pdo()->prepare("SELECT COUNT(*) FROM trainers t JOIN gyms g ON g.id = t.gym_id WHERE t.gym_id = ? AND t.status='active' AND g.status='active'");
-    $st->execute([$id]);
+    $st = gf_pdo()->prepare("SELECT COUNT(*) FROM trainers t LEFT JOIN gym_trainers gt ON gt.trainer_id = t.id WHERE (gt.gym_id = ? OR t.gym_id = ?) AND t.status='active'");
+    $st->execute([$id, $id]);
     $gym['has_pt'] = (int) $st->fetchColumn() > 0;
 
     return $gym;
@@ -126,13 +126,13 @@ function gf_search_gyms_paged(array $f): array
     }
 
     if (!empty($f['has_pt'])) {
-        $sql .= " AND EXISTS (SELECT 1 FROM trainers t WHERE t.gym_id = g.id AND t.status='active')";
+        $sql .= " AND EXISTS (SELECT 1 FROM trainers t LEFT JOIN gym_trainers gt ON gt.trainer_id = t.id WHERE (gt.gym_id = g.id OR t.gym_id = g.id) AND t.status='active')";
     }
     if (!empty($f['open_247'])) {
         $sql .= " AND g.opening_hours LIKE '%24/7%'";
     }
     if (!empty($f['weight_loss'])) {
-        $sql .= " AND EXISTS (SELECT 1 FROM trainers t JOIN specialties s ON s.id=t.specialty_id WHERE t.gym_id=g.id AND t.status='active' AND s.slug='cardio-giam-can')";
+        $sql .= " AND EXISTS (SELECT 1 FROM trainers t LEFT JOIN gym_trainers gt ON gt.trainer_id = t.id LEFT JOIN trainer_specialties ts ON ts.trainer_id = t.id JOIN specialties s ON (s.id = t.specialty_id OR s.id = ts.specialty_id) WHERE (gt.gym_id = g.id OR t.gym_id = g.id) AND t.status='active' AND s.slug='cardio-giam-can')";
     }
     if (!empty($f['women'])) {
         $sql .= " AND (g.description LIKE '%nữ%' OR EXISTS (SELECT 1 FROM gym_categories gc JOIN categories c ON c.id=gc.category_id WHERE gc.gym_id=g.id AND (c.slug='gym-cho-nu' OR c.slug='yoga')))";
