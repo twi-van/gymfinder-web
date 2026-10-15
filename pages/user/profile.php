@@ -478,12 +478,12 @@ function previewProfileAvatar(input) {
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-        alert('File không hợp lệ. Vui lòng chọn ảnh định dạng JPG, PNG hoặc WEBP.');
+        typeof window.gfToast === 'function' ? window.gfToast('File không hợp lệ. Vui lòng chọn ảnh định dạng JPG, PNG hoặc WEBP.', 'warning') : null;
         input.value = '';
         return;
     }
     if (file.size > 5 * 1024 * 1024) {
-        alert('Dung lượng file vượt quá giới hạn 5 MB. Vui lòng chọn ảnh nhỏ hơn.');
+        typeof window.gfToast === 'function' ? window.gfToast('Dung lượng file vượt quá giới hạn 5 MB. Vui lòng chọn ảnh nhỏ hơn.', 'warning') : null;
         input.value = '';
         return;
     }

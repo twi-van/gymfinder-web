@@ -95,7 +95,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
         <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;">Hồ sơ cá nhân</h2>
-        <p class="text-secondary mb-0 small">Quản lý thông tin tài khoản và bảo mật mật khẩu của Quản trị viên</p>
+        <p class="text-secondary mb-0 small">Cập nhật thông tin tài khoản và bảo mật mật khẩu của quản trị viên</p>
     </div>
     <div>
         <span class="badge bg-primary-light text-primary px-3 py-2 rounded-pill fw-semibold border border-primary-subtle">
@@ -304,12 +304,12 @@ function previewAdminAvatar(input) {
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-        alert('Vui lòng chọn ảnh định dạng JPG, PNG hoặc WEBP.');
+        typeof window.gfToast === 'function' ? window.gfToast('Vui lòng chọn ảnh định dạng JPG, PNG hoặc WEBP.', 'warning') : null;
         input.value = '';
         return;
     }
     if (file.size > 5 * 1024 * 1024) {
-        alert('Dung lượng ảnh vượt quá 5 MB. Vui lòng chọn ảnh nhỏ hơn.');
+        typeof window.gfToast === 'function' ? window.gfToast('Dung lượng ảnh vượt quá 5 MB. Vui lòng chọn ảnh nhỏ hơn.', 'warning') : null;
         input.value = '';
         return;
     }
@@ -358,4 +358,5 @@ function togglePassVisibility(inputId, btn) {
 
 </main></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<?php require dirname(__DIR__, 2) . '/includes/ui_feedback.php'; ?>
 </body></html>

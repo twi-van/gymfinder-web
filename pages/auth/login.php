@@ -5,7 +5,8 @@ if (isset($_GET['error']) && $_GET['error'] === 'locked') {
     $error = 'Tài khoản đã bị khóa.';
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $res = gf_login(trim((string)($_POST['login'] ?? '')), (string)($_POST['password'] ?? ''));
+    $remember = !empty($_POST['remember']);
+    $res = gf_login(trim((string)($_POST['login'] ?? '')), (string)($_POST['password'] ?? ''), $remember);
     if ($res['ok']) {
         $to = $_GET['redirect'] ?? $_POST['redirect'] ?? '';
         if (!$to) {
@@ -55,7 +56,13 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                             <label class="form-label" for="password">Mật khẩu</label>
                             <div class="auth-input-group"><i class="fa-solid fa-lock auth-input-icon"></i><input id="password" class="form-control" type="password" name="password" required autocomplete="current-password" placeholder="Nhập mật khẩu"><button type="button" class="auth-toggle-password" id="btnTogglePassword" aria-label="Hiện mật khẩu"><i class="fa-regular fa-eye-slash" id="togglePasswordIcon"></i></button></div>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center mb-5"><div class="form-check"><input class="form-check-input" type="checkbox" id="rememberMe"><label class="form-check-label text-secondary" for="rememberMe" style="font-size:14px">Ghi nhớ đăng nhập</label></div><a href="#" class="text-primary text-decoration-none fw-semibold" style="font-size:14px" aria-label="Quên mật khẩu (chưa hỗ trợ)">Quên mật khẩu?</a></div>
+                        <div class="d-flex justify-content-between align-items-center mb-5">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="remember" value="1" id="rememberMe" <?= !empty($_POST['remember']) ? 'checked' : '' ?>>
+                                <label class="form-check-label text-secondary" for="rememberMe" style="font-size:14px">Ghi nhớ đăng nhập</label>
+                            </div>
+                            <a href="<?= gf_h(gf_url('pages/auth/forgot_password.php')) ?>" class="text-primary text-decoration-none fw-semibold" style="font-size:14px">Quên mật khẩu?</a>
+                        </div>
                         <button class="auth-btn-submit w-100 d-flex justify-content-center align-items-center gap-2" type="submit">Đăng nhập <i class="fa-solid fa-arrow-right"></i></button>
                     </form>
                     <div class="auth-divider"><hr><span>CHỌN NHANH TÀI KHOẢN KIỂM THỬ</span><hr></div>

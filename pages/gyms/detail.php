@@ -64,8 +64,12 @@ if ($reviewPage > 1 && $reviewPage > (int)ceil($totalReviews / $reviewLimit)) {
     $reviewPage = max(1, (int)ceil($totalReviews / $reviewLimit));
 }
 $pagedReviews = array_slice($reviews, ($reviewPage - 1) * $reviewLimit, $reviewLimit);
+require_once dirname(__DIR__, 2) . '/includes/trainer_gyms_ui.php';
 $trainers = gf_search_trainers([]);
-$gymTrainers = array_values(array_filter($trainers, static fn ($t) => (int)$t['gym_id'] === $id));
+$gymTrainers = array_values(array_filter(
+    $trainers,
+    static fn ($t) => gf_ui_trainer_linked_to_gym($t, $id)
+));
 $related = array_slice(array_filter(gf_search_gyms(['district_id' => $gym['district_id']]), static fn ($g) => (int)$g['id'] !== $id), 0, 4);
 $isFav = $user && gf_is_fav((int)$user['id'], 'gym', $id);
 $images = $gym['images'] ?? [];
@@ -80,7 +84,6 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         <li class="breadcrumb-item"><a href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>" class="text-secondary text-decoration-none">Phòng tập</a></li>
         <li class="breadcrumb-item active text-dark fw-semibold"><?= gf_h($gym['name']) ?></li>
     </ol></nav>
-    <?php if ($msg): ?><div class="alert alert-info"><?= gf_h($msg) ?></div><?php endif; ?>
     <div class="row g-3 mb-4">
         <div class="col-lg-8">
             <img src="<?= gf_h($gym['cover']) ?>" class="w-100 rounded-4" style="height:400px;object-fit:cover;" alt="<?= gf_h($gym['name']) ?>" onerror="this.onerror=null;this.src='<?= gf_h(gf_cover_image(null, (int)$gym['id'])) ?>';">
@@ -180,7 +183,11 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                             <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#editGymReviewModal">
                                 <i class="fa-solid fa-pen-to-square me-1"></i>Sửa đánh giá
                             </button>
-                            <form method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa đánh giá của mình không?');" class="d-inline">
+                            <form method="post" class="d-inline js-confirm-submit"
+                                data-confirm-title="Xóa đánh giá"
+                                data-confirm-message="Bạn có chắc chắn muốn xóa đánh giá của mình không? Thao tác này không thể hoàn tác."
+                                data-confirm-label="Xóa đánh giá"
+                                data-confirm-danger="1">
                                 <?= gf_csrf_field() ?>
                                 <input type="hidden" name="action" value="delete_review">
                                 <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">

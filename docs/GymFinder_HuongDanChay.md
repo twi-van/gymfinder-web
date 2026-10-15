@@ -18,7 +18,7 @@ Hệ thống **GymFinder** được xây dựng bằng ngôn ngữ **PHP thuần
 
 ## 2. Cách 1: Khởi chạy nhanh bằng PHP Built-in Server (Khuyến nghị)
 
-> **Ưu điểm:** Đây là cách chạy trực tiếp nhanh nhất. Hệ thống sẽ **tự động khởi tạo CSDL SQLite (`database/gymfinder.sqlite`)** và tự nạp toàn bộ 12 bảng cùng dữ liệu mẫu đầy đủ lần đầu chạy mà không cần cấu hình MySQL.
+> **Ưu điểm:** Đây là cách chạy trực tiếp nhanh nhất. Hệ thống sẽ **tự động khởi tạo CSDL SQLite (`database/gymfinder.sqlite`)** và tự nạp toàn bộ bảng cùng dữ liệu mẫu đầy đủ lần đầu chạy mà không cần cấu hình MySQL.
 
 ### Bước 1: Mở Terminal (Command Prompt / PowerShell / macOS Terminal)
 Di chuyển vào thư mục gốc của dự án:
@@ -50,7 +50,7 @@ Phù hợp khi cần demo hệ thống sử dụng MySQL theo đúng đề cươ
   * Database: `gymfinder`
   * Collation: `utf8mb4_unicode_ci`
 * **Bước 3:** Nhập (Import) 2 file dữ liệu theo đúng thứ tự:
-  1. Đầu tiên import file [`database/schema.sql`](file:///Users/tvan/Projects/GYMFINDER/database/schema.sql) để tạo 12 bảng cấu trúc, khóa ngoại, ràng buộc CHECK và chỉ mục.
+  1. Đầu tiên import file [`database/schema.sql`](file:///Users/tvan/Projects/GYMFINDER/database/schema.sql) để tạo cấu trúc bảng, khóa ngoại, ràng buộc CHECK và chỉ mục (theo thiết kế CSDL hiện tại, gồm các bảng trung gian `gym_trainers` và `trainer_specialties`).
   2. Sau đó import file [`database/seed.sql`](file:///Users/tvan/Projects/GYMFINDER/database/seed.sql) để nạp toàn bộ dữ liệu mẫu (quận huyện, danh mục, tiện ích, phòng tập, HLV, đánh giá, user).
 * **Bước 4:** Copy thư mục `GYMFINDER` vào thư mục `htdocs` của XAMPP (hoặc tạo VirtualHost / Symlink).
 * **Bước 5:** Truy cập website tại: **[http://localhost/GYMFINDER/](http://localhost/GYMFINDER/)**
@@ -74,7 +74,7 @@ Phù hợp khi cần demo hệ thống sử dụng MySQL theo đúng đề cươ
 | **Quản lý phòng tập** | [http://localhost:8000/admin/pages/gyms.php](http://localhost:8000/admin/pages/gyms.php) | CRUD phòng tập, upload cover & gallery, gán tiện ích/danh mục. |
 | **Quản lý HLV** | [http://localhost:8000/admin/pages/trainers.php](http://localhost:8000/admin/pages/trainers.php) | CRUD thông tin HLV, phân bổ phòng tập và chuyên môn. |
 | **Quản lý người dùng** | [http://localhost:8000/admin/pages/users.php](http://localhost:8000/admin/pages/users.php) | Quản lý danh sách thành viên, khóa/mở khóa tài khoản. |
-| **Quản lý danh mục** | [http://localhost:8000/admin/pages/categories.php](http://localhost:8000/admin/pages/categories.php) | Thêm, sửa, ẩn danh mục loại hình tập luyện. |
+| **Quản lý danh mục** | [http://localhost:8000/admin/pages/categories.php](http://localhost:8000/admin/pages/categories.php) | Loại phòng tập, chuyên môn HLV, tiện ích, khu vực (theo tab). |
 | **Kiểm duyệt Đánh giá** | [http://localhost:8000/admin/pages/reviews.php](http://localhost:8000/admin/pages/reviews.php) | Phê duyệt hoặc từ chối bình luận người dùng, tính lại rating. |
 | **Hồ sơ Admin** | [http://localhost:8000/admin/pages/profile.php](http://localhost:8000/admin/pages/profile.php) | Xem và cập nhật thông tin hồ sơ, đổi mật khẩu quản trị viên. |
 

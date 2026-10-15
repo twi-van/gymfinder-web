@@ -4,6 +4,7 @@ $filters = [
     'keyword' => trim((string)($_GET['keyword'] ?? '')),
     'specialty_id' => $_GET['specialty_id'] ?? '',
     'district_id' => $_GET['district_id'] ?? '',
+    'gym_id' => $_GET['gym_id'] ?? '',
     'featured' => $_GET['featured'] ?? '',
     'exp' => $_GET['exp'] ?? '',
     'min_rating' => $_GET['rating'] ?? '',
@@ -19,6 +20,7 @@ if ($filters['page'] > 1 && empty($trainerPage['items']) && (int)$trainerPage['t
 $trainers = $trainerPage['items'];
 $specialties = gf_list_specialties();
 $districts = gf_list_districts();
+$gymOptions = gf_search_gyms(['limit' => 100]);
 $user = gf_current_user();
 $pageTitle = 'Huấn luyện viên - GYMFINDER';
 $bodyClass = 'bg-light';
@@ -37,7 +39,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 <input class="form-control border-0 shadow-none bg-transparent px-2" name="keyword" value="<?= gf_h($filters['keyword']) ?>" placeholder="Tìm kiếm tên, chuyên môn...">
             </div>
             <div class="row g-3 mb-4">
-                <div class="col-md-3">
+                <div class="col-md-4 col-lg">
                     <select name="specialty_id" class="form-select border-0 shadow-sm bg-light rounded-pill px-3 py-2 text-secondary w-100">
                         <option value="">Chuyên môn: Tất cả</option>
                         <?php foreach ($specialties as $s): ?>
@@ -45,7 +47,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4 col-lg">
                     <select name="district_id" class="form-select border-0 shadow-sm bg-light rounded-pill px-3 py-2 text-secondary w-100">
                         <option value="">Khu vực: Tất cả</option>
                         <?php foreach ($districts as $d): ?>
@@ -53,7 +55,15 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4 col-lg">
+                    <select name="gym_id" class="form-select border-0 shadow-sm bg-light rounded-pill px-3 py-2 text-secondary w-100">
+                        <option value="">Phòng tập: Tất cả</option>
+                        <?php foreach ($gymOptions as $g): ?>
+                            <option value="<?= (int)$g['id'] ?>" <?= (string)$filters['gym_id']===(string)$g['id']?'selected':'' ?>><?= gf_h($g['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-6 col-lg">
                     <select name="exp" class="form-select border-0 shadow-sm bg-light rounded-pill px-3 py-2 text-secondary w-100">
                         <option value="">Kinh nghiệm: Tất cả</option>
                         <option value="0-2" <?= $filters['exp']==='0-2'?'selected':'' ?>>0–2 năm</option>
@@ -61,7 +71,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                         <option value="6plus" <?= $filters['exp']==='6plus'?'selected':'' ?>>6+ năm</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-6 col-lg">
                     <select name="rating" class="form-select border-0 shadow-sm bg-light rounded-pill px-3 py-2 text-secondary w-100">
                         <option value="">Đánh giá: Tất cả</option>
                         <?php foreach (['4.5', '4.0', '3.0'] as $rating): ?>

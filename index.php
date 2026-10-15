@@ -1,6 +1,11 @@
 <?php
 require_once __DIR__ . '/backend/bootstrap.php';
 $user = gf_current_user();
+
+// Admin truy cập trang gốc → chuyển thẳng đến Dashboard quản trị
+if ($user && ($user['role'] ?? '') === 'admin') {
+    gf_redirect(gf_url('admin/pages/dashboard.php'));
+}
 $favGymIds = [];
 if ($user) {
     $favs = gf_user_favorites((int) $user['id']);

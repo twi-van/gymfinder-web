@@ -50,7 +50,10 @@ $adminActive = 'reviews';
 require dirname(__DIR__, 2) . '/includes/layout_head.php';
 require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 ?>
-<h2 class="fw-bold mb-4">Quản lý đánh giá</h2>
+<div class="mb-4">
+    <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;">Quản lý đánh giá</h2>
+    <p class="text-secondary mb-0 small">Duyệt, từ chối hoặc xóa đánh giá của người dùng về phòng tập và huấn luyện viên</p>
+</div>
 <?php if (!empty($_GET['deleted'])): ?><div class="alert alert-success">Đã xóa đánh giá.</div><?php endif; ?>
 <form method="get" class="admin-card p-3 mb-4"><div class="row g-3"><div class="col-md-7"><input class="form-control admin-input" name="q" value="<?= gf_h($reviewSearch) ?>" placeholder="⌕  Tìm kiếm nội dung đánh giá..."></div><div class="col-md-3"><select name="status" class="form-select admin-input"><option value="">Tất cả trạng thái</option><?php foreach(['pending'=>'Chờ duyệt','approved'=>'Đã duyệt','rejected'=>'Từ chối'] as $sv=>$sl): ?><option value="<?= $sv ?>" <?= $reviewStatus===$sv?'selected':'' ?>><?= $sl ?></option><?php endforeach; ?></select></div><div class="col-md-2"><button class="btn btn-light border w-100">Lọc</button></div></div></form>
 <?php
@@ -60,7 +63,7 @@ gf_admin_table_open([
     'min_width' => '1150px',
     'columns'   => [
         ['label' => 'NGƯỜI DÙNG', 'width' => '200px'],
-        ['label' => 'PHÒNG TẬP / HLV', 'width' => '200px'],
+        ['label' => 'PHÒNG TẬP / HUẤN LUYỆN VIÊN', 'width' => '220px'],
         ['label' => 'ĐÁNH GIÁ', 'width' => '130px', 'align' => 'center'],
         ['label' => 'NỘI DUNG', 'width' => '280px'],
         ['label' => 'NGÀY', 'width' => '110px', 'align' => 'center'],
@@ -77,17 +80,36 @@ gf_admin_table_open([
             <span class="admin-cell-title"><?= gf_h($r['full_name']) ?></span>
         </div>
     </td>
-    <td><span class="text-secondary"><?= gf_h($r['gym_name'] ?: ($r['trainer_name'] ? 'HLV: ' . $r['trainer_name'] : '—')) ?></span></td>
+    <td><span class="text-secondary"><?= gf_h($r['gym_name'] ?: ($r['trainer_name'] ? 'Huấn luyện viên: ' . $r['trainer_name'] : '—')) ?></span></td>
     <td class="text-center text-warning text-nowrap"><?php for($i=1;$i<=5;$i++): ?><i class="fa-solid fa-star <?= $i>(int)$r['rating']?'text-secondary opacity-25':'' ?>"></i><?php endfor; ?></td>
     <td><div class="text-secondary" style="max-width: 270px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="<?= gf_h($r['comment']) ?>"><?= gf_h($r['comment']) ?></div></td>
     <td class="text-center text-secondary text-nowrap"><?= gf_h(date('d/m/Y',strtotime($r['created_at']))) ?></td>
-    <td class="text-center"><span class="admin-badge <?= $r['status']==='approved'?'badge-success':($r['status']==='pending'?'badge-warning':'badge-danger') ?>"><?= ['approved'=>'Đã duyệt','pending'=>'Chờ duyệt','rejected'=>'Từ chối'][$r['status']]??gf_h($r['status']) ?></span></td>
+    <?php
+    $reviewStatusMap = [
+        'approved' => ['label' => 'Đã duyệt', 'class' => 'badge-success'],
+        'pending'  => ['label' => 'Chờ duyệt', 'class' => 'badge-warning'],
+        'rejected' => ['label' => 'Từ chối', 'class' => 'badge-danger'],
+    ];
+    $reviewStatusUi = $reviewStatusMap[$r['status']] ?? ['label' => 'Không rõ', 'class' => 'badge-neutral'];
+    ?>
+    <td class="text-center"><span class="admin-badge <?= gf_h($reviewStatusUi['class']) ?>"><?= gf_h($reviewStatusUi['label']) ?></span></td>
     <td class="text-end pe-3 text-nowrap">
         <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#reviewModal<?= (int)$r['id'] ?>" title="Xem"><i class="fa-solid fa-eye"></i></button>
         <?php if ($r['status']==='pending'): ?>
         <form method="post" class="d-inline"><?= gf_csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><input type="hidden" name="action" value="approve"><button class="btn btn-action btn-outline-success" title="Duyệt"><i class="fa-solid fa-check"></i></button></form>
         <button type="button" class="btn btn-action btn-action-delete" data-bs-toggle="modal" data-bs-target="#rejectModal<?= (int)$r['id'] ?>" title="Từ chối"><i class="fa-solid fa-xmark"></i></button>
-        <?php else: ?><form method="post" class="d-inline" onsubmit="return confirm('Xóa đánh giá này?')"><?= gf_csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><input type="hidden" name="action" value="delete"><button class="btn btn-action btn-action-delete" title="Xóa đánh giá"><i class="fa-solid fa-trash"></i></button></form><?php endif; ?>
+        <?php else: ?>
+        <form method="post" class="d-inline js-confirm-submit"
+            data-confirm-title="Xóa đánh giá"
+            data-confirm-message="Bạn có chắc chắn muốn xóa đánh giá này? Thao tác có thể ảnh hưởng điểm trung bình nếu đánh giá đang được duyệt."
+            data-confirm-label="Xóa đánh giá"
+            data-confirm-danger="1">
+            <?= gf_csrf_field() ?>
+            <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
+            <input type="hidden" name="action" value="delete">
+            <button class="btn btn-action btn-action-delete" title="Xóa đánh giá"><i class="fa-solid fa-trash"></i></button>
+        </form>
+        <?php endif; ?>
     </td>
 </tr>
 <?php endforeach; ?>
@@ -113,7 +135,7 @@ gf_admin_table_close([
                 <div class="d-flex align-items-center justify-content-between mb-3 bg-light p-3 rounded-3">
                     <div>
                         <div class="fw-bold"><?= gf_h($r['full_name']) ?></div>
-                        <div class="small text-secondary"><?= gf_h($r['gym_name'] ?: ($r['trainer_name'] ? 'HLV: ' . $r['trainer_name'] : '')) ?></div>
+                        <div class="small text-secondary"><?= gf_h($r['gym_name'] ?: ($r['trainer_name'] ? 'Huấn luyện viên: ' . $r['trainer_name'] : '')) ?></div>
                     </div>
                     <div class="text-warning">
                         <?php for($i=1;$i<=5;$i++): ?><i class="fa-solid fa-star <?= $i>(int)$r['rating']?'text-secondary opacity-25':'' ?>"></i><?php endfor; ?>
@@ -159,7 +181,7 @@ gf_admin_table_close([
                         </div>
                         <div class="d-flex justify-content-between mb-1">
                             <span class="text-secondary">Đối tượng:</span>
-                            <span class="fw-semibold text-dark"><?= gf_h($r['gym_name'] ?: ($r['trainer_name'] ? 'HLV: ' . $r['trainer_name'] : '—')) ?></span>
+                            <span class="fw-semibold text-dark"><?= gf_h($r['gym_name'] ?: ($r['trainer_name'] ? 'Huấn luyện viên: ' . $r['trainer_name'] : '—')) ?></span>
                         </div>
                         <div class="mt-2 text-muted fst-italic border-top pt-2">
                             "<?= gf_h(mb_strimwidth($r['comment'], 0, 120, '...')) ?>"
@@ -168,6 +190,7 @@ gf_admin_table_close([
                     <div class="mb-2">
                         <label class="form-label fw-semibold small" for="rejectReasonInput<?= (int)$r['id'] ?>">Lý do từ chối <span class="text-danger">*</span></label>
                         <textarea class="form-control" name="reason" id="rejectReasonInput<?= (int)$r['id'] ?>" rows="3" required placeholder="Nhập lý do từ chối đánh giá (bắt buộc, không được để trống)..." maxlength="255"></textarea>
+                        <div class="invalid-feedback d-block reject-reason-error d-none"></div>
                         <div class="form-text small text-secondary">
                             Lý do là trường bắt buộc (1–255 ký tự). Không được để trống hoặc chỉ chứa khoảng trắng.
                         </div>
@@ -185,20 +208,40 @@ gf_admin_table_close([
 <?php endforeach; ?>
 </main></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<?php require dirname(__DIR__, 2) . '/includes/ui_feedback.php'; ?>
 <script>
 function validateRejectForm(form) {
     const textarea = form.querySelector('textarea[name="reason"]');
+    const errorEl = form.querySelector('.reject-reason-error');
     if (!textarea) return true;
     const reason = textarea.value.trim();
-    if (!reason) {
-        alert('Vui lòng nhập lý do từ chối. Không được để trống hoặc chỉ chứa khoảng trắng.');
+    const showError = (message) => {
+        textarea.classList.add('is-invalid');
+        if (errorEl) {
+            errorEl.textContent = message;
+            errorEl.classList.remove('d-none');
+        } else if (typeof window.gfToast === 'function') {
+            window.gfToast(message, 'warning');
+        }
         textarea.focus();
+    };
+    if (errorEl) {
+        errorEl.classList.add('d-none');
+        errorEl.textContent = '';
+    }
+    textarea.classList.remove('is-invalid');
+    if (!reason) {
+        showError('Vui lòng nhập lý do từ chối. Không được để trống hoặc chỉ gồm khoảng trắng.');
         return false;
     }
     if (reason.length > 255) {
-        alert('Lý do từ chối không được vượt quá 255 ký tự.');
-        textarea.focus();
+        showError('Lý do từ chối không được vượt quá 255 ký tự.');
         return false;
+    }
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Đang xử lý...';
     }
     return true;
 }

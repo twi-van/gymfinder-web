@@ -36,8 +36,11 @@ $adminActive = 'users';
 require dirname(__DIR__, 2) . '/includes/layout_head.php';
 require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 ?>
-<h2 class="fw-bold mb-4">Quản lý người dùng</h2>
-<form method="get" class="admin-card p-3 mb-4"><div class="row g-3"><div class="col-md-5"><input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q']??'') ?>" placeholder="⌕  Tìm kiếm theo tên, email, sđt..."></div><div class="col-md-3"><select class="form-select admin-input" name="role"><option value="">Tất cả vai trò</option><option value="admin"<?= (($_GET['role']??'')==='admin')?' selected':'' ?>>Quản trị viên</option><option value="user"<?= (($_GET['role']??'')==='user')?' selected':'' ?>>Người dùng</option></select></div><div class="col-md-2"><select class="form-select admin-input" name="status"><option value="">Trạng thái</option><option value="active"<?= (($_GET['status']??'')==='active')?' selected':'' ?>>Hoạt động</option><option value="locked"<?= (($_GET['status']??'')==='locked')?' selected':'' ?>>Bị khóa</option></select></div><div class="col-md-2"><button class="btn btn-light border w-100">Lọc</button></div></div></form>
+<div class="mb-4">
+    <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;">Quản lý người dùng</h2>
+    <p class="text-secondary mb-0 small">Theo dõi tài khoản, vai trò và khóa/mở khóa người dùng trên hệ thống</p>
+</div>
+<form method="get" class="admin-card p-3 mb-4"><div class="row g-3"><div class="col-md-5"><input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q']??'') ?>" placeholder="⌕  Tìm theo tên, email, số điện thoại..."></div><div class="col-md-3"><select class="form-select admin-input" name="role"><option value="">Tất cả vai trò</option><option value="admin"<?= (($_GET['role']??'')==='admin')?' selected':'' ?>>Quản trị viên</option><option value="user"<?= (($_GET['role']??'')==='user')?' selected':'' ?>>Người dùng</option></select></div><div class="col-md-2"><select class="form-select admin-input" name="status"><option value="">Trạng thái</option><option value="active"<?= (($_GET['status']??'')==='active')?' selected':'' ?>>Hoạt động</option><option value="locked"<?= (($_GET['status']??'')==='locked')?' selected':'' ?>>Bị khóa</option></select></div><div class="col-md-2"><button class="btn btn-light border w-100">Lọc</button></div></div></form>
 <?php
 gf_admin_table_open([
     'id'        => 'usersTable',
@@ -67,7 +70,11 @@ gf_admin_table_open([
     <td class="text-end pe-3 text-nowrap">
         <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#userModal<?= (int)$r['id'] ?>" title="Xem"><i class="fa-solid fa-eye"></i></button>
         <?php if ($r['role'] !== 'admin'): ?>
-        <form method="post" class="d-inline">
+        <form method="post" class="d-inline js-confirm-submit"
+            data-confirm-title="<?= $r['status']==='active'?'Khóa tài khoản':'Mở khóa tài khoản' ?>"
+            data-confirm-message="<?= $r['status']==='active' ? 'Khóa tài khoản này sẽ ngăn người dùng đăng nhập và sử dụng các chức năng trên hệ thống. Lịch sử đánh giá/yêu thích được giữ nguyên.' : 'Mở khóa tài khoản này để người dùng có thể đăng nhập và sử dụng lại các chức năng.' ?>"
+            data-confirm-label="<?= $r['status']==='active'?'Khóa tài khoản':'Mở khóa' ?>"
+            data-confirm-danger="<?= $r['status']==='active'?'1':'0' ?>">
             <?= gf_csrf_field() ?>
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
             <input type="hidden" name="status" value="<?= $r['status']==='active'?'locked':'active' ?>">
@@ -99,7 +106,7 @@ gf_admin_table_close([
             <div class="modal-body">
                 <div class="bg-light p-3 rounded-3 small">
                     <p class="mb-2"><strong>Họ tên:</strong> <?= gf_h($r['full_name']) ?></p>
-                    <p class="mb-2"><strong>Email:</strong> <?= gf_h($r['email']) ?></p>
+                    <p class="mb-2"><strong>Email đăng nhập:</strong> <?= gf_h($r['email']) ?></p>
                     <p class="mb-2"><strong>Số điện thoại:</strong> <?= gf_h($r['phone']??'—') ?></p>
                     <p class="mb-2"><strong>Vai trò:</strong> <span class="admin-badge <?= $r['role']==='admin'?'badge-warning':'badge-neutral' ?>"><?= gf_h(gf_role_label($r['role']??'')) ?></span></p>
                     <p class="mb-0"><strong>Trạng thái:</strong> <span class="admin-badge <?= $r['status']==='active'?'badge-success':'badge-danger' ?>"><?= $r['status']==='active'?'Hoạt động':'Bị khóa' ?></span></p>
@@ -114,4 +121,5 @@ gf_admin_table_close([
 <?php endforeach; ?>
 </main></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<?php require dirname(__DIR__, 2) . '/includes/ui_feedback.php'; ?>
 </body></html>

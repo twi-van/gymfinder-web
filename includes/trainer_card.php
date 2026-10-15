@@ -16,15 +16,42 @@ $heart = $isFav ? '<i class="fa-solid fa-heart text-danger"></i>' : '<i class="f
         <div class="d-flex flex-column align-items-center text-center mb-3">
             <img src="<?= gf_h($trainer['avatar'] ?? '') ?>" alt="<?= gf_h($trainer['full_name']) ?>" class="rounded-circle object-fit-cover mb-3 shadow-sm" style="width:100px;height:100px;border:3px solid #f8fafc;" onerror="this.src='https://placehold.co/100x100?text=Trainer';">
             <h5 class="fw-bold mb-1"><?= gf_h($trainer['full_name']) ?></h5>
-            <div class="text-primary fw-medium small mb-2"><?= gf_h($trainer['specialty_name'] ?? '') ?></div>
+            <?php
+            if (!function_exists('gf_ui_trainer_gym_ids')) {
+                require_once __DIR__ . '/trainer_gyms_ui.php';
+            }
+            $cardSpecNames = gf_ui_trainer_specialty_names($trainer);
+            if ($cardSpecNames === [] && !empty($trainer['specialty_name'])) {
+                $cardSpecNames = [(string) $trainer['specialty_name']];
+            }
+            if (count($cardSpecNames) > 1) {
+                $cardSpecLabel = $cardSpecNames[0] . ' +' . (count($cardSpecNames) - 1);
+            } else {
+                $cardSpecLabel = $cardSpecNames[0] ?? '';
+            }
+            ?>
+            <?php if ($cardSpecLabel !== ''): ?>
+                <div class="text-primary fw-medium small mb-2"><?= gf_h($cardSpecLabel) ?></div>
+            <?php endif; ?>
             <div class="small text-secondary mb-1">
                 <i class="fa-solid fa-star text-warning"></i>
                 <span class="text-dark fw-bold"><?= gf_h((string)$trainer['avg_rating']) ?></span>
                 (<?= (int)$trainer['review_count'] ?>)
             </div>
+            <?php
+            $cardGymIds = gf_ui_trainer_gym_ids($trainer);
+            if (count($cardGymIds) > 1) {
+                $firstName = (string) ($trainer['gym_name'] ?? '');
+                $cardGymLabel = $firstName !== ''
+                    ? ($firstName . ' +' . (count($cardGymIds) - 1) . ' phòng tập')
+                    : (count($cardGymIds) . ' phòng tập');
+            } else {
+                $cardGymLabel = (string) ($trainer['district_name'] ?? $trainer['gym_name'] ?? '');
+            }
+            ?>
             <div class="d-flex align-items-center justify-content-center gap-3 small text-secondary">
                 <div><i class="fa-solid fa-briefcase opacity-75 me-1"></i> <?= (int)$trainer['years_experience'] ?> năm</div>
-                <div><i class="fa-solid fa-location-dot opacity-75 me-1"></i> <?= gf_h($trainer['district_name'] ?? $trainer['gym_name'] ?? '') ?></div>
+                <div><i class="fa-solid fa-location-dot opacity-75 me-1"></i> <?= gf_h($cardGymLabel) ?></div>
             </div>
         </div>
         <p class="text-secondary small text-center mb-4 flex-grow-1" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;"><?= gf_h($trainer['bio'] ?? '') ?></p>
@@ -32,7 +59,7 @@ $heart = $isFav ? '<i class="fa-solid fa-heart text-danger"></i>' : '<i class="f
             <a href="<?= gf_h($href) ?>" class="btn btn-outline-secondary flex-grow-1 py-2 fw-semibold" style="font-size:14px;border-radius:8px;">Xem hồ sơ</a>
             <?php
             $trainerAvatar = !empty($trainer['avatar']) ? $trainer['avatar'] : gf_avatar($trainer['avatar_url'] ?? null, (int)($trainer['id'] ?? 0), $trainer['full_name'] ?? '');
-            $trainerSubtitle = ($trainer['specialty_name'] ?? '') . (!empty($trainer['district_name']) ? ' • ' . $trainer['district_name'] : '');
+            $trainerSubtitle = ($cardSpecLabel !== '' ? $cardSpecLabel : ($trainer['specialty_name'] ?? '')) . (!empty($trainer['district_name']) ? ' • ' . $trainer['district_name'] : '');
             ?>
             <button type="button" class="btn btn-primary flex-grow-1 py-2 fw-semibold btn-global-contact"
                 data-type="trainer"

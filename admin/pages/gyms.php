@@ -35,8 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     } elseif (isset($_POST['id'], $_POST['status'])) {
-        gf_set_entity_status('gyms', (int) $_POST['id'], $_POST['status'] === 'hidden' ? 'hidden' : 'active');
-        gf_redirect(gf_url('admin/pages/gyms.php'));
+        $newStatus = $_POST['status'] === 'hidden' ? 'hidden' : 'active';
+        gf_set_entity_status('gyms', (int) $_POST['id'], $newStatus);
+        $flag = $newStatus === 'hidden' ? 'status_hidden=1' : 'status_active=1';
+        gf_redirect(gf_url('admin/pages/gyms.php?' . $flag));
     } elseif (isset($_POST['name'])) {
         $data = $_POST;
         unset($data['_csrf'], $data['id']);
@@ -132,13 +134,18 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 require_once dirname(__DIR__) . '/components/table.php';
 ?>
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-    <h2 class="fw-bold mb-0 text-dark" style="font-size: 24px; letter-spacing: -0.3px;">Quản lý phòng tập</h2>
+    <div>
+        <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;">Quản lý phòng tập</h2>
+        <p class="text-secondary mb-0 small">Thêm, chỉnh sửa, tạm ẩn và theo dõi thông tin phòng tập trên hệ thống</p>
+    </div>
     <button class="btn btn-primary px-3 py-2 rounded-3 d-inline-flex align-items-center gap-2 fw-semibold shadow-sm" onclick="gymModalCreate()" style="height: 42px;">
         <i class="fa-solid fa-plus"></i> Thêm mới
     </button>
 </div>
 <?php if (!empty($_GET['created'])): ?><div class="alert alert-success border-0 shadow-sm rounded-3"><i class="fa-solid fa-circle-check me-2"></i>Đã thêm phòng tập thành công.</div><?php endif; ?>
 <?php if (!empty($_GET['updated'])): ?><div class="alert alert-success border-0 shadow-sm rounded-3"><i class="fa-solid fa-circle-check me-2"></i>Đã cập nhật phòng tập thành công.</div><?php endif; ?>
+<?php if (!empty($_GET['status_hidden'])): ?><div class="alert alert-success border-0 shadow-sm rounded-3"><i class="fa-solid fa-circle-check me-2"></i>Đã tạm ẩn phòng tập thành công. Phòng tập sẽ không hiển thị trên các trang công khai.</div><?php endif; ?>
+<?php if (!empty($_GET['status_active'])): ?><div class="alert alert-success border-0 shadow-sm rounded-3"><i class="fa-solid fa-circle-check me-2"></i>Đã kích hoạt lại phòng tập thành công. Phòng tập đã sẵn sàng hiển thị công khai.</div><?php endif; ?>
 <?php if ($error): ?><div class="alert alert-danger border-0 shadow-sm rounded-3"><i class="fa-solid fa-circle-exclamation me-2"></i><?= gf_h($error) ?></div><?php endif; ?>
 
 <form method="get" class="admin-card p-3 mb-4 shadow-sm border">
@@ -192,7 +199,7 @@ gf_admin_table_open([
         ['label' => 'GIÁ', 'width' => '195px'],
         ['label' => 'ĐÁNH GIÁ', 'width' => '95px'],
         ['label' => 'TRẠNG THÁI', 'width' => '115px'],
-        ['label' => 'THAO TÁC', 'width' => '125px', 'align' => 'right', 'class' => 'pe-3'],
+        ['label' => 'THAO TÁC', 'width' => '165px', 'align' => 'right', 'class' => 'pe-3'],
     ]
 ]);
 ?>
@@ -254,11 +261,20 @@ gf_admin_table_open([
                             <?= $r['status'] === 'active' ? 'Hoạt động' : 'Tạm ẩn' ?>
                         </span>
                     </td>
-                    <td class="text-end gym-actions pe-3">
+                    <td class="text-end gym-actions pe-3 text-nowrap">
                         <div class="d-inline-flex align-items-center justify-content-end gap-2">
-                            <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#gymView<?= (int)$r['id'] ?>" title="Chi tiết"><i class="fa-solid fa-eye"></i></button>
+                            <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#gymView<?= (int)$r['id'] ?>" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
                             <button type="button" class="btn btn-action btn-action-edit" data-id="<?= (int)$r['id'] ?>" data-name="<?= gf_h($r['name']) ?>" data-phone="<?= gf_h($r['phone'] ?? '') ?>" data-address="<?= gf_h($r['address']) ?>" data-district="<?= (int)$r['district_id'] ?>" data-min="<?= (int)$r['price_min'] ?>" data-max="<?= (int)$r['price_max'] ?>" data-description="<?= gf_h($gymDescriptions[(int)$r['id']] ?? '') ?>" data-cover="<?= gf_h($r['cover_image_url'] ?? '') ?>" data-cover-display="<?= gf_h(gf_cover_image($r['cover_image_url'] ?? null, (int)$r['id'])) ?>" data-gallery='<?= htmlspecialchars(json_encode($gymGalleries[(int)$r['id']] ?? []), ENT_QUOTES, 'UTF-8') ?>' data-categories="<?= gf_h(implode(',', $gymCategoryIds[(int)$r['id']] ?? [])) ?>" data-amenities="<?= gf_h(implode(',', $gymAmenityIds[(int)$r['id']] ?? [])) ?>" onclick="gymModalEdit(this)" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
-                            <form method="post" class="d-inline m-0 p-0"><?= gf_csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><input type="hidden" name="status" value="<?= $r['status'] === 'active' ? 'hidden' : 'active' ?>"><button class="btn btn-action <?= $r['status']==='active'?'btn-action-delete':'btn-action-edit' ?>" title="<?= $r['status']==='active'?'Tạm ẩn':'Kích hoạt' ?>"><i class="fa-solid <?= $r['status']==='active'?'fa-trash':'fa-eye' ?>"></i></button></form>
+                            <form method="post" class="d-inline m-0 p-0" onsubmit="return handleGymStatusSubmit(this);">
+                                <?= gf_csrf_field() ?>
+                                <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
+                                <input type="hidden" name="status" value="<?= $r['status'] === 'active' ? 'hidden' : 'active' ?>">
+                                <?php if ($r['status'] === 'active'): ?>
+                                    <button type="submit" class="btn btn-action btn-action-toggle" title="Tạm ẩn phòng tập"><i class="fa-solid fa-eye-slash"></i></button>
+                                <?php else: ?>
+                                    <button type="submit" class="btn btn-action btn-action-activate" title="Kích hoạt lại phòng tập"><i class="fa-solid fa-rotate-left"></i></button>
+                                <?php endif; ?>
+                            </form>
                         </div>
                     </td>
                 </tr>
@@ -287,14 +303,14 @@ gf_admin_table_close([
                         <!-- Ảnh Cover -->
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="small fw-bold text-dark"><i class="fa-solid fa-image me-1 text-primary"></i>Ảnh Cover</span>
-                                <span class="badge badge-success" style="font-size: 10px;">Đại diện</span>
+                                <span class="small fw-bold text-dark"><i class="fa-solid fa-image me-1 text-primary"></i>Ảnh bìa</span>
+                                <span class="admin-badge badge-success" style="font-size: 10px;">Ảnh đại diện</span>
                             </div>
                             <div class="position-relative overflow-hidden rounded-3 shadow-sm border">
                                 <img src="<?= gf_h(gf_cover_image($r['cover_image_url'] ?? null, (int)$r['id'])) ?>" 
                                      class="w-100 object-fit-cover d-block" 
                                      style="height:190px;" 
-                                     alt="Cover"
+                                     alt="Ảnh bìa"
                                      onerror="this.onerror=null;this.src='<?= gf_h(gf_cover_image(null, (int)$r['id'])) ?>';">
                             </div>
                         </div>
@@ -303,11 +319,11 @@ gf_admin_table_close([
                         <div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="small fw-bold text-dark"><i class="fa-solid fa-images me-1 text-primary"></i>Bộ sưu tập ảnh</span>
-                                <span class="badge badge-neutral" style="font-size: 10px;"><?= count($gymGalleries[(int)$r['id']] ?? []) ?> ảnh</span>
+                                <span class="admin-badge badge-neutral" style="font-size: 10px;"><?= count($gymGalleries[(int)$r['id']] ?? []) ?> ảnh</span>
                             </div>
                             <?php if (empty($gymGalleries[(int)$r['id']])): ?>
                                 <div class="text-center py-3 bg-light rounded-3 text-muted small border">
-                                    <i class="fa-regular fa-image me-1"></i>Chưa có ảnh trong gallery
+                                    <i class="fa-regular fa-image me-1"></i>Chưa có ảnh trong thư viện
                                 </div>
                             <?php else: ?>
                                 <div class="row g-2">
@@ -395,15 +411,15 @@ gf_admin_table_close([
 
                     <!-- UPLOAD COVER SECTION -->
                     <div class="col-12 pt-3 border-top">
-                        <label class="form-label fw-bold d-block mb-2">Ảnh đại diện phòng gym (Cover)</label>
+                        <label class="form-label fw-bold d-block mb-2">Ảnh bìa phòng tập</label>
                         <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
-                            <img id="gym-cover-preview" src="<?= gf_h(gf_cover_image(null, 1)) ?>" class="rounded-3 shadow-sm object-fit-cover" style="width:110px;height:80px;flex:0 0 110px;" alt="Cover preview">
+                            <img id="gym-cover-preview" src="<?= gf_h(gf_cover_image(null, 1)) ?>" class="rounded-3 shadow-sm object-fit-cover" style="width:110px;height:80px;flex:0 0 110px;" alt="Xem trước ảnh bìa">
                             <div class="flex-grow-1">
                                 <div class="d-flex flex-wrap gap-2 mb-2">
                                     <input type="file" id="gym-cover-file" name="cover_file" accept="image/jpeg,image/png,image/webp" class="d-none" onchange="previewGymCover(this)">
                                     <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="document.getElementById('gym-cover-file').click()"><i class="fa-solid fa-camera me-1"></i>Chọn / Thay ảnh</button>
                                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-none" id="gym-cover-cancel-btn" onclick="cancelGymCover()"><i class="fa-solid fa-rotate-left me-1"></i>Hủy đổi</button>
-                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" id="gym-cover-remove-btn" onclick="removeGymCover()"><i class="fa-solid fa-trash me-1"></i>Xóa cover</button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" id="gym-cover-remove-btn" onclick="removeGymCover()"><i class="fa-solid fa-trash me-1"></i>Xóa ảnh bìa</button>
                                 </div>
                                 <div class="small text-secondary">Hỗ trợ JPG, PNG, WEBP tối đa 5 MB.</div>
                             </div>
@@ -413,16 +429,16 @@ gf_admin_table_close([
                     <!-- UPLOAD GALLERY SECTION -->
                     <div class="col-12 pt-3 border-top">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="form-label fw-bold mb-0">Bộ sưu tập ảnh (Gallery)</label>
+                            <label class="form-label fw-bold mb-0">Thư viện ảnh</label>
                             <div>
                                 <input type="file" id="gym-gallery-files" name="gallery_files[]" multiple accept="image/jpeg,image/png,image/webp" class="d-none" onchange="addGalleryFiles(this)">
-                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="document.getElementById('gym-gallery-files').click()"><i class="fa-solid fa-plus me-1"></i>Thêm ảnh vào gallery</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="document.getElementById('gym-gallery-files').click()"><i class="fa-solid fa-plus me-1"></i>Thêm ảnh vào thư viện</button>
                             </div>
                         </div>
                         <div id="gym-gallery-list" class="row g-2 pt-2">
                             <!-- Rendered dynamically via JavaScript -->
                         </div>
-                        <div id="gym-gallery-empty" class="text-center py-4 bg-light rounded-3 border text-secondary small">Chưa có ảnh trong gallery. Bấm "Thêm ảnh vào gallery" để chọn nhiều ảnh.</div>
+                        <div id="gym-gallery-empty" class="text-center py-4 bg-light rounded-3 border text-secondary small">Chưa có ảnh trong thư viện. Bấm "Thêm ảnh vào thư viện" để chọn nhiều ảnh.</div>
                     </div>
                 </div>
             </div>
@@ -433,6 +449,7 @@ gf_admin_table_close([
         </form>
     </div>
 </div>
+
 <script>
 const uploadApiUrl = '<?= gf_url('api/uploads/images') ?>';
 const csrfToken = '<?= gf_csrf_token() ?>';
@@ -539,12 +556,12 @@ function previewGymCover(input) {
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-        alert('Định dạng ảnh không hỗ trợ. Vui lòng chọn JPG, PNG hoặc WEBP.');
+        typeof window.gfToast === 'function' ? window.gfToast('Định dạng ảnh không hỗ trợ. Vui lòng chọn JPG, PNG hoặc WEBP.', 'warning') : null;
         input.value = '';
         return;
     }
     if (file.size > 5 * 1024 * 1024) {
-        alert('Dung lượng ảnh vượt quá 5 MB.');
+        typeof window.gfToast === 'function' ? window.gfToast('Dung lượng ảnh vượt quá 5 MB.', 'warning') : null;
         input.value = '';
         return;
     }
@@ -586,15 +603,15 @@ function addGalleryFiles(input) {
     for (let i = 0; i < input.files.length; i++) {
         const file = input.files[i];
         if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-            alert(`File "${file.name}" không hợp lệ. Chỉ nhận JPG, PNG, WEBP.`);
+            typeof window.gfToast === 'function' ? window.gfToast(`File "${file.name}" không hợp lệ. Chỉ nhận JPG, PNG, WEBP.`, 'warning') : null;
             continue;
         }
         if (file.size > 5 * 1024 * 1024) {
-            alert(`File "${file.name}" vượt quá 5 MB.`);
+            typeof window.gfToast === 'function' ? window.gfToast(`File "${file.name}" vượt quá 5 MB.`, 'warning') : null;
             continue;
         }
         if (galleryItems.length >= 20) {
-            alert('Tối đa 20 ảnh trong gallery.');
+            typeof window.gfToast === 'function' ? window.gfToast('Tối đa 20 ảnh trong thư viện.', 'warning') : null;
             break;
         }
         const objUrl = URL.createObjectURL(file);
@@ -639,7 +656,7 @@ function renderGallery() {
                 </div>
                 <input class="form-control form-control-sm mb-2" placeholder="Chú thích..." value="${item.caption || ''}" onchange="galleryItems[${index}].caption = this.value">
                 <button type="button" class="btn btn-sm btn-outline-secondary w-100 mt-auto rounded-pill" style="font-size:11px;" onclick="makeGalleryCover(${index})">
-                    <i class="fa-solid fa-star me-1 text-warning"></i>Đặt làm cover
+                    <i class="fa-solid fa-star me-1 text-warning"></i>Đặt làm ảnh bìa
                 </button>
             </div>
         `;
@@ -714,7 +731,7 @@ async function handleGymFormSubmit(e) {
             });
             const data = await res.json();
             if (!res.ok || !data.data || !data.data.url) {
-                throw new Error(data.error?.message || 'Upload ảnh cover thất bại.');
+                throw new Error(data.error?.message || 'Tải ảnh bìa thất bại.');
             }
             document.getElementById('gym-cover-url').value = data.data.url;
             coverInput.value = ''; // Đã upload xong, tránh gửi trùng
@@ -736,7 +753,7 @@ async function handleGymFormSubmit(e) {
                 });
                 const data = await res.json();
                 if (!res.ok || !data.data || !data.data.url) {
-                    throw new Error(data.error?.message || `Upload ảnh gallery #${i + 1} thất bại.`);
+                    throw new Error(data.error?.message || `Tải ảnh thư viện #${i + 1} thất bại.`);
                 }
                 item.image_url = data.data.url;
                 item.isNew = false;
@@ -767,6 +784,15 @@ async function handleGymFormSubmit(e) {
     return false;
 }
 
+function handleGymStatusSubmit(form) {
+    const btn = form.querySelector('button[type="submit"]');
+    if (btn) {
+        btn.disabled = true;
+    }
+    return true;
+}
+
 window.addEventListener('beforeunload', revokeActiveUrls);
 </script>
-</main></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script></body></html>
+</main></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<?php require dirname(__DIR__, 2) . '/includes/ui_feedback.php'; ?></body></html>

@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__DIR__, 2) . '/backend/bootstrap.php';
+require_once dirname(__DIR__, 2) . '/includes/trainer_gyms_ui.php';
 $id = (int)($_GET['id'] ?? 0);
 $t = gf_get_trainer($id);
 if (!$t) {
@@ -96,13 +97,29 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                                 <span class="text-secondary"><i class="fa-solid fa-location-dot me-1"></i><?= gf_h($t['district_name']) ?></span>
                                 <span class="text-secondary"><i class="fa-solid fa-briefcase me-1"></i><?= (int)$t['years_experience'] ?> năm kinh nghiệm</span>
                             </div>
-                            <div class="text-primary fw-medium"><?= gf_h($t['specialty_name']) ?></div>
+                            <?php
+                            $detailSpecNames = gf_ui_trainer_specialty_names($t);
+                            if ($detailSpecNames === [] && !empty($t['specialty_name'])) {
+                                $detailSpecNames = [(string) $t['specialty_name']];
+                            }
+                            $detailSpecLabel = $detailSpecNames !== [] ? implode(' · ', $detailSpecNames) : '';
+                            ?>
+                            <?php if ($detailSpecLabel !== ''): ?>
+                                <div class="text-primary fw-medium"><?= gf_h($detailSpecLabel) ?></div>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <hr class="text-secondary opacity-25 my-4">
                     <h5 class="fw-bold mb-3">Giới thiệu</h5><p class="text-secondary" style="line-height:1.6"><?= gf_h($t['bio'] ?: 'Huấn luyện viên đang cập nhật thông tin giới thiệu.') ?></p>
-                    <h5 class="fw-bold mb-3 mt-4">Kinh nghiệm &amp; phong cách huấn luyện</h5><p class="text-secondary" style="line-height:1.6"><?= (int)$t['years_experience'] ?> năm kinh nghiệm trong lĩnh vực <?= gf_h($t['specialty_name']) ?>.</p>
-                    <h5 class="fw-bold mb-3 mt-4">Các bộ môn chuyên sâu</h5><span class="badge bg-light text-secondary border me-1"><?= gf_h($t['specialty_name']) ?></span>
+                    <h5 class="fw-bold mb-3 mt-4">Kinh nghiệm &amp; phong cách huấn luyện</h5><p class="text-secondary" style="line-height:1.6"><?= (int)$t['years_experience'] ?> năm kinh nghiệm<?= $detailSpecLabel !== '' ? ' trong lĩnh vực ' . gf_h($detailSpecLabel) : '' ?>.</p>
+                    <h5 class="fw-bold mb-3 mt-4">Các bộ môn chuyên sâu</h5>
+                    <?php if ($detailSpecNames === []): ?>
+                        <span class="text-secondary small">Đang cập nhật.</span>
+                    <?php else: ?>
+                        <?php foreach ($detailSpecNames as $specName): ?>
+                            <span class="badge bg-light text-secondary border me-1 mb-1"><?= gf_h($specName) ?></span>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </section>
                 <section class="info-card" id="reviews">
                     <div class="d-flex align-items-center justify-content-between mb-4">
@@ -140,7 +157,11 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                                 <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#editTrainerReviewModal">
                                     <i class="fa-solid fa-pen-to-square me-1"></i>Sửa đánh giá
                                 </button>
-                                <form method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa đánh giá của mình không?');" class="d-inline">
+                                <form method="post" class="d-inline js-confirm-submit"
+                                    data-confirm-title="Xóa đánh giá"
+                                    data-confirm-message="Bạn có chắc chắn muốn xóa đánh giá của mình không? Thao tác này không thể hoàn tác."
+                                    data-confirm-label="Xóa đánh giá"
+                                    data-confirm-danger="1">
                                     <?= gf_csrf_field() ?>
                                     <input type="hidden" name="action" value="delete_review">
                                     <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
@@ -228,13 +249,35 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                         data-type-label="Huấn luyện viên cá nhân"
                         data-name="<?= gf_h($t['full_name']) ?>"
                         data-avatar="<?= gf_h($t['avatar'] ?? '') ?>"
-                        data-subtitle="<?= gf_h(($t['specialty_name'] ?? '') . (!empty($t['district_name']) ? ' • ' . $t['district_name'] : '')) ?>"
+                        data-subtitle="<?= gf_h(($detailSpecLabel !== '' ? $detailSpecLabel : ($t['specialty_name'] ?? '')) . (!empty($t['district_name']) ? ' • ' . $t['district_name'] : '')) ?>"
                         data-phone="<?= gf_h($t['phone'] ?? '') ?>">
                         <i class="fa-solid fa-phone me-2"></i>Liên hệ
                     </button>
                     <hr class="text-secondary opacity-25 my-4"><div class="d-flex align-items-center"><i class="fa-solid fa-shield-halved text-success me-3 fs-4"></i><div><div class="fw-bold small">Thông tin hồ sơ</div><div class="text-secondary" style="font-size:12px">Được cung cấp bởi GYMFINDER</div></div></div>
                 </div>
-                <div class="info-card mt-4"><h5 class="fw-bold mb-3">Phòng tập đang làm việc</h5><h6 class="fw-bold"><?= gf_h($t['gym_name']) ?></h6><p class="text-secondary small"><i class="fa-solid fa-location-dot me-1"></i><?= gf_h($t['district_name']) ?></p><a href="<?= gf_h(gf_url('pages/gyms/detail.php?id='.(int)$t['gym_id'])) ?>" class="btn btn-outline-primary w-100 rounded-pill">Xem phòng tập</a></div>
+                <?php
+                $publicGyms = gf_ui_trainer_public_gyms($t);
+                ?>
+                <div class="info-card mt-4">
+                    <h5 class="fw-bold mb-3">Phòng tập đang làm việc</h5>
+                    <?php if ($publicGyms === []): ?>
+                        <p class="text-secondary small mb-0">Chưa có phòng tập đang hoạt động được liên kết công khai.</p>
+                    <?php else: ?>
+                        <div class="d-flex flex-column gap-3">
+                            <?php foreach ($publicGyms as $pg): ?>
+                                <div class="pb-3 border-bottom border-light">
+                                    <h6 class="fw-bold mb-1"><?= gf_h($pg['name']) ?></h6>
+                                    <?php if (!empty($pg['district_name']) || !empty($pg['address'])): ?>
+                                        <p class="text-secondary small mb-2">
+                                            <i class="fa-solid fa-location-dot me-1"></i><?= gf_h($pg['address'] ?: $pg['district_name']) ?>
+                                        </p>
+                                    <?php endif; ?>
+                                    <a href="<?= gf_h(gf_url('pages/gyms/detail.php?id='.(int)$pg['id'])) ?>" class="btn btn-outline-primary btn-sm rounded-pill px-3">Xem phòng tập</a>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
             </aside>
         </div>
     </div>
