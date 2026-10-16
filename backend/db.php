@@ -37,6 +37,8 @@ function gf_db_init(array $config): void
         }
     }
     gf_db_ensure_password_reset_otps($pdo);
+    gf_db_ensure_category_labels_vi($pdo);
+    gf_db_ensure_premium_exclusive($pdo);
     $GLOBALS['GF_PDO'] = $pdo;
 }
 
@@ -83,6 +85,47 @@ function gf_db_ensure_password_reset_otps(PDO $pdo): void
           CONSTRAINT fk_pwreset_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     );
+}
+
+/** Đồng bộ tên danh mục tiếng Việt (DB cũ có thể còn Fitness/Premium). */
+function gf_db_ensure_category_labels_vi(PDO $pdo): void
+{
+    try {
+        $map = [
+            'fitness' => 'Gym phổ thông',
+            'premium' => 'Gym cao cấp',
+        ];
+        $st = $pdo->prepare('UPDATE categories SET name = ? WHERE slug = ? AND name <> ?');
+        foreach ($map as $slug => $name) {
+            $st->execute([$name, $slug, $name]);
+        }
+    } catch (Throwable $e) {
+        // Bảng categories chưa sẵn sàng — bỏ qua
+    }
+}
+
+/** Gym cao cấp không đồng thời mang danh mục Gym phổ thông (seed cũ từng gán cả hai). */
+function gf_db_ensure_premium_exclusive(PDO $pdo): void
+{
+    try {
+        $fitnessId = (int) $pdo->query("SELECT id FROM categories WHERE slug = 'fitness' LIMIT 1")->fetchColumn();
+        $premiumId = (int) $pdo->query("SELECT id FROM categories WHERE slug = 'premium' LIMIT 1")->fetchColumn();
+        if ($fitnessId < 1 || $premiumId < 1) {
+            return;
+        }
+        $st = $pdo->prepare(
+            'DELETE FROM gym_categories
+             WHERE category_id = ?
+               AND gym_id IN (
+                 SELECT gym_id FROM (
+                   SELECT gym_id FROM gym_categories WHERE category_id = ?
+                 ) AS premium_gyms
+               )'
+        );
+        $st->execute([$fitnessId, $premiumId]);
+    } catch (Throwable $e) {
+        // Bảng chưa sẵn sàng — bỏ qua
+    }
 }
 
 function gf_pdo(): PDO

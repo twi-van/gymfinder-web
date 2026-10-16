@@ -44,26 +44,26 @@ require __DIR__ . '/includes/header.php';
         <p class="hero-subtitle mx-auto" style="max-width: 600px; margin-bottom: 1.5rem;">
             Tìm kiếm và so sánh hàng trăm phòng tập gym dựa trên vị trí, giá gói tập, tiện ích, bộ môn và đội ngũ huấn luyện viên.
         </p>
-        <div class="search-box mx-auto" style="max-width: 1050px;">
-            <form action="<?= gf_h(gf_url('pages/gyms/search.php')) ?>" method="get" class="d-flex flex-column flex-md-row align-items-center gap-2 gap-md-0">
-                <div class="flex-grow-1 d-flex align-items-center px-3 w-100">
-                    <i class="fa-solid fa-magnifying-glass text-secondary"></i>
+        <div class="search-box mx-auto hero-search-box">
+            <form action="<?= gf_h(gf_url('pages/gyms/search.php')) ?>" method="get" class="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2 gap-md-0">
+                <div class="flex-grow-1 d-flex align-items-center px-3 w-100 min-w-0">
+                    <i class="fa-solid fa-magnifying-glass text-secondary flex-shrink-0"></i>
                     <input type="text" class="form-control" name="keyword" placeholder="Nhập tên phòng tập, bộ môn (VD: Boxing, Yoga...)">
                 </div>
                 <div class="search-divider d-none d-md-block" style="height: 24px;"></div>
-                <div class="d-flex align-items-center px-3 w-100" style="max-width: 200px;">
-                    <i class="fa-solid fa-location-dot text-secondary me-2"></i>
-                    <select class="form-select px-0" name="district_id">
-                        <option value="">Khu vực / Quận</option>
+                <div class="hero-search-field d-flex align-items-center px-3 w-100">
+                    <i class="fa-solid fa-location-dot text-secondary me-2 flex-shrink-0"></i>
+                    <select class="form-select px-0" name="district_id" aria-label="Khu vực">
+                        <option value="">Khu vực</option>
                         <?php foreach ($districts as $d): ?>
                             <option value="<?= (int)$d['id'] ?>"><?= gf_h($d['name']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="search-divider d-none d-md-block" style="height: 24px;"></div>
-                <div class="d-flex align-items-center px-3 w-100" style="max-width: 200px;">
-                    <i class="fa-solid fa-coins text-secondary me-2"></i>
-                    <select class="form-select px-0" name="price_range">
+                <div class="hero-search-field d-flex align-items-center px-3 w-100">
+                    <i class="fa-solid fa-coins text-secondary me-2 flex-shrink-0"></i>
+                    <select class="form-select px-0" name="price_range" aria-label="Khoảng giá">
                         <option value="">Khoảng giá</option>
                         <option value="under_300">Dưới 300.000đ</option>
                         <option value="300_500">300.000đ - 500.000đ</option>
@@ -71,7 +71,7 @@ require __DIR__ . '/includes/header.php';
                         <option value="over_1000">Trên 1.000.000đ</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center gap-2">
+                <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center gap-2 flex-shrink-0">
                     <i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm
                 </button>
             </form>

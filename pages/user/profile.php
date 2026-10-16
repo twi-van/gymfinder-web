@@ -242,7 +242,9 @@ require dirname(__DIR__, 2) . '/includes/header.php';
 
 /* Panel Đăng xuất */
 .profile-account .btn-logout {
-    min-width: 260px;
+    min-width: min(260px, 100%);
+    width: 100%;
+    max-width: 320px;
     border: 1.5px solid #ef4444;
     color: #ef4444;
     background: #ffffff;

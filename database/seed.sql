@@ -54,17 +54,16 @@ INSERT INTO districts (id, name, slug) VALUES
 
 -- =====================================================================
 -- 3. categories
--- C01 Fitness (active); C02 Premium (active); C03 CrossFit (active)
--- C04 Yoga (active); C05 Boxing (is_active=0)
--- slug sinh theo quy tắc 
+-- C01 Gym phổ thông; C02 Gym cao cấp; C03 CrossFit; C04 Yoga; C05 Boxing (inactive); C06 Gym cho nữ
+-- slug giữ ổn định để không gãy liên kết; name hiển thị tiếng Việt đồng bộ UI lọc
 -- =====================================================================
 INSERT INTO categories (id, name, slug, description, is_active) VALUES
-(1, 'Fitness',     'fitness',     'Phòng tập thể hình, tạ và cardio',                          1),
-(2, 'Premium',     'premium',     'Phòng tập cao cấp, đầy đủ tiện ích',                        1),
-(3, 'CrossFit',    'crossfit',    'Tập luyện cường độ cao theo nhóm',                           1),
-(4, 'Yoga',        'yoga',        'Yoga, thiền và các bài tập thư giãn',                        1),
-(5, 'Boxing',      'boxing',      'Boxing, MMA và các môn võ thuật đối kháng',                   0), -- inactive
-(6, 'Gym cho nữ',  'gym-cho-nu',  'Không gian tập luyện riêng tư, an toàn và thoải mái dành cho phái nữ.', 1);
+(1, 'Gym phổ thông', 'fitness',     'Phòng tập thể hình, tạ và cardio',                          1),
+(2, 'Gym cao cấp',   'premium',     'Phòng tập cao cấp, đầy đủ tiện ích',                        1),
+(3, 'CrossFit',      'crossfit',    'Tập luyện cường độ cao theo nhóm',                           1),
+(4, 'Yoga',          'yoga',        'Yoga, thiền và các bài tập thư giãn',                        1),
+(5, 'Boxing',        'boxing',      'Boxing, MMA và các môn võ thuật đối kháng',                   0), -- inactive
+(6, 'Gym cho nữ',    'gym-cho-nu',  'Không gian tập luyện riêng tư, an toàn và thoải mái dành cho phái nữ.', 1);
 
 -- =====================================================================
 -- 4. amenities
@@ -170,12 +169,12 @@ INSERT INTO gyms (id, name, slug, description, address, district_id,
 -- 7. gym_categories
 -- =====================================================================
 INSERT INTO gym_categories (gym_id, category_id) VALUES
-(1, 1), (1, 2),      -- G01: C01 Fitness, C02 Premium
-(2, 1), (2, 3),      -- G02: C01 Fitness, C03 CrossFit
+(1, 2),              -- G01: C02 Gym cao cấp (không gán thêm phổ thông)
+(2, 1), (2, 3),      -- G02: C01 Gym phổ thông, C03 CrossFit
 (3, 4), (3, 6),      -- G03: C04 Yoga, C06 Gym cho nữ
-(4, 1), (4, 2), (4, 6), -- G04: C01 Fitness, C02 Premium, C06 Gym cho nữ
+(4, 2), (4, 6),      -- G04: C02 Gym cao cấp, C06 Gym cho nữ
 (5, 5),              -- G05: C05 Boxing (inactive)
-(7, 1);              -- G07: C01 Fitness (hidden gym)
+(7, 1);              -- G07: C01 Gym phổ thông (hidden gym)
 
 -- =====================================================================
 -- 8. gym_amenities

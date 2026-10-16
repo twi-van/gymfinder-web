@@ -86,7 +86,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
     </ol></nav>
     <div class="row g-3 mb-4">
         <div class="col-lg-8">
-            <img src="<?= gf_h($gym['cover']) ?>" class="w-100 rounded-4" style="height:400px;object-fit:cover;" alt="<?= gf_h($gym['name']) ?>" onerror="this.onerror=null;this.src='<?= gf_h(gf_cover_image(null, (int)$gym['id'])) ?>';">
+            <img src="<?= gf_h($gym['cover']) ?>" class="w-100 rounded-4 gf-detail-cover" alt="<?= gf_h($gym['name']) ?>" onerror="this.onerror=null;this.src='<?= gf_h(gf_cover_image(null, (int)$gym['id'])) ?>';">
         </div>
         <div class="col-lg-4">
             <div class="row g-3">

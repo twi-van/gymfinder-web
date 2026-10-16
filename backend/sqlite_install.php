@@ -211,8 +211,8 @@ SQL);
     }
 
     $cats = [
-        [1, 'Fitness', 'fitness', 'Phòng tập thể hình, tạ và cardio', 1],
-        [2, 'Premium', 'premium', 'Phòng tập cao cấp, đầy đủ tiện ích', 1],
+        [1, 'Gym phổ thông', 'fitness', 'Phòng tập thể hình, tạ và cardio', 1],
+        [2, 'Gym cao cấp', 'premium', 'Phòng tập cao cấp, đầy đủ tiện ích', 1],
         [3, 'CrossFit', 'crossfit', 'Tập luyện cường độ cao theo nhóm', 1],
         [4, 'Yoga', 'yoga', 'Yoga, thiền và các bài tập thư giãn', 1],
         [5, 'Boxing', 'boxing', 'Boxing, MMA và các môn võ thuật đối kháng', 0],
@@ -256,7 +256,8 @@ SQL);
         $insG->execute($g);
     }
 
-    foreach ([[1, 1], [1, 2], [2, 1], [2, 3], [3, 4], [3, 6], [4, 1], [4, 2], [4, 6], [5, 5], [7, 1]] as $gc) {
+    // Gym cao cấp (premium) và Gym phổ thông (fitness) không gán cùng lúc
+    foreach ([[1, 2], [2, 1], [2, 3], [3, 4], [3, 6], [4, 2], [4, 6], [5, 5], [7, 1]] as $gc) {
         $pdo->prepare('INSERT INTO gym_categories (gym_id, category_id) VALUES (?,?)')->execute($gc);
     }
     foreach ([[1, 1], [1, 2], [1, 3], [1, 5], [1, 6], [1, 7], [2, 1], [2, 2], [2, 6], [3, 1], [3, 3], [3, 6], [3, 7], [4, 1], [4, 2], [4, 3], [4, 4], [4, 5], [4, 6], [4, 7], [5, 6], [7, 1]] as $ga) {

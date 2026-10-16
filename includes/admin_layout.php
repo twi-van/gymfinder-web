@@ -8,12 +8,16 @@ function gf_admin_nav(string $key, string $href, string $icon, string $label, st
     echo '<li class="nav-item"><a class="nav-link rounded-3 px-3 py-2 mb-1' . $cls . '" href="' . gf_h(gf_url($href)) . '"><i class="fa-solid ' . $icon . ' me-3" style="width:20px;"></i>' . gf_h($label) . '</a></li>';
 }
 ?>
-<div class="d-flex">
-<aside class="sidebar d-flex flex-column" id="sidebar" style="width:285px;min-height:100vh;background:#fff;border-right:1px solid #e2e8f0;">
-    <div class="p-4 border-bottom">
+<div class="d-flex admin-shell">
+<div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+<aside class="sidebar d-flex flex-column" id="sidebar" aria-label="Menu quản trị">
+    <div class="p-4 border-bottom d-flex align-items-center justify-content-between gap-2">
         <?= gf_logo('admin', null, 'admin-brand') ?>
+        <button type="button" class="btn btn-light border d-lg-none shadow-sm admin-sidebar-close" id="sidebarClose" aria-label="Đóng menu">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
     </div>
-    <div class="p-3 flex-grow-1">
+    <div class="p-3 flex-grow-1 overflow-auto">
         <ul class="nav flex-column gap-1">
             <?php
             gf_admin_nav('dashboard', 'admin/pages/dashboard.php', 'fa-chart-pie', 'Tổng quan', $adminActive);
@@ -36,4 +40,12 @@ function gf_admin_nav(string $key, string $href, string $icon, string $label, st
         </div>
     </div>
 </aside>
-<main class="flex-grow-1 p-4 p-md-5 bg-light" style="min-width:0;">
+<main class="main-content flex-grow-1 p-4 p-md-5 bg-light" style="min-width:0;">
+    <div class="admin-mobile-bar d-lg-none d-flex align-items-center justify-content-between gap-2 mb-3">
+        <button type="button" class="btn btn-light border shadow-sm" id="sidebarOpen" aria-controls="sidebar" aria-expanded="false" aria-label="Mở menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <?= gf_logo('admin', null, 'admin-brand') ?>
+        <span style="width:40px;" aria-hidden="true"></span>
+    </div>
+    <script src="<?= gf_h(gf_url('admin/assets/admin.js')) ?>" defer></script>

@@ -1,7 +1,7 @@
 <?php
 require_once dirname(__DIR__, 2) . '/backend/bootstrap.php';
 $priceRanges = [
-    '' => 'Tất cả mức giá',
+    '' => 'Tất cả',
     'under_300' => 'Dưới 300.000đ',
     '300_500' => '300.000đ - 500.000đ',
     '500_1000' => '500.000đ - 1.000.000đ',
@@ -151,7 +151,7 @@ if (!empty($filters['amenity_options'])) {
         'steam' => 'Xông hơi',
         'dry_steam' => 'Xông hơi',
         'wet_steam' => 'Xông hơi',
-        'locker' => 'Locker',
+        'locker' => 'Tủ khóa',
         'parking' => 'Bãi đỗ xe',
         'shower' => 'Phòng tắm',
         'ac' => 'Điều hòa',
@@ -177,7 +177,7 @@ $figmaFeatures = [
 ];
 $figmaAmenities = [
     ['id' => 'amenity_sauna', 'key' => 'sauna', 'label' => 'Xông hơi', 'amenity_id' => 4],
-    ['id' => 'amenity_locker', 'key' => 'locker', 'label' => 'Locker', 'amenity_id' => 5],
+    ['id' => 'amenity_locker', 'key' => 'locker', 'label' => 'Tủ khóa', 'amenity_id' => 5],
     ['id' => 'amenity_parking', 'key' => 'parking', 'label' => 'Bãi đỗ xe', 'amenity_id' => 2],
     ['id' => 'amenity_ac', 'key' => 'ac', 'label' => 'Điều hòa', 'amenity_id' => 6],
     ['id' => 'amenity_shower', 'key' => 'shower', 'label' => 'Phòng tắm', 'amenity_id' => 1],
@@ -190,16 +190,18 @@ $bodyClass = 'bg-light';
 require dirname(__DIR__, 2) . '/includes/layout_head.php';
 require dirname(__DIR__, 2) . '/includes/header.php';
 ?>
-<div class="page-title-section" style="background:linear-gradient(135deg,#f0fdfa 0%,#fff 100%);padding:60px 0 40px;border-bottom:1px solid #e2e8f0;margin-bottom:40px;text-align:center;">
+<div class="page-title-section gf-page-hero" style="background:linear-gradient(135deg,#f0fdfa 0%,#fff 100%);border-bottom:1px solid #e2e8f0;text-align:center;">
     <div class="container">
         <h1 class="hero-title text-uppercase">TÌM KIẾM <span class="text-primary position-relative">PHÒNG TẬP
             <svg class="position-absolute w-100 bottom-0 start-0 translate-middle-y text-primary opacity-50" style="height:10px" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="4" fill="transparent"></path></svg>
         </span> CỦA BẠN</h1>
         <p class="text-secondary mb-5" style="font-size:16px">Khám phá và tìm phòng tập phù hợp với nhu cầu của bạn tại TP. Hồ Chí Minh.</p>
-        <form method="get" class="bg-white rounded-pill p-2 shadow-sm mx-auto d-flex align-items-center" style="max-width:700px;border:1px solid #f1f5f9;">
-            <i class="fa-solid fa-magnifying-glass text-secondary ms-3"></i>
-            <input type="text" name="keyword" class="form-control border-0 shadow-none" value="<?= gf_h($filters['keyword']) ?>" placeholder="Tìm kiếm tên phòng tập, khu vực...">
-            <button class="btn btn-primary rounded-pill px-4 py-2 fw-semibold" type="submit">Tìm kiếm</button>
+        <form method="get" class="gf-keyword-search bg-white shadow-sm mx-auto d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2 gap-sm-0 p-2" style="max-width:700px;border:1px solid #f1f5f9;">
+            <div class="d-flex align-items-center flex-grow-1 min-w-0">
+                <i class="fa-solid fa-magnifying-glass text-secondary ms-2 ms-sm-3 flex-shrink-0"></i>
+                <input type="text" name="keyword" class="form-control border-0 shadow-none" value="<?= gf_h($filters['keyword']) ?>" placeholder="Tìm kiếm tên phòng tập, khu vực...">
+            </div>
+            <button class="btn btn-primary rounded-pill px-4 py-2 fw-semibold flex-shrink-0" type="submit">Tìm kiếm</button>
         </form>
     </div>
 </div>
@@ -212,14 +214,16 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 <div class="filter-title"><i class="fa-solid fa-sliders text-primary"></i> Bộ lọc</div>
                 <input type="hidden" name="keyword" value="<?= gf_h($filters['keyword']) ?>">
                 <?php if ($filters['sort'] !== ''): ?><input type="hidden" name="sort" value="<?= gf_h($filters['sort']) ?>"><?php endif; ?>
-                <div class="filter-group">
+                <div class="filter-group gf-filter-field">
                     <div class="filter-group-title">Khu vực</div>
-                    <select name="district_id" id="districtFilter" class="form-select form-select-sm border-0 bg-light" style="font-size:14px">
-                        <option value="">Tất cả khu vực</option>
-                        <?php foreach ($districts as $d): ?>
-                            <option value="<?= (int)$d['id'] ?>" <?= (string)$filters['district_id']===(string)$d['id']?'selected':'' ?>><?= gf_h($d['name']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
+                    <div class="gf-select-wrap gf-select-wrap--sidebar">
+                        <select name="district_id" id="districtFilter" class="form-select gf-filter-select" aria-label="Khu vực">
+                            <option value="">Tất cả</option>
+                            <?php foreach ($districts as $d): ?>
+                                <option value="<?= (int)$d['id'] ?>" <?= (string)$filters['district_id']===(string)$d['id']?'selected':'' ?>><?= gf_h($d['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
                 <div class="filter-group">
                     <div class="filter-group-title">Khoảng giá (VNĐ/tháng)</div>
@@ -288,7 +292,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                             <a href="<?= gf_h($chip['remove_url']) ?>" class="text-primary text-decoration-none" title="Bỏ điều kiện này" style="opacity:0.75;line-height:1"><i class="fa-solid fa-xmark"></i></a>
                         </span>
                     <?php endforeach; ?>
-                    <a href="<?= gf_h(gf_url('pages/gyms/search.php' . (!empty($filters['keyword']) ? '?keyword=' . urlencode($filters['keyword']) : ''))) ?>" class="btn btn-sm btn-link text-decoration-none text-danger fw-semibold ms-auto p-0" style="font-size:13px"><i class="fa-solid fa-trash-can me-1"></i>Xóa tất cả</a>
+                    <a href="<?= gf_h(gf_url('pages/gyms/search.php' . (!empty($filters['keyword']) ? '?keyword=' . urlencode($filters['keyword']) : ''))) ?>" class="btn btn-sm btn-link text-decoration-none text-danger fw-semibold ms-sm-auto p-0" style="font-size:13px"><i class="fa-solid fa-trash-can me-1"></i>Xóa tất cả</a>
                 </div>
             <?php endif; ?>
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3 pb-3 border-bottom">
@@ -299,13 +303,15 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                     <?php endforeach; else: ?>
                         <input type="hidden" name="<?= gf_h((string)$key) ?>" value="<?= gf_h((string)$value) ?>">
                     <?php endif; endforeach; ?>
-                    <label for="gymSort" class="text-secondary text-nowrap" style="font-size:14px">Sắp xếp:</label>
-                    <select id="gymSort" name="sort" class="form-select form-select-sm border-0 bg-white shadow-sm fw-medium text-dark" style="font-size:14px;width:auto;border-radius:8px" onchange="this.form.submit()">
-                        <option value="" <?= $filters['sort']===''?'selected':'' ?>>Phổ biến nhất</option>
-                        <option value="rating_desc" <?= $filters['sort']==='rating_desc'?'selected':'' ?>>Đánh giá cao nhất</option>
-                        <option value="price_asc" <?= $filters['sort']==='price_asc'?'selected':'' ?>>Giá thấp → cao</option>
-                        <option value="price_desc" <?= $filters['sort']==='price_desc'?'selected':'' ?>>Giá cao → thấp</option>
-                    </select>
+                    <label for="gymSort" class="text-secondary text-nowrap" style="font-size:14px">Sắp xếp</label>
+                    <div class="gf-select-wrap gf-select-wrap--sort">
+                        <select id="gymSort" name="sort" class="form-select gf-filter-select" onchange="this.form.submit()" aria-label="Sắp xếp">
+                            <option value="" <?= $filters['sort']===''?'selected':'' ?>>Phổ biến nhất</option>
+                            <option value="rating_desc" <?= $filters['sort']==='rating_desc'?'selected':'' ?>>Đánh giá cao nhất</option>
+                            <option value="price_asc" <?= $filters['sort']==='price_asc'?'selected':'' ?>>Giá thấp → cao</option>
+                            <option value="price_desc" <?= $filters['sort']==='price_desc'?'selected':'' ?>>Giá cao → thấp</option>
+                        </select>
+                    </div>
                 </form>
             </div>
             <div class="row g-4 mb-5">
