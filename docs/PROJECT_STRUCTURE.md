@@ -110,14 +110,6 @@ GYMFINDER/
 │   ├── GymFinder_DacTaDuAn.docx       # Đặc tả yêu cầu hệ thống
 │   ├── BACKEND_AUDIT_REPORT.md        # Báo cáo audit backend & bảo mật
 │   └── PROJECT_STRUCTURE.md           # Tài liệu cấu trúc thư mục này
-│
-└── prototypes/                        # [LƯU TRỮ] Nhóm HTML Prototype tĩnh & Mock Data
-    ├── index.html                     # Prototype trang chủ HTML
-    ├── components/                    # HTML template tĩnh: header.html, footer.html, modal...
-    ├── data/                          # Mock data JS: categories.js, gyms.js, trainers.js...
-    ├── pages/                         # Các trang .html người dùng (login, search, detail...)
-    ├── admin/                         # Các trang .html admin & mobile_header.html, sidebar.html
-    └── assets/                        # load-components.js, auth.js, ui.js, page scripts...
 ```
 
 ---
@@ -145,16 +137,6 @@ Request /api/*
        → JSON Response                 (Trả về JSON HTTP 200, 201, 400, 401, 403, 404, 422)
 ```
 
-### 3. Lưu trữ Prototype tĩnh (`prototypes/`)
-
-```text
-Trực tiếp mở file [page].html trong prototypes/
-    → load-components.js               (Inject header.html, footer.html)
-    → auth.js                          (Giả lập session lưu tại localStorage)
-    → data/*.js                        (Nạp mock data dạng JS array)
-    → pages/*.js                       (Render DOM client-side)
-```
-
 ---
 
 ## Stack công nghệ
@@ -172,5 +154,5 @@ Trực tiếp mở file [page].html trong prototypes/
 ## Ghi chú các điểm chuẩn hóa kiến trúc
 
 1. **Thống nhất Components:** Toàn bộ components giao diện PHP được tập trung tại [`includes/`](file:///Users/tvan/Projects/GYMFINDER/includes) (`layout_head.php`, `header.php`, `footer.php`, `logo.php`, `gym_card.php`, `trainer_card.php`, `admin_layout.php`). Đã xóa bỏ thư mục con lồng nhau `includes/components/`.
-2. **Tách biệt Prototype:** Toàn bộ bản mẫu tĩnh HTML và mock data JS được gom gọn vào [`prototypes/`](file:///Users/tvan/Projects/GYMFINDER/prototypes) để giữ sạch không gian mã nguồn chạy thật nhưng vẫn bảo toàn đầy đủ tài nguyên cho việc nộp bài/báo cáo.
+2. **Không còn prototype HTML tĩnh:** Thư mục `prototypes/` đã được gỡ; giao diện chạy thật chỉ dùng PHP SSR (`pages/`, `admin/`, `includes/`).
 3. **Không có mã mồ côi:** Loại bỏ các file trùng lặp hoặc không sử dụng (`assets/images/favicon.png`, `assets/js/main.js`).
