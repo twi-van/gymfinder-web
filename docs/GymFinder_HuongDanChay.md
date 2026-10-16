@@ -50,7 +50,7 @@ Phù hợp khi cần demo hệ thống sử dụng MySQL theo đúng đề cươ
   * Database: `gymfinder`
   * Collation: `utf8mb4_unicode_ci`
 * **Bước 3:** Nhập (Import) 2 file dữ liệu theo đúng thứ tự:
-  1. Đầu tiên import file [`database/schema.sql`](file:///Users/tvan/Projects/GYMFINDER/database/schema.sql) để tạo cấu trúc bảng, khóa ngoại, ràng buộc CHECK và chỉ mục (theo thiết kế CSDL hiện tại, gồm các bảng trung gian `gym_trainers` và `trainer_specialties`).
+  1. Đầu tiên import file [`database/schema.sql`](file:///Users/tvan/Projects/GYMFINDER/database/schema.sql) để tạo cấu trúc bảng, khóa ngoại, ràng buộc CHECK và chỉ mục (theo thiết kế CSDL hiện tại, gồm `password_reset_otps` cho OTP quên mật khẩu; thiết kế còn mô tả các bảng trung gian `gym_trainers` và `trainer_specialties`).
   2. Sau đó import file [`database/seed.sql`](file:///Users/tvan/Projects/GYMFINDER/database/seed.sql) để nạp toàn bộ dữ liệu mẫu (quận huyện, danh mục, tiện ích, phòng tập, HLV, đánh giá, user).
 * **Bước 4:** Copy thư mục `GYMFINDER` vào thư mục `htdocs` của XAMPP (hoặc tạo VirtualHost / Symlink).
 * **Bước 5:** Truy cập website tại: **[http://localhost/GYMFINDER/](http://localhost/GYMFINDER/)**
@@ -68,6 +68,9 @@ Phù hợp khi cần demo hệ thống sử dụng MySQL theo đúng đề cươ
 | **Chi tiết HLV** | [http://localhost:8000/pages/trainers/detail.php?id=1](http://localhost:8000/pages/trainers/detail.php?id=1) | Hồ sơ HLV, thông tin phòng tập trực thuộc, đánh giá HLV. |
 | **Đăng nhập** | [http://localhost:8000/pages/auth/login.php](http://localhost:8000/pages/auth/login.php) | Đăng nhập tài khoản bảo mật bằng session, chống brute-force. |
 | **Đăng ký** | [http://localhost:8000/pages/auth/register.php](http://localhost:8000/pages/auth/register.php) | Tạo tài khoản mới, mã hóa mật khẩu `password_hash()`. |
+| **Quên mật khẩu** | [http://localhost:8000/pages/auth/forgot_password.php](http://localhost:8000/pages/auth/forgot_password.php) | Bước 1: nhập email/SĐT để nhận OTP. |
+| **Xác thực OTP** | [http://localhost:8000/pages/auth/forgot_verify_otp.php](http://localhost:8000/pages/auth/forgot_verify_otp.php) | Bước 2: nhập OTP 6 số (lưu bảng `password_reset_otps`, hết hạn 10 phút). |
+| **Đặt lại mật khẩu** | [http://localhost:8000/pages/auth/reset_password.php](http://localhost:8000/pages/auth/reset_password.php) | Bước 3: tạo mật khẩu mới sau khi OTP hợp lệ. |
 | **Hồ sơ cá nhân** | [http://localhost:8000/pages/user/profile.php](http://localhost:8000/pages/user/profile.php) | Cập nhật thông tin cá nhân, tải ảnh đại diện (avatar), đổi mật khẩu. |
 | **Danh sách Yêu thích** | [http://localhost:8000/pages/user/favorites.php](http://localhost:8000/pages/user/favorites.php) | Xem và quản lý các phòng gym và HLV đã lưu yêu thích. |
 | **Khu vực Quản trị** | [http://localhost:8000/admin/pages/dashboard.php](http://localhost:8000/admin/pages/dashboard.php) | Dashboard 4 chỉ số thống kê tổng quan (Admin only). |

@@ -283,6 +283,54 @@ body.auth-page {
     right: 16px;
 }
 
+/* Forgot-password steps + OTP */
+.auth-steps {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    font-weight: 700;
+    color: #94a3b8;
+}
+
+.auth-step.active {
+    color: var(--primary-color, #00c9b1);
+}
+
+.auth-step.done {
+    color: #64748b;
+}
+
+.auth-step-sep {
+    width: 18px;
+    height: 2px;
+    background: #e2e8f0;
+    border-radius: 2px;
+}
+
+.otp-boxes {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.otp-input {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0;
+    padding: 12px 4px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    height: 56px;
+}
+
+.otp-input:focus {
+    border-color: var(--primary-color, #00c9b1);
+    box-shadow: 0 0 0 3px rgba(0, 201, 177, 0.15);
+}
+
 /* Responsive */
 @media (max-width: 991.98px) {
     .auth-left {

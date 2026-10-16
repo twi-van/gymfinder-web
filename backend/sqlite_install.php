@@ -140,10 +140,23 @@ CREATE TABLE IF NOT EXISTS favorites (
   FOREIGN KEY (gym_id) REFERENCES gyms(id) ON DELETE CASCADE,
   FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE CASCADE
 );
+CREATE TABLE IF NOT EXISTS password_reset_otps (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  otp_hash TEXT NOT NULL,
+  attempts INTEGER NOT NULL DEFAULT 0,
+  expires_at TEXT NOT NULL,
+  verified_at TEXT,
+  consumed_at TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_review_user_gym ON reviews(user_id, gym_id) WHERE gym_id IS NOT NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS uq_review_user_trainer ON reviews(user_id, trainer_id) WHERE trainer_id IS NOT NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS uq_fav_user_gym ON favorites(user_id, gym_id) WHERE gym_id IS NOT NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS uq_fav_user_trainer ON favorites(user_id, trainer_id) WHERE trainer_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_pwreset_user ON password_reset_otps(user_id);
+CREATE INDEX IF NOT EXISTS idx_pwreset_expires ON password_reset_otps(expires_at);
 SQL);
     $pdo->exec('PRAGMA foreign_keys = ON');
 

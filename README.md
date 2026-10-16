@@ -21,7 +21,7 @@ GYMFINDER là nền tảng **tra cứu và đánh giá** — người dùng tự
 ### Người dùng (User Portal)
 
 - Đăng ký (email bắt buộc, SĐT tuỳ chọn; đồng ý Điều khoản & Chính sách), đăng nhập bằng email/SĐT, ghi nhớ đăng nhập, đăng xuất
-- Quên mật khẩu: giao diện sẵn sàng (gửi email/token thuộc bổ sung phía máy chủ — P2)
+- Quên mật khẩu OTP email: 3 bước UI (email → OTP → mật khẩu mới), lưu bảng `password_reset_otps` (gửi SMTP thuộc bổ sung)
 - Tìm kiếm / lọc / sắp xếp phòng tập (khu vực, giá, đánh giá, loại hình, tiện ích)
 - Xem chi tiết phòng tập: mô tả, địa chỉ văn bản, ảnh, giá, giờ hoạt động, tiện ích, HLV liên kết, đánh giá đã duyệt
 - Tìm kiếm và xem hồ sơ PT; hỗ trợ nhiều chuyên môn và nhiều phòng tập theo thiết kế (UI sẵn sàng nhận nhiều liên kết)
@@ -97,8 +97,9 @@ Chi tiết MySQL/XAMPP, URL trang, tài khoản demo và xử lý sự cố: xem
 
 | Tài liệu | Mô tả |
 | --- | --- |
-| [`DOCS/GymFinder_DacTaDuAn.docx`](DOCS/GymFinder_DacTaDuAn.docx) | Đặc tả yêu cầu & phạm vi |
-| [`DOCS/GymFinder_ThietKeCSDL.docx`](DOCS/GymFinder_ThietKeCSDL.docx) | Thiết kế CSDL |
+| [`DOCS/GYMFINDER_dacta.docx`](DOCS/GYMFINDER_dacta.docx) | Đặc tả yêu cầu & phạm vi |
+| [`DOCS/GYMFINDER_CSDL.docx`](DOCS/GYMFINDER_CSDL.docx) | Thiết kế CSDL |
+| [`DOCS/GymFinder_MoTaDuAn.docx`](DOCS/GymFinder_MoTaDuAn.docx) | Mô tả dự án (cho giảng viên / Google Docs) |
 | [`DOCS/GymFinder_HuongDanChay.md`](DOCS/GymFinder_HuongDanChay.md) | Hướng dẫn chạy & kiểm thử |
 | [`DOCS/PROJECT_STRUCTURE.md`](DOCS/PROJECT_STRUCTURE.md) | Cấu trúc thư mục |
 

@@ -4,7 +4,7 @@ USE gymfinder;
 
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS
-  favorites, reviews,
+  password_reset_otps, favorites, reviews,
   gym_amenities, gym_categories, gym_images,
   trainers, gyms,
   specialties, amenities, categories, districts,
@@ -363,5 +363,33 @@ CREATE TABLE favorites (
     FOREIGN KEY (gym_id)     REFERENCES gyms(id)     ON DELETE CASCADE,
   CONSTRAINT fk_fav_trainer
     FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE CASCADE
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================================
+-- 13. password_reset_otps
+-- OTP 6 số quên mật khẩu (email); hash OTP, hết hạn, số lần thử, trạng thái xác thực/tiêu thụ
+-- Gửi email SMTP có thể bổ sung; UI demo có thể hiển thị mã tạm khi chưa cấu hình SMTP
+-- =====================================================================
+CREATE TABLE password_reset_otps (
+  id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id     INT UNSIGNED NOT NULL,
+  otp_hash    VARCHAR(255) NOT NULL,
+  attempts    TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  expires_at  DATETIME NOT NULL,
+  verified_at DATETIME NULL,
+  consumed_at DATETIME NULL,
+  created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (id),
+  KEY idx_pwreset_user    (user_id),
+  KEY idx_pwreset_expires (expires_at),
+  KEY idx_pwreset_active  (user_id, consumed_at, expires_at),
+
+  CONSTRAINT fk_pwreset_user
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+
+  CONSTRAINT chk_pwreset_attempts
+    CHECK (attempts <= 5)
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

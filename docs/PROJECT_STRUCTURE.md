@@ -28,7 +28,7 @@ GYMFINDER/
 │   ├── auth.php                       # Session, login, logout, phân quyền user/admin, password hash
 │   ├── helpers.php                    # Hàm tiện ích: gf_url(), gf_h(), gf_logo(), gf_format_price(),
 │   │                                  #   gf_csrf_*(), gf_like_contains(), gf_json(), gf_api_error(), ...
-│   ├── sqlite_install.php             # Tự động tạo 12 bảng + seed data SQLite khi khởi chạy lần đầu
+│   ├── sqlite_install.php             # Tự động tạo bảng + seed data SQLite khi khởi chạy lần đầu (gồm password_reset_otps)
 │   ├── repositories/                  # Tầng Data Access Layer (100% PDO Prepared Statements & Transactions)
 │   │   ├── common_repository.php      # Query quận huyện, danh mục, tiện ích, chuyên môn
 │   │   ├── gym_repository.php         # CRUD + filter tìm kiếm phòng gym đa tiêu chí
@@ -48,7 +48,7 @@ GYMFINDER/
 │       └── admin_user_resource.php    # Quản lý người dùng, khóa/mở khóa tài khoản
 │
 ├── database/
-│   ├── schema.sql                     # DDL MySQL đầy đủ: 12 bảng, khóa ngoại, chỉ mục, ràng buộc CHECK
+│   ├── schema.sql                     # DDL MySQL đầy đủ: bảng cốt lõi + password_reset_otps, FK, chỉ mục, CHECK
 │   ├── seed.sql                       # Dữ liệu mẫu khởi tạo cho MySQL
 │   ├── ERD.png                        # Sơ đồ quan hệ thực thể CSDL chuẩn
 │   └── gymfinder.sqlite               # CSDL SQLite runtime demo (được .gitignore bảo vệ)
@@ -66,6 +66,9 @@ GYMFINDER/
 │   ├── auth/
 │   │   ├── login.php                  # Đăng nhập PHP (POST, CSRF, session an toàn)
 │   │   ├── register.php               # Đăng ký PHP (validate, password_hash, lưu DB)
+│   │   ├── forgot_password.php        # Quên mật khẩu bước 1: yêu cầu OTP
+│   │   ├── forgot_verify_otp.php      # Quên mật khẩu bước 2: nhập OTP 6 số
+│   │   ├── reset_password.php         # Quên mật khẩu bước 3: đặt mật khẩu mới
 │   │   └── logout.php                 # Đăng xuất PHP (hủy session an toàn)
 │   ├── gyms/
 │   │   ├── search.php                 # Tìm kiếm & lọc gym PHP (quận, giá, rating, tiện ích)
@@ -105,10 +108,10 @@ GYMFINDER/
 │
 ├── uploads/                           # Ảnh người dùng tải lên runtime (được .gitignore bảo vệ)
 ├── DOCS/                              # Hồ sơ tài liệu thiết kế & đồ án
-│   ├── GymFinder_ThietKeCSDL.docx     # Thiết kế CSDL chi tiết 12 bảng
-│   ├── GymFinder_HuongDanChay.docx    # Hướng dẫn chạy & kiểm thử
-│   ├── GymFinder_DacTaDuAn.docx       # Đặc tả yêu cầu hệ thống
-│   ├── BACKEND_AUDIT_REPORT.md        # Báo cáo audit backend & bảo mật
+│   ├── GYMFINDER_CSDL.docx            # Thiết kế CSDL chi tiết (gồm password_reset_otps)
+│   ├── GYMFINDER_dacta.docx           # Đặc tả yêu cầu hệ thống
+│   ├── GymFinder_MoTaDuAn.docx        # Mô tả dự án tổng hợp
+│   ├── GymFinder_HuongDanChay.md      # Hướng dẫn chạy & kiểm thử
 │   └── PROJECT_STRUCTURE.md           # Tài liệu cấu trúc thư mục này
 ```
 
