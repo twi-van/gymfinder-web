@@ -21,7 +21,7 @@ GYMFINDER là nền tảng **tra cứu và đánh giá** — người dùng tự
 ### Người dùng (User Portal)
 
 - Đăng ký (email bắt buộc, SĐT tuỳ chọn; đồng ý Điều khoản & Chính sách), đăng nhập bằng email/SĐT, ghi nhớ đăng nhập, đăng xuất
-- Quên mật khẩu OTP email: 3 bước UI (email → OTP → mật khẩu mới), lưu bảng `password_reset_otps` (gửi SMTP thuộc bổ sung)
+- Quên mật khẩu OTP qua email (không SMS/SĐT): 3 bước UI (email → OTP → mật khẩu mới), lưu bảng `password_reset_otps` (gửi SMTP thuộc bổ sung)
 - Tìm kiếm / lọc / sắp xếp phòng tập (khu vực, giá, đánh giá, loại hình, tiện ích)
 - Xem chi tiết phòng tập: mô tả, địa chỉ văn bản, ảnh, giá, giờ hoạt động, tiện ích, HLV liên kết, đánh giá đã duyệt
 - Tìm kiếm và xem hồ sơ PT; hỗ trợ nhiều chuyên môn và nhiều phòng tập theo thiết kế (UI sẵn sàng nhận nhiều liên kết)

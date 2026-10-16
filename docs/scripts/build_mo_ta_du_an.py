@@ -150,7 +150,7 @@ def main():
             "Quản lý danh sách yêu thích phòng tập và PT.",
             "Tạo / sửa / xóa đánh giá của chính người dùng; đánh giá mới phải được Admin duyệt trước khi công khai.",
             "Admin quản lý phòng tập, PT, danh mục (loại hình, tiện ích, chuyên môn, khu vực), người dùng và đánh giá; có dashboard tổng quan.",
-            "Trang Điều khoản dịch vụ và Chính sách bảo mật; quên mật khẩu bằng OTP email (3 bước UI + bảng password_reset_otps; gửi SMTP khi đủ hạ tầng).",
+            "Trang Điều khoản dịch vụ và Chính sách bảo mật; quên mật khẩu bằng OTP qua email — không SMS (3 bước UI + bảng password_reset_otps; gửi SMTP khi đủ hạ tầng).",
         ],
     )
     add_heading(doc, "3.2. Ngoài phạm vi", 2)
@@ -245,7 +245,7 @@ def main():
             ["AUTH-03", "Đăng xuất", "Kết thúc phiên, hết hạn cookie, chuyển trang phù hợp"],
             ["AUTH-04", "Phân quyền", "Backend kiểm tra quyền cho mọi thao tác nhạy cảm"],
             ["AUTH-05", "Tài khoản khóa", "User bị khóa không thực hiện thao tác cần quyền User"],
-            ["AUTH-06", "Quên mật khẩu OTP", "3 bước: email/SĐT → OTP 6 số (10 phút, ≤5 lần sai) → mật khẩu mới; lưu bảng password_reset_otps; SMTP bổ sung sau"],
+            ["AUTH-06", "Quên mật khẩu OTP", "3 bước: email → OTP 6 số (10 phút, ≤5 lần sai) → mật khẩu mới; lưu bảng password_reset_otps; SMTP bổ sung sau"],
         ],
     )
     add_heading(doc, "6.3. Hồ sơ cá nhân", 2)

@@ -127,7 +127,7 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                     </form>
 
                     <p class="text-center mt-4 mb-0" style="font-size:15px;color:#64748b">
-                        <a class="text-secondary text-decoration-none" href="<?= gf_h(gf_url('pages/auth/forgot_password.php')) ?>">← Đổi email / số điện thoại</a>
+                        <a class="text-secondary text-decoration-none" href="<?= gf_h(gf_url('pages/auth/forgot_password.php')) ?>">← Đổi email</a>
                     </p>
                 </div>
             </div>

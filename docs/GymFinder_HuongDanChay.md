@@ -68,7 +68,7 @@ Phù hợp khi cần demo hệ thống sử dụng MySQL theo đúng đề cươ
 | **Chi tiết HLV** | [http://localhost:8000/pages/trainers/detail.php?id=1](http://localhost:8000/pages/trainers/detail.php?id=1) | Hồ sơ HLV, thông tin phòng tập trực thuộc, đánh giá HLV. |
 | **Đăng nhập** | [http://localhost:8000/pages/auth/login.php](http://localhost:8000/pages/auth/login.php) | Đăng nhập tài khoản bảo mật bằng session, chống brute-force. |
 | **Đăng ký** | [http://localhost:8000/pages/auth/register.php](http://localhost:8000/pages/auth/register.php) | Tạo tài khoản mới, mã hóa mật khẩu `password_hash()`. |
-| **Quên mật khẩu** | [http://localhost:8000/pages/auth/forgot_password.php](http://localhost:8000/pages/auth/forgot_password.php) | Bước 1: nhập email/SĐT để nhận OTP. |
+| **Quên mật khẩu** | [http://localhost:8000/pages/auth/forgot_password.php](http://localhost:8000/pages/auth/forgot_password.php) | Bước 1: nhập email để nhận OTP (không OTP SMS). |
 | **Xác thực OTP** | [http://localhost:8000/pages/auth/forgot_verify_otp.php](http://localhost:8000/pages/auth/forgot_verify_otp.php) | Bước 2: nhập OTP 6 số (lưu bảng `password_reset_otps`, hết hạn 10 phút). |
 | **Đặt lại mật khẩu** | [http://localhost:8000/pages/auth/reset_password.php](http://localhost:8000/pages/auth/reset_password.php) | Bước 3: tạo mật khẩu mới sau khi OTP hợp lệ. |
 | **Hồ sơ cá nhân** | [http://localhost:8000/pages/user/profile.php](http://localhost:8000/pages/user/profile.php) | Cập nhật thông tin cá nhân, tải ảnh đại diện (avatar), đổi mật khẩu. |

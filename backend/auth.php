@@ -226,12 +226,15 @@ function gf_password_reset_mask_login(string $login, ?array $user): string
 
 function gf_password_reset_begin(string $login): array
 {
-    $login = trim($login);
-    if ($login === '' || mb_strlen($login) > 120) {
-        return ['ok' => false, 'error' => 'Vui lòng nhập email hoặc số điện thoại đã đăng ký.'];
+    // Quên mật khẩu chỉ qua email OTP (không SMS / không tra theo SĐT).
+    $login = strtolower(trim($login));
+    if ($login === '' || mb_strlen($login) > 255 || !filter_var($login, FILTER_VALIDATE_EMAIL)) {
+        return ['ok' => false, 'error' => 'Vui lòng nhập email đã đăng ký để nhận mã OTP.'];
     }
 
-    $user = gf_find_user_by_login($login);
+    $st = gf_pdo()->prepare('SELECT * FROM users WHERE email = ? LIMIT 1');
+    $st->execute([$login]);
+    $user = $st->fetch() ?: null;
     $mask = gf_password_reset_mask_login($login, $user);
     $expiresTs = time() + 600;
     $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);

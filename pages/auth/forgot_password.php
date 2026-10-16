@@ -65,21 +65,22 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                         <span class="auth-step">3. Mật khẩu mới</span>
                     </div>
                     <h2 class="auth-card-title">Quên mật khẩu</h2>
-                    <p class="auth-card-subtitle">Nhập email hoặc số điện thoại đã dùng khi đăng ký để nhận mã OTP.</p>
+                    <p class="auth-card-subtitle">Nhập email đã dùng khi đăng ký. Hệ thống gửi mã OTP qua email (không hỗ trợ OTP SMS).</p>
                     <?php if ($error): ?><div class="alert alert-danger"><?= gf_h($error) ?></div><?php endif; ?>
                     <form method="post" id="forgotPasswordForm">
                         <?= gf_csrf_field() ?>
                         <div class="mb-4">
-                            <label class="form-label" for="forgot-login">Email / Số điện thoại</label>
+                            <label class="form-label" for="forgot-login">Email *</label>
                             <div class="auth-input-group">
                                 <i class="fa-regular fa-envelope auth-input-icon"></i>
                                 <input
                                     id="forgot-login"
                                     class="form-control"
+                                    type="email"
                                     name="login"
                                     required
-                                    autocomplete="username"
-                                    placeholder="you@email.com hoặc số điện thoại"
+                                    autocomplete="email"
+                                    placeholder="you@email.com"
                                     value="<?= gf_h($loginValue) ?>"
                                 >
                             </div>
