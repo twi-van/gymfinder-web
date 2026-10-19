@@ -99,7 +99,7 @@ function gf_list_districts(): array
 {
     $rows = gf_pdo()->query('SELECT * FROM districts')->fetchAll();
     $order = [
-        'Quận 1', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 'Quận 7', 'Quận 8',
+        'Quận 1', 'Quận 2', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 'Quận 7', 'Quận 8',
         'Quận 10', 'Quận 11', 'Quận 12', 'Bình Tân', 'Bình Thạnh', 'Gò Vấp',
         'Phú Nhuận', 'Tân Bình', 'Tân Phú', 'TP Thủ Đức', 'Thủ Đức',
         'Huyện Bình Chánh', 'Huyện Cần Giờ', 'Huyện Củ Chi', 'Huyện Hóc Môn', 'Huyện Nhà Bè'

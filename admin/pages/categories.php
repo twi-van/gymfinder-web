@@ -42,8 +42,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $name = trim((string) ($_POST['name'] ?? ''));
             $description = trim((string) ($_POST['description'] ?? ''));
-            if ($name === '') {
-                throw new RuntimeException('Vui lòng nhập tên loại phòng tập.');
+            if ($name === '' || mb_strlen($name) > 100) {
+                throw new RuntimeException('Tên loại phòng tập phải từ 1 đến 100 ký tự.');
+            }
+            if (mb_strlen($description) > 5000) {
+                throw new RuntimeException('Mô tả tối đa 5000 ký tự.');
+            }
+            $dup = gf_pdo()->prepare('SELECT id FROM categories WHERE name=? AND (? = 0 OR id<>?) LIMIT 1');
+            $dup->execute([$name, $id, $id]);
+            if ($dup->fetchColumn()) {
+                throw new RuntimeException('Tên danh mục đã tồn tại. Vui lòng nhập tên khác.');
             }
             if ($id > 0) {
                 gf_admin_save_category([

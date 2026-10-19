@@ -133,7 +133,13 @@ function gf_admin_save_trainer(array $d, ?int $id): array
         $email = $merged['email'] ?? null;
         if ($email !== null && $email !== '' && !filter_var((string) $email, FILTER_VALIDATE_EMAIL)) { $details['email'] = 'Email không hợp lệ.'; }
         if (isset($merged['status']) && !in_array($merged['status'], ['active', 'hidden'], true)) { $details['status'] = 'status chỉ active|hidden.'; }
-        if (array_key_exists('avatar_url', $merged) && !gf_uploads_url_ok($merged['avatar_url'] === null ? null : (string) $merged['avatar_url'])) { $details['avatar_url'] = 'Chỉ nhận /uploads/...'; }
+        // Existing trainers may still use legacy external avatar URLs. Allow an unchanged
+        // URL during profile edits, but only accept system-managed uploads for new/changed URLs.
+        if (array_key_exists('avatar_url', $d)
+            && (!$existing || $d['avatar_url'] !== ($existing['avatar_url'] ?? null))
+            && !gf_uploads_url_ok($d['avatar_url'] === null ? null : (string) $d['avatar_url'])) {
+            $details['avatar_url'] = 'Chỉ nhận /uploads/...';
+        }
 
         // Gym validation (support gym_ids or gym_id)
         $gymIds = [];

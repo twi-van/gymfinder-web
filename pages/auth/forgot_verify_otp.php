@@ -4,6 +4,7 @@ require_once dirname(__DIR__, 2) . '/backend/bootstrap.php';
 $state = gf_password_reset_state();
 if (!$state || (($state['expires'] ?? 0) < time())) {
     gf_password_reset_clear();
+    $_SESSION['pw_reset_notice'] = 'Phiên xác minh OTP đã hết hạn hoặc bị mất. Hãy yêu cầu mã mới và nhập mã trong cùng trình duyệt trong vòng 10 phút.';
     gf_redirect(gf_url('pages/auth/forgot_password.php'));
 }
 
@@ -35,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $error = $res['error'] ?? 'Mã OTP không hợp lệ.';
         if (($res['code'] ?? '') === 'EXPIRED' || ($res['code'] ?? '') === 'LOCKED') {
+            $_SESSION['pw_reset_notice'] = $error;
             gf_redirect(gf_url('pages/auth/forgot_password.php'));
         }
         $state = gf_password_reset_state() ?? $state;
@@ -88,8 +90,8 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                         </div>
                     <?php else: ?>
                         <div class="alert alert-info small mb-3">
-                            Nếu thông tin đăng nhập trùng tài khoản trên hệ thống, mã OTP đã được tạo.
-                            (Gửi email thật sẽ bổ sung khi cấu hình máy chủ thư.)
+                            Nếu email khớp với tài khoản, mã OTP đã được gửi. Hãy kiểm tra hộp thư đến và thư rác.
+                            Nếu không thấy thư, vui lòng thử gửi lại sau ít phút.
                         </div>
                     <?php endif; ?>
                     <?php if ($error): ?><div class="alert alert-danger"><?= gf_h($error) ?></div><?php endif; ?>

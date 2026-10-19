@@ -4,6 +4,7 @@ require_once dirname(__DIR__, 2) . '/backend/bootstrap.php';
 $state = gf_password_reset_state();
 if (!$state || empty($state['verified']) || empty($state['user_id']) || (($state['expires'] ?? 0) < time())) {
     gf_password_reset_clear();
+    $_SESSION['pw_reset_notice'] = 'Không còn phiên OTP đã xác minh. Hãy gửi mã mới và xác minh trên cùng trình duyệt, không dùng mã cũ sau khi gửi lại.';
     gf_redirect(gf_url('pages/auth/forgot_password.php'));
 }
 

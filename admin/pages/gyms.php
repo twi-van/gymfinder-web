@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $imgs = json_decode($_POST['images_json'], true);
             if (is_array($imgs)) { $data['images'] = $imgs; }
         }
+        unset($data['remove_cover'], $data['images_json']);
         if (!$error) {
             $result = gf_admin_save_gym($data, $id);
             if (!empty($result['ok'])) gf_redirect(gf_url('admin/pages/gyms.php?updated=1'));
@@ -60,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $imgs = json_decode($_POST['images_json'], true);
             if (is_array($imgs)) { $data['images'] = $imgs; }
         }
+        unset($data['remove_cover'], $data['images_json']);
         if (!$error) {
             $result = gf_admin_save_gym($data, null);
             if (!empty($result['ok'])) {

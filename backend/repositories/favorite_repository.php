@@ -53,11 +53,12 @@ function gf_favorites_paged(int $userId, int $page, int $limit): array
     $sql = "FROM favorites f
             LEFT JOIN gyms g ON g.id = f.gym_id
             LEFT JOIN trainers t ON t.id = f.trainer_id
-            LEFT JOIN gyms tg ON tg.id = t.gym_id
             WHERE f.user_id = ?
               AND (
                 (f.target_type='gym' AND g.status='active')
-                OR (f.target_type='trainer' AND t.status='active' AND tg.status='active')
+                OR (f.target_type='trainer' AND t.status='active' AND (
+                    EXISTS (SELECT 1 FROM gym_trainers gt JOIN gyms active_g ON active_g.id=gt.gym_id WHERE gt.trainer_id=t.id AND active_g.status='active')
+                ))
               )";
 
     $count = gf_pdo()->prepare("SELECT COUNT(*) $sql");
@@ -201,13 +202,18 @@ function gf_user_favorites(int $userId): array
     $gyms = gf_pdo()->prepare("SELECT g.*, d.name AS district_name FROM favorites f JOIN gyms g ON g.id=f.gym_id JOIN districts d ON d.id=g.district_id WHERE f.user_id=? AND f.target_type='gym' AND g.status='active'");
     $gyms->execute([$userId]);
 
-    $trainers = gf_pdo()->prepare("SELECT t.*, s.name AS specialty_name, g.name AS gym_name, d.name AS district_name
+    $trainers = gf_pdo()->prepare("SELECT t.*, s.name AS specialty_name,
+        COALESCE((SELECT active_g.name FROM gym_trainers gt JOIN gyms active_g ON active_g.id=gt.gym_id
+                  WHERE gt.trainer_id=t.id AND active_g.status='active'
+                  ORDER BY active_g.name LIMIT 1), '') AS gym_name,
+        COALESCE((SELECT active_d.name FROM gym_trainers gt JOIN gyms active_g ON active_g.id=gt.gym_id JOIN districts active_d ON active_d.id=active_g.district_id
+                  WHERE gt.trainer_id=t.id AND active_g.status='active'
+                  ORDER BY active_g.name LIMIT 1), '') AS district_name
         FROM favorites f
         JOIN trainers t ON t.id=f.trainer_id
-        JOIN specialties s ON s.id=t.specialty_id
-        JOIN gyms g ON g.id=t.gym_id
-        JOIN districts d ON d.id=t.district_id
-        WHERE f.user_id=? AND f.target_type='trainer' AND t.status='active' AND g.status='active'");
+        LEFT JOIN specialties s ON s.id=t.specialty_id
+        WHERE f.user_id=? AND f.target_type='trainer' AND t.status='active'
+          AND EXISTS (SELECT 1 FROM gym_trainers gt JOIN gyms active_g ON active_g.id=gt.gym_id WHERE gt.trainer_id=t.id AND active_g.status='active')");
     $trainers->execute([$userId]);
 
     $gRows = array_map('gf_attach_gym_extras', $gyms->fetchAll());

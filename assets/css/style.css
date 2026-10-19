@@ -283,6 +283,24 @@ body {
     font-weight: 600;
 }
 
+/* Keep the admin shortcut and account menu aligned on desktop headers. */
+@media (min-width: 1200px) {
+    .navbar .navbar-user-actions {
+        flex-wrap: nowrap !important;
+        flex: 0 0 auto;
+    }
+
+    .navbar .navbar-admin-shortcut {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    .navbar .navbar-user-dropdown {
+        width: auto !important;
+        flex: 0 0 auto;
+    }
+}
+
 .navbar .btn {
     font-family: var(--font-sans);
     font-size: 14px;

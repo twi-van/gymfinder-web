@@ -29,6 +29,43 @@ INSERT INTO users (id, full_name, email, phone, password_hash, role, status, goa
 (24, 'Bạch Gia Phúc', 'u24@gymfinder.test', 0900000024, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'tang_suc_manh'),
 (25, 'Võ Thị Em (Khóa)', 'u25@gymfinder.test', 0900000025, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'locked', NULL);
 
+-- Give demo accounts realistic, staggered join dates (all before seeded reviews).
+UPDATE users SET created_at = CASE email
+  WHEN 'u01@gymfinder.test' THEN '2023-10-01 09:00:00'
+  WHEN 'u02@gymfinder.test' THEN '2024-01-15 10:20:00'
+  WHEN 'u03@gymfinder.test' THEN '2024-02-20 14:10:00'
+  WHEN 'u04@gymfinder.test' THEN '2024-04-05 08:45:00'
+  WHEN 'u05@gymfinder.test' THEN '2024-05-18 16:30:00'
+  WHEN 'u06@gymfinder.test' THEN '2024-07-02 11:15:00'
+  WHEN 'u07@gymfinder.test' THEN '2024-08-12 13:40:00'
+  WHEN 'u08@gymfinder.test' THEN '2024-10-09 09:25:00'
+  WHEN 'u09@gymfinder.test' THEN '2024-11-21 17:05:00'
+  WHEN 'u10@gymfinder.test' THEN '2025-01-06 10:00:00'
+  WHEN 'u11@gymfinder.test' THEN '2025-02-15 15:20:00'
+  WHEN 'u12@gymfinder.test' THEN '2025-03-27 08:35:00'
+  WHEN 'u13@gymfinder.test' THEN '2025-05-10 12:10:00'
+  WHEN 'u14@gymfinder.test' THEN '2025-06-18 16:45:00'
+  WHEN 'u15@gymfinder.test' THEN '2025-07-30 09:50:00'
+  WHEN 'u16@gymfinder.test' THEN '2025-09-11 14:25:00'
+  WHEN 'u17@gymfinder.test' THEN '2025-10-22 11:05:00'
+  WHEN 'u18@gymfinder.test' THEN '2025-12-03 17:30:00'
+  WHEN 'u19@gymfinder.test' THEN '2026-01-14 08:20:00'
+  WHEN 'u20@gymfinder.test' THEN '2026-02-25 13:15:00'
+  WHEN 'u21@gymfinder.test' THEN '2026-03-17 10:40:00'
+  WHEN 'u22@gymfinder.test' THEN '2026-04-29 15:55:00'
+  WHEN 'u23@gymfinder.test' THEN '2026-05-30 09:10:00'
+  WHEN 'u24@gymfinder.test' THEN '2026-06-19 16:05:00'
+  WHEN 'u25@gymfinder.test' THEN '2026-07-21 11:30:00'
+  ELSE created_at
+END
+WHERE email IN (
+  'u01@gymfinder.test','u02@gymfinder.test','u03@gymfinder.test','u04@gymfinder.test','u05@gymfinder.test',
+  'u06@gymfinder.test','u07@gymfinder.test','u08@gymfinder.test','u09@gymfinder.test','u10@gymfinder.test',
+  'u11@gymfinder.test','u12@gymfinder.test','u13@gymfinder.test','u14@gymfinder.test','u15@gymfinder.test',
+  'u16@gymfinder.test','u17@gymfinder.test','u18@gymfinder.test','u19@gymfinder.test','u20@gymfinder.test',
+  'u21@gymfinder.test','u22@gymfinder.test','u23@gymfinder.test','u24@gymfinder.test','u25@gymfinder.test'
+);
+
 -- =====================================================================
 -- DISTRICTS
 -- =====================================================================
@@ -54,7 +91,8 @@ INSERT INTO districts (id, name, slug) VALUES
 (19, 'Huyện Cần Giờ', 'huyen-can-gio'),
 (20, 'Huyện Củ Chi', 'huyen-cu-chi'),
 (21, 'Huyện Hóc Môn', 'huyen-hoc-mon'),
-(22, 'Huyện Nhà Bè', 'huyen-nha-be');
+(22, 'Huyện Nhà Bè', 'huyen-nha-be'),
+(23, 'Quận 2', 'quan-2');
 
 -- =====================================================================
 -- CATEGORIES
@@ -151,7 +189,30 @@ INSERT INTO gyms (id, name, slug, description, address, district_id, latitude, l
 (57, 'S-Fitness Song Hành Thảo Điền', 's-fitness-song-hanh-thao-dien-57', 'Phòng tập S-Fitness Song Hành Thảo Điền tại TP Thủ Đức sở hữu không gian tập luyện chuyên nghiệp, trang bị máy tập cao cấp, không gian rộng rãi thoáng mát cùng nhiều tiện ích đẳng cấp.', 'Số 181 Đường S-Fitness Song Hành Thảo Điền, TP Thủ Đức', 3, NULL, NULL, +84281000057, 'contact.gym57@gymfinder.test', 'https://gym57.gymfinder.test', 250000, 500000, '05:00 - 23:00', 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80', 5.0, 1, 1, 'active'),
 (58, 'King Gym Linh Trung', 'king-gym-linh-trung-58', 'Phòng tập King Gym Linh Trung tại TP Thủ Đức sở hữu không gian tập luyện chuyên nghiệp, trang bị máy tập cao cấp, không gian rộng rãi thoáng mát cùng nhiều tiện ích đẳng cấp.', 'Số 184 Đường King Gym Linh Trung, TP Thủ Đức', 3, NULL, NULL, +84281000058, 'contact.gym58@gymfinder.test', 'https://gym58.gymfinder.test', 300000, 600000, '06:00 - 22:00', 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 5.0, 1, 0, 'active'),
 (59, 'Aeon Mall Fitness Club Bình Tân', 'aeon-mall-fitness-club-binh-tan-59', 'Phòng tập Aeon Mall Fitness Club Bình Tân tại Bình Tân sở hữu không gian tập luyện chuyên nghiệp, trang bị máy tập cao cấp, không gian rộng rãi thoáng mát cùng nhiều tiện ích đẳng cấp.', 'Số 187 Đường Aeon Mall Fitness Club Bình Tân, Bình Tân', 12, NULL, NULL, +84281000059, 'contact.gym59@gymfinder.test', 'https://gym59.gymfinder.test', 500000, 1000000, '05:30 - 21:30', 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 0.0, 0, 0, 'hidden'),
-(60, 'Bình Tân Strong Gym Tên Lửa', 'binh-tan-strong-gym-ten-lua-60', 'Phòng tập Bình Tân Strong Gym Tên Lửa tại Bình Tân sở hữu không gian tập luyện chuyên nghiệp, trang bị máy tập cao cấp, không gian rộng rãi thoáng mát cùng nhiều tiện ích đẳng cấp.', 'Số 190 Đường Bình Tân Strong Gym Tên Lửa, Bình Tân', 12, NULL, NULL, +84281000060, 'contact.gym60@gymfinder.test', 'https://gym60.gymfinder.test', 600000, 1200000, '05:00 - 23:00', 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80', 0.0, 0, 0, 'active');
+(60, 'Bình Tân Strong Gym Tên Lửa', 'binh-tan-strong-gym-ten-lua-60', 'Phòng tập Bình Tân Strong Gym Tên Lửa tại Bình Tân sở hữu không gian tập luyện chuyên nghiệp, trang bị máy tập cao cấp, không gian rộng rãi thoáng mát cùng nhiều tiện ích đẳng cấp.', 'Số 190 Đường Bình Tân Strong Gym Tên Lửa, Bình Tân', 12, NULL, NULL, +84281000060, 'contact.gym60@gymfinder.test', 'https://gym60.gymfinder.test', 600000, 1200000, '05:00 - 23:00', 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80', 0.0, 0, 0, 'active'),
+(61, 'The New Gym Thảo Điền', 'the-new-gym-thao-dien-61', 'Phòng tập The New Gym Thảo Điền tại Quận 2 có thiết bị hiện đại, lớp nhóm và HLV hỗ trợ hội viên.', 'Số 193 Đường Xuân Thủy, Thảo Điền, Quận 2', 23, NULL, NULL, +84281000061, 'contact.gym61@gymfinder.test', 'https://gym61.gymfinder.test', 200000, 450000, '05:30 - 22:00', 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80', 0.0, 0, 1, 'active'),
+(62, 'CityGym An Phú', 'citygym-an-phu-62', 'Phòng tập CityGym An Phú tại Quận 2 có khu tạ, cardio và nhiều lớp huấn luyện theo nhóm.', 'Số 12 Đường Song Hành, An Phú, Quận 2', 23, NULL, NULL, +84281000062, 'contact.gym62@gymfinder.test', 'https://gym62.gymfinder.test', 350000, 700000, '06:00 - 22:00', 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 0.0, 0, 0, 'active'),
+(63, 'Fit24 Sala', 'fit24-sala-63', 'Phòng tập Fit24 Sala tại Quận 2 có không gian rộng, lớp yoga và khu tập chức năng.', 'Số 10 Đường Mai Chí Thọ, Khu đô thị Sala, Quận 2', 23, NULL, NULL, +84281000063, 'contact.gym63@gymfinder.test', 'https://gym63.gymfinder.test', 700000, 1200000, '05:00 - 23:00', 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 0.0, 0, 0, 'active'),
+(64, 'Elite Fitness Thủ Thiêm', 'elite-fitness-thu-thiem-64', 'Phòng tập Elite Fitness Thủ Thiêm tại Quận 2 có dịch vụ cao cấp, hồ bơi và HLV cá nhân.', 'Số 20 Đường Nguyễn Cơ Thạch, Thủ Thiêm, Quận 2', 23, NULL, NULL, +84281000064, 'contact.gym64@gymfinder.test', 'https://gym64.gymfinder.test', 1500000, 3500000, '05:00 - 23:00', 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80', 0.0, 0, 1, 'active');
+
+-- Spread demo gyms across every listed district; keep the four Quận 2 gyms together.
+UPDATE gyms g JOIN districts d ON d.id = CASE
+  WHEN g.id BETWEEN 61 AND 64 THEN 23
+  ELSE FLOOR((g.id - 1) * 22 / 60) + 1
+END
+SET g.district_id=d.id,
+    g.address=CONCAT('Số ', 10 + g.id * 3, ' Đường ', g.name, ', ', d.name),
+    g.description=CONCAT('Phòng tập ', g.name, ' tại ', d.name, ' có khu tập luyện tiện nghi, nhiều mức giá, đánh giá hội viên và HLV hỗ trợ.');
+
+-- Keep two active price points in every district: one matches <300k and
+-- 300-500k, the other matches 500k-1m and >1m. The extra gyms in six
+-- three-gym districts are hidden, leaving two active recommendations each.
+UPDATE gyms SET status=CASE WHEN id IN (3,6,9,14,47,55) THEN 'hidden' ELSE 'active' END
+WHERE id BETWEEN 1 AND 60;
+UPDATE gyms SET price_min=200000, price_max=450000
+WHERE id IN (1,4,7,10,12,15,18,21,23,26,29,31,34,37,40,42,45,48,51,53,56,59);
+UPDATE gyms SET price_min=700000, price_max=1500000
+WHERE id IN (2,5,8,11,13,16,19,22,24,27,30,32,35,38,41,43,46,49,52,54,57,60);
 
 -- =====================================================================
 -- GYM_IMAGES
@@ -217,6 +278,20 @@ INSERT INTO gym_images (id, gym_id, image_url, caption, sort_order) VALUES
 (58, 58, 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
 (59, 59, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
 (60, 60, 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1);
+
+INSERT INTO gym_images (id, gym_id, image_url, caption, sort_order) VALUES
+(61, 61, 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
+(62, 62, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
+(63, 63, 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
+(64, 64, 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1);
+
+-- Dữ liệu mẫu có phòng tập, mức giá, đánh giá và HLV trên toàn bộ 23 khu vực.
+UPDATE gyms AS g
+JOIN districts AS d ON d.id = FLOOR((g.id - 1) * 22 / 60) + 1
+SET g.district_id = d.id,
+    g.address = CONCAT('Số ', 10 + g.id * 3, ' Đường ', g.name, ', ', d.name),
+    g.description = CONCAT('Phòng tập ', g.name, ' tại ', d.name, ' phục vụ dữ liệu demo GYMFINDER với mức giá, đặc điểm và tiện ích đa dạng.'),
+    g.opening_hours = CASE WHEN MOD(g.id, 6) = 0 THEN '24/7' ELSE g.opening_hours END;
 
 -- =====================================================================
 -- GYM_CATEGORIES
@@ -342,6 +417,9 @@ INSERT INTO gym_categories (gym_id, category_id) VALUES
 (59, 2),
 (59, 3),
 (60, 2);
+
+INSERT INTO gym_categories (gym_id, category_id) VALUES
+(61, 1), (61, 4), (62, 1), (62, 5), (63, 1), (63, 4), (64, 2), (64, 1);
 
 -- =====================================================================
 -- GYM_AMENITIES
@@ -618,6 +696,10 @@ INSERT INTO gym_amenities (gym_id, amenity_id) VALUES
 (60, 6),
 (60, 7);
 
+INSERT INTO gym_amenities (gym_id, amenity_id) VALUES
+(61, 1), (61, 2), (61, 3), (62, 1), (62, 3), (62, 6),
+(63, 1), (63, 4), (63, 6), (64, 1), (64, 2), (64, 4), (64, 6), (64, 7);
+
 -- =====================================================================
 -- TRAINERS
 -- =====================================================================
@@ -652,6 +734,10 @@ INSERT INTO trainers (id, full_name, slug, avatar_url, specialty_id, years_exper
 (28, 'Tạ Anh Khoa', 'ta-anh-khoa-28', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80', 1, 14, 'Huấn luyện viên Tạ Anh Khoa có 14 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000028, 'trainer28@gymfinder.test', 9, 4, 0.0, 0, 0, 'hidden'),
 (29, 'Cao Mỹ Duyên', 'cao-my-duyen-29', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80', 2, 15, 'Huấn luyện viên Cao Mỹ Duyên có 15 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000029, 'trainer29@gymfinder.test', 10, 4, 5.0, 1, 0, 'hidden'),
 (30, 'Bạch Trọng Hiếu', 'bach-trong-hieu-30', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80', 3, 1, 'Huấn luyện viên Bạch Trọng Hiếu có 1 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000030, 'trainer30@gymfinder.test', 11, 4, 0.0, 0, 1, 'active');
+
+UPDATE trainers AS t
+JOIN gyms AS g ON g.id = t.gym_id
+SET t.district_id = g.district_id;
 
 -- =====================================================================
 -- TRAINER_SPECIALTIES
@@ -712,6 +798,13 @@ INSERT INTO trainer_specialties (trainer_id, specialty_id) VALUES
 (30, 3),
 (30, 4);
 
+-- Add a second/third specialty so all 30 trainers demonstrate the N-N relation.
+INSERT INTO trainer_specialties (trainer_id, specialty_id) VALUES
+(1, 3), (2, 4), (3, 1), (4, 2), (5, 3), (6, 4),
+(7, 1), (8, 2), (9, 3), (10, 4), (11, 1), (12, 2),
+(13, 4), (14, 1), (15, 2), (16, 3), (17, 4), (18, 1),
+(19, 2), (20, 3), (21, 4), (22, 1), (23, 2), (24, 3);
+
 -- =====================================================================
 -- GYM_TRAINERS
 -- =====================================================================
@@ -766,6 +859,12 @@ INSERT INTO gym_trainers (gym_id, trainer_id) VALUES
 (54, 21),
 (57, 16),
 (57, 22);
+
+-- Ensure every seeded gym has an active trainer available for suggestions.
+INSERT IGNORE INTO gym_trainers (gym_id, trainer_id)
+SELECT g.id, MOD(g.id - 1, 27) + 1
+FROM gyms g
+WHERE g.id BETWEEN 1 AND 64;
 
 -- =====================================================================
 -- REVIEWS
@@ -981,6 +1080,22 @@ INSERT INTO reviews (id, user_id, target_type, gym_id, trainer_id, rating, comme
 (208, 2, 'trainer', NULL, 30, 4, 'Mới đăng ký học kèm thử, HLV khá nhiệt tình, cần thời gian đánh giá tiếp.', 'pending', NULL, NULL, NULL, '2026-08-17 14:00:00'),
 (209, 3, 'trainer', NULL, 23, 5, 'Giáo án giảm cân hiệu quả cực kỳ, sau 2 tháng mình đã giảm được 4kg mỡ thừa.', 'approved', 1, '2026-09-18 14:00:00', NULL, '2026-09-18 14:00:00'),
 (210, 3, 'trainer', NULL, 24, 5, 'Mới đăng ký học kèm thử, HLV khá nhiệt tình, cần thời gian đánh giá tiếp.', 'pending', NULL, NULL, NULL, '2026-08-19 14:00:00');
+
+-- Ensure every seeded gym has at least one approved review for rating filters.
+INSERT INTO reviews (user_id, target_type, gym_id, trainer_id, rating, comment, status, reviewed_by, reviewed_at, reject_reason, created_at)
+SELECT
+  (SELECT u.id FROM users u
+   WHERE u.role='user'
+     AND NOT EXISTS (SELECT 1 FROM reviews prior WHERE prior.user_id=u.id AND prior.gym_id=g.id)
+   ORDER BY u.id LIMIT 1),
+  'gym', g.id, NULL, CASE WHEN MOD(g.id, 2)=0 THEN 5 ELSE 4 END,
+  'Phòng tập sạch sẽ, tiện ích tốt và có HLV hỗ trợ nhiệt tình.',
+  'approved', 1, '2026-09-25 10:00:00', NULL, '2026-09-25 10:00:00'
+FROM gyms g
+WHERE g.id BETWEEN 1 AND 64
+  AND NOT EXISTS (SELECT 1 FROM reviews r WHERE r.gym_id=g.id AND r.status='approved')
+  AND EXISTS (SELECT 1 FROM users u WHERE u.role='user'
+    AND NOT EXISTS (SELECT 1 FROM reviews prior WHERE prior.user_id=u.id AND prior.gym_id=g.id));
 
 -- =====================================================================
 -- FAVORITES

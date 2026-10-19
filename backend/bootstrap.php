@@ -18,10 +18,12 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 
 $config = require __DIR__ . '/config.php';
+$GLOBALS['GF_CONFIG'] = $config;
 
 // Core
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/mailer.php';
 require_once __DIR__ . '/auth.php';
 require_once dirname(__DIR__) . '/includes/pagination.php';
 

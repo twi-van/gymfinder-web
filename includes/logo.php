@@ -23,7 +23,8 @@ $titleAttr = !empty($logoTitle) ? ' title="' . gf_h($logoTitle) . '"' : '';
 if (isset($logoHref) && $logoHref !== null) {
     $targetHref = (string)$logoHref;
 } else {
-    $targetHref = ($variant === 'admin') ? gf_url('admin/pages/dashboard.php') : gf_url('index.php');
+    // The brand logo always returns to the public homepage, including in Admin.
+    $targetHref = gf_url('index.php');
 }
 
 // Map modifier classes (supporting both logo--* and brand-logo--* BEM patterns)

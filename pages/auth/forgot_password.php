@@ -3,6 +3,12 @@ require_once dirname(__DIR__, 2) . '/backend/bootstrap.php';
 
 $error = '';
 $loginValue = '';
+$flowNotice = '';
+
+if (isset($_SESSION['pw_reset_notice'])) {
+    $flowNotice = (string) $_SESSION['pw_reset_notice'];
+    unset($_SESSION['pw_reset_notice']);
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     gf_require_csrf();
@@ -29,7 +35,7 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                     </div>
                     <div class="auth-badge"><i class="fa-solid fa-circle" style="font-size:6px"></i> KHÁM PHÁ • KẾT NỐI • TẬP LUYỆN</div>
                     <h1 class="auth-heading">Lấy lại <span class="text-primary">quyền truy cập</span><br>tài khoản của bạn</h1>
-                    <p class="auth-desc">Nhập email đã đăng ký để nhận mã OTP 6 số và đặt lại mật khẩu. Bước gửi email thật sẽ được kích hoạt khi cấu hình máy chủ thư.</p>
+                    <p class="auth-desc">Nhập email đã đăng ký để nhận mã OTP 6 số và đặt lại mật khẩu.</p>
                     <div class="auth-features">
                         <div class="auth-feature">
                             <div class="auth-feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
@@ -66,6 +72,7 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                     </div>
                     <h2 class="auth-card-title">Quên mật khẩu</h2>
                     <p class="auth-card-subtitle">Nhập email đã dùng khi đăng ký. Hệ thống gửi mã OTP qua email (không hỗ trợ OTP SMS).</p>
+                    <?php if ($flowNotice): ?><div class="alert alert-warning"><?= gf_h($flowNotice) ?></div><?php endif; ?>
                     <?php if ($error): ?><div class="alert alert-danger"><?= gf_h($error) ?></div><?php endif; ?>
                     <form method="post" id="forgotPasswordForm">
                         <?= gf_csrf_field() ?>

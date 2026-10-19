@@ -50,8 +50,7 @@ function gf_api_user(): ?array
 {
     $u = gf_current_user();
     if ($u && ($u['status'] ?? '') === 'locked') {
-        unset($_SESSION['user_id']);
-        session_regenerate_id(true);
+        gf_logout();
         gf_api_error('ACCOUNT_LOCKED', 'Tài khoản đã bị khóa.', 403);
     }
     return $u;
@@ -87,12 +86,13 @@ if ($path === '/auth/csrf' && $method === 'GET') {
 }
 
 if ($path === '/auth/register' && $method === 'POST') {
-    gf_require_known_body($body, ['full_name', 'email', 'email_or_phone', 'identifier', 'phone', 'password', 'goal'], ['id', 'role', 'status', 'avatar_url', 'created_at', 'updated_at']);
+    gf_require_known_body($body, ['full_name', 'email', 'email_or_phone', 'phone', 'password', 'goal'], ['id', 'role', 'status', 'avatar_url', 'created_at', 'updated_at']);
     $res = gf_register(
         (string) ($body['full_name'] ?? ''),
-        (string) ($body['email_or_phone'] ?? $body['identifier'] ?? $body['email'] ?? ''),
+        (string) ($body['email_or_phone'] ?? $body['email'] ?? $body['phone'] ?? ''),
         (string) ($body['password'] ?? ''),
-        isset($body['phone']) ? (string) $body['phone'] : null
+        isset($body['phone']) ? (string) $body['phone'] : null,
+        isset($body['goal']) ? (string) $body['goal'] : null
     );
     if (!$res['ok']) {
         $code = $res['code'] ?? 'VALIDATION_ERROR';
@@ -113,8 +113,8 @@ if ($path === '/auth/register' && $method === 'POST') {
 }
 
 if ($path === '/auth/login' && $method === 'POST') {
-    gf_require_known_body($body, ['email', 'email_or_phone', 'identifier', 'phone', 'password', 'login']);
-    $identifier = trim((string) ($body['email_or_phone'] ?? $body['identifier'] ?? $body['login'] ?? $body['phone'] ?? $body['email'] ?? ''));
+    gf_require_known_body($body, ['email', 'email_or_phone', 'phone', 'password']);
+    $identifier = trim((string) ($body['email_or_phone'] ?? $body['email'] ?? $body['phone'] ?? ''));
     $pass = (string) ($body['password'] ?? '');
     if ($identifier === '' || $pass === '') {
         gf_api_error('VALIDATION_ERROR', 'Email hoặc số điện thoại và mật khẩu là bắt buộc.', 422, [

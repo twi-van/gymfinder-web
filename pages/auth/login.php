@@ -8,9 +8,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $remember = !empty($_POST['remember']);
     $res = gf_login(trim((string)($_POST['login'] ?? '')), (string)($_POST['password'] ?? ''), $remember);
     if ($res['ok']) {
-        $to = $_GET['redirect'] ?? $_POST['redirect'] ?? '';
-        if (!$to) {
-            $to = (($res['user']['role'] ?? '') === 'admin') ? gf_url('admin/pages/dashboard.php') : gf_url('index.php');
+        if (($res['user']['role'] ?? '') === 'admin') {
+            // Admins enter the public homepage first, then use its admin menu to open the portal.
+            $to = gf_url('index.php');
+        } else {
+            $to = trim((string)($_GET['redirect'] ?? $_POST['redirect'] ?? ''));
+            // Only allow same-site redirects; a crafted redirect must not send users off-site.
+            if ($to !== '' && (str_starts_with($to, '//') || str_contains($to, '\\') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $to))) {
+                $to = '';
+            }
+            if (!$to) {
+                $to = gf_url('index.php');
+            }
         }
         gf_redirect($to);
     }
@@ -50,7 +59,7 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                         <input type="hidden" name="redirect" value="<?= gf_h($_GET['redirect'] ?? '') ?>">
                         <div class="mb-4">
                             <label class="form-label" for="username">Email / Số điện thoại</label>
-                            <div class="auth-input-group"><i class="fa-regular fa-user auth-input-icon"></i><input id="username" class="form-control" name="login" required autocomplete="username" placeholder="Nhập email hoặc số điện thoại" value="<?= gf_h($_POST['login'] ?? '') ?>"></div>
+                            <div class="auth-input-group"><i class="fa-regular fa-user auth-input-icon"></i><input id="username" class="form-control" type="text" name="login" required autocomplete="username" placeholder="Nhập email hoặc số điện thoại" value="<?= gf_h($_POST['login'] ?? '') ?>"></div>
                         </div>
                         <div class="mb-4">
                             <label class="form-label" for="password">Mật khẩu</label>

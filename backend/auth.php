@@ -21,7 +21,7 @@ function gf_require_login(?string $redirect = null): array
         gf_redirect(gf_url('pages/auth/login.php?redirect=' . urlencode($next)));
     }
     if (($user['status'] ?? '') === 'locked') {
-        unset($_SESSION['user_id']);
+        gf_logout();
         gf_redirect(gf_url('pages/auth/login.php?error=locked'));
     }
     return $user;
@@ -29,7 +29,7 @@ function gf_require_login(?string $redirect = null): array
 
 function gf_require_admin(): array
 {
-    $user = gf_require_login(gf_url('pages/auth/login.php'));
+    $user = gf_require_login(gf_url('admin/pages/dashboard.php'));
     if (($user['role'] ?? '') !== 'admin') {
         http_response_code(403);
         echo 'Bạn không có quyền truy cập khu vực quản trị.';
@@ -41,14 +41,14 @@ function gf_require_admin(): array
 function gf_login(string $login, string $password, bool $remember = false): array
 {
     $raw = trim($login);
-    if ($raw === '') {
-        return ['ok' => false, 'error' => 'Email hoặc mật khẩu không đúng.', 'code' => 'INVALID_CREDENTIALS'];
-    }
-    if (str_contains($raw, '@')) {
+    if (filter_var($raw, FILTER_VALIDATE_EMAIL)) {
         $st = gf_pdo()->prepare('SELECT * FROM users WHERE email = ? LIMIT 1');
         $st->execute([strtolower($raw)]);
     } else {
-        $phone = preg_replace('/\s+/', '', $raw) ?? $raw;
+        $phone = preg_replace('/[\s().-]+/', '', $raw);
+        if ($raw === '' || !is_string($phone) || !preg_match('/^\+?[0-9]{9,14}$/D', $phone)) {
+            return ['ok' => false, 'error' => 'Email/số điện thoại hoặc mật khẩu không đúng.', 'code' => 'INVALID_CREDENTIALS'];
+        }
         $st = gf_pdo()->prepare('SELECT * FROM users WHERE phone = ? LIMIT 1');
         $st->execute([$phone]);
     }
@@ -89,7 +89,8 @@ function gf_apply_remember_cookie(bool $remember): void
 
 function gf_logout(): void
 {
-    unset($_SESSION['user_id']);
+    // End the whole authenticated session, including CSRF and password-reset state.
+    $_SESSION = [];
     if (!headers_sent()) {
         $params = session_get_cookie_params();
         setcookie(session_name(), '', [
@@ -99,7 +100,9 @@ function gf_logout(): void
             'httponly' => true,
             'samesite' => 'Lax',
         ]);
-        session_regenerate_id(true);
+    }
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_destroy();
     }
 }
 
@@ -180,7 +183,7 @@ function gf_change_password(int $userId, string $current, string $new): array
 /**
  * Quên mật khẩu bằng OTP email (6 số).
  * OTP lưu bảng password_reset_otps; session chỉ giữ id yêu cầu + trạng thái UI.
- * Gửi SMTP chưa bắt buộc — demo_otp hiển thị tạm trên UI khi chưa cấu hình thư.
+ * SMTP được cấu hình ngoài mã nguồn; demo_otp chỉ bật khi được cho phép rõ ràng.
  */
 function gf_password_reset_clear(): void
 {
@@ -211,10 +214,10 @@ function gf_find_user_by_login(string $login): ?array
     return $user ?: null;
 }
 
-function gf_password_reset_mask_login(string $login, ?array $user): string
+function gf_password_reset_mask_login(string $login): string
 {
-    if ($user && !empty($user['email']) && str_contains((string) $user['email'], '@')) {
-        $email = (string) $user['email'];
+    if (str_contains($login, '@')) {
+        $email = $login;
         $parts = explode('@', $email, 2);
         $name = $parts[0];
         $domain = $parts[1] ?? '';
@@ -232,10 +235,21 @@ function gf_password_reset_begin(string $login): array
         return ['ok' => false, 'error' => 'Vui lòng nhập email đã đăng ký để nhận mã OTP.'];
     }
 
+    $smtp = $GLOBALS['GF_CONFIG']['smtp'] ?? [];
+    $smtpConfigured = gf_smtp_is_configured();
+    $smtpPartiallyConfigured = !empty($smtp['host']) || !empty($smtp['username']) || !empty($smtp['password']) || !empty($smtp['from_email']);
+    $demoAllowed = !empty($smtp['demo_otp']);
+    if (!$smtpConfigured && !$demoAllowed && !$smtpPartiallyConfigured) {
+        return ['ok' => false, 'error' => 'Chưa cấu hình SMTP để gửi OTP. Hãy cấu hình backend/smtp.local.php rồi thử lại.'];
+    }
+    if (!$smtpConfigured && $smtpPartiallyConfigured) {
+        return ['ok' => false, 'error' => 'Cấu hình SMTP chưa đầy đủ. Vui lòng kiểm tra backend/smtp.local.php.'];
+    }
+
     $st = gf_pdo()->prepare('SELECT * FROM users WHERE email = ? LIMIT 1');
     $st->execute([$login]);
     $user = $st->fetch() ?: null;
-    $mask = gf_password_reset_mask_login($login, $user);
+    $mask = gf_password_reset_mask_login($login);
     $expiresTs = time() + 600;
     $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     $resetId = null;
@@ -243,12 +257,6 @@ function gf_password_reset_begin(string $login): array
 
     if ($user) {
         $userId = (int) $user['id'];
-        // Vô hiệu hóa OTP cũ chưa dùng của user
-        gf_pdo()->prepare(
-            'UPDATE password_reset_otps SET consumed_at = CURRENT_TIMESTAMP
-             WHERE user_id = ? AND consumed_at IS NULL'
-        )->execute([$userId]);
-
         $driver = gf_pdo()->getAttribute(PDO::ATTR_DRIVER_NAME);
         $expiresAt = $driver === 'sqlite'
             ? gmdate('Y-m-d H:i:s', $expiresTs)
@@ -259,7 +267,25 @@ function gf_password_reset_begin(string $login): array
              VALUES (?,?,0,?)'
         )->execute([$userId, password_hash($otp, PASSWORD_DEFAULT), $expiresAt]);
         $resetId = (int) gf_pdo()->lastInsertId();
-        $demoOtp = $otp; // UI demo cho đến khi gửi email SMTP
+        if ($smtpConfigured) {
+            try {
+                gf_send_password_reset_otp_email($login, $otp);
+            } catch (Throwable $e) {
+                gf_pdo()->prepare('UPDATE password_reset_otps SET consumed_at = CURRENT_TIMESTAMP WHERE id = ?')
+                    ->execute([$resetId]);
+                gf_password_reset_clear();
+                error_log('GYMFINDER OTP email failed: ' . $e->getMessage());
+                return ['ok' => false, 'error' => 'Không gửi được email OTP lúc này. Vui lòng kiểm tra cấu hình SMTP và thử lại.'];
+            }
+        } else {
+            $demoOtp = $otp;
+        }
+
+        // Invalidate older codes only after the new code has been delivered (or created for demo).
+        gf_pdo()->prepare(
+            'UPDATE password_reset_otps SET consumed_at = CURRENT_TIMESTAMP
+             WHERE user_id = ? AND id <> ? AND consumed_at IS NULL'
+        )->execute([$userId, $resetId]);
     }
 
     $_SESSION['pw_reset'] = [
@@ -268,6 +294,7 @@ function gf_password_reset_begin(string $login): array
         'mask'          => $mask,
         'user_id'       => $user ? (int) $user['id'] : null,
         'demo_otp'      => $demoOtp,
+        'delivery'      => $smtpConfigured ? 'email' : 'demo',
         'expires'       => $expiresTs,
         'verified'      => false,
     ];
@@ -306,8 +333,15 @@ function gf_password_reset_verify_otp(string $otp): array
         return ['ok' => false, 'error' => 'Yêu cầu OTP không còn hiệu lực. Vui lòng gửi lại.', 'code' => 'EXPIRED'];
     }
 
-    $expiresAt = strtotime((string) $row['expires_at']);
-    if ($expiresAt !== false && $expiresAt < time()) {
+    // SQLite CURRENT_TIMESTAMP and the OTP expiry value are stored in UTC.
+    // Parse SQLite timestamps explicitly as UTC; strtotime() otherwise assumes
+    // PHP's local timezone and can make a fresh code appear expired immediately.
+    $expiresAtValue = (string) $row['expires_at'];
+    if (gf_pdo()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
+        $expiresAtValue .= ' UTC';
+    }
+    $expiresAt = strtotime($expiresAtValue);
+    if ($expiresAt === false || $expiresAt < time()) {
         gf_password_reset_clear();
         return ['ok' => false, 'error' => 'Mã OTP đã hết hạn. Vui lòng gửi lại yêu cầu.', 'code' => 'EXPIRED'];
     }
@@ -360,21 +394,31 @@ function gf_password_reset_complete(string $password, string $confirm): array
 
     $resetId = (int) $state['reset_id'];
     $userId = (int) $state['user_id'];
-    $st = gf_pdo()->prepare(
-        'SELECT id FROM password_reset_otps
-         WHERE id = ? AND user_id = ? AND verified_at IS NOT NULL AND consumed_at IS NULL
-         LIMIT 1'
-    );
-    $st->execute([$resetId, $userId]);
-    if (!$st->fetch()) {
-        gf_password_reset_clear();
-        return ['ok' => false, 'error' => 'Yêu cầu OTP không còn hiệu lực. Vui lòng bắt đầu lại.', 'code' => 'INVALID'];
-    }
+    $pdo = gf_pdo();
+    $pdo->beginTransaction();
+    try {
+        // Consume the verified OTP conditionally in the same transaction as the password update.
+        // This prevents two concurrent requests from reusing the same reset code.
+        $consume = $pdo->prepare(
+            'UPDATE password_reset_otps SET consumed_at = CURRENT_TIMESTAMP
+             WHERE id = ? AND user_id = ? AND verified_at IS NOT NULL AND consumed_at IS NULL'
+        );
+        $consume->execute([$resetId, $userId]);
+        if ($consume->rowCount() !== 1) {
+            $pdo->rollBack();
+            gf_password_reset_clear();
+            return ['ok' => false, 'error' => 'Yêu cầu OTP không còn hiệu lực. Vui lòng bắt đầu lại.', 'code' => 'INVALID'];
+        }
 
-    gf_pdo()->prepare('UPDATE users SET password_hash = ? WHERE id = ?')
-        ->execute([password_hash($password, PASSWORD_BCRYPT), $userId]);
-    gf_pdo()->prepare('UPDATE password_reset_otps SET consumed_at = CURRENT_TIMESTAMP WHERE id = ?')
-        ->execute([$resetId]);
+        $pdo->prepare('UPDATE users SET password_hash = ? WHERE id = ?')
+            ->execute([password_hash($password, PASSWORD_BCRYPT), $userId]);
+        $pdo->commit();
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $e;
+    }
     gf_password_reset_clear();
     return ['ok' => true];
 }

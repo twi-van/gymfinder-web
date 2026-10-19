@@ -35,11 +35,81 @@ function gf_db_init(array $config): void
             require_once __DIR__ . '/sqlite_install.php';
             gf_sqlite_install($pdo);
         }
+        gf_db_ensure_trainer_link_restrict($pdo);
     }
     gf_db_ensure_password_reset_otps($pdo);
     gf_db_ensure_category_labels_vi($pdo);
     gf_db_ensure_premium_exclusive($pdo);
     $GLOBALS['GF_PDO'] = $pdo;
+}
+
+/** Keep existing SQLite installs aligned with the non-cascading N-N link policy. */
+function gf_db_ensure_trainer_link_restrict(PDO $pdo): void
+{
+    $tables = ['trainer_specialties', 'gym_trainers'];
+    $findCascadeTables = static function () use ($pdo, $tables): array {
+        $rebuild = [];
+        foreach ($tables as $table) {
+            $exists = $pdo->prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?");
+            $exists->execute([$table]);
+            $tableExists = (bool) $exists->fetchColumn();
+            $exists->closeCursor();
+            if (!$tableExists) {
+                continue;
+            }
+            foreach ($pdo->query('PRAGMA foreign_key_list(' . $table . ')')->fetchAll() as $foreignKey) {
+                if (strtoupper((string) $foreignKey['on_delete']) === 'CASCADE') {
+                    $rebuild[$table] = true;
+                    break;
+                }
+            }
+        }
+        return $rebuild;
+    };
+    $rebuild = $findCascadeTables();
+    if (!$rebuild) {
+        return;
+    }
+
+    // SQLite cannot alter an existing FK action, so rebuild only the affected join tables.
+    $pdo->exec('PRAGMA busy_timeout = 5000');
+    $pdo->exec('PRAGMA foreign_keys = OFF');
+    $transactionStarted = false;
+    try {
+        // Serialize simultaneous first requests so only one connection rebuilds the tables.
+        $pdo->exec('BEGIN IMMEDIATE');
+        $transactionStarted = true;
+        // Another request may have completed the migration while this one waited for the lock.
+        $rebuild = $findCascadeTables();
+        if (!$rebuild) {
+            $pdo->exec('COMMIT');
+            $transactionStarted = false;
+            return;
+        }
+        if (isset($rebuild['trainer_specialties'])) {
+            $pdo->exec('CREATE TABLE trainer_specialties_restrict (trainer_id INTEGER NOT NULL, specialty_id INTEGER NOT NULL, PRIMARY KEY (trainer_id, specialty_id), FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE RESTRICT, FOREIGN KEY (specialty_id) REFERENCES specialties(id) ON DELETE RESTRICT)');
+            $pdo->exec('INSERT INTO trainer_specialties_restrict (trainer_id, specialty_id) SELECT trainer_id, specialty_id FROM trainer_specialties');
+            $pdo->exec('DROP TABLE trainer_specialties');
+            $pdo->exec('ALTER TABLE trainer_specialties_restrict RENAME TO trainer_specialties');
+        }
+        if (isset($rebuild['gym_trainers'])) {
+            $pdo->exec('CREATE TABLE gym_trainers_restrict (gym_id INTEGER NOT NULL, trainer_id INTEGER NOT NULL, PRIMARY KEY (gym_id, trainer_id), FOREIGN KEY (gym_id) REFERENCES gyms(id) ON DELETE RESTRICT, FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE RESTRICT)');
+            $pdo->exec('INSERT INTO gym_trainers_restrict (gym_id, trainer_id) SELECT gym_id, trainer_id FROM gym_trainers');
+            $pdo->exec('DROP TABLE gym_trainers');
+            $pdo->exec('ALTER TABLE gym_trainers_restrict RENAME TO gym_trainers');
+        }
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_ts_specialty ON trainer_specialties(specialty_id)');
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_gt_trainer ON gym_trainers(trainer_id)');
+        $pdo->exec('COMMIT');
+        $transactionStarted = false;
+    } catch (Throwable $e) {
+        if ($transactionStarted) {
+            $pdo->exec('ROLLBACK');
+        }
+        throw $e;
+    } finally {
+        $pdo->exec('PRAGMA foreign_keys = ON');
+    }
 }
 
 /** Bổ sung bảng OTP quên mật khẩu cho CSDL đã tạo trước đó. */

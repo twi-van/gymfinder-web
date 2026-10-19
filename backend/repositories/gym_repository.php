@@ -205,9 +205,35 @@ function gf_get_gym(int $id, bool $publicOnly = true): ?array
  */
 function gf_gym_active_trainers(int $gymId): array
 {
-    $st = gf_pdo()->prepare("SELECT t.* FROM trainers t WHERE t.gym_id=? AND t.status='active' ORDER BY t.is_featured DESC, t.id DESC");
-    $st->execute([$gymId]);
-    return array_map('gf_trainer_list_item', $st->fetchAll());
+    $st = gf_pdo()->prepare("SELECT DISTINCT t.* FROM trainers t
+        LEFT JOIN gym_trainers gt ON gt.trainer_id=t.id
+        WHERE t.status='active' AND (
+            gt.gym_id=? OR (t.gym_id=? AND NOT EXISTS (SELECT 1 FROM gym_trainers legacy_gt WHERE legacy_gt.trainer_id=t.id))
+        ) ORDER BY t.is_featured DESC, t.id DESC");
+    $st->execute([$gymId, $gymId]);
+    $trainers = $st->fetchAll();
+    $specialtySt = gf_pdo()->prepare("SELECT s.id, s.name, s.slug FROM specialties s JOIN trainer_specialties ts ON ts.specialty_id=s.id WHERE ts.trainer_id=? ORDER BY s.name");
+    $gymSt = gf_pdo()->prepare("SELECT g.id, g.name, g.slug, g.district_id FROM gyms g JOIN gym_trainers gt ON gt.gym_id=g.id WHERE gt.trainer_id=? AND g.status='active' ORDER BY g.name");
+    foreach ($trainers as &$trainer) {
+        $specialtySt->execute([(int)$trainer['id']]);
+        $specialties = $specialtySt->fetchAll();
+        if ($specialties === [] && !empty($trainer['specialty_id'])) {
+            $legacySpecialty = gf_pdo()->prepare('SELECT id, name, slug FROM specialties WHERE id=?');
+            $legacySpecialty->execute([(int)$trainer['specialty_id']]);
+            $specialties = $legacySpecialty->fetchAll();
+        }
+        $trainer['specialties'] = $specialties;
+        $gymSt->execute([(int)$trainer['id']]);
+        $linkedGyms = $gymSt->fetchAll();
+        if ($linkedGyms === [] && !empty($trainer['gym_id'])) {
+            $legacyGym = gf_pdo()->prepare("SELECT id, name, slug, district_id FROM gyms WHERE id=? AND status='active'");
+            $legacyGym->execute([(int)$trainer['gym_id']]);
+            $linkedGyms = $legacyGym->fetchAll();
+        }
+        $trainer['gyms'] = $linkedGyms;
+    }
+    unset($trainer);
+    return array_map('gf_trainer_list_item', $trainers);
 }
 
 /**

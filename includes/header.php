@@ -20,15 +20,15 @@ $isAdmin = ($user && ($user['role'] ?? '') === 'admin');
                 <li class="nav-item"><a class="nav-link <?= $trainerActive ? 'active' : '' ?>" href="<?= gf_h(gf_url('pages/trainers/index.php')) ?>">Huấn luyện viên</a></li>
                 <li class="nav-item"><a class="nav-link <?= $favoriteActive ? 'active' : '' ?>" href="<?= gf_h(gf_url('pages/user/favorites.php')) ?>">Yêu thích</a></li>
             </ul>
-            <div class="d-flex flex-wrap align-items-center gap-2 mt-3 mt-lg-0">
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-3 mt-lg-0 navbar-user-actions">
                 <?php if ($user): ?>
                     <?php if ($isAdmin): ?>
-                        <a href="<?= gf_h(gf_url('admin/pages/dashboard.php')) ?>" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold me-lg-2" style="font-size: 13px;">
+                        <a href="<?= gf_h(gf_url('admin/pages/dashboard.php')) ?>" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold navbar-admin-shortcut" style="font-size: 13px;">
                             <i class="fa-solid fa-gauge-high"></i>
                             <span>Khu vực quản trị</span>
                         </a>
                     <?php endif; ?>
-                    <div class="dropdown w-100 w-lg-auto">
+                    <div class="dropdown w-100 w-lg-auto navbar-user-dropdown">
                         <a href="#" class="d-flex align-items-center gap-2 text-decoration-none text-dark dropdown-toggle min-w-0" data-bs-toggle="dropdown">
                             <img src="<?= gf_h(gf_avatar($user['avatar_url'] ?? null, !empty($user['avatar_url']) ? (int) $user['id'] : 0, $user['full_name'])) ?>" alt="" width="36" height="36" class="rounded-circle shadow-sm" style="width:36px;height:36px;object-fit:cover;object-position:center;aspect-ratio:1/1;flex:0 0 36px">
                             <span class="fw-semibold text-truncate" style="font-size: 14px; max-width: 160px;"><?= gf_h($user['full_name']) ?></span>

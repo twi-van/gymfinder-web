@@ -18,9 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $err = 'Vui lòng chọn ít nhất một chuyên môn.';
         }
         $data['gym_ids'] = $gymIds;
-        $data['gym_id'] = $primaryGymId; // tương thích backend hiện tại (1 gym) cho đến khi hỗ trợ N–N
+        $data['gym_id'] = $primaryGymId; // Gym chính tương thích cột trainers.gym_id
         $data['specialty_ids'] = $specIds;
-        $data['specialty_id'] = $primarySpecId; // tương thích backend hiện tại (1 chuyên môn)
+        $data['specialty_id'] = $primarySpecId; // chuyên môn chính tương thích cột trainers.specialty_id
         $data['years_experience'] = (int)($data['years_experience'] ?? 0);
         if (!empty($_POST['remove_avatar'])) {
             $data['avatar_url'] = null;
@@ -32,7 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$up['ok']) { $err = $up['error']; }
             else { $data['avatar_url'] = $up['url']; }
         }
-        unset($data['gym_ids'], $data['specialty_ids'], $data['remove_avatar'], $data['avatar_file']);
+        // Keep both N-N arrays so the resource can sync gym_trainers and trainer_specialties.
+        unset($data['remove_avatar'], $data['avatar_file']);
         if (!$err) {
             $res = gf_admin_save_trainer($data, $id);
             if (!empty($res['ok'])) { gf_redirect(gf_url('admin/pages/trainers.php?updated=1')); }
@@ -45,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         gf_redirect(gf_url('admin/pages/trainers.php?' . $flag));
     } elseif (isset($_POST['full_name'])) {
         $data = $_POST;
-        unset($data['_csrf']);
+        unset($data['_csrf'], $data['id']);
         [$gymIds, $primaryGymId] = gf_ui_normalize_gym_ids_post($_POST);
         [$specIds, $primarySpecId] = gf_ui_normalize_specialty_ids_post($_POST);
         if ($gymIds === []) {
@@ -54,9 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $err = 'Vui lòng chọn ít nhất một chuyên môn.';
         }
         $data['gym_ids'] = $gymIds;
-        $data['gym_id'] = $primaryGymId; // tương thích backend hiện tại
+        $data['gym_id'] = $primaryGymId; // Gym chính tương thích cột trainers.gym_id
         $data['specialty_ids'] = $specIds;
-        $data['specialty_id'] = $primarySpecId; // tương thích backend hiện tại
+        $data['specialty_id'] = $primarySpecId; // chuyên môn chính tương thích cột trainers.specialty_id
         $data['years_experience'] = (int)($data['years_experience'] ?? 0);
         if (!empty($_POST['remove_avatar'])) {
             $data['avatar_url'] = null;
@@ -68,7 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$up['ok']) { $err = $up['error']; }
             else { $data['avatar_url'] = $up['url']; }
         }
-        unset($data['gym_ids'], $data['specialty_ids'], $data['remove_avatar'], $data['avatar_file']);
+        // Keep both N-N arrays so the resource can sync gym_trainers and trainer_specialties.
+        unset($data['remove_avatar'], $data['avatar_file']);
         if (!$err) {
             $res = gf_admin_save_trainer($data, null);
             if (!empty($res['ok'])) {
@@ -151,7 +153,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                     </label>
                 <?php endforeach; ?>
             </div>
-            <div class="form-text">Có thể chọn nhiều chuyên môn. Hiện tại hệ thống tạm lưu chuyên môn đầu tiên cho đến khi cập nhật đầy đủ phía máy chủ.</div>
+            <div class="form-text">Có thể chọn nhiều chuyên môn; tất cả lựa chọn được lưu trên hồ sơ này.</div>
         </div>
         <div class="col-12"><label class="form-label">Phòng tập liên kết * <span class="text-secondary fw-normal">(chọn một hoặc nhiều; tối thiểu 1)</span></label>
             <div id="trainerGymList" class="border rounded-3 p-3 bg-light" style="max-height:220px;overflow:auto;">
@@ -162,7 +164,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                     </label>
                 <?php endforeach; ?>
             </div>
-            <div class="form-text">Một huấn luyện viên có thể làm việc tại nhiều phòng tập trên cùng một hồ sơ. Không tạo hồ sơ trùng chỉ để gắn thêm phòng tập. Hiện tại hệ thống tạm lưu phòng tập đầu tiên cho đến khi cập nhật đầy đủ phía máy chủ.</div>
+            <div class="form-text">Một huấn luyện viên có thể liên kết với nhiều phòng tập trên cùng một hồ sơ.</div>
         </div>
         <div class="col-md-6"><label class="form-label">Số điện thoại</label><input class="form-control admin-input" name="phone" id="trainerPhone"></div>
         <div class="col-md-6"><label class="form-label">Trạng thái</label><select class="form-select admin-input" name="status" id="trainerStatus"><option value="active">Hoạt động</option><option value="hidden">Tạm ẩn</option></select></div>
@@ -170,7 +172,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
     </div>
     <div class="d-flex justify-content-end gap-2 mt-4"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button><button type="submit" class="btn btn-primary" id="trainerSubmit">Lưu thông tin</button></div>
 </form></div></div></div></div>
-<form method="get" class="admin-card p-3 mb-4"><div class="row g-3"><div class="col-md-5"><input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q']??'') ?>" placeholder="⌕  Tìm kiếm huấn luyện viên..."></div><div class="col-md-3"><select class="form-select admin-input" name="specialty_id"><option value="">Tất cả chuyên môn</option><?php foreach($specs as $s): ?><option value="<?= (int)$s['id'] ?>" <?= (string)($_GET['specialty_id']??'')===(string)$s['id']?'selected':'' ?>><?= gf_h($s['name']) ?></option><?php endforeach; ?></select></div><div class="col-md-2"><select class="form-select admin-input" name="status"><option value="">Trạng thái</option><option value="active">Hoạt động</option><option value="hidden">Tạm ẩn</option></select></div><div class="col-md-2"><button class="btn btn-light border w-100">Lọc</button></div></div></form>
+<form method="get" class="admin-card p-3 mb-4"><div class="row g-3"><div class="col-md-5"><input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q']??'') ?>" placeholder="⌕  Tìm kiếm huấn luyện viên..."></div><div class="col-md-3"><select class="form-select admin-input" name="specialty_id"><option value="">Tất cả chuyên môn</option><?php foreach($specs as $s): ?><option value="<?= (int)$s['id'] ?>" <?= (string)($_GET['specialty_id']??'')===(string)$s['id']?'selected':'' ?>><?= gf_h($s['name']) ?></option><?php endforeach; ?></select></div><div class="col-md-2"><select class="form-select admin-input" name="status"><option value="" <?= empty($_GET['status'])?'selected':'' ?>>Trạng thái</option><option value="active" <?= ($_GET['status']??'')==='active'?'selected':'' ?>>Hoạt động</option><option value="hidden" <?= ($_GET['status']??'')==='hidden'?'selected':'' ?>>Tạm ẩn</option></select></div><div class="col-md-2"><button class="btn btn-light border w-100">Lọc</button></div></div></form>
 <?php
 $trainerPaginationHtml = gf_render_admin_pagination(
     $trainerPage,

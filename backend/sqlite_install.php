@@ -130,16 +130,18 @@ CREATE TABLE IF NOT EXISTS trainer_specialties (
   trainer_id INTEGER NOT NULL,
   specialty_id INTEGER NOT NULL,
   PRIMARY KEY (trainer_id, specialty_id),
-  FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE CASCADE,
-  FOREIGN KEY (specialty_id) REFERENCES specialties(id) ON DELETE CASCADE
+  FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE RESTRICT,
+  FOREIGN KEY (specialty_id) REFERENCES specialties(id) ON DELETE RESTRICT
 );
 CREATE TABLE IF NOT EXISTS gym_trainers (
   gym_id INTEGER NOT NULL,
   trainer_id INTEGER NOT NULL,
   PRIMARY KEY (gym_id, trainer_id),
-  FOREIGN KEY (gym_id) REFERENCES gyms(id) ON DELETE CASCADE,
-  FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE CASCADE
+  FOREIGN KEY (gym_id) REFERENCES gyms(id) ON DELETE RESTRICT,
+  FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE RESTRICT
 );
+CREATE INDEX IF NOT EXISTS idx_ts_specialty ON trainer_specialties(specialty_id);
+CREATE INDEX IF NOT EXISTS idx_gt_trainer ON gym_trainers(trainer_id);
 CREATE TABLE IF NOT EXISTS reviews (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
@@ -193,9 +195,23 @@ SQL);
     $hashAdmin = password_hash('Admin@123456', PASSWORD_BCRYPT);
     $hashUser = password_hash('User@123456', PASSWORD_BCRYPT);
 
+    // Seed account registration dates are staggered so the admin list reflects
+    // a plausible account history instead of assigning every demo user install time.
+    $userCreatedAt = [
+        1 => '2023-10-01 09:00:00', 2 => '2024-01-15 10:20:00', 3 => '2024-02-20 14:10:00',
+        4 => '2024-04-05 08:45:00', 5 => '2024-05-18 16:30:00', 6 => '2024-07-02 11:15:00',
+        7 => '2024-08-12 13:40:00', 8 => '2024-10-09 09:25:00', 9 => '2024-11-21 17:05:00',
+        10 => '2025-01-06 10:00:00', 11 => '2025-02-15 15:20:00', 12 => '2025-03-27 08:35:00',
+        13 => '2025-05-10 12:10:00', 14 => '2025-06-18 16:45:00', 15 => '2025-07-30 09:50:00',
+        16 => '2025-09-11 14:25:00', 17 => '2025-10-22 11:05:00', 18 => '2025-12-03 17:30:00',
+        19 => '2026-01-14 08:20:00', 20 => '2026-02-25 13:15:00', 21 => '2026-03-17 10:40:00',
+        22 => '2026-04-29 15:55:00', 23 => '2026-05-30 09:10:00', 24 => '2026-06-19 16:05:00',
+        25 => '2026-07-21 11:30:00',
+    ];
+
     // 1. Users (Admin u01, Active Users u02-u24, Locked User u25)
-    $pdo->prepare('INSERT INTO users (id, full_name, email, phone, password_hash, role, status, goal) VALUES (?,?,?,?,?,?,?,?)')->execute(
-        [1, 'Admin GymFinder', 'u01@gymfinder.test', '0900000001', $hash, 'admin', 'active', null]
+    $pdo->prepare('INSERT INTO users (id, full_name, email, phone, password_hash, role, status, goal, created_at) VALUES (?,?,?,?,?,?,?,?,?)')->execute(
+        [1, 'Admin GymFinder', 'u01@gymfinder.test', '0900000001', $hash, 'admin', 'active', null, $userCreatedAt[1]]
     );
 
     $userNames = [
@@ -225,12 +241,12 @@ SQL);
         25 => ['Võ Thị Em (Khóa)', null], // locked user
     ];
 
-    $insU = $pdo->prepare('INSERT INTO users (id, full_name, email, phone, password_hash, role, status, goal) VALUES (?,?,?,?,?,?,?,?)');
+    $insU = $pdo->prepare('INSERT INTO users (id, full_name, email, phone, password_hash, role, status, goal, created_at) VALUES (?,?,?,?,?,?,?,?,?)');
     foreach ($userNames as $uId => $uData) {
         $email = sprintf("u%02d@gymfinder.test", $uId);
         $phone = sprintf("090%07d", $uId);
         $status = ($uId === 25) ? 'locked' : 'active';
-        $insU->execute([$uId, $uData[0], $email, $phone, $hash, 'user', $status, $uData[1]]);
+        $insU->execute([$uId, $uData[0], $email, $phone, $hash, 'user', $status, $uData[1], $userCreatedAt[$uId]]);
     }
 
     // 2. Districts (22 districts of HCMC)
@@ -257,6 +273,7 @@ SQL);
         [20, 'Huyện Củ Chi', 'huyen-cu-chi'],
         [21, 'Huyện Hóc Môn', 'huyen-hoc-mon'],
         [22, 'Huyện Nhà Bè', 'huyen-nha-be'],
+        [23, 'Quận 2', 'quan-2'],
     ];
     $insDist = $pdo->prepare('INSERT INTO districts (id, name, slug) VALUES (?,?,?)');
     foreach ($districts as $d) {
@@ -303,19 +320,7 @@ SQL);
         $pdo->prepare('INSERT INTO specialties (id, name, slug) VALUES (?,?,?)')->execute($s);
     }
 
-    // 6. Gyms (60 gyms according to the 10 sample districts quota)
-    $districtsQuota = [
-        1  => ['name' => 'Quận 1', 'count' => 8],
-        4  => ['name' => 'Quận 3', 'count' => 6],
-        6  => ['name' => 'Quận 5', 'count' => 5],
-        2  => ['name' => 'Quận 7', 'count' => 8],
-        9  => ['name' => 'Quận 10', 'count' => 7],
-        13 => ['name' => 'Bình Thạnh', 'count' => 7],
-        14 => ['name' => 'Gò Vấp', 'count' => 6],
-        16 => ['name' => 'Tân Bình', 'count' => 5],
-        3  => ['name' => 'TP Thủ Đức', 'count' => 6],
-        12 => ['name' => 'Bình Tân', 'count' => 2],
-    ];
+    // 6. Gyms (64 gyms distributed across all 23 available districts)
 
     $gymNamesByDist = [
         1 => ['The New Gym Nguyễn Thị Minh Khai', 'California Centuryon Saigon Centre', 'Fit Center Bến Thành', 'MMA Gym Fitness Cống Quỳnh', 'Advance Fitness & Gym Hàm Nghi', 'Curves Lê Thánh Tôn', 'S Fitness Pasteur', 'Diamond Fitness Center Đồng Khởi'],
@@ -327,8 +332,11 @@ SQL);
         14 => ['California Fitness Quang Trung', 'The New Gym Quang Trung', 'Fit Center Cityland Phan Văn Trị', 'Hoàng Long Fitness Lê Đức Thọ', 'CLB Gym Thống Nhất Gò Vấp', 'Gym New Life Nguyễn Văn Lượng'],
         16 => ['Phòng Gym Hoàng Gia Cộng Hòa', 'Fit Center Trường Chinh', 'The New Gym Hoàng Hoa Thám', 'Body Shape Fitness Bạch Đằng', 'Khang Gym Phổ Quang'],
         3 => ['Thủ Đức Fitness Center Võ Văn Ngân', 'Rạng Đông Gym Kha Vạn Cân', 'The Gym House Đặng Văn Bi', 'Sparta Gym & Boxing Hiệp Bình Phước', 'S-Fitness Song Hành Thảo Điền', 'King Gym Linh Trung'],
-        12 => ['Aeon Mall Fitness Club Bình Tân', 'Bình Tân Strong Gym Tên Lửa']
+        12 => ['Aeon Mall Fitness Club Bình Tân', 'Bình Tân Strong Gym Tên Lửa'],
+        23 => ['The New Gym Thảo Điền', 'CityGym An Phú', 'Fit24 Sala', 'Elite Fitness Thủ Thiêm']
     ];
+    $allGymNames = array_merge(...array_values($gymNamesByDist));
+    $districtNamesById = array_column($districts, 1, 0);
 
     $gymImages = [
         'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
@@ -352,7 +360,9 @@ SQL);
         ['min' => 1500000, 'max' => 3500000],
     ];
 
-    $hiddenGymIds = [7, 8, 23, 35, 48, 59]; // 6 hidden gyms
+    // Hide one extra gym only in six districts with three entries. Keep at
+    // least two active gyms per district so every price filter has a match.
+    $hiddenGymIds = [3, 6, 9, 14, 47, 55];
     $featuredGymIds = [1, 2, 9, 15, 20, 24, 28, 36, 42, 49, 54, 57]; // 12 featured gyms
 
     $insGym = $pdo->prepare('INSERT INTO gyms (id, name, slug, description, address, district_id, latitude, longitude, phone, email, website, price_min, price_max, opening_hours, cover_image_url, is_featured, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
@@ -360,22 +370,42 @@ SQL);
     $insGA = $pdo->prepare('INSERT INTO gym_amenities (gym_id, amenity_id) VALUES (?,?)');
     $insGI = $pdo->prepare('INSERT INTO gym_images (gym_id, image_url, caption, sort_order) VALUES (?,?,?,?)');
 
-    $gymId = 1;
     $gymsMeta = [];
 
-    foreach ($districtsQuota as $distId => $info) {
-        $names = $gymNamesByDist[$distId];
-        foreach ($names as $name) {
+    $districtPriceRank = [];
+    foreach ($allGymNames as $gymIndex => $name) {
+            $gymId = $gymIndex + 1;
+            $distId = $gymIndex >= count($allGymNames) - 4
+                ? 23
+                : (int) floor($gymIndex * 22 / (count($allGymNames) - 4)) + 1;
+            $info = ['name' => $districtNamesById[$distId]];
             $slug = gf_slugify($name) . '-' . $gymId;
-            $pRange = $priceRanges[$gymId % count($priceRanges)];
+            $q2PriceRanges = [
+                61 => ['min' => 200000, 'max' => 450000],
+                62 => ['min' => 350000, 'max' => 700000],
+                63 => ['min' => 700000, 'max' => 1200000],
+                64 => ['min' => 1500000, 'max' => 3500000],
+            ];
             $isFeatured = in_array($gymId, $featuredGymIds, true) ? 1 : 0;
             $status = in_array($gymId, $hiddenGymIds, true) ? 'hidden' : 'active';
+            if (isset($q2PriceRanges[$gymId])) {
+                $pRange = $q2PriceRanges[$gymId];
+            } elseif ($status === 'active') {
+                $districtPriceRank[$distId] = ($districtPriceRank[$distId] ?? 0) + 1;
+                $pRange = match ($districtPriceRank[$distId]) {
+                    1 => ['min' => 200000, 'max' => 450000],
+                    2 => ['min' => 700000, 'max' => 1500000],
+                    default => $priceRanges[$gymId % count($priceRanges)],
+                };
+            } else {
+                $pRange = $priceRanges[$gymId % count($priceRanges)];
+            }
             $cover = $gymImages[($gymId - 1) % count($gymImages)];
 
             $phone = sprintf("+8428%07d", 1000000 + $gymId);
             $email = "contact.gym{$gymId}@gymfinder.test";
             $website = "https://gym{$gymId}.gymfinder.test";
-            $hours = ($gymId % 3 === 0) ? "05:00 - 23:00" : (($gymId % 2 === 0) ? "06:00 - 22:00" : "05:30 - 21:30");
+            $hours = ($gymId % 6 === 0) ? '24/7' : (($gymId % 3 === 0) ? "05:00 - 23:00" : (($gymId % 2 === 0) ? "06:00 - 22:00" : "05:30 - 21:30"));
             $address = "Số " . (10 + $gymId * 3) . " Đường " . $name . ", " . $info['name'];
             $desc = "Phòng tập {$name} tại {$info['name']} sở hữu không gian tập luyện chuyên nghiệp, trang bị máy tập cao cấp, không gian rộng rãi thoáng mát cùng nhiều tiện ích đẳng cấp.";
 
@@ -406,11 +436,9 @@ SQL);
             $subImg = $gymImages[($gymId + 2) % count($gymImages)];
             $insGI->execute([$gymId, $subImg, 'Khu tập luyện đa năng', 1]);
 
-            $gymId++;
-        }
     }
 
-    // 7. Trainers (30 trainers, 12 with 1 spec, 12 with 2 specs, 6 with 3 specs)
+    // 7. Trainers (30 trainers: 18 with 2 specialties, 12 with 3 specialties)
     // Assigned to 22 gyms (leaving 38 gyms with no PT)
     // 1 PT can work at multiple gyms, 1 gym can have multiple PTs (N-N)
     $activeGymsWithPT = [1, 2, 3, 4, 5, 9, 10, 11, 15, 16, 20, 21, 24, 25, 29, 30, 36, 42, 45, 50, 54, 57]; // 22 gyms
@@ -450,8 +478,8 @@ SQL);
         $isFeatured = ($tId % 5 === 0) ? 1 : 0;
         $status = ($tId === 28 || $tId === 29) ? 'hidden' : 'active';
 
-        // 12 trainers have 1 specialty, 12 have 2, 6 have 3
-        $sCount = ($tId <= 12) ? 1 : (($tId <= 24) ? 2 : 3);
+        // Every trainer has multiple specialties: 18 have 2, 12 have 3.
+        $sCount = ($tId <= 18) ? 2 : 3;
         $assignedSpecs = [];
         for ($sc = 0; $sc < $sCount; $sc++) {
             $specId = (($tId + $sc) % 4) + 1;
@@ -496,6 +524,17 @@ SQL);
         // Insert gym_trainers
         foreach ($assignedGyms as $gId) {
             $insGT->execute([$gId, $tId]);
+        }
+    }
+
+    // Keep an active trainer available for every seeded gym.
+    $activeTrainerIds = $pdo->query("SELECT id FROM trainers WHERE status='active' ORDER BY id")->fetchAll(PDO::FETCH_COLUMN);
+    $hasActiveTrainer = $pdo->prepare("SELECT 1 FROM trainers t LEFT JOIN gym_trainers gt ON gt.trainer_id=t.id WHERE (t.gym_id=? OR gt.gym_id=?) AND t.status='active' LIMIT 1");
+    foreach (range(1, count($allGymNames)) as $gymId) {
+        $hasActiveTrainer->execute([$gymId, $gymId]);
+        if (!$hasActiveTrainer->fetchColumn() && $activeTrainerIds) {
+            $trainerId = (int) $activeTrainerIds[($gymId - 1) % count($activeTrainerIds)];
+            $insGT->execute([$gymId, $trainerId]);
         }
     }
 
@@ -580,6 +619,30 @@ SQL);
             $insRev->execute([$revId, $assignedUser, 'gym', $targetGym, null, $rating, $comment, 'approved', 1, $dateStr, null, $dateStr]);
         }
         $revId++;
+    }
+
+    // Ensure every seeded gym has an approved review for ratings and suggestions.
+    $approvedReviewCheck = $pdo->prepare("SELECT 1 FROM reviews WHERE gym_id=? AND status='approved' LIMIT 1");
+    $userReviewCheck = $pdo->prepare('SELECT 1 FROM reviews WHERE user_id=? AND gym_id=? LIMIT 1');
+    for ($gymId = 1; $gymId <= count($allGymNames); $gymId++) {
+        $approvedReviewCheck->execute([$gymId]);
+        if ($approvedReviewCheck->fetchColumn()) {
+            continue;
+        }
+        for ($userId = 2; $userId <= 24; $userId++) {
+            $userReviewCheck->execute([$userId, $gymId]);
+            if (!$userReviewCheck->fetchColumn()) {
+                $dateStr = sprintf('2026-09-%02d 10:00:00', (($gymId - 1) % 27) + 1);
+                $rating = ($gymId % 2) ? 4 : 5;
+                $insRev->execute([
+                    $revId, $userId, 'gym', $gymId, null, $rating,
+                    'Phòng tập sạch sẽ, tiện ích tốt và có HLV hỗ trợ nhiệt tình.',
+                    'approved', 1, $dateStr, null, $dateStr,
+                ]);
+                $revId++;
+                break;
+            }
+        }
     }
 
     // Trainer reviews: 75 (57 approved, 11 pending, 7 rejected)

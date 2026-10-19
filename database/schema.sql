@@ -277,7 +277,7 @@ CREATE TABLE trainers (
   DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================================
--- 10a. trainer_specialties (N-N; cả hai ON DELETE CASCADE)
+-- 10a. trainer_specialties (N-N; RESTRICT để không xóa mất liên kết)
 -- =====================================================================
 CREATE TABLE trainer_specialties (
   trainer_id   INT UNSIGNED NOT NULL,
@@ -287,14 +287,14 @@ CREATE TABLE trainer_specialties (
   KEY idx_ts_specialty (specialty_id),
 
   CONSTRAINT fk_ts_trainer
-    FOREIGN KEY (trainer_id)   REFERENCES trainers(id)    ON DELETE CASCADE,
+    FOREIGN KEY (trainer_id)   REFERENCES trainers(id)    ON DELETE RESTRICT,
   CONSTRAINT fk_ts_specialty
-    FOREIGN KEY (specialty_id) REFERENCES specialties(id) ON DELETE CASCADE
+    FOREIGN KEY (specialty_id) REFERENCES specialties(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================================
--- 10b. gym_trainers (N-N; cả hai ON DELETE CASCADE)
+-- 10b. gym_trainers (N-N; RESTRICT để không xóa mất liên kết)
 -- 1 HLV có thể làm việc ở nhiều phòng gym khác nhau, 1 phòng gym có nhiều HLV
 -- =====================================================================
 CREATE TABLE gym_trainers (
@@ -305,9 +305,9 @@ CREATE TABLE gym_trainers (
   KEY idx_gt_trainer (trainer_id),
 
   CONSTRAINT fk_gt_gym
-    FOREIGN KEY (gym_id)     REFERENCES gyms(id)     ON DELETE CASCADE,
+    FOREIGN KEY (gym_id)     REFERENCES gyms(id)     ON DELETE RESTRICT,
   CONSTRAINT fk_gt_trainer
-    FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE CASCADE
+    FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -405,7 +405,7 @@ CREATE TABLE favorites (
 -- =====================================================================
 -- 13. password_reset_otps
 -- OTP 6 số quên mật khẩu (email); hash OTP, hết hạn, số lần thử, trạng thái xác thực/tiêu thụ
--- Gửi email SMTP có thể bổ sung; UI demo có thể hiển thị mã tạm khi chưa cấu hình SMTP
+-- OTP email được gửi bằng SMTP; cấu hình SMTP được lưu ngoài mã nguồn.
 -- =====================================================================
 CREATE TABLE password_reset_otps (
   id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
