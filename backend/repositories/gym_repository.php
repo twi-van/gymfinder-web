@@ -27,8 +27,8 @@ function gf_attach_gym_extras(array $gym): array
     $gym['cover']       = gf_cover_image($gym['cover_image_url'] ?? null, $id);
     $gym['price_label'] = gf_format_price((int) $gym['price_min'], (int) $gym['price_max']);
 
-    $st = gf_pdo()->prepare("SELECT COUNT(*) FROM trainers t LEFT JOIN gym_trainers gt ON gt.trainer_id = t.id WHERE (gt.gym_id = ? OR t.gym_id = ?) AND t.status='active'");
-    $st->execute([$id, $id]);
+    $st = gf_pdo()->prepare("SELECT COUNT(*) FROM trainers t JOIN gym_trainers gt ON gt.trainer_id=t.id WHERE gt.gym_id=? AND t.status='active'");
+    $st->execute([$id]);
     $gym['has_pt'] = (int) $st->fetchColumn() > 0;
 
     return $gym;
@@ -94,8 +94,8 @@ function gf_search_gyms_paged(array $f): array
         $sql     .= ' AND g.avg_rating >= ?';
         $params[] = (float) $minRating;
     }
-    if (!empty($f['featured'])) {
-        $sql .= ' AND g.is_featured = 1';
+    if (isset($f['featured']) && $f['featured'] !== '') {
+        $sql .= ' AND g.is_featured = ' . ((int) $f['featured'] === 1 ? '1' : '0');
     }
 
     // Lọc theo category
@@ -125,17 +125,20 @@ function gf_search_gyms_paged(array $f): array
         $params[] = (int) $aid;
     }
 
-    if (!empty($f['has_pt'])) {
-        $sql .= " AND EXISTS (SELECT 1 FROM trainers t LEFT JOIN gym_trainers gt ON gt.trainer_id = t.id WHERE (gt.gym_id = g.id OR t.gym_id = g.id) AND t.status='active')";
+    if (isset($f['has_pt']) && $f['has_pt'] !== '') {
+        $hasActivePt = "EXISTS (SELECT 1 FROM trainers t JOIN gym_trainers gt ON gt.trainer_id=t.id WHERE gt.gym_id=g.id AND t.status='active' AND EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id=t.id))";
+        $sql .= (int) $f['has_pt'] === 1 ? " AND {$hasActivePt}" : " AND NOT {$hasActivePt}";
     }
-    if (!empty($f['open_247'])) {
-        $sql .= " AND g.opening_hours LIKE '%24/7%'";
+    if (isset($f['open_247']) && $f['open_247'] !== '') {
+        $sql .= (int) $f['open_247'] === 1 ? " AND g.opening_hours LIKE '%24/7%'" : " AND g.opening_hours NOT LIKE '%24/7%'";
     }
-    if (!empty($f['weight_loss'])) {
-        $sql .= " AND EXISTS (SELECT 1 FROM trainers t LEFT JOIN gym_trainers gt ON gt.trainer_id = t.id LEFT JOIN trainer_specialties ts ON ts.trainer_id = t.id JOIN specialties s ON (s.id = t.specialty_id OR s.id = ts.specialty_id) WHERE (gt.gym_id = g.id OR t.gym_id = g.id) AND t.status='active' AND s.slug='cardio-giam-can')";
+    if (isset($f['weight_loss']) && $f['weight_loss'] !== '') {
+        $hasWeightLoss = "EXISTS (SELECT 1 FROM trainers t JOIN gym_trainers gt ON gt.trainer_id=t.id JOIN trainer_specialties ts ON ts.trainer_id=t.id JOIN specialties s ON s.id=ts.specialty_id WHERE gt.gym_id=g.id AND t.status='active' AND s.slug='cardio-giam-can')";
+        $sql .= (int) $f['weight_loss'] === 1 ? " AND {$hasWeightLoss}" : " AND NOT {$hasWeightLoss}";
     }
-    if (!empty($f['women'])) {
-        $sql .= " AND (g.description LIKE '%nữ%' OR EXISTS (SELECT 1 FROM gym_categories gc JOIN categories c ON c.id=gc.category_id WHERE gc.gym_id=g.id AND (c.slug='gym-cho-nu' OR c.slug='yoga')))";
+    if (isset($f['women']) && $f['women'] !== '') {
+        $womenGym = "(g.description LIKE '%nữ%' OR EXISTS (SELECT 1 FROM gym_categories gc JOIN categories c ON c.id=gc.category_id WHERE gc.gym_id=g.id AND (c.slug='gym-cho-nu' OR c.slug='yoga')))";
+        $sql .= (int) $f['women'] === 1 ? " AND {$womenGym}" : " AND NOT {$womenGym}";
     }
 
     $sort  = (string) ($f['sort'] ?? '');
@@ -207,31 +210,26 @@ function gf_get_gym(int $id, bool $publicOnly = true): ?array
 function gf_gym_active_trainers(int $gymId): array
 {
     $st = gf_pdo()->prepare("SELECT DISTINCT t.* FROM trainers t
-        LEFT JOIN gym_trainers gt ON gt.trainer_id=t.id
-        WHERE t.status='active' AND (
-            gt.gym_id=? OR (t.gym_id=? AND NOT EXISTS (SELECT 1 FROM gym_trainers legacy_gt WHERE legacy_gt.trainer_id=t.id))
-        ) ORDER BY t.is_featured DESC, t.id DESC");
-    $st->execute([$gymId, $gymId]);
+        JOIN gym_trainers gt ON gt.trainer_id=t.id
+        WHERE t.status='active' AND gt.gym_id=?
+          AND EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id=t.id)
+        ORDER BY t.is_featured DESC, t.id DESC");
+    $st->execute([$gymId]);
     $trainers = $st->fetchAll();
     $specialtySt = gf_pdo()->prepare("SELECT s.id, s.name, s.slug FROM specialties s JOIN trainer_specialties ts ON ts.specialty_id=s.id WHERE ts.trainer_id=? ORDER BY s.name");
     $gymSt = gf_pdo()->prepare("SELECT g.id, g.name, g.slug, g.district_id FROM gyms g JOIN gym_trainers gt ON gt.gym_id=g.id WHERE gt.trainer_id=? AND g.status='active' ORDER BY g.name");
     foreach ($trainers as &$trainer) {
         $specialtySt->execute([(int)$trainer['id']]);
         $specialties = $specialtySt->fetchAll();
-        if ($specialties === [] && !empty($trainer['specialty_id'])) {
-            $legacySpecialty = gf_pdo()->prepare('SELECT id, name, slug FROM specialties WHERE id=?');
-            $legacySpecialty->execute([(int)$trainer['specialty_id']]);
-            $specialties = $legacySpecialty->fetchAll();
-        }
         $trainer['specialties'] = $specialties;
+        $trainer['specialty_id'] = (int) ($specialties[0]['id'] ?? 0);
+        $trainer['specialty_name'] = (string) ($specialties[0]['name'] ?? '');
         $gymSt->execute([(int)$trainer['id']]);
         $linkedGyms = $gymSt->fetchAll();
-        if ($linkedGyms === [] && !empty($trainer['gym_id'])) {
-            $legacyGym = gf_pdo()->prepare("SELECT id, name, slug, district_id FROM gyms WHERE id=? AND status='active'");
-            $legacyGym->execute([(int)$trainer['gym_id']]);
-            $linkedGyms = $legacyGym->fetchAll();
-        }
         $trainer['gyms'] = $linkedGyms;
+        $trainer['gym_id'] = (int) ($linkedGyms[0]['id'] ?? 0);
+        $trainer['gym_name'] = (string) ($linkedGyms[0]['name'] ?? '');
+        $trainer['district_id'] = (int) ($linkedGyms[0]['district_id'] ?? 0);
     }
     unset($trainer);
     return array_map('gf_trainer_list_item', $trainers);

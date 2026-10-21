@@ -28,3 +28,15 @@ $GLOBALS['gf_ui_feedback_rendered'] = true;
     </div>
 </div>
 <script src="<?= gf_h(gf_url('assets/js/ui-feedback.js')) ?>"></script>
+<?php if (!empty($_SESSION['gf_flash']) && is_array($_SESSION['gf_flash'])): ?>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    if (typeof window.gfToast === 'function') {
+        window.gfToast(
+            <?= json_encode((string) ($_SESSION['gf_flash']['message'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+            <?= json_encode((string) ($_SESSION['gf_flash']['type'] ?? 'warning')) ?>
+        );
+    }
+});
+</script>
+<?php unset($_SESSION['gf_flash']); endif; ?>

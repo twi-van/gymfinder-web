@@ -56,9 +56,9 @@ function gf_favorites_paged(int $userId, int $page, int $limit): array
             WHERE f.user_id = ?
               AND (
                 (f.target_type='gym' AND g.status='active')
-                OR (f.target_type='trainer' AND t.status='active' AND (
-                    EXISTS (SELECT 1 FROM gym_trainers gt JOIN gyms active_g ON active_g.id=gt.gym_id WHERE gt.trainer_id=t.id AND active_g.status='active')
-                ))
+                OR (f.target_type='trainer' AND t.status='active'
+                    AND EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id=t.id)
+                    AND EXISTS (SELECT 1 FROM gym_trainers gt JOIN gyms active_g ON active_g.id=gt.gym_id WHERE gt.trainer_id=t.id AND active_g.status='active'))
               )";
 
     $count = gf_pdo()->prepare("SELECT COUNT(*) $sql");
@@ -202,7 +202,7 @@ function gf_user_favorites(int $userId): array
     $gyms = gf_pdo()->prepare("SELECT g.*, d.name AS district_name FROM favorites f JOIN gyms g ON g.id=f.gym_id JOIN districts d ON d.id=g.district_id WHERE f.user_id=? AND f.target_type='gym' AND g.status='active'");
     $gyms->execute([$userId]);
 
-    $trainers = gf_pdo()->prepare("SELECT t.*, s.name AS specialty_name,
+    $trainers = gf_pdo()->prepare("SELECT t.*,
         COALESCE((SELECT active_g.name FROM gym_trainers gt JOIN gyms active_g ON active_g.id=gt.gym_id
                   WHERE gt.trainer_id=t.id AND active_g.status='active'
                   ORDER BY active_g.name LIMIT 1), '') AS gym_name,
@@ -211,15 +211,30 @@ function gf_user_favorites(int $userId): array
                   ORDER BY active_g.name LIMIT 1), '') AS district_name
         FROM favorites f
         JOIN trainers t ON t.id=f.trainer_id
-        LEFT JOIN specialties s ON s.id=t.specialty_id
         WHERE f.user_id=? AND f.target_type='trainer' AND t.status='active'
+          AND EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id=t.id)
           AND EXISTS (SELECT 1 FROM gym_trainers gt JOIN gyms active_g ON active_g.id=gt.gym_id WHERE gt.trainer_id=t.id AND active_g.status='active')");
     $trainers->execute([$userId]);
 
     $gRows = array_map('gf_attach_gym_extras', $gyms->fetchAll());
     $tRows = $trainers->fetchAll();
+    $specSt = gf_pdo()->prepare('SELECT s.id, s.name, s.slug FROM trainer_specialties ts JOIN specialties s ON s.id=ts.specialty_id WHERE ts.trainer_id=? ORDER BY s.name');
+    $gymSt = gf_pdo()->prepare("SELECT g.id, g.name, g.slug, g.address, g.cover_image_url, g.district_id, d.name AS district_name FROM gym_trainers gt JOIN gyms g ON g.id=gt.gym_id JOIN districts d ON d.id=g.district_id WHERE gt.trainer_id=? AND g.status='active' ORDER BY g.name");
     foreach ($tRows as &$t) {
         $t['avatar'] = gf_avatar($t['avatar_url'] ?? null, (int) $t['id'], $t['full_name']);
+        $specSt->execute([(int) $t['id']]);
+        $t['specialties'] = $specSt->fetchAll();
+        $t['specialty_ids'] = array_map('intval', array_column($t['specialties'], 'id'));
+        $t['specialty_id'] = (int) ($t['specialty_ids'][0] ?? 0);
+        $t['specialty_names'] = implode(', ', array_column($t['specialties'], 'name'));
+        $t['specialty_name'] = (string) ($t['specialties'][0]['name'] ?? '');
+        $gymSt->execute([(int) $t['id']]);
+        $t['gyms'] = $gymSt->fetchAll();
+        $t['gym_ids'] = array_map('intval', array_column($t['gyms'], 'id'));
+        $t['gym_id'] = (int) ($t['gym_ids'][0] ?? 0);
+        $t['gym_name'] = (string) ($t['gyms'][0]['name'] ?? '');
+        $t['district_id'] = (int) ($t['gyms'][0]['district_id'] ?? 0);
+        $t['district_name'] = (string) ($t['gyms'][0]['district_name'] ?? '');
     }
 
     return ['gyms' => $gRows, 'trainers' => $tRows];

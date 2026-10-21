@@ -3,6 +3,7 @@ require_once dirname(__DIR__, 2) . '/backend/bootstrap.php';
 require_once dirname(__DIR__) . '/components/table.php';
 $me = gf_require_admin();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['action'])) {
+    gf_require_csrf();
     if ($_POST['action'] === 'delete') {
         gf_admin_delete_review((int)$_POST['id']);
         gf_redirect(gf_url('admin/pages/reviews.php?deleted=1'));

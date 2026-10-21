@@ -124,7 +124,8 @@ CREATE TABLE IF NOT EXISTS trainers (
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (gym_id) REFERENCES gyms(id),
   FOREIGN KEY (specialty_id) REFERENCES specialties(id),
-  FOREIGN KEY (district_id) REFERENCES districts(id)
+  FOREIGN KEY (district_id) REFERENCES districts(id),
+  CHECK (years_experience BETWEEN 0 AND 60)
 );
 CREATE TABLE IF NOT EXISTS trainer_specialties (
   trainer_id INTEGER NOT NULL,
@@ -528,10 +529,10 @@ SQL);
     }
 
     // Keep an active trainer available for every seeded gym.
-    $activeTrainerIds = $pdo->query("SELECT id FROM trainers WHERE status='active' ORDER BY id")->fetchAll(PDO::FETCH_COLUMN);
-    $hasActiveTrainer = $pdo->prepare("SELECT 1 FROM trainers t LEFT JOIN gym_trainers gt ON gt.trainer_id=t.id WHERE (t.gym_id=? OR gt.gym_id=?) AND t.status='active' LIMIT 1");
+    $activeTrainerIds = $pdo->query("SELECT t.id FROM trainers t WHERE t.status='active' AND EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id=t.id) ORDER BY t.id")->fetchAll(PDO::FETCH_COLUMN);
+    $hasActiveTrainer = $pdo->prepare("SELECT 1 FROM trainers t JOIN gym_trainers gt ON gt.trainer_id=t.id WHERE gt.gym_id=? AND t.status='active' AND EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id=t.id) LIMIT 1");
     foreach (range(1, count($allGymNames)) as $gymId) {
-        $hasActiveTrainer->execute([$gymId, $gymId]);
+        $hasActiveTrainer->execute([$gymId]);
         if (!$hasActiveTrainer->fetchColumn() && $activeTrainerIds) {
             $trainerId = (int) $activeTrainerIds[($gymId - 1) % count($activeTrainerIds)];
             $insGT->execute([$gymId, $trainerId]);

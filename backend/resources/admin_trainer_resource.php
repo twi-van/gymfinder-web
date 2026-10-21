@@ -18,41 +18,31 @@ function gf_admin_trainer_payload(int $id): ?array
     $stSpec = gf_pdo()->prepare("SELECT s.id, s.name, s.slug FROM specialties s JOIN trainer_specialties ts ON ts.specialty_id = s.id WHERE ts.trainer_id = ? ORDER BY s.name");
     $stSpec->execute([$id]);
     $specialties = $stSpec->fetchAll();
-    if (empty($specialties) && !empty($t['specialty_id'])) {
-        $stS1 = gf_pdo()->prepare("SELECT id, name, slug FROM specialties WHERE id = ?");
-        $stS1->execute([(int)$t['specialty_id']]);
-        $rowS = $stS1->fetch();
-        if ($rowS) { $specialties = [$rowS]; }
-    }
     $specialtyIds = array_map('intval', array_column($specialties, 'id'));
 
-    $stGym = gf_pdo()->prepare("SELECT g.id, g.name, g.slug, g.address, g.cover_image_url FROM gyms g JOIN gym_trainers gt ON gt.gym_id = g.id WHERE gt.trainer_id = ? ORDER BY g.name");
+    $stGym = gf_pdo()->prepare("SELECT g.id, g.name, g.slug, g.address, g.cover_image_url, g.district_id FROM gyms g JOIN gym_trainers gt ON gt.gym_id = g.id WHERE gt.trainer_id = ? ORDER BY g.name");
     $stGym->execute([$id]);
     $gyms = $stGym->fetchAll();
-    if (empty($gyms) && !empty($t['gym_id'])) {
-        $stG1 = gf_pdo()->prepare("SELECT id, name, slug, address, cover_image_url FROM gyms WHERE id = ?");
-        $stG1->execute([(int)$t['gym_id']]);
-        $rowG = $stG1->fetch();
-        if ($rowG) { $gyms = [$rowG]; }
-    }
     $gymIds = array_map('intval', array_column($gyms, 'id'));
+    $primarySpecialty = $specialties[0] ?? null;
+    $primaryGym = $gyms[0] ?? null;
 
     return [
         'id'               => (int) $t['id'],
         'full_name'        => $t['full_name'],
         'slug'             => $t['slug'],
         'avatar_url'       => $t['avatar_url'],
-        'specialty_id'     => (int) $t['specialty_id'],
+        'specialty_id'     => (int) ($primarySpecialty['id'] ?? 0),
         'specialty_ids'    => $specialtyIds,
         'specialties'      => $specialties,
         'years_experience' => (int) $t['years_experience'],
         'bio'              => $t['bio'],
         'phone'            => $t['phone'],
         'email'            => $t['email'],
-        'gym_id'           => (int) $t['gym_id'],
+        'gym_id'           => (int) ($primaryGym['id'] ?? 0),
         'gym_ids'          => $gymIds,
         'gyms'             => $gyms,
-        'district_id'      => (int) $t['district_id'],
+        'district_id'      => (int) ($primaryGym['district_id'] ?? 0),
         'is_featured'      => (int) $t['is_featured'],
         'status'           => $t['status'],
         'avg_rating'       => gf_num1($t['avg_rating']),
@@ -88,12 +78,15 @@ function gf_admin_save_trainer(array $d, ?int $id): array
         foreach ($d as $k => $v) { $merged[$k] = $v; }
         $details = [];
 
+        $hasSpecSelection = array_key_exists('specialty_ids', $d) || array_key_exists('specialty_id', $d);
+        $hasGymSelection = array_key_exists('gym_ids', $d) || array_key_exists('gym_id', $d);
+
         // Check required fields for creation
         if (!$id) {
             if (empty($d['full_name'])) { $details['full_name'] = 'Bắt buộc.'; }
-            if (!array_key_exists('specialty_id', $d) && empty($d['specialty_ids'])) { $details['specialty_id'] = 'Bắt buộc.'; }
+            if (!$hasSpecSelection) { $details['specialty_ids'] = 'Chọn ít nhất một chuyên môn.'; }
             if (!array_key_exists('years_experience', $d)) { $details['years_experience'] = 'Bắt buộc.'; }
-            if (!array_key_exists('gym_id', $d) && empty($d['gym_ids'])) { $details['gym_id'] = 'Bắt buộc.'; }
+            if (!$hasGymSelection) { $details['gym_ids'] = 'Chọn ít nhất một phòng tập.'; }
             $merged['is_featured'] = array_key_exists('is_featured', $d) ? gf_parse_flag_body($d['is_featured'], 'is_featured') : 0;
             $merged['status']      = $d['status'] ?? 'active';
         } elseif (array_key_exists('is_featured', $d)) {
@@ -103,29 +96,31 @@ function gf_admin_save_trainer(array $d, ?int $id): array
         $name = trim((string) ($merged['full_name'] ?? ''));
         if ($name === '' || mb_strlen($name) > 100) { $details['full_name'] = 'full_name 1–100 ký tự.'; }
 
-        // Specialty validation (support specialty_ids or specialty_id)
-        $specIds = [];
-        if (!empty($merged['specialty_ids'])) {
-            $rawSpecs = is_array($merged['specialty_ids']) ? $merged['specialty_ids'] : explode(',', (string)$merged['specialty_ids']);
-            foreach ($rawSpecs as $sid) {
-                if (!gf_integer_like($sid) || (int)$sid < 1 || !gf_exists_id('specialties', (int)$sid)) {
-                    $details['specialty_ids'] = 'Chuyên môn không tồn tại.';
-                    break;
-                }
-                $specIds[] = (int)$sid;
-            }
-        } elseif (!empty($merged['specialty_id'])) {
-            $specVal = (int)$merged['specialty_id'];
-            if ($specVal < 1 || !gf_exists_id('specialties', $specVal)) {
-                $details['specialty_id'] = 'specialty_id không tồn tại.';
-            } else {
-                $specIds = [$specVal];
-            }
+        // Read/write the N-N relationship tables as the only source of truth.
+        $rawSpecs = [];
+        if ($hasSpecSelection) {
+            $value = array_key_exists('specialty_ids', $d) ? $d['specialty_ids'] : [$d['specialty_id']];
+            $rawSpecs = is_array($value) ? $value : explode(',', (string) $value);
+            if ($rawSpecs === []) { $details['specialty_ids'] = 'Chọn ít nhất một chuyên môn.'; }
+        } elseif ($id) {
+            $current = $pdo->prepare('SELECT specialty_id FROM trainer_specialties WHERE trainer_id=? ORDER BY specialty_id');
+            $current->execute([$id]);
+            $rawSpecs = array_column($current->fetchAll(), 'specialty_id');
         }
-        $spec = $specIds[0] ?? (int)($existing['specialty_id'] ?? 1);
+        $specIds = [];
+        foreach ($rawSpecs as $sid) {
+            if (!gf_integer_like($sid) || (int) $sid < 1 || !gf_exists_id('specialties', (int) $sid)) {
+                $details['specialty_ids'] = 'Chuyên môn không tồn tại.';
+                break;
+            }
+            $specIds[] = (int) $sid;
+        }
+        $specIds = array_values(array_unique($specIds));
+        if ($specIds === []) { $details['specialty_ids'] ??= 'Mỗi HLV cần ít nhất một chuyên môn.'; }
+        $spec = $specIds[0] ?? 0;
 
         $years = $merged['years_experience'] ?? null;
-        if (!gf_integer_like($years) || (int) $years < 1 || (int) $years > 60) { $details['years_experience'] = 'years_experience 1–60.'; }
+        if (!gf_integer_like($years) || (int) $years < 0 || (int) $years > 60) { $details['years_experience'] = 'years_experience 0–60.'; }
         if (isset($merged['bio']) && $merged['bio'] !== null && mb_strlen((string) $merged['bio']) > 5000) { $details['bio'] = 'bio tối đa 5000.'; }
 
         $phone = $merged['phone'] ?? null;
@@ -141,27 +136,28 @@ function gf_admin_save_trainer(array $d, ?int $id): array
             $details['avatar_url'] = 'Chỉ nhận /uploads/...';
         }
 
-        // Gym validation (support gym_ids or gym_id)
-        $gymIds = [];
-        if (!empty($merged['gym_ids'])) {
-            $rawGyms = is_array($merged['gym_ids']) ? $merged['gym_ids'] : explode(',', (string)$merged['gym_ids']);
-            foreach ($rawGyms as $gid) {
-                if (!gf_integer_like($gid) || (int)$gid < 1 || !gf_exists_id('gyms', (int)$gid)) {
-                    $details['gym_ids'] = 'Phòng tập liên kết không tồn tại.';
-                    break;
-                }
-                $gymIds[] = (int)$gid;
-            }
-        } elseif (!empty($merged['gym_id'])) {
-            $gymVal = (int)$merged['gym_id'];
-            if ($gymVal < 1 || !gf_exists_id('gyms', $gymVal)) {
-                $details['gym_id'] = 'gym_id không tồn tại.';
-            } else {
-                $gymIds = [$gymVal];
-            }
+        $rawGyms = [];
+        if ($hasGymSelection) {
+            $value = array_key_exists('gym_ids', $d) ? $d['gym_ids'] : [$d['gym_id']];
+            $rawGyms = is_array($value) ? $value : explode(',', (string) $value);
+            if ($rawGyms === []) { $details['gym_ids'] = 'Chọn ít nhất một phòng tập.'; }
+        } elseif ($id) {
+            $current = $pdo->prepare('SELECT gym_id FROM gym_trainers WHERE trainer_id=? ORDER BY gym_id');
+            $current->execute([$id]);
+            $rawGyms = array_column($current->fetchAll(), 'gym_id');
         }
-        $gymId = $gymIds[0] ?? (int)($existing['gym_id'] ?? 1);
-        $gym = gf_lock_row('gyms', $gymId);
+        $gymIds = [];
+        foreach ($rawGyms as $gid) {
+            if (!gf_integer_like($gid) || (int) $gid < 1 || !gf_exists_id('gyms', (int) $gid)) {
+                $details['gym_ids'] = 'Phòng tập liên kết không tồn tại.';
+                break;
+            }
+            $gymIds[] = (int) $gid;
+        }
+        $gymIds = array_values(array_unique($gymIds));
+        if ($gymIds === []) { $details['gym_ids'] ??= 'Mỗi HLV cần liên kết ít nhất một phòng tập.'; }
+        $gymId = $gymIds[0] ?? 0;
+        $gym = $gymId > 0 ? gf_lock_row('gyms', $gymId) : null;
 
         if (array_key_exists('district_id', $d) && !gf_integer_like($d['district_id'])) {
             $details['district_id'] = 'district_id phải là số nguyên.';
@@ -175,23 +171,13 @@ function gf_admin_save_trainer(array $d, ?int $id): array
         $districtId = $gym ? (int) $gym['district_id'] : (int) ($existing['district_id'] ?? 1);
 
         if ($id) {
-            $cols   = ['full_name','avatar_url','specialty_id','years_experience','bio','phone','email','gym_id','district_id','is_featured','status'];
+            $cols   = ['full_name','avatar_url','years_experience','bio','phone','email','district_id','is_featured','status'];
             $sets   = [];
             $params = [];
             foreach ($cols as $col) {
                 if ($col === 'district_id' && (array_key_exists('gym_id', $d) || array_key_exists('district_id', $d) || array_key_exists('gym_ids', $d))) {
                     $sets[]   = 'district_id=?';
                     $params[] = $districtId;
-                    continue;
-                }
-                if ($col === 'specialty_id' && (array_key_exists('specialty_ids', $d) || array_key_exists('specialty_id', $d))) {
-                    $sets[]   = 'specialty_id=?';
-                    $params[] = $spec;
-                    continue;
-                }
-                if ($col === 'gym_id' && (array_key_exists('gym_ids', $d) || array_key_exists('gym_id', $d))) {
-                    $sets[]   = 'gym_id=?';
-                    $params[] = $gymId;
                     continue;
                 }
                 if (array_key_exists($col, $d) || ($col === 'is_featured' && array_key_exists('is_featured', $d))) {
@@ -207,7 +193,7 @@ function gf_admin_save_trainer(array $d, ?int $id): array
             }
 
             // Sync trainer_specialties
-            if (!empty($specIds)) {
+            if ($hasSpecSelection) {
                 $pdo->prepare('DELETE FROM trainer_specialties WHERE trainer_id=?')->execute([$id]);
                 $insTS = $pdo->prepare('INSERT INTO trainer_specialties (trainer_id, specialty_id) VALUES (?,?)');
                 foreach ($specIds as $sid) {
@@ -216,7 +202,7 @@ function gf_admin_save_trainer(array $d, ?int $id): array
             }
 
             // Sync gym_trainers
-            if (!empty($gymIds)) {
+            if ($hasGymSelection) {
                 $pdo->prepare('DELETE FROM gym_trainers WHERE trainer_id=?')->execute([$id]);
                 $insGT = $pdo->prepare('INSERT INTO gym_trainers (gym_id, trainer_id) VALUES (?,?)');
                 foreach ($gymIds as $gid) {
@@ -234,17 +220,15 @@ function gf_admin_save_trainer(array $d, ?int $id): array
         }
 
         $slug = gf_unique_slug('trainers', gf_slugify($name, 'trainer'), 130);
-        $pdo->prepare('INSERT INTO trainers (full_name, slug, avatar_url, specialty_id, years_experience, bio, phone, email, gym_id, district_id, is_featured, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)')
+        $pdo->prepare('INSERT INTO trainers (full_name, slug, avatar_url, years_experience, bio, phone, email, district_id, is_featured, status) VALUES (?,?,?,?,?,?,?,?,?,?)')
             ->execute([
                 $name,
                 $slug,
                 ($merged['avatar_url'] ?? '') === '' ? null : $merged['avatar_url'],
-                $spec,
                 (int) $years,
                 $merged['bio'] ?? null,
                 ($phone === '' ? null : $phone),
                 ($email === '' ? null : $email),
-                $gymId,
                 $districtId,
                 (int) $merged['is_featured'],
                 $merged['status'] ?? 'active',
@@ -297,15 +281,13 @@ function gf_admin_trainers_paged(array $q): array
     $gymId = $q['gym_id'] ?? null;
     if ($gymId !== null && $gymId !== '') {
         if (!gf_integer_like($gymId) || (int) $gymId < 1 || !gf_exists_id('gyms', (int) $gymId)) { gf_api_error('VALIDATION_ERROR', 'gym_id không tồn tại.', 422, ['gym_id' => 'Không tồn tại.']); }
-        $where[]  = '(t.gym_id = ? OR EXISTS (SELECT 1 FROM gym_trainers gt WHERE gt.trainer_id = t.id AND gt.gym_id = ?))';
-        $params[] = (int) $gymId;
+        $where[]  = 'EXISTS (SELECT 1 FROM gym_trainers gt WHERE gt.trainer_id=t.id AND gt.gym_id=?)';
         $params[] = (int) $gymId;
     }
     $spec = $q['specialty_id'] ?? null;
     if ($spec !== null && $spec !== '') {
         if (!gf_integer_like($spec) || (int) $spec < 1 || !gf_exists_id('specialties', (int) $spec)) { gf_api_error('VALIDATION_ERROR', 'specialty_id không tồn tại.', 422, ['specialty_id' => 'Không tồn tại.']); }
-        $where[]  = '(t.specialty_id = ? OR EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id = t.id AND ts.specialty_id = ?))';
-        $params[] = (int) $spec;
+        $where[]  = 'EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id=t.id AND ts.specialty_id=?)';
         $params[] = (int) $spec;
     }
     $feat = $q['is_featured'] ?? null;
@@ -334,7 +316,7 @@ function gf_admin_trainers_paged(array $q): array
     $items = [];
 
     $tsSt = gf_pdo()->prepare("SELECT s.id, s.name FROM specialties s JOIN trainer_specialties ts ON ts.specialty_id = s.id WHERE ts.trainer_id = ? ORDER BY s.name");
-    $gtSt = gf_pdo()->prepare("SELECT g.id, g.name FROM gyms g JOIN gym_trainers gt ON gt.gym_id = g.id WHERE gt.trainer_id = ? ORDER BY g.name");
+    $gtSt = gf_pdo()->prepare("SELECT g.id, g.name, g.district_id FROM gyms g JOIN gym_trainers gt ON gt.gym_id = g.id WHERE gt.trainer_id = ? ORDER BY g.name");
 
     foreach ($st->fetchAll() as $t) {
         $tId = (int)$t['id'];
@@ -348,13 +330,15 @@ function gf_admin_trainers_paged(array $q): array
         $gyms = $gtSt->fetchAll();
         $gymIds = array_map('intval', array_column($gyms, 'id'));
         $gymNames = implode(', ', array_column($gyms, 'name'));
+        $primarySpecialtyId = (int) ($specIds[0] ?? 0);
+        $primaryGym = $gyms[0] ?? null;
 
         $items[] = [
             'id'               => $tId,
             'full_name'        => $t['full_name'],
             'slug'             => $t['slug'],
             'avatar_url'       => $t['avatar_url'],
-            'specialty_id'     => (int) $t['specialty_id'],
+            'specialty_id'     => $primarySpecialtyId,
             'specialty_ids'    => $specIds,
             'specialty_names'  => $specNames ?: 'Chung',
             'specialties'      => $specs,
@@ -362,11 +346,11 @@ function gf_admin_trainers_paged(array $q): array
             'bio'              => $t['bio'],
             'phone'            => $t['phone'],
             'email'            => $t['email'],
-            'gym_id'           => (int) $t['gym_id'],
+            'gym_id'           => (int) ($primaryGym['id'] ?? 0),
             'gym_ids'          => $gymIds,
             'gym_names'        => $gymNames ?: 'Chưa gán',
             'gyms'             => $gyms,
-            'district_id'      => (int) $t['district_id'],
+            'district_id'      => (int) ($primaryGym['district_id'] ?? 0),
             'is_featured'      => (int) $t['is_featured'],
             'status'           => $t['status'],
             'avg_rating'       => gf_num1($t['avg_rating']),

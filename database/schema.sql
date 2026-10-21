@@ -266,7 +266,7 @@ CREATE TABLE trainers (
   CONSTRAINT chk_trainers_slug
     CHECK (slug NOT REGEXP '^[0-9]+$'),
   CONSTRAINT chk_trainers_exp
-    CHECK (years_experience BETWEEN 1 AND 60),
+    CHECK (years_experience BETWEEN 0 AND 60),
   CONSTRAINT chk_trainers_rating
     CHECK (avg_rating BETWEEN 0 AND 5),
   CONSTRAINT chk_trainers_phone

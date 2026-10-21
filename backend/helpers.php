@@ -48,6 +48,23 @@ function gf_json(array $payload, int $status = 200): void
 
 function gf_api_error(string $code, string $message, int $http, array $details = []): void
 {
+    $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    $isApi = preg_match('#(?:^|/)api(?:/|$)#', $path) === 1;
+    $isAdminFormPost = !$isApi
+        && preg_match('#(?:^|/)admin/pages/#', $path) === 1
+        && strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET')) === 'POST';
+
+    // Admin pages are HTML forms; keep domain errors in the rendered UI instead
+    // of returning a raw JSON document as the browser page.
+    if ($isAdminFormPost && session_status() === PHP_SESSION_ACTIVE) {
+        $_SESSION['gf_flash'] = [
+            'type' => $http >= 500 ? 'danger' : 'warning',
+            'message' => $message,
+        ];
+        $query = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_QUERY);
+        gf_redirect($path . ($query ? '?' . $query : ''));
+    }
+
     gf_json(['error' => ['code' => $code, 'message' => $message, 'details' => $details ?: new stdClass()]], $http);
 }
 

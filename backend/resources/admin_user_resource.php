@@ -98,9 +98,12 @@ function gf_admin_user_payload(int $id): ?array
  */
 function gf_admin_patch_user(int $id, array $d, array $admin): array
 {
-    if ((int) $admin['id'] === $id) { gf_api_error('BUSINESS_RULE', 'Admin không được tự khóa chính mình.', 422, ['status' => 'Không tự khóa chính mình.']); }
     $u = gf_admin_user_payload($id);
     if (!$u) { gf_api_error('NOT_FOUND', 'Không tìm thấy người dùng.', 404); }
+    if (($u['role'] ?? '') !== 'user') {
+        gf_api_error('BUSINESS_RULE', 'Chỉ được khóa hoặc mở khóa tài khoản người dùng.', 422, ['status' => 'Không hỗ trợ thay đổi trạng thái tài khoản Admin.']);
+    }
+    if ((int) $admin['id'] === $id) { gf_api_error('BUSINESS_RULE', 'Admin không được tự khóa chính mình.', 422, ['status' => 'Không tự khóa chính mình.']); }
     gf_require_known_body($d, ['status'], ['id', 'full_name', 'email', 'phone', 'avatar_url', 'role', 'last_login_at', 'created_at']);
     if (!isset($d['status']) || !in_array($d['status'], ['active', 'locked'], true)) { gf_api_error('VALIDATION_ERROR', 'status chỉ active|locked.', 422, ['status' => 'active|locked']); }
     gf_pdo()->prepare('UPDATE users SET status=? WHERE id=?')->execute([(string) $d['status'], $id]);

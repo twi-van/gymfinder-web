@@ -30,18 +30,159 @@ function gf_db_init(array $config): void
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]);
+        $pdo->exec('PRAGMA busy_timeout = 5000');
         $pdo->exec('PRAGMA foreign_keys = ON');
         if ($needSeed) {
             require_once __DIR__ . '/sqlite_install.php';
             gf_sqlite_install($pdo);
         }
+        gf_db_ensure_sqlite_user_schema($pdo);
         gf_db_ensure_trainer_link_restrict($pdo);
+        gf_db_ensure_trainer_experience_range($pdo);
     }
+    gf_db_backfill_trainer_links($pdo);
     gf_db_ensure_password_reset_otps($pdo);
     gf_db_ensure_category_labels_vi($pdo);
     gf_db_ensure_premium_exclusive($pdo);
-    gf_db_ensure_trainer_experience_min($pdo);
     $GLOBALS['GF_PDO'] = $pdo;
+}
+
+/** Remove the retired goal field and safely enforce the required email on SQLite. */
+function gf_db_ensure_sqlite_user_schema(PDO $pdo): void
+{
+    $columns = $pdo->query('PRAGMA table_info(users)')->fetchAll();
+    $byName = [];
+    foreach ($columns as $column) {
+        $byName[(string) $column['name']] = $column;
+    }
+
+    $hasMissingEmail = (bool) $pdo->query("SELECT 1 FROM users WHERE email IS NULL OR trim(email) = '' LIMIT 1")->fetchColumn();
+    $hasGoal = isset($byName['goal']);
+    $emailAlreadyRequired = !empty($byName['email']['notnull']);
+    if (!$hasGoal && $hasMissingEmail) {
+        // The only remaining action requires the account owner to provide a real
+        // address. Install guards once and leave the existing account untouched.
+        $pdo->exec("CREATE TRIGGER IF NOT EXISTS trg_users_email_required_insert
+            BEFORE INSERT ON users
+            WHEN NEW.email IS NULL OR trim(NEW.email) = ''
+            BEGIN SELECT RAISE(ABORT, 'users.email is required'); END");
+        $pdo->exec("CREATE TRIGGER IF NOT EXISTS trg_users_email_required_update
+            BEFORE UPDATE OF email ON users
+            WHEN NEW.email IS NULL OR trim(NEW.email) = ''
+            BEGIN SELECT RAISE(ABORT, 'users.email is required'); END");
+        return;
+    }
+    if (!$hasGoal && !$hasMissingEmail && $emailAlreadyRequired) {
+        return;
+    }
+
+    // Rebuild instead of ALTER DROP COLUMN: older XAMPP SQLite builds lack that
+    // syntax. If a legacy account lacks email, preserve it and keep the column
+    // nullable temporarily; once a real email is supplied, the next startup makes
+    // the schema-level NOT NULL guarantee explicit. Never invent account data.
+    $pdo->exec('PRAGMA busy_timeout = 5000');
+    $pdo->exec('PRAGMA foreign_keys = OFF');
+    $transactionStarted = false;
+    try {
+        $pdo->exec('BEGIN IMMEDIATE');
+        $transactionStarted = true;
+        $hasMissingEmail = (bool) $pdo->query("SELECT 1 FROM users WHERE email IS NULL OR trim(email) = '' LIMIT 1")->fetchColumn();
+        $emailRequired = !$hasMissingEmail;
+        $emailDefinition = $emailRequired ? 'TEXT NOT NULL UNIQUE' : 'TEXT UNIQUE';
+        $pdo->exec("CREATE TABLE users_schema_migration (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            full_name TEXT NOT NULL,
+            email {$emailDefinition},
+            phone TEXT UNIQUE,
+            password_hash TEXT NOT NULL,
+            avatar_url TEXT,
+            role TEXT NOT NULL DEFAULT 'user',
+            status TEXT NOT NULL DEFAULT 'active',
+            last_login_at TEXT,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )");
+        $pdo->exec('INSERT INTO users_schema_migration (id, full_name, email, phone, password_hash, avatar_url, role, status, last_login_at, created_at, updated_at) SELECT id, full_name, email, phone, password_hash, avatar_url, role, status, last_login_at, created_at, updated_at FROM users');
+        $pdo->exec('DROP TABLE users');
+        $pdo->exec('ALTER TABLE users_schema_migration RENAME TO users');
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_users_role_status ON users(role, status)');
+        $pdo->exec('COMMIT');
+        $transactionStarted = false;
+    } catch (Throwable $e) {
+        if ($transactionStarted) {
+            $pdo->exec('ROLLBACK');
+        }
+        throw $e;
+    } finally {
+        $pdo->exec('PRAGMA foreign_keys = ON');
+    }
+
+    if (!$emailRequired) {
+        // Keep legacy rows intact, while making all future user writes require email.
+        $pdo->exec("CREATE TRIGGER IF NOT EXISTS trg_users_email_required_insert
+            BEFORE INSERT ON users
+            WHEN NEW.email IS NULL OR trim(NEW.email) = ''
+            BEGIN SELECT RAISE(ABORT, 'users.email is required'); END");
+        $pdo->exec("CREATE TRIGGER IF NOT EXISTS trg_users_email_required_update
+            BEFORE UPDATE OF email ON users
+            WHEN NEW.email IS NULL OR trim(NEW.email) = ''
+            BEGIN SELECT RAISE(ABORT, 'users.email is required'); END");
+    }
+}
+
+/** Enforce the SQLite spec range for existing databases without rewriting trainer data. */
+function gf_db_ensure_trainer_experience_range(PDO $pdo): void
+{
+    $existing = $pdo->query("SELECT name FROM sqlite_master WHERE type='trigger' AND name IN ('trg_trainers_exp_insert','trg_trainers_exp_update')")
+        ->fetchAll(PDO::FETCH_COLUMN);
+    if (!in_array('trg_trainers_exp_insert', $existing, true)) {
+        $pdo->exec("CREATE TRIGGER IF NOT EXISTS trg_trainers_exp_insert
+            BEFORE INSERT ON trainers
+            WHEN NEW.years_experience < 0 OR NEW.years_experience > 60
+            BEGIN SELECT RAISE(ABORT, 'years_experience must be between 0 and 60'); END");
+    }
+    if (!in_array('trg_trainers_exp_update', $existing, true)) {
+        $pdo->exec("CREATE TRIGGER IF NOT EXISTS trg_trainers_exp_update
+            BEFORE UPDATE OF years_experience ON trainers
+            WHEN NEW.years_experience < 0 OR NEW.years_experience > 60
+            BEGIN SELECT RAISE(ABORT, 'years_experience must be between 0 and 60'); END");
+    }
+}
+
+/** Idempotently move legacy trainer links into N-N tables when those links are missing. */
+function gf_db_backfill_trainer_links(PDO $pdo): void
+{
+    try {
+        $sqlite = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
+        $ignore = $sqlite ? 'INSERT OR IGNORE' : 'INSERT IGNORE';
+        $hasLegacySpecialty = $pdo->query("SELECT 1 FROM trainers t
+            WHERE t.specialty_id IS NOT NULL
+              AND EXISTS (SELECT 1 FROM specialties s WHERE s.id=t.specialty_id)
+              AND NOT EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id=t.id)
+            LIMIT 1")->fetchColumn();
+        if ($hasLegacySpecialty) {
+            $pdo->exec("{$ignore} INTO trainer_specialties (trainer_id, specialty_id)
+                SELECT t.id, t.specialty_id FROM trainers t
+                WHERE t.specialty_id IS NOT NULL
+                  AND EXISTS (SELECT 1 FROM specialties s WHERE s.id=t.specialty_id)
+                  AND NOT EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id=t.id)");
+        }
+
+        $hasLegacyGym = $pdo->query("SELECT 1 FROM trainers t
+            WHERE t.gym_id IS NOT NULL
+              AND EXISTS (SELECT 1 FROM gyms g WHERE g.id=t.gym_id)
+              AND NOT EXISTS (SELECT 1 FROM gym_trainers gt WHERE gt.trainer_id=t.id)
+            LIMIT 1")->fetchColumn();
+        if ($hasLegacyGym) {
+            $pdo->exec("{$ignore} INTO gym_trainers (gym_id, trainer_id)
+                SELECT t.gym_id, t.id FROM trainers t
+                WHERE t.gym_id IS NOT NULL
+                  AND EXISTS (SELECT 1 FROM gyms g WHERE g.id=t.gym_id)
+                  AND NOT EXISTS (SELECT 1 FROM gym_trainers gt WHERE gt.trainer_id=t.id)");
+        }
+    } catch (Throwable $e) {
+        error_log('GYMFINDER trainer link backfill failed: ' . $e->getMessage());
+    }
 }
 
 /** Keep existing SQLite installs aligned with the non-cascading N-N link policy. */
@@ -172,16 +313,6 @@ function gf_db_ensure_category_labels_vi(PDO $pdo): void
         }
     } catch (Throwable $e) {
         // Bảng categories chưa sẵn sàng — bỏ qua
-    }
-}
-
-/** Kinh nghiệm HLV tối thiểu 1 năm (seed/DB cũ có thể còn 0). */
-function gf_db_ensure_trainer_experience_min(PDO $pdo): void
-{
-    try {
-        $pdo->exec('UPDATE trainers SET years_experience = 1 WHERE years_experience < 1');
-    } catch (Throwable $e) {
-        // Bảng chưa sẵn sàng — bỏ qua
     }
 }
 

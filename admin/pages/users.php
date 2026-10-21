@@ -3,6 +3,7 @@ require_once dirname(__DIR__, 2) . '/backend/bootstrap.php';
 require_once dirname(__DIR__) . '/components/table.php';
 $me = gf_require_admin();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['status'])) {
+    gf_require_csrf();
     gf_admin_patch_user((int)$_POST['id'], ['status' => $_POST['status'] === 'locked' ? 'locked' : 'active'], $me);
     gf_redirect(gf_url('admin/pages/users.php'));
 }

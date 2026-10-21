@@ -36,12 +36,20 @@ WHERE NOT EXISTS (SELECT 1 FROM gym_amenities ga WHERE ga.gym_id=g.id AND ga.ame
 
 -- Add an active trainer to seeded gyms that do not yet have one.
 INSERT INTO gym_trainers (gym_id, trainer_id)
-SELECT g.id, ((g.id - 1) % 27) + 1
+SELECT g.id, (
+  SELECT t.id FROM trainers t
+  WHERE t.status='active'
+    AND EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id=t.id)
+  ORDER BY ABS(t.id - g.id), t.id
+  LIMIT 1
+)
 FROM gyms g
 WHERE (g.id BETWEEN 1 AND 60 OR g.slug IN ('the-new-gym-thao-dien-61','citygym-an-phu-62','fit24-sala-63','elite-fitness-thu-thiem-64'))
+AND EXISTS (SELECT 1 FROM trainers t WHERE t.status='active' AND EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id=t.id))
 AND NOT EXISTS (
-  SELECT 1 FROM trainers t LEFT JOIN gym_trainers gt ON gt.trainer_id=t.id
-  WHERE (t.gym_id=g.id OR gt.gym_id=g.id) AND t.status='active'
+  SELECT 1 FROM trainers t JOIN gym_trainers gt ON gt.trainer_id=t.id
+  WHERE gt.gym_id=g.id AND t.status='active'
+    AND EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id=t.id)
 );
 
 -- Make sure every seeded gym has an approved rating; preserve existing reviews.

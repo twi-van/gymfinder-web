@@ -97,7 +97,7 @@ if ($path === '/auth/csrf' && $method === 'GET') {
 
 if ($path === '/auth/register' && $method === 'POST') {
     // Đặc tả: email bắt buộc; phone tuỳ chọn. (login vẫn dùng email hoặc SĐT)
-    gf_require_known_body($body, ['full_name', 'email', 'phone', 'password'], ['id', 'role', 'status', 'avatar_url', 'created_at', 'updated_at', 'email_or_phone', 'goal']);
+    gf_require_known_body($body, ['full_name', 'email', 'phone', 'password'], ['id', 'role', 'status', 'avatar_url', 'created_at', 'updated_at', 'email_or_phone']);
     $res = gf_register(
         (string) ($body['full_name'] ?? ''),
         (string) ($body['email'] ?? ''),

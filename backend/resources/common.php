@@ -305,8 +305,8 @@ function gf_validate_gym_search_params(array $get, bool $throw = true): array
 
     $sort = (string) ($get['sort'] ?? '');
     if ($sort !== '') {
-        if (!in_array($sort, ['rating_desc', 'rating_asc', 'price_asc', 'price_desc'], true)) {
-            $details['sort'] = 'sort phải thuộc: rating_desc, rating_asc, price_asc, price_desc.';
+        if (!in_array($sort, ['newest', 'rating_desc', 'rating_asc', 'price_asc', 'price_desc'], true)) {
+            $details['sort'] = 'sort phải thuộc: newest, rating_desc, rating_asc, price_asc, price_desc.';
         } else {
             $params['sort'] = $sort;
         }
@@ -360,20 +360,47 @@ function gf_validate_gym_search_params(array $get, bool $throw = true): array
     }
 
     $catIds = $get['category_ids'] ?? $get['category_id'] ?? null;
-    if ($catIds !== null && trim((string) $catIds) !== '') {
-        $parsedCats = gf_csv_ids((string) $catIds, 'category_ids');
+    if ($catIds !== null && (is_array($catIds) ? $catIds !== [] : trim((string) $catIds) !== '')) {
+        $parsedCats = is_array($catIds)
+            ? array_map(static function ($id): int {
+                if (!gf_integer_like($id) || (int) $id < 1) {
+                    gf_api_error('VALIDATION_ERROR', 'Dữ liệu không hợp lệ.', 422, ['category_ids' => 'Danh sách ID không hợp lệ.']);
+                }
+                return (int) $id;
+            }, $catIds)
+            : gf_csv_ids((string) $catIds, 'category_ids');
+        $parsedCats = array_values(array_unique($parsedCats));
         gf_assert_ids_exist($parsedCats, 'categories', 'category_ids');
         $params['category_ids'] = $parsedCats;
     }
 
     $amIds = $get['amenity_ids'] ?? $get['amenities'] ?? null;
     if ($amIds !== null && (is_array($amIds) ? !empty($amIds) : trim((string) $amIds) !== '')) {
-        $parsedAms = is_array($amIds) ? array_map('intval', $amIds) : gf_csv_ids((string) $amIds, 'amenity_ids');
+        $parsedAms = is_array($amIds)
+            ? array_map(static function ($id): int {
+                if (!gf_integer_like($id) || (int) $id < 1) {
+                    gf_api_error('VALIDATION_ERROR', 'Dữ liệu không hợp lệ.', 422, ['amenity_ids' => 'Danh sách ID không hợp lệ.']);
+                }
+                return (int) $id;
+            }, $amIds)
+            : gf_csv_ids((string) $amIds, 'amenity_ids');
+        $parsedAms = array_values(array_unique($parsedAms));
         gf_assert_ids_exist($parsedAms, 'amenities', 'amenity_ids');
         $params['amenity_ids'] = $parsedAms;
     }
 
-    $q = trim((string) ($get['q'] ?? ''));
+    foreach (['open_247', 'women', 'weight_loss'] as $flag) {
+        $value = $get[$flag] ?? null;
+        if ($value !== null && $value !== '') {
+            if ($value !== '0' && $value !== '1' && $value !== 0 && $value !== 1) {
+                $details[$flag] = "{$flag} chỉ nhận 0 hoặc 1.";
+            } else {
+                $params[$flag] = (int) $value;
+            }
+        }
+    }
+
+    $q = trim((string) ($get['q'] ?? $get['keyword'] ?? ''));
     if ($q !== '') {
         if (mb_strlen($q) > 100) { $details['q'] = 'q tối đa 100 ký tự.'; }
         else { $params['q'] = $q; }
@@ -432,7 +459,7 @@ function gf_validate_trainer_search_params(array $get, bool $throw = true): arra
     if ($exp !== null && (string) $exp !== '') {
         $expStr = (string) $exp;
         if (!in_array($expStr, ['1-2', '0-2', '3-5', '6plus'], true)) { $details['exp'] = 'exp chỉ nhận: 1-2 | 3-5 | 6plus.'; }
-        else { $params['exp'] = $expStr === '0-2' ? '1-2' : $expStr; }
+        else { $params['exp'] = $expStr; }
     }
 
     $feat = $get['featured'] ?? null;

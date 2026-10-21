@@ -69,7 +69,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                         <select id="filter-gym" name="gym_id" class="form-select gf-filter-select">
                             <option value="">Tất cả</option>
                             <?php foreach ($gymOptions as $g): ?>
-                                <option value="<?= (int)$g['id'] ?>" <?= (string)$filters['gym_id']===(string)$g['id']?'selected':'' ?>><?= gf_h($g['name']) ?></option>
+                                <option value="<?= (int)$g['id'] ?>" data-district-id="<?= (int)$g['district_id'] ?>" <?= (string)$filters['gym_id']===(string)$g['id']?'selected':'' ?>><?= gf_h($g['name']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -79,7 +79,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                     <div class="gf-select-wrap">
                         <select id="filter-exp" name="exp" class="form-select gf-filter-select">
                             <option value="">Tất cả</option>
-                            <option value="1-2" <?= in_array($filters['exp'], ['1-2', '0-2'], true)?'selected':'' ?>>1–2 năm</option>
+                            <option value="0-2" <?= in_array($filters['exp'], ['1-2', '0-2'], true)?'selected':'' ?>>0–2 năm</option>
                             <option value="3-5" <?= $filters['exp']==='3-5'?'selected':'' ?>>3–5 năm</option>
                             <option value="6plus" <?= $filters['exp']==='6plus'?'selected':'' ?>>6+ năm</option>
                         </select>
@@ -137,4 +137,27 @@ require dirname(__DIR__, 2) . '/includes/header.php';
     <?= gf_render_user_pagination((int)$trainerPage['page'], (int)$trainerPage['limit'], (int)$trainerPage['total'], $_GET) ?>
 </div>
 <script src="<?= gf_h(gf_url('assets/js/rating-filter.js')) ?>" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const district = document.getElementById('filter-district');
+    const gym = document.getElementById('filter-gym');
+    if (!district || !gym) return;
+
+    const filterGymsByDistrict = () => {
+        const districtId = district.value;
+        const selected = gym.selectedOptions[0];
+        for (const option of gym.options) {
+            if (!option.value) {
+                option.hidden = false;
+                continue;
+            }
+            option.hidden = districtId !== '' && option.dataset.districtId !== districtId;
+        }
+        if (selected?.value && selected.hidden) gym.value = '';
+    };
+
+    district.addEventListener('change', filterGymsByDistrict);
+    filterGymsByDistrict();
+});
+</script>
 <?php require dirname(__DIR__, 2) . '/includes/footer.php'; ?>

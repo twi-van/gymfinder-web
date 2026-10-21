@@ -76,8 +76,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             if ($action === 'delete' && $id > 0) {
                 if ($table === 'specialties') {
-                    $st = gf_pdo()->prepare('SELECT COUNT(*) FROM trainers WHERE specialty_id=?');
-                    $st->execute([$id]);
+                    // The N–N table is canonical; include the legacy FK while older rows migrate.
+                    $st = gf_pdo()->prepare('SELECT COUNT(*) FROM trainers t WHERE t.specialty_id=? OR EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id=t.id AND ts.specialty_id=?)');
+                    $st->execute([$id, $id]);
                     $used = (int) $st->fetchColumn();
                     if ($used > 0) {
                         throw new RuntimeException('Không thể xóa: còn ' . $used . ' huấn luyện viên đang dùng chuyên môn này.');
