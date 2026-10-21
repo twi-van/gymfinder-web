@@ -122,9 +122,9 @@ CREATE TABLE IF NOT EXISTS trainers (
   status TEXT NOT NULL DEFAULT 'active',
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (gym_id) REFERENCES gyms(id),
-  FOREIGN KEY (specialty_id) REFERENCES specialties(id),
-  FOREIGN KEY (district_id) REFERENCES districts(id),
+  FOREIGN KEY (gym_id) REFERENCES gyms(id) ON DELETE SET NULL,
+  FOREIGN KEY (specialty_id) REFERENCES specialties(id) ON DELETE SET NULL,
+  FOREIGN KEY (district_id) REFERENCES districts(id) ON DELETE RESTRICT,
   CHECK (years_experience BETWEEN 0 AND 60)
 );
 CREATE TABLE IF NOT EXISTS trainer_specialties (

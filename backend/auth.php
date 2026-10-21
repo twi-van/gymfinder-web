@@ -13,6 +13,18 @@ function gf_current_user(): ?array
     return $user ?: null;
 }
 
+/**
+ * Soft-gate pages dùng gf_current_user() — Guest được xem CTA,
+ * nhưng session đã bị Admin khóa phải đá về login (AUTH-05).
+ */
+function gf_reject_locked_session(?array $user): void
+{
+    if ($user && ($user['status'] ?? '') === 'locked') {
+        gf_logout();
+        gf_redirect(gf_url('pages/auth/login.php?error=locked'));
+    }
+}
+
 function gf_require_login(?string $redirect = null): array
 {
     $user = gf_current_user();
@@ -20,10 +32,7 @@ function gf_require_login(?string $redirect = null): array
         $next = $redirect ?? ($_SERVER['REQUEST_URI'] ?? gf_url('index.php'));
         gf_redirect(gf_url('pages/auth/login.php?redirect=' . urlencode($next)));
     }
-    if (($user['status'] ?? '') === 'locked') {
-        gf_logout();
-        gf_redirect(gf_url('pages/auth/login.php?error=locked'));
-    }
+    gf_reject_locked_session($user);
     return $user;
 }
 

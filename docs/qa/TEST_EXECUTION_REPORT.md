@@ -1,87 +1,109 @@
-# GYMFINDER — Test Execution Report (Vòng 1)
+# GYMFINDER — Test Execution Report
 
-**Ngày chạy:** 2026-10-19  
-**Môi trường:** `http://127.0.0.1:8000` · PHP 8.0.28 built-in · SQLite `database/gymfinder.sqlite`  
-**Công cụ:** `curl` (HTTP/API) + kiểm tra HTML; Cursor browser (viewport emulation các vòng trước)  
 **Quy tắc:** Chỉ Pass/Fail khi đã thực thi. Không Pass chỉ vì đọc code.
 
 ---
 
-## 1. Tổng quan
+## Vòng 3 — Favorites / Reviews / OTP / Register (2026-10-21)
 
-| Chỉ số | Số lượng |
+**Công cụ:** `php docs/qa/_round3_smoke.php` (+ curl vòng 2 còn hiệu lực)  
+**Phạm vi:** AUTH-001, FAV-002…006, REV-001…009, AUTH-014/015, ADM-007/010 (vòng trước)
+
+| ID | Status | Actual |
+| --- | --- | --- |
+| AUTH-001 | **Pass** | Đăng ký email mới → 302 login |
+| AUTH-002 / 003 | **Pass** | (vòng probe) không tạo user rỗng; bắt đồng ý ĐK |
+| FAV-002 | **Pass** | POST `/api/favorites` gym → 201 |
+| FAV-003 | **Pass** | DELETE favorite → 204 |
+| FAV-004 | **Pass** | Add trainer → 201 |
+| FAV-005 | **Pass** | GET list còn mục vừa thêm |
+| FAV-006 | **Pass** | Add trùng → **409** |
+| REV-001 | **Pass** | Tạo review → pending 201 |
+| REV-002 | **Pass** | comment rỗng → 422 |
+| REV-003 | **Pass** | pending không hiện public |
+| REV-004 | **Pass** | Sửa → lại pending |
+| REV-005 | **Pass** | DELETE review → 204 |
+| REV-006 | **Pass** | Admin approve → public hiện |
+| REV-007 | **Pass** | Reject không lý do → 422 |
+| REV-008 | **Pass** | Reject có lý do; author thấy lý do |
+| REV-009 | **Pass** | User khác PATCH → 403 |
+| AUTH-015 | **Pass** | OTP sai → báo lỗi |
+| AUTH-014 | **Blocked** | SMTP local đang cấu hình đủ → hệ thống **gửi mail**, không hiện `demo_otp` trên UI (đúng `auth.php`). Không đọc được inbox trong vòng test → không hoàn tất reset E2E trên UI. |
+| ADM-007 / 010 | **Pass** | (vòng probe trước) gym thiếu tên 422; khóa/mở u04 |
+
+**Tóm tắt vòng 3:** **18 Pass · 0 Fail sản phẩm · 1 Blocked (AUTH-014 E2E UI khi SMTP thật).**
+
+### Fail giả (harness) — không ghi bug
+
+Lần chạy shell đầu: JSON/`target_id` rỗng vì `u02` đã review hết gym active; API path thiếu id → 400/404. Chạy lại bằng user mới + script PHP → hết.
+
+---
+
+## Vòng 2 — Smoke regression (2026-10-21)
+
+**Môi trường:** `http://127.0.0.1:8000` · PHP built-in · SQLite vừa reset seed  
+**Công cụ:** `curl` + cookie jar + CSRF form `login`  
+**Phạm vi:** P0/P1 đã đổi sau merge N–N, soft-gate, portal-only, R1 locked session
+
+| ID | Status | Actual / evidence |
+| --- | --- | --- |
+| AUTH-004 | **Pass** | Login `u02` + CSRF → 302 `index.php` |
+| AUTH-005 | **Pass** | Login `u01` → 302 `admin/pages/dashboard.php` |
+| AUTH-006 | **Pass** | Sai MK → alert “không đúng” |
+| AUTH-008 | **Pass** | `u03` locked → không login; thông báo khóa |
+| AUTH-010 / PROF-005 | **Pass** | Guest profile **200** + CTA soft-gate (không còn 302) |
+| AUTH-012 | **Pass** | User mở admin dashboard → **403** |
+| ADM-PORT | **Pass** | Admin mở `/` → 302 dashboard |
+| ADM-001 | **Pass** | Dashboard 200 |
+| ADM-014 | **Pass** | Không có “Xóa cứng” trên gyms |
+| ADM-015 | **Pass*** | “Cập nhật” = giờ render (đúng thiết kế) |
+| DEL-USER | **Pass** | `DELETE /api/admin/users/2` → **405** BUSINESS_RULE |
+| R1-LOCK | **Pass** | Session `u03` bị khóa giữa chừng → profile 302 `login.php?error=locked` |
+| FAV-001 | **Pass** | Guest favorites 200 + CTA |
+| SEC-001 | **Pass** | Guest POST `/api/favorites` → **401** AUTH_REQUIRED |
+| HOME-001 / GYM-001 | **Pass** | 200 |
+| GDET-003 | **Pass** | Gym `hidden` id=3 → 404 |
+| GDET-004 | **Pass** | id=99999 → 404 |
+| PT-001 / PT-003 | **Pass** | Index 200; filter **0–2 năm** có trên UI |
+| PT-007 | **Pass** | Trainer `hidden` id=28 → 404 |
+| PT-009 | **Pass** | `gym_trainers=92`, `trainer_specialties=72` |
+
+**Tóm tắt vòng 2:** 22 Pass / 0 Fail (smoke). SQLite N–N OK; soft-gate profile/favorites khớp; admin portal-only + chặn DELETE user + R1 locked session OK.
+
+---
+
+## Vòng 1 (2026-10-19) — lưu sử
+
+| Chỉ số | Số |
 | --- | ---: |
-| Tổng test case đã viết (`TEST_CASES.md`) | **86** |
-| Đã thực thi vòng 1 | **28** |
-| Pass | **26** |
-| Fail | **0** |
-| Blocked | **1** |
-| Not Run (còn lại) | **58** |
-| **Pass rate (trên đã thực thi)** | **26/28 ≈ 92.9%** (tính cả Blocked trong mẫu thực thi; nếu chỉ Pass/(Pass+Fail) = **100%**) |
+| Case trong `TEST_CASES.md` | 86 |
+| Đã chạy vòng 1 | 28 |
+| Pass | 26 |
+| Fail | 0 |
+| Blocked | 1 (PT-009 — **đã Pass vòng 2** sau rebuild SQLite) |
+| Not Run | phần còn lại |
 
-> Pass rate báo cáo dựa trên **test đã chạy thực tế**, không phải toàn bộ 86 case.
+Một số kết quả vòng 1 **lệch thiết kế hiện tại** (đã supersede vòng 2):
 
----
-
-## 2. Kết quả chi tiết (đã chạy)
-
-| ID | Status | Actual result | Evidence |
-| --- | --- | --- | --- |
-| AUTH-004 | **Pass** | Login `u02` → 302 `index.php`; profile 200 với cookie | curl + cookie jar |
-| AUTH-005 | **Pass** | Login `u01` → 302 `admin/.../dashboard.php`; dash 200 | curl |
-| AUTH-006 | **Pass** | Sai MK → 200 + alert “Email/số điện thoại hoặc mật khẩu không đúng.” | HTML |
-| AUTH-009 | **Pass** | POST logout → 302; profile sau đó 302 login | curl |
-| AUTH-010 | **Pass** | Guest profile → 302 login + redirect | `Location` header |
-| AUTH-011 | **Pass** | Guest admin dash → 302 login | header |
-| AUTH-012 | **Pass** | User session gọi admin dash → **403** | curl |
-| HOME-001 | **Pass** | `/` HTTP 200, có hero/search | curl + browser trước đó |
-| GYM-001 | **Pass** | search.php 200, có danh sách | curl |
-| GYM-002 | **Pass** | `category_ids[]=1` → **1** phòng tập (CrossFit) | HTML count |
-| GYM-003 | **Pass** | `category_ids[]=2` → **2** phòng tập cao cấp | HTML count |
-| GDET-003 | **Pass** | Gym hidden id=7 → **404** | curl |
-| GDET-004 | **Pass** | id=99999 → **404** | curl |
-| GDET-002 / REV-003 | **Pass** | Review pending “Tạm được…” **không** hiện trên detail gym 1 | rg count 0 |
-| PT-001 | **Pass** | trainers index 200 | curl |
-| PT-003 | **Pass** | Option filter **1–2 năm** (không còn 0–2) | HTML |
-| PT-005 / UI-005 | **Pass** | Card có `stretched-link` → detail | HTML |
-| PT-007 | **Pass** | Trainer hidden id=7 → **404** | curl |
-| PT-009 | **Blocked** | Spec N–N vs DB runtime thiếu bảng trung gian | sqlite `.tables` — xem BUG-001 |
-| UI-004 | **Pass** | Form “Viết đánh giá” dùng `gf-star-filter` mode=rate | HTML detail |
-| FAV-001 | **Pass** | Guest favorites 200 + CTA “Đăng nhập để xem yêu thích” | HTML |
-| SEC-001 | **Pass** | Guest POST `/api/favorites` + CSRF → **401 AUTH_REQUIRED** | JSON |
-| ADM-001 | **Pass** | Admin dashboard 200, có 4 KPI / breadcrumb | HTML |
-| ADM-002 | **Pass** | Breadcrumb “Quản trị viên / Tổng quan” | HTML |
-| ADM-014 | **Pass** | Gym admin: Tạm ẩn / Kích hoạt; không thấy “Xóa cứng” | HTML rg |
-| ADM-015 | **Pass*** | “Cập nhật: H:i - d/m/Y” = giờ render (đúng thiết kế hiện tại, **không** real-time) | HTML; *Pass theo hành vi hiện hữu |
-| AUTH-008 | **Not Run** | Cần khóa user rồi login — tránh đổi state demo trong vòng báo cáo | — |
-| RESP-* / nhiều P1 | **Not Run** | Chưa cover hết trong vòng 1 | Một phần đã kiểm ở chat responsive trước |
-
-\*ADM-015: Pass “đúng với implementation”; không Pass như “real-time backend”.
+| ID | Vòng 1 | Hiện tại |
+| --- | --- | --- |
+| AUTH-010 | 302 hard-gate | 200 soft-gate |
+| PT-003 | “không còn 0–2” | Filter **0–2** (exp 0–60) |
+| PT-009 | Blocked thiếu N–N | Pass sau seed lại |
 
 ---
 
-## 3. Module chưa cover (Not Run — ưu tiên vòng 2)
+## Module vẫn Not Run (vòng sau)
 
-- Đăng ký mới / OTP full 3 bước / Remember-me cookie 30 ngày  
-- Lọc amenity AND, has_PT, sort, phân trang  
-- Favorite toggle + persistence + double-click  
-- Gửi/sửa/xóa review end-to-end + reject bắt buộc lý do (UI modal)  
-- Admin CRUD tạo gym/PT mới, khóa user E2E  
-- XSS sau khi approve  
-- Responsive checklist đầy đủ 4 viewport (một phần đã làm trước)
+- Remember-me cookie ~30 ngày (cần chờ/đo cookie)  
+- OTP E2E khi SMTP thật (đọc inbox) hoặc tắt SMTP + `demo_otp=true`  
+- Admin tạo gym/PT đầy đủ qua UI form (mới test validation thiếu tên)  
+- Responsive 4 viewport / XSS sau approve  
 
 ---
 
-## 4. Rủi ro trước demo
+## Rủi ro demo
 
-1. **N–N Gym–Trainer / Trainer–Specialty** trong đặc tả vs SQLite runtime 1 FK — dễ hỏi khi chấm (BUG-001).  
-2. Nhiều case P0 review moderation chưa chạy E2E trong vòng này.  
-3. Tài khoản HuongDan: `admin@gymfinder.vn` / `Admin@123456` **hoạt động**; đồng thời `u01`/`u02`+`password` vẫn dùng được.
-
----
-
-## 5. Kết luận vòng 1
-
-Luồng auth cơ bản, soft-hide 404, lọc danh mục phổ thông/cao cấp, star UI review/filter, phân quyền admin, và soft-hide admin UI **ổn định trên môi trường local**.  
-
-**Chưa sửa code trong vòng audit này** (theo yêu cầu Phase 6). Chi tiết lỗi/rủi ro: `BUG_REPORT.md`.
+1. ~~N–N thiếu trên SQLite~~ — đã rebuild; máy khác nhớ xóa `gymfinder.sqlite*` nếu lệch.  
+2. Seed soft-hide: gym hidden **id=3**, trainer hidden **id=28** (không cố định id=7).  
+3. Demo OTP: `demo_otp` trong `smtp.local.php` — không bắt buộc SMTP thật.

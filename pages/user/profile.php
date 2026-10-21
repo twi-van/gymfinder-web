@@ -1,6 +1,7 @@
 <?php
 require_once dirname(__DIR__, 2) . '/backend/bootstrap.php';
 $user = gf_current_user();
+gf_reject_locked_session($user);
 $msg = '';
 $error = '';
 

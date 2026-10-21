@@ -93,9 +93,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } elseif ($table === 'districts') {
                     $st = gf_pdo()->prepare('SELECT COUNT(*) FROM gyms WHERE district_id=?');
                     $st->execute([$id]);
-                    $used = (int) $st->fetchColumn();
-                    if ($used > 0) {
-                        throw new RuntimeException('Không thể xóa: còn ' . $used . ' phòng tập thuộc khu vực này.');
+                    $usedGyms = (int) $st->fetchColumn();
+                    if ($usedGyms > 0) {
+                        throw new RuntimeException('Không thể xóa: còn ' . $usedGyms . ' phòng tập thuộc khu vực này.');
+                    }
+                    $st = gf_pdo()->prepare('SELECT COUNT(*) FROM trainers WHERE district_id=?');
+                    $st->execute([$id]);
+                    $usedTrainers = (int) $st->fetchColumn();
+                    if ($usedTrainers > 0) {
+                        throw new RuntimeException('Không thể xóa: còn ' . $usedTrainers . ' huấn luyện viên gắn khu vực này.');
                     }
                 }
                 gf_pdo()->prepare("DELETE FROM {$table} WHERE id=?")->execute([$id]);

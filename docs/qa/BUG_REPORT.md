@@ -13,7 +13,7 @@
 | P0 | 0 | DB local đã rebuild (N–N) |
 | P1 | 0 | |
 | P2 | 0 | Hard-delete user API đã chặn (405 BUSINESS_RULE) |
-| P3 | 0 | BUG-002 HuongDan đã sync seed |
+| P3 | 0 | Soft-gate + docs đã sync; R1 locked-session đã vá |
 
 ---
 
@@ -46,12 +46,13 @@
 
 | Trường | Nội dung |
 | --- | --- |
-| **Severity** | **P3** (UX/consistency) |
+| **Severity** | ~~P3~~ → **Resolved (2026-10-21)** |
 | **Module** | Favorites / Auth |
 | **Steps** | Guest mở `/pages/user/favorites.php` và `/pages/user/profile.php` |
 | **Expected** | Cùng chiến lược chặn Guest (theo đặc tả: thao tác cá nhân cần đăng nhập) |
 | **Actual (cũ)** | Favorites: **200** + CTA. Profile: **302** login — không thống nhất |
 | **Fix (2026-10-21)** | Profile chuyển **soft-gate** giống Favorites (200 + CTA Đăng nhập / Đăng ký) |
+| **Verify (vòng 2)** | Guest cả hai trang → HTTP 200 + CTA |
 | **Files** | `pages/user/favorites.php`, `pages/user/profile.php` |
 
 ---
@@ -99,4 +100,15 @@
 4. ~~P2 BUG-005~~ — chặn DELETE user (chỉ khóa/mở).  
 5. ~~BUG-002 docs tài khoản~~ — HuongDan sync seed + hướng dẫn chạy.
 
-**Đã sửa (2026-10-21):** Sort “Mới nhất”; bỏ `goal`; SMTP untrack; soft-gate Profile; AUTH→CSRF; chặn xóa cứng user; HuongDanChay.
+**Đã sửa (2026-10-21):** Sort “Mới nhất”; bỏ `goal`; SMTP untrack; soft-gate Profile; AUTH→CSRF; chặn xóa cứng user; HuongDanChay; R1 `gf_reject_locked_session` (profile/favorites); R2 tooltip khóa admin; FK `trainers.district_id` RESTRICT; sync doc CSDL/dacta.
+
+### BUG-006 — Session locked vẫn sửa profile (web)
+
+| Trường | Nội dung |
+| --- | --- |
+| **Severity** | ~~P1~~ → **Resolved (2026-10-21)** |
+| **Module** | Profile / Auth |
+| **Trước** | API chặn `ACCOUNT_LOCKED`; form `profile.php` dùng `gf_current_user()` không kick locked |
+| **Sau** | `gf_reject_locked_session()` → logout + `login.php?error=locked` |
+| **Verify** | Smoke R1-LOCK Pass (vòng 2) |
+| **Files** | `backend/auth.php`, `pages/user/profile.php`, `pages/user/favorites.php` |

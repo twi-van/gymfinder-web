@@ -1,6 +1,7 @@
 <?php
 require_once dirname(__DIR__, 2) . '/backend/bootstrap.php';
 $user = gf_current_user();
+gf_reject_locked_session($user);
 $pageTitle = 'Yêu thích - GYMFINDER';
 $bodyClass = 'bg-light d-flex flex-column min-vh-100';
 require dirname(__DIR__, 2) . '/includes/layout_head.php';

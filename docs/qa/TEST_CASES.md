@@ -19,7 +19,7 @@
 | AUTH-007 | Auth | Email không tồn tại | P0 | Guest | no@x.test / password | Login | Thông báo lỗi |
 | AUTH-008 | Auth | Tài khoản bị khóa | P0 | Admin khóa u02 trước | u02 / password | Login | Không đăng nhập được |
 | AUTH-009 | Auth | Đăng xuất | P0 | Đã login User | — | Logout | Session hết; Guest menu |
-| AUTH-010 | Auth | Guest mở profile URL | P0 | Guest | `/pages/user/profile.php` | Mở URL trực tiếp | Redirect login + redirect param |
+| AUTH-010 | Auth | Guest mở profile URL | P0 | Guest | `/pages/user/profile.php` | Mở URL trực tiếp | Soft-gate HTTP 200 + CTA Đăng nhập/Đăng ký (không bắt buộc 302) |
 | AUTH-011 | Auth | Guest mở admin dashboard | P0 | Guest | `/admin/pages/dashboard.php` | Mở URL | Redirect login (không thấy admin) |
 | AUTH-012 | Auth | User mở admin dashboard | P0 | Login User | admin URL | Mở URL | Bị từ chối / redirect, không vào admin |
 | AUTH-013 | Auth | Remember-me | P1 | Guest | Tick ghi nhớ | Login → đóng cookie session theo thiết kế | Vẫn đăng nhập trong thời hạn (~30 ngày) nếu cookie còn |
@@ -58,7 +58,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | GDET-001 | Gym detail | Hiển thị đầy đủ | P0 | Guest | id=1 | Mở | Tên, ảnh, giá, địa chỉ, tiện ích, giờ |
 | GDET-002 | Gym detail | Chỉ review approved | P0 | Guest | Gym có review | Xem block đánh giá | Không thấy pending/rejected |
-| GDET-003 | Gym detail | Gym hidden → 404 | P0 | Guest | id gym hidden (vd 7) | Mở URL | 404 |
+| GDET-003 | Gym detail | Gym hidden → 404 | P0 | Guest | id gym `status=hidden` (seed hiện tại vd. 3) | Mở URL | 404 |
 | GDET-004 | Gym detail | ID không tồn tại | P0 | Guest | id=99999 | Mở | 404 |
 | GDET-005 | Gym detail | Favorite guest | P0 | Guest | Nút ♥ | Click | Modal/CTA đăng nhập |
 | GDET-006 | Gym detail | Liên hệ | P1 | Guest | Nút liên hệ | Click | Modal hiện SĐT/thông tin |
@@ -72,13 +72,13 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | PT-001 | Trainers | Danh sách load | P0 | Guest | index | Mở | Chỉ PT active |
 | PT-002 | Trainers | Lọc chuyên môn | P1 | Guest | Yoga | Áp dụng | Kết quả đúng chuyên môn |
-| PT-003 | Trainers | Lọc kinh nghiệm 1–2 | P1 | Guest | exp=1-2 | Áp dụng | years 1–2; không 0 năm |
+| PT-003 | Trainers | Lọc kinh nghiệm 0–2 | P1 | Guest | exp=0-2 (UI: 0–2 năm) | Áp dụng | years 0–2 (đặc tả 0–60) |
 | PT-004 | Trainers | Star filter rating | P1 | Guest | 4★ | Áp dụng | avg ≥ 4 |
 | PT-005 | Trainers | Click card → detail | P0 | Guest | Card | Click body card | Vào detail, không cần chỉ nút |
 | PT-006 | Trainers | Detail đầy đủ | P0 | Guest | id active | Mở | Tên, chuyên môn, KN, bio, gym, review |
-| PT-007 | Trainers | PT hidden → 404 | P0 | Guest | id=7 | Mở | 404 |
+| PT-007 | Trainers | PT hidden → 404 | P0 | Guest | id trainer `status=hidden` (seed hiện tại vd. 28) | Mở | 404 |
 | PT-008 | Trainers | Gym chính hidden | P1 | Seed T08 gym 7 hidden | Detail T08 nếu public | Theo đặc tả | Không lộ nơi làm việc gym hidden trên public |
-| PT-009 | Trainers | N–N nhiều gym | P1 | Spec vs DB | Admin + public | Gán ≥2 gym / ≥2 specialty; public không nhân bản PT | Pass sau rebuild sqlite (code N–N đã có) |
+| PT-009 | Trainers | N–N nhiều gym | P1 | Spec vs DB | Admin + public | Gán ≥2 gym / ≥2 specialty; public không nhân bản PT | Có dòng `gym_trainers` / `trainer_specialties`; list không trùng PT |
 
 ---
 
@@ -90,7 +90,7 @@
 | PROF-002 | Profile | Cập nhật họ tên | P0 | Login User | Tên mới | Lưu | Thành công, dữ liệu giữ |
 | PROF-003 | Profile | Đổi MK sai MK cũ | P0 | Login User | MK cũ sai | Submit | Lỗi, MK không đổi |
 | PROF-004 | Profile | Đổi MK hợp lệ | P1 | Login User | MK mới ≥8 | Submit | Thành công; login lại được |
-| PROF-005 | Profile | Guest bị chặn | P0 | Guest | URL profile | Mở | Redirect login |
+| PROF-005 | Profile | Guest bị chặn | P0 | Guest | URL profile | Mở | Soft-gate 200 + CTA (giống Favorites) |
 
 ---
 
@@ -134,7 +134,7 @@
 | ADM-005 | Admin | Gym tạm ẩn | P0 | Admin | Gym active | Tạm ẩn | Public 404; admin vẫn thấy |
 | ADM-006 | Admin | Gym kích hoạt lại | P0 | Gym hidden | Kích hoạt | Public hiện lại |
 | ADM-007 | Admin | Gym thêm thiếu tên | P1 | Admin | Form trống | Submit | Validation |
-| ADM-008 | Admin | PT list/edit | P0 | Admin | trainers | Mở/sửa | Lưu được; KN ≥1 |
+| ADM-008 | Admin | PT list/edit | P0 | Admin | trainers | Mở/sửa | Lưu được; KN 0–60; ≥1 gym + ≥1 chuyên môn |
 | ADM-009 | Admin | PT tạm ẩn | P0 | Admin | PT active | Ẩn | Public 404 |
 | ADM-010 | Admin | Users khóa/mở | P0 | Admin | User | Khóa rồi mở | Login bị chặn khi khóa |
 | ADM-011 | Admin | Categories tabs | P1 | Admin | categories | Đổi tab | CRUD theo tab |
@@ -194,5 +194,5 @@
 
 - **Star filter (search):** mode `filter` — “từ X★ trở lên”, có Bỏ chọn.  
 - **Star input (review form):** mode `rate` — chọn đúng X sao.  
-- **Kinh nghiệm:** min 1; filter `1-2` (alias `0-2`).  
+- **Kinh nghiệm:** 0–60; filter UI `0-2` / `3-5` / `6plus` (và alias `1-2` nếu còn).  
 - **Không map/booking/payment/chat.**

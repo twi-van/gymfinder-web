@@ -223,7 +223,8 @@ CREATE TABLE gym_amenities (
 
 -- =====================================================================
 -- 10. trainers
--- specialty_id / gym_id / district_id nullable (được chuẩn hóa qua trainer_specialties và gym_trainers N-N)
+-- specialty_id / gym_id nullable (legacy tương thích; nguồn chuẩn = trainer_specialties / gym_trainers)
+-- district_id: ON DELETE RESTRICT theo đặc tả CSDL (giống gyms.district_id)
 -- =====================================================================
 CREATE TABLE trainers (
   id               INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -260,7 +261,7 @@ CREATE TABLE trainers (
   CONSTRAINT fk_trainers_specialty
     FOREIGN KEY (specialty_id) REFERENCES specialties(id) ON DELETE SET NULL,
   CONSTRAINT fk_trainers_district
-    FOREIGN KEY (district_id)  REFERENCES districts(id)   ON DELETE SET NULL,
+    FOREIGN KEY (district_id)  REFERENCES districts(id)   ON DELETE RESTRICT,
 
   -- CHECK 
   CONSTRAINT chk_trainers_slug

@@ -81,7 +81,7 @@ gf_admin_table_open([
             <input type="hidden" name="status" value="<?= $r['status']==='active'?'locked':'active' ?>">
             <button class="btn btn-action <?= $r['status']==='active'?'btn-action-delete':'btn-action-edit' ?>" title="<?= $r['status']==='active'?'Khóa':'Mở khóa' ?>"><i class="fa-solid <?= $r['status']==='active'?'fa-lock':'fa-lock-open' ?>"></i></button>
         </form>
-        <?php else: ?><button class="btn btn-action btn-action-delete" disabled title="Không thể tự khóa tài khoản admin"><i class="fa-solid fa-lock"></i></button>
+        <?php else: ?><button class="btn btn-action btn-action-delete" disabled title="Không thể khóa tài khoản quản trị viên"><i class="fa-solid fa-lock"></i></button>
         <?php endif; ?>
     </td>
 </tr>

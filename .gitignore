@@ -34,3 +34,6 @@ scratch/
 # Gemini / IDE
 .gemini/
 
+
+# Báo cáo khung (local, không commit)
+docs/specs/GymFinder_BaoCao_Khung.docx

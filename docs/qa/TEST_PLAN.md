@@ -1,7 +1,7 @@
 # GYMFINDER — Test Plan
 
-**Phiên bản:** 1.0  
-**Ngày lập:** 2026-10-19  
+**Phiên bản:** 1.1  
+**Ngày lập:** 2026-10-19 · **Cập nhật:** 2026-10-21  
 **Nguồn đối chiếu:** `docs/specs/GYMFINDER_dacta.docx`, `docs/specs/GYMFINDER_CSDL.docx`, `README.md`, `docs/specs/GymFinder_HuongDanChay.md`, mã nguồn `pages/`, `admin/`, `backend/`, `api/`  
 **Phạm vi:** Đồ án web cuối kỳ — UI, functional, phân quyền, luồng nghiệp vụ trong đặc tả. **Không** kiểm thử bản đồ / đặt lịch / thanh toán / chat (ngoài phạm vi).
 
@@ -34,7 +34,7 @@
 | User | `u02@gymfinder.test` | `password` |
 | Guest | — | — |
 
-> Tài khoản `admin@gymfinder.vn` / `Admin@123456` trong HuongDan có thể **không khớp** seed SQLite hiện tại — ưu tiên `u01`/`u02` + `password`.
+> Seed chuẩn: `u01`/`u02` + `password`. Không dùng `admin@gymfinder.vn` trừ khi tự tạo tay.
 
 ---
 
@@ -50,7 +50,7 @@
 | Chi tiết gym | Có | Có | Có |
 | Bản đồ | Ngoài phạm vi | Không | Không |
 | Danh sách/chi tiết PT | Có | Có | Có |
-| PT N–N nhiều gym / nhiều chuyên môn | Có | Code + schema + seed đã có `gym_trainers` / `trainer_specialties`; DB local cũ cần rebuild sqlite | Có — sau seed lại |
+| PT N–N nhiều gym / nhiều chuyên môn | Có | `gym_trainers` / `trainer_specialties` (nguồn chuẩn); SQLite local đã seed | Có |
 | Yêu thích gym/PT | Có | Có | Có |
 | Đánh giá + duyệt/từ chối + lý do | Có | Có | Có |
 | Hồ sơ User / đổi MK | Có | Có | Có |
@@ -86,7 +86,7 @@
 | Loại | Áp dụng |
 | --- | --- |
 | Positive / Negative | Auth, form, admin CRUD |
-| Boundary | Giá, sao 1–5, kinh nghiệm 1–60, OTP |
+| Boundary | Giá, sao 1–5, kinh nghiệm **0–60**, OTP |
 | Equivalence | Bộ lọc khu vực/danh mục/tiện ích |
 | Role/permission | Guest vs User vs Admin; URL trực tiếp |
 | State transition | Review pending→approved/rejected; gym/PT active↔hidden; user active↔locked |
@@ -101,10 +101,11 @@
 
 ## 6. Dữ liệu / rủi ro đã biết (pre-test)
 
-1. Soft-hide gym/PT → public 404 (đã thấy trong code/seed).  
+1. Soft-hide gym/PT → public 404 (seed: kiểm `status='hidden'`, không giả định cố định id=7).  
 2. “Cập nhật giờ” dashboard = `date()` lúc render, **không** real-time backend.  
-3. Quan hệ PT–Gym / PT–Specialty theo seed hiện tại là cột FK chính, không bảng trung gian trên SQLite đang chạy.  
-4. Favorites guest: soft-gate (HTTP 200 + CTA đăng nhập), profile: hard redirect 302 — ghi nhận khi test phân quyền.
+3. Quan hệ PT–Gym / PT–Specialty: bảng N–N là nguồn chuẩn; cột `trainers.gym_id` / `specialty_id` chỉ legacy.  
+4. Guest Favorites **và** Profile: soft-gate (HTTP 200 + CTA). User `locked` (kể cả session cũ) → đá login `?error=locked`.  
+5. Admin portal-only: login → `/admin`; mở trang public → dashboard.
 
 ---
 

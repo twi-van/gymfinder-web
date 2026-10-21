@@ -114,9 +114,9 @@ php -S localhost:8000 router.php
 
 ---
 
-## 4. Quên mật khẩu / OTP email (tuỳ chọn)
+## 4. Quên mật khẩu / OTP email
 
-Mặc định quên mật khẩu cần SMTP. File mẫu:
+Luồng OTP (3 bước) thuộc chức năng chính. **Demo/chấm local:** bật `demo_otp` để hiện mã trên UI, **không cần** SMTP. **Gửi mail thật:** cấu hình SMTP và tắt `demo_otp`.
 
 ```bash
 cp backend/smtp.local.php.example backend/smtp.local.php
@@ -126,10 +126,10 @@ Chỉnh `backend/smtp.local.php` (file này **đã gitignore — không commit**
 
 | Mục | Ý nghĩa |
 | --- | --- |
-| `username` / `password` / `from_email` | Tài khoản gửi mail (vd. Gmail + **App Password**) |
-| `demo_otp` => `true` | Hiện OTP trên UI, **không cần** gửi mail thật (tiện demo/chấm) |
+| `demo_otp` => `true` | Hiện OTP trên UI (khuyến nghị khi demo chưa có SMTP) |
+| `username` / `password` / `from_email` | SMTP gửi mail thật (vd. Gmail + **App Password**) khi `demo_otp` = `false` |
 
-Chỉ bật `demo_otp` khi chưa cấu hình SMTP đủ; khi đã có SMTP đầy đủ, hệ thống gửi OTP qua email người dùng nhập.
+Không bật đồng thời kỳ vọng “chỉ demo” và “chỉ SMTP”: chọn một chế độ.
 
 ---
 
@@ -169,10 +169,12 @@ User khác trong seed: `u03@…` … `u24@…` — cùng mật khẩu `password`
 **Lưu ý nghiệp vụ:**
 
 - Gym / HLV: **ẩn / hiện** (không xóa cứng trên UI).
-- User: **khóa / mở** (không xóa tài khoản trên UI).
+- Chỉ khóa/mở tài khoản **User** (`role=user`); không khóa Admin; không xóa tài khoản trên UI.
+- User đang `locked` (kể cả session cũ) bị đá về login — không sửa hồ sơ / yêu thích.
 - Đánh giá user: chờ admin duyệt; từ chối cần lý do.
 - Guest mở Favorites / Profile: soft-gate (CTA đăng nhập), không bắt buộc 302.
-- **Admin** sau login chỉ ở `/admin/*`. Mở trang chủ / portal công khai sẽ bị chuyển về dashboard — kiểm tra UI public bằng **Guest** hoặc **User** (`u02`).
+- **Admin** sau login chỉ ở `/admin/*`. Mở trang chủ / portal công khai → dashboard — kiểm UI public bằng **Guest** hoặc **User** (`u02`).
+- Liên kết HLV–gym / HLV–chuyên môn: bảng N–N (`gym_trainers`, `trainer_specialties`) là nguồn chuẩn; cột `trainers.gym_id` / `specialty_id` chỉ legacy.
 
 ---
 
