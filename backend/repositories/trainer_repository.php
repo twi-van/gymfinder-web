@@ -79,8 +79,9 @@ function gf_search_trainers_paged(array $f): array
     }
 
     $exp = (string) ($f['exp'] ?? $f['experience'] ?? '');
-    if ($exp === '0-2') {
-        $sql .= ' AND t.years_experience BETWEEN 0 AND 2';
+    // 0-2 giữ tương thích URL cũ → gom về 1–2 (không còn 0 năm kinh nghiệm)
+    if ($exp === '1-2' || $exp === '0-2') {
+        $sql .= ' AND t.years_experience BETWEEN 1 AND 2';
     } elseif ($exp === '3-5') {
         $sql .= ' AND t.years_experience BETWEEN 3 AND 5';
     } elseif ($exp === '6plus') {

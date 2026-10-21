@@ -40,6 +40,7 @@ function gf_db_init(array $config): void
     gf_db_ensure_password_reset_otps($pdo);
     gf_db_ensure_category_labels_vi($pdo);
     gf_db_ensure_premium_exclusive($pdo);
+    gf_db_ensure_trainer_experience_min($pdo);
     $GLOBALS['GF_PDO'] = $pdo;
 }
 
@@ -171,6 +172,16 @@ function gf_db_ensure_category_labels_vi(PDO $pdo): void
         }
     } catch (Throwable $e) {
         // Bảng categories chưa sẵn sàng — bỏ qua
+    }
+}
+
+/** Kinh nghiệm HLV tối thiểu 1 năm (seed/DB cũ có thể còn 0). */
+function gf_db_ensure_trainer_experience_min(PDO $pdo): void
+{
+    try {
+        $pdo->exec('UPDATE trainers SET years_experience = 1 WHERE years_experience < 1');
+    } catch (Throwable $e) {
+        // Bảng chưa sẵn sàng — bỏ qua
     }
 }
 

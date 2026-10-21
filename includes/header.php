@@ -18,7 +18,9 @@ $isAdmin = ($user && ($user['role'] ?? '') === 'admin');
                 <li class="nav-item"><a class="nav-link <?= basename($currentScript) === 'index.php' && !$trainerActive ? 'active' : '' ?>" href="<?= gf_h($home) ?>">Trang chủ</a></li>
                 <li class="nav-item"><a class="nav-link <?= $gymActive ? 'active' : '' ?>" href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>">Phòng tập</a></li>
                 <li class="nav-item"><a class="nav-link <?= $trainerActive ? 'active' : '' ?>" href="<?= gf_h(gf_url('pages/trainers/index.php')) ?>">Huấn luyện viên</a></li>
+                <?php if (!$isAdmin): ?>
                 <li class="nav-item"><a class="nav-link <?= $favoriteActive ? 'active' : '' ?>" href="<?= gf_h(gf_url('pages/user/favorites.php')) ?>">Yêu thích</a></li>
+                <?php endif; ?>
             </ul>
             <div class="d-flex flex-wrap align-items-center gap-2 mt-3 mt-lg-0 navbar-user-actions">
                 <?php if ($user): ?>

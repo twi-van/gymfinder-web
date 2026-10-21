@@ -19,7 +19,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 CREATE TABLE users (
   id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
   full_name     VARCHAR(100) NOT NULL,
-  email         VARCHAR(255) NULL,
+  email         VARCHAR(255) NOT NULL,
   phone         VARCHAR(20)  NULL,
   password_hash VARCHAR(255) NOT NULL,
   avatar_url    VARCHAR(255) NULL,
@@ -266,7 +266,7 @@ CREATE TABLE trainers (
   CONSTRAINT chk_trainers_slug
     CHECK (slug NOT REGEXP '^[0-9]+$'),
   CONSTRAINT chk_trainers_exp
-    CHECK (years_experience BETWEEN 0 AND 60),
+    CHECK (years_experience BETWEEN 1 AND 60),
   CONSTRAINT chk_trainers_rating
     CHECK (avg_rating BETWEEN 0 AND 5),
   CONSTRAINT chk_trainers_phone

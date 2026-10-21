@@ -5,19 +5,31 @@ $id = (int)($_GET['id'] ?? 0);
 $t = gf_get_trainer($id);
 if (!$t) {
     http_response_code(404);
-    echo 'Không tìm thấy HLV';
+    $pageTitle = 'Không tìm thấy HLV';
+    $bodyClass = 'bg-light d-flex flex-column min-vh-100';
+    require dirname(__DIR__, 2) . '/includes/layout_head.php';
+    require dirname(__DIR__, 2) . '/includes/header.php';
+    echo '<main class="flex-grow-1"><div class="container py-5"><h2 class="fw-bold">Không tìm thấy HLV</h2><p class="text-secondary">Hồ sơ không tồn tại hoặc đang tạm ẩn.</p><a class="btn btn-outline-primary rounded-pill mt-2" href="' . gf_h(gf_url('pages/trainers/index.php')) . '">Quay lại danh sách HLV</a></div></main>';
+    require dirname(__DIR__, 2) . '/includes/footer.php';
     exit;
 }
 $user = gf_current_user();
+$isAdminUser = $user && (($user['role'] ?? '') === 'admin');
+$canFavorite = !$isAdminUser; // Guest vẫn thấy tim (soft-gate login); admin ẩn
+$canReview = $user && !$isAdminUser;
 $msg = '';
 $msgType = 'info';
-$myReview = $user ? gf_my_review_row((int)$user['id'], 'trainer', $id) : null;
+$myReview = $canReview ? gf_my_review_row((int)$user['id'], 'trainer', $id) : null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['comment']) || isset($_POST['action']))) {
     gf_require_csrf();
     if (!$user) {
         gf_redirect(gf_url('pages/auth/login.php?redirect=' . urlencode($_SERVER['REQUEST_URI'])));
     }
+    if ($isAdminUser) {
+        $msg = 'Tài khoản quản trị không gửi đánh giá hội viên. Hãy dùng tài khoản user để thử.';
+        $msgType = 'warning';
+    } else {
     $action = $_POST['action'] ?? 'create_review';
     if ($action === 'create_review') {
         $res = gf_create_review((int)$user['id'], 'trainer', $id, (int)($_POST['rating'] ?? 5), (string)$_POST['comment']);
@@ -52,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['comment']) || isset(
     }
     $myReview = gf_my_review_row((int)$user['id'], 'trainer', $id);
     $t = gf_get_trainer($id);
+    }
 }
 $reviews = gf_trainer_reviews($id);
 $reviewLimit = 8;
@@ -61,7 +74,7 @@ if ($reviewPage > 1 && $reviewPage > (int)ceil($totalReviews / $reviewLimit)) {
     $reviewPage = max(1, (int)ceil($totalReviews / $reviewLimit));
 }
 $pagedReviews = array_slice($reviews, ($reviewPage - 1) * $reviewLimit, $reviewLimit);
-$isFav = $user && gf_is_fav((int)$user['id'], 'trainer', $id);
+$isFav = $user && $canFavorite && gf_is_fav((int)$user['id'], 'trainer', $id);
 $pageTitle = $t['full_name'] . ' - GYMFINDER';
 $bodyClass = 'bg-light';
 require dirname(__DIR__, 2) . '/includes/layout_head.php';
@@ -83,10 +96,12 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         <div class="row g-4">
             <div class="col-lg-8">
                 <section class="info-card mb-4 position-relative">
+                    <?php if ($canFavorite): ?>
                     <form method="post" action="<?= gf_h(gf_url('pages/user/favorite_toggle.php')) ?>" class="js-favorite-toggle position-absolute top-0 end-0 m-3" data-api-url="<?= gf_h(gf_url('api/favorites')) ?>" data-login-url="<?= gf_h(gf_url('pages/auth/login.php')) ?>" data-favorited="<?= $isFav ? '1' : '0' ?>">
                         <?= gf_csrf_field() ?><input type="hidden" name="target_type" value="trainer"><input type="hidden" name="target_id" value="<?= $id ?>"><input type="hidden" name="redirect" value="<?= gf_h($_SERVER['REQUEST_URI']) ?>">
                         <button id="btnDetailFav" class="border-0 bg-transparent text-secondary" type="submit" style="font-size:24px" aria-label="Yêu thích" aria-pressed="<?= $isFav ? 'true' : 'false' ?>"><?= $isFav ? '<i class="fa-solid fa-heart text-danger"></i>' : '<i class="fa-regular fa-heart"></i>' ?></button>
                     </form>
+                    <?php endif; ?>
                     <div class="d-flex flex-column flex-md-row gap-4 align-items-center align-items-md-start mb-4">
                         <img src="<?= gf_h($t['avatar']) ?>" alt="<?= gf_h($t['full_name']) ?>" class="rounded-circle object-fit-cover shadow" style="width:150px;height:150px;border:4px solid #fff" onerror="this.src='https://placehold.co/150x150?text=Trainer'">
                         <div class="text-center text-md-start">
@@ -112,7 +127,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                     <hr class="text-secondary opacity-25 my-4">
                     <h5 class="fw-bold mb-3">Giới thiệu</h5><p class="text-secondary" style="line-height:1.6"><?= gf_h($t['bio'] ?: 'Huấn luyện viên đang cập nhật thông tin giới thiệu.') ?></p>
                     <h5 class="fw-bold mb-3 mt-4">Kinh nghiệm &amp; phong cách huấn luyện</h5><p class="text-secondary" style="line-height:1.6"><?= (int)$t['years_experience'] ?> năm kinh nghiệm<?= $detailSpecLabel !== '' ? ' trong lĩnh vực ' . gf_h($detailSpecLabel) : '' ?>.</p>
-                    <h5 class="fw-bold mb-3 mt-4">Các bộ môn chuyên sâu</h5>
+                    <h5 class="fw-bold mb-3 mt-4">Chuyên môn</h5>
                     <?php if ($detailSpecNames === []): ?>
                         <span class="text-secondary small">Đang cập nhật.</span>
                     <?php else: ?>
@@ -124,12 +139,12 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 <section class="info-card" id="reviews">
                     <div class="d-flex align-items-center justify-content-between mb-4">
                         <h5 class="fw-bold mb-0">Đánh giá từ học viên <span class="text-secondary small fw-normal">(<?= $totalReviews ?> đã công khai)</span></h5>
-                        <?php if ($user && !$myReview): ?>
+                        <?php if ($canReview && !$myReview): ?>
                             <a href="#reviewForm" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">Viết đánh giá</a>
                         <?php endif; ?>
                     </div>
 
-                    <?php if ($user && $myReview): ?>
+                    <?php if ($canReview && $myReview): ?>
                         <!-- KHỐI ĐÁNH GIÁ CỦA CHÍNH USER -->
                         <div class="card border border-primary-subtle bg-light rounded-3 p-3 mb-4">
                             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
@@ -185,11 +200,13 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                                         <div class="modal-body py-3">
                                             <div class="mb-3">
                                                 <label class="form-label fw-semibold small">Mức độ hài lòng</label>
-                                                <select name="rating" class="form-select rounded-3">
-                                                    <?php for ($i = 5; $i >= 1; $i--): ?>
-                                                        <option value="<?= $i ?>" <?= (int)$myReview['rating'] === $i ? 'selected' : '' ?>><?= $i ?> sao</option>
-                                                    <?php endfor; ?>
-                                                </select>
+                                                <?php
+                                                $ratingFilterName = 'rating';
+                                                $ratingFilterValue = (string) (int) $myReview['rating'];
+                                                $ratingFilterId = 'editTrainerReviewRating';
+                                                $ratingFilterMode = 'rate';
+                                                require dirname(__DIR__, 2) . '/includes/rating_star_filter.php';
+                                                ?>
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label fw-semibold small">Nhận xét chi tiết</label>
@@ -221,17 +238,27 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                     <?php endforeach; ?>
                     <?= gf_render_user_pagination($reviewPage, $reviewLimit, $totalReviews, array_diff_key($_GET, ['r_page' => '']), 'r_page') ?>
                     
-                    <?php if ($user && !$myReview): ?>
+                    <?php if ($canReview && !$myReview): ?>
                         <form method="post" class="mt-4 pt-3 border-top" id="reviewForm">
                             <?= gf_csrf_field() ?>
                             <input type="hidden" name="action" value="create_review">
                             <label class="form-label fw-semibold">Viết đánh giá</label>
-                            <select name="rating" class="form-select mb-2" style="max-width:160px">
-                                <?php for($i=5;$i>=1;$i--): ?><option value="<?= $i ?>"><?= $i ?> sao</option><?php endfor; ?>
-                            </select>
+                            <div class="mb-2">
+                                <?php
+                                $ratingFilterName = 'rating';
+                                $ratingFilterValue = '5';
+                                $ratingFilterId = 'createTrainerReviewRating';
+                                $ratingFilterMode = 'rate';
+                                require dirname(__DIR__, 2) . '/includes/rating_star_filter.php';
+                                ?>
+                            </div>
                             <textarea name="comment" class="form-control mb-2" rows="3" required placeholder="Chia sẻ trải nghiệm..."></textarea>
                             <button class="btn btn-primary rounded-pill px-4">Gửi đánh giá</button>
                         </form>
+                    <?php elseif ($isAdminUser): ?>
+                        <div class="mt-4 pt-3 border-top text-center text-secondary small">
+                            <i class="fa-solid fa-shield-halved me-1 text-primary"></i>Admin duyệt đánh giá tại khu vực quản trị — không gửi review hội viên tại đây.
+                        </div>
                     <?php elseif (!$user): ?>
                         <div class="mt-4 pt-3 border-top text-center">
                             <a class="btn btn-outline-primary mt-3 rounded-pill px-4" href="<?= gf_h(gf_url('pages/auth/login.php?redirect=' . urlencode($_SERVER['REQUEST_URI'] . '#reviews'))) ?>">
@@ -282,4 +309,5 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         </div>
     </div>
 </main>
+<script src="<?= gf_h(gf_url('assets/js/rating-filter.js')) ?>" defer></script>
 <?php require dirname(__DIR__, 2) . '/includes/footer.php'; ?>

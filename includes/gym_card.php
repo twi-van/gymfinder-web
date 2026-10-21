@@ -1,6 +1,9 @@
 <?php
 /** @var array $gym */
 $isFav = !empty($isFav);
+$viewer = gf_current_user();
+// Guest + User: hiện nút tim; Admin: ẩn (API favorites cũng cấm admin).
+$canFavorite = !($viewer && (($viewer['role'] ?? '') === 'admin'));
 $href = gf_url('pages/gyms/detail.php?id=' . (int) $gym['id']);
 $cats = $gym['categories'] ?? [];
 $badge = '';
@@ -18,6 +21,7 @@ $reviews = (int) ($gym['review_count'] ?? 0);
         <div class="card-img-wrapper position-relative" style="height: 180px;">
             <img src="<?= gf_h($gym['cover'] ?? gf_cover_image(null, (int)$gym['id'])) ?>" class="card-img-top w-100 h-100 object-fit-cover rounded-top-4" alt="<?= gf_h($gym['name']) ?>" onerror="this.onerror=null;this.src='<?= gf_h(gf_cover_image(null, (int)$gym['id'])) ?>';">
             <?= $badge ?>
+            <?php if ($canFavorite): ?>
             <form method="post" action="<?= gf_h(gf_url('pages/user/favorite_toggle.php')) ?>" class="js-favorite-toggle position-absolute" data-api-url="<?= gf_h(gf_url('api/favorites')) ?>" data-login-url="<?= gf_h(gf_url('pages/auth/login.php')) ?>" data-favorited="<?= $isFav ? '1' : '0' ?>" style="top:10px;right:10px;z-index:2;">
                 <?= gf_csrf_field() ?>
                 <input type="hidden" name="target_type" value="gym">
@@ -25,6 +29,7 @@ $reviews = (int) ($gym['review_count'] ?? 0);
                 <input type="hidden" name="redirect" value="<?= gf_h($_SERVER['REQUEST_URI'] ?? '') ?>">
                 <button class="btn-favorite bg-white d-flex align-items-center justify-content-center border-0 shadow-sm" type="submit" style="width:32px;height:32px;border-radius:50%;" aria-label="Favorite" aria-pressed="<?= $isFav ? 'true' : 'false' ?>"><?= $heart ?></button>
             </form>
+            <?php endif; ?>
         </div>
         <div class="p-3 d-flex flex-column flex-grow-1">
             <h5 class="fw-bold mb-2 text-dark" style="font-size: 16px; min-height: 44px;">

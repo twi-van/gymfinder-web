@@ -1,6 +1,5 @@
 # Screenshots
 screenshots/
-DOCS/screenshots_raw/
 docs/screenshots_raw/
 database/*.sqlite
 database/*.sqlite-*

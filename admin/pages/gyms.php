@@ -266,7 +266,7 @@ gf_admin_table_open([
                     <td class="text-end gym-actions pe-3 text-nowrap">
                         <div class="d-inline-flex align-items-center justify-content-end gap-2">
                             <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#gymView<?= (int)$r['id'] ?>" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
-                            <button type="button" class="btn btn-action btn-action-edit" data-id="<?= (int)$r['id'] ?>" data-name="<?= gf_h($r['name']) ?>" data-phone="<?= gf_h($r['phone'] ?? '') ?>" data-address="<?= gf_h($r['address']) ?>" data-district="<?= (int)$r['district_id'] ?>" data-min="<?= (int)$r['price_min'] ?>" data-max="<?= (int)$r['price_max'] ?>" data-description="<?= gf_h($gymDescriptions[(int)$r['id']] ?? '') ?>" data-cover="<?= gf_h($r['cover_image_url'] ?? '') ?>" data-cover-display="<?= gf_h(gf_cover_image($r['cover_image_url'] ?? null, (int)$r['id'])) ?>" data-gallery='<?= htmlspecialchars(json_encode($gymGalleries[(int)$r['id']] ?? []), ENT_QUOTES, 'UTF-8') ?>' data-categories="<?= gf_h(implode(',', $gymCategoryIds[(int)$r['id']] ?? [])) ?>" data-amenities="<?= gf_h(implode(',', $gymAmenityIds[(int)$r['id']] ?? [])) ?>" onclick="gymModalEdit(this)" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+                            <button type="button" class="btn btn-action btn-action-edit" data-id="<?= (int)$r['id'] ?>" data-name="<?= gf_h($r['name']) ?>" data-phone="<?= gf_h($r['phone'] ?? '') ?>" data-address="<?= gf_h($r['address']) ?>" data-district="<?= (int)$r['district_id'] ?>" data-min="<?= (int)$r['price_min'] ?>" data-max="<?= (int)$r['price_max'] ?>" data-hours="<?= gf_h($r['opening_hours'] ?? '') ?>" data-featured="<?= (int)($r['is_featured'] ?? 0) ?>" data-description="<?= gf_h($gymDescriptions[(int)$r['id']] ?? '') ?>" data-cover="<?= gf_h($r['cover_image_url'] ?? '') ?>" data-cover-display="<?= gf_h(gf_cover_image($r['cover_image_url'] ?? null, (int)$r['id'])) ?>" data-gallery='<?= htmlspecialchars(json_encode($gymGalleries[(int)$r['id']] ?? []), ENT_QUOTES, 'UTF-8') ?>' data-categories="<?= gf_h(implode(',', $gymCategoryIds[(int)$r['id']] ?? [])) ?>" data-amenities="<?= gf_h(implode(',', $gymAmenityIds[(int)$r['id']] ?? [])) ?>" onclick="gymModalEdit(this)" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
                             <form method="post" class="d-inline m-0 p-0" onsubmit="return handleGymStatusSubmit(this);">
                                 <?= gf_csrf_field() ?>
                                 <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
@@ -407,6 +407,18 @@ gf_admin_table_close([
                     <div class="col-md-6"><label class="form-label">Khu vực *</label><select class="form-select admin-input" name="district_id" id="gym-district" required><?php foreach ($districts as $d): ?><option value="<?= (int)$d['id'] ?>"><?= gf_h($d['name']) ?></option><?php endforeach; ?></select></div>
                     <div class="col-md-6"><label class="form-label">Giá từ</label><input class="form-control admin-input" type="number" min="0" name="price_min" id="gym-min" value="200000"></div>
                     <div class="col-md-6"><label class="form-label">Giá đến</label><input class="form-control admin-input" type="number" min="0" name="price_max" id="gym-max" value="800000"></div>
+                    <div class="col-md-6">
+                        <label class="form-label">Giờ mở cửa</label>
+                        <input class="form-control admin-input" name="opening_hours" id="gym-hours" maxlength="120" placeholder="VD: 06:00–22:00 hoặc 24/7">
+                        <div class="form-text">Ghi rõ giờ; dùng <code>24/7</code> nếu mở cả ngày (lọc tìm kiếm nhận dạng chuỗi này).</div>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div class="form-check mb-2">
+                            <input type="hidden" name="is_featured" value="0">
+                            <input class="form-check-input" type="checkbox" name="is_featured" value="1" id="gym-featured">
+                            <label class="form-check-label fw-semibold" for="gym-featured">Nổi bật trên trang chủ</label>
+                        </div>
+                    </div>
                     <div class="col-12"><label class="form-label">Mô tả</label><textarea class="form-control admin-input" name="description" id="gym-description" rows="3"></textarea></div>
                     <div class="col-md-6"><label class="form-label fw-semibold">Danh mục</label><div><?php foreach ($categories as $c): ?><label class="form-check"><input class="form-check-input gym-category" type="checkbox" name="category_ids[]" value="<?= (int)$c['id'] ?>"><span class="form-check-label"><?= gf_h($c['name']) ?></span></label><?php endforeach; ?></div></div>
                     <div class="col-md-6"><label class="form-label fw-semibold">Tiện ích</label><div><?php foreach ($amenities as $a): ?><label class="form-check"><input class="form-check-input gym-amenity" type="checkbox" name="amenity_ids[]" value="<?= (int)$a['id'] ?>"><span class="form-check-label"><?= gf_h($a['name']) ?></span></label><?php endforeach; ?></div></div>
@@ -481,6 +493,8 @@ function gymModalCreate(){
     f.querySelector('form').reset();
     document.getElementById('gym-id').value='';
     document.getElementById('gym-phone').value='';
+    document.getElementById('gym-hours').value='';
+    document.getElementById('gym-featured').checked = false;
     document.getElementById('gym-cover-url').value='';
     document.getElementById('gym-remove-cover').value='0';
     document.getElementById('gym-images-json').value='[]';
@@ -512,6 +526,8 @@ function gymModalEdit(b){
     document.getElementById('gym-district').value=b.dataset.district;
     document.getElementById('gym-min').value=b.dataset.min;
     document.getElementById('gym-max').value=b.dataset.max;
+    document.getElementById('gym-hours').value=b.dataset.hours || '';
+    document.getElementById('gym-featured').checked = b.dataset.featured === '1';
     document.getElementById('gym-description').value=b.dataset.description;
     document.getElementById('gym-error-alert').classList.add('d-none');
     document.getElementById('gym-save').disabled = false;

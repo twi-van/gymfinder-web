@@ -168,6 +168,13 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
         </div>
         <div class="col-md-6"><label class="form-label">Số điện thoại</label><input class="form-control admin-input" name="phone" id="trainerPhone"></div>
         <div class="col-md-6"><label class="form-label">Trạng thái</label><select class="form-select admin-input" name="status" id="trainerStatus"><option value="active">Hoạt động</option><option value="hidden">Tạm ẩn</option></select></div>
+        <div class="col-12">
+            <div class="form-check">
+                <input type="hidden" name="is_featured" value="0">
+                <input class="form-check-input" type="checkbox" name="is_featured" value="1" id="trainerFeatured">
+                <label class="form-check-label fw-semibold" for="trainerFeatured">Nổi bật trên trang chủ</label>
+            </div>
+        </div>
         <div class="col-12"><label class="form-label">Tiểu sử</label><textarea class="form-control admin-input" rows="3" name="bio" id="trainerBio"></textarea></div>
     </div>
     <div class="d-flex justify-content-end gap-2 mt-4"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button><button type="submit" class="btn btn-primary" id="trainerSubmit">Lưu thông tin</button></div>
@@ -243,7 +250,7 @@ foreach ($rows as $r):
     <td class="text-center"><span class="admin-badge <?= $r['status']==='active'?'badge-success':'badge-neutral' ?>"><?= $r['status']==='active'?'Hoạt động':'Tạm ẩn' ?></span></td>
     <td class="text-end pe-3 text-nowrap">
         <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#trainerView<?= (int)$r['id'] ?>" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
-        <button type="button" class="btn btn-action btn-action-edit" title="Chỉnh sửa" data-bs-toggle="modal" data-bs-target="#trainerCreate" onclick="trainerModalEdit(this)" data-id="<?= (int)$r['id'] ?>" data-name="<?= gf_h($r['full_name']) ?>" data-specialty="<?= (int)($linkedSpecIds[0] ?? $r['specialty_id'] ?? 0) ?>" data-specialties="<?= gf_h(implode(',', $linkedSpecIds)) ?>" data-gym="<?= (int)($linkedGymIds[0] ?? $r['gym_id'] ?? 0) ?>" data-gyms="<?= gf_h(implode(',', $linkedGymIds)) ?>" data-years="<?= (int)$r['years_experience'] ?>" data-phone="<?= gf_h($r['phone']??'') ?>" data-status="<?= gf_h($r['status']) ?>" data-bio="<?= gf_h($r['bio']??'') ?>" data-avatar="<?= gf_h($r['avatar_url']??'') ?>" data-avatar-display="<?= gf_h(gf_avatar($r['avatar_url']??null, (int)$r['id'], $r['full_name'])) ?>"><i class="fa-solid fa-pen"></i></button>
+        <button type="button" class="btn btn-action btn-action-edit" title="Chỉnh sửa" data-bs-toggle="modal" data-bs-target="#trainerCreate" onclick="trainerModalEdit(this)" data-id="<?= (int)$r['id'] ?>" data-name="<?= gf_h($r['full_name']) ?>" data-specialty="<?= (int)($linkedSpecIds[0] ?? $r['specialty_id'] ?? 0) ?>" data-specialties="<?= gf_h(implode(',', $linkedSpecIds)) ?>" data-gym="<?= (int)($linkedGymIds[0] ?? $r['gym_id'] ?? 0) ?>" data-gyms="<?= gf_h(implode(',', $linkedGymIds)) ?>" data-years="<?= (int)$r['years_experience'] ?>" data-phone="<?= gf_h($r['phone']??'') ?>" data-status="<?= gf_h($r['status']) ?>" data-featured="<?= (int)($r['is_featured'] ?? 0) ?>" data-bio="<?= gf_h($r['bio']??'') ?>" data-avatar="<?= gf_h($r['avatar_url']??'') ?>" data-avatar-display="<?= gf_h(gf_avatar($r['avatar_url']??null, (int)$r['id'], $r['full_name'])) ?>"><i class="fa-solid fa-pen"></i></button>
         <form method="post" class="d-inline" onsubmit="return handleTrainerStatusSubmit(this);">
             <?= gf_csrf_field() ?>
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
@@ -380,6 +387,7 @@ function trainerModalCreate(){
     document.getElementById('trainerSubmit').disabled = false;
     setTrainerGymChecks([]);
     setTrainerSpecialtyChecks([]);
+    document.getElementById('trainerFeatured').checked = false;
     originalTrainerAvatarUrl = '';
     originalTrainerAvatarDisplay = defaultTrainerPlaceholder;
 }
@@ -403,6 +411,7 @@ function trainerModalEdit(button){
     document.getElementById('trainerYears').value=button.dataset.years;
     document.getElementById('trainerPhone').value=button.dataset.phone;
     document.getElementById('trainerStatus').value=button.dataset.status;
+    document.getElementById('trainerFeatured').checked = button.dataset.featured === '1';
     document.getElementById('trainerBio').value=button.dataset.bio;
     document.getElementById('trainer-error-alert').classList.add('d-none');
     document.getElementById('trainerSubmit').disabled = false;

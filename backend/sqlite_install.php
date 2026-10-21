@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS users;
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   full_name TEXT NOT NULL,
-  email TEXT UNIQUE,
+  email TEXT NOT NULL UNIQUE,
   phone TEXT UNIQUE,
   password_hash TEXT NOT NULL,
   avatar_url TEXT,
@@ -210,43 +210,43 @@ SQL);
     ];
 
     // 1. Users (Admin u01, Active Users u02-u24, Locked User u25)
-    $pdo->prepare('INSERT INTO users (id, full_name, email, phone, password_hash, role, status, goal, created_at) VALUES (?,?,?,?,?,?,?,?,?)')->execute(
-        [1, 'Admin GymFinder', 'u01@gymfinder.test', '0900000001', $hash, 'admin', 'active', null, $userCreatedAt[1]]
+    $pdo->prepare('INSERT INTO users (id, full_name, email, phone, password_hash, role, status, created_at) VALUES (?,?,?,?,?,?,?,?)')->execute(
+        [1, 'Admin GymFinder', 'u01@gymfinder.test', '0900000001', $hash, 'admin', 'active', $userCreatedAt[1]]
     );
 
     $userNames = [
-        2 => ['Nguyễn Văn An', 'tang_co'],
-        3 => ['Trần Thị Bình', 'giam_can'],
-        4 => ['Lê Minh Châu', 'cai_thien_suc_khoe'],
-        5 => ['Phạm Quang Dũng', 'tang_suc_manh'],
-        6 => ['Võ Quốc Đạt', 'tang_co'],
-        7 => ['Bùi Phương Giang', 'giam_can'],
-        8 => ['Đặng Hữu Hiếu', 'tang_suc_manh'],
-        9 => ['Trịnh Mỹ Linh', 'cai_thien_suc_khoe'],
-        10 => ['Phan Tuấn Kiệt', 'tang_co'],
-        11 => ['Hoàng Khánh Ly', 'giam_can'],
-        12 => ['Lý Gia Huy', 'tang_suc_manh'],
-        13 => ['Đỗ Thanh Thảo', 'cai_thien_suc_khoe'],
-        14 => ['Ngô Bảo Nam', 'tang_co'],
-        15 => ['Vũ Kim Oanh', 'giam_can'],
-        16 => ['Hồ Đức Phát', 'tang_suc_manh'],
-        17 => ['Dương Như Quỳnh', 'cai_thien_suc_khoe'],
-        18 => ['Lâm Quốc Thịnh', 'tang_co'],
-        19 => ['Mai Thu Uyên', 'giam_can'],
-        20 => ['Trương Việt Vỹ', 'tang_suc_manh'],
-        21 => ['Đoàn Phương Vy', 'cai_thien_suc_khoe'],
-        22 => ['Tạ Minh Khang', 'tang_co'],
-        23 => ['Cao Bích Thủy', 'giam_can'],
-        24 => ['Bạch Gia Phúc', 'tang_suc_manh'],
-        25 => ['Võ Thị Em (Khóa)', null], // locked user
+        2 => 'Nguyễn Văn An',
+        3 => 'Trần Thị Bình',
+        4 => 'Lê Minh Châu',
+        5 => 'Phạm Quang Dũng',
+        6 => 'Võ Quốc Đạt',
+        7 => 'Bùi Phương Giang',
+        8 => 'Đặng Hữu Hiếu',
+        9 => 'Trịnh Mỹ Linh',
+        10 => 'Phan Tuấn Kiệt',
+        11 => 'Hoàng Khánh Ly',
+        12 => 'Lý Gia Huy',
+        13 => 'Đỗ Thanh Thảo',
+        14 => 'Ngô Bảo Nam',
+        15 => 'Vũ Kim Oanh',
+        16 => 'Hồ Đức Phát',
+        17 => 'Dương Như Quỳnh',
+        18 => 'Lâm Quốc Thịnh',
+        19 => 'Mai Thu Uyên',
+        20 => 'Trương Việt Vỹ',
+        21 => 'Đoàn Phương Vy',
+        22 => 'Tạ Minh Khang',
+        23 => 'Cao Bích Thủy',
+        24 => 'Bạch Gia Phúc',
+        25 => 'Võ Thị Em (Khóa)', // locked user
     ];
 
-    $insU = $pdo->prepare('INSERT INTO users (id, full_name, email, phone, password_hash, role, status, goal, created_at) VALUES (?,?,?,?,?,?,?,?,?)');
-    foreach ($userNames as $uId => $uData) {
+    $insU = $pdo->prepare('INSERT INTO users (id, full_name, email, phone, password_hash, role, status, created_at) VALUES (?,?,?,?,?,?,?,?)');
+    foreach ($userNames as $uId => $fullName) {
         $email = sprintf("u%02d@gymfinder.test", $uId);
         $phone = sprintf("090%07d", $uId);
         $status = ($uId === 25) ? 'locked' : 'active';
-        $insU->execute([$uId, $uData[0], $email, $phone, $hash, 'user', $status, $uData[1], $userCreatedAt[$uId]]);
+        $insU->execute([$uId, $fullName, $email, $phone, $hash, 'user', $status, $userCreatedAt[$uId]]);
     }
 
     // 2. Districts (22 districts of HCMC)

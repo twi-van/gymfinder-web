@@ -109,30 +109,15 @@ function gf_admin_patch_user(int $id, array $d, array $admin): array
 
 
 /**
- * Admin xóa vĩnh viễn user.
+ * Không còn hỗ trợ xóa cứng user (khớp đặc tả: chỉ khóa / mở khóa).
+ * Giữ hàm để tránh lỗi call cũ — luôn trả BUSINESS_RULE.
  */
 function gf_admin_delete_user(int $id, array $admin): void
 {
-    if ((int) $admin['id'] === $id) { gf_api_error('BUSINESS_RULE', 'Admin không được tự xóa chính mình.', 422, ['id' => 'Không tự xóa chính mình.']); }
-    $u = gf_admin_user_payload($id);
-    if (!$u) { gf_api_error('NOT_FOUND', 'Không tìm thấy người dùng.', 404); }
-
-    $pdo = gf_pdo();
-    $pdo->beginTransaction();
-    try {
-        $st = $pdo->prepare("SELECT target_type, gym_id, trainer_id FROM reviews WHERE user_id=? AND status='approved'");
-        $st->execute([$id]);
-        $targets = [];
-        foreach ($st->fetchAll() as $row) {
-            $type = $row['target_type'];
-            $tid  = $type === 'gym' ? (int) $row['gym_id'] : (int) $row['trainer_id'];
-            $targets[$type . ':' . $tid] = ['type' => $type, 'id' => $tid];
-        }
-        $pdo->prepare('DELETE FROM users WHERE id=?')->execute([$id]);
-        foreach ($targets as $t) { gf_recalc_rating($t); }
-        $pdo->commit();
-    } catch (\Throwable $e) {
-        if ($pdo->inTransaction()) { $pdo->rollBack(); }
-        gf_api_error('SERVER_ERROR', 'Lỗi khi xóa người dùng.', 500);
-    }
+    unset($id, $admin);
+    gf_api_error(
+        'BUSINESS_RULE',
+        'Không hỗ trợ xóa tài khoản. Dùng khóa / mở khóa (status active|locked).',
+        405
+    );
 }

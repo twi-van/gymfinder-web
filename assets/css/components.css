@@ -157,6 +157,72 @@
     margin-bottom: 40px;
 }
 
+/* Bộ lọc đánh giá dạng bấm sao */
+.gf-star-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+.gf-star-filter-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+.gf-star-filter-btn {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    padding: 0.15rem;
+    line-height: 1;
+    color: #cbd5e1;
+    cursor: pointer;
+    transition: color 0.15s ease, transform 0.12s ease;
+}
+.gf-star-filter-btn i {
+    font-size: 1.35rem;
+}
+.gf-star-filter-btn:hover,
+.gf-star-filter-btn:focus-visible {
+    transform: scale(1.08);
+    outline: none;
+}
+.gf-star-filter-btn.is-active,
+.gf-star-filter-btn.is-hover {
+    color: #f59e0b;
+}
+.gf-star-filter-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    min-height: 1.25rem;
+}
+.gf-star-filter-hint {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #64748b;
+}
+.gf-star-filter-clear {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--primary-color, #00c9b1);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.gf-star-filter-clear:hover {
+    color: var(--primary-dark, #00a894);
+}
+.gf-filter-field .gf-star-filter {
+    min-height: 44px;
+    justify-content: center;
+    padding: 0.15rem 0;
+}
+
 @media (max-width: 767.98px) {
     .gf-keyword-search {
         border-radius: 1rem;
@@ -205,7 +271,10 @@
     min-width: 0;
     padding-right: 1.75rem;
     background-position: right 0.35rem center;
-    text-overflow: ellipsis;
+}
+
+.search-box .hero-search-field .form-select {
+    text-overflow: clip;
 }
 
 .filter-bar {

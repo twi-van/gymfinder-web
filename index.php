@@ -37,16 +37,16 @@ require __DIR__ . '/includes/header.php';
             </span> CHO<br class="d-none d-md-block"> HÀNH TRÌNH CỦA BẠN
         </h1>
         <p class="hero-subtitle mx-auto" style="max-width: 600px; margin-bottom: 1.5rem;">
-            Tìm kiếm và so sánh hàng trăm phòng tập gym dựa trên vị trí, giá gói tập, tiện ích, bộ môn và đội ngũ huấn luyện viên.
+            Tìm kiếm và so sánh hàng trăm phòng tập dựa trên vị trí, giá gói tập, tiện ích, bộ môn và đội ngũ huấn luyện viên.
         </p>
         <div class="search-box mx-auto hero-search-box">
             <form action="<?= gf_h(gf_url('pages/gyms/search.php')) ?>" method="get" class="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2 gap-md-0">
                 <div class="flex-grow-1 d-flex align-items-center px-3 w-100 min-w-0">
-                    <i class="fa-solid fa-magnifying-glass text-secondary flex-shrink-0"></i>
+                    <i class="fa-solid fa-magnifying-glass text-secondary flex-shrink-0 me-2"></i>
                     <input type="text" class="form-control" name="keyword" placeholder="Nhập tên phòng tập, bộ môn (VD: Boxing, Yoga...)">
                 </div>
                 <div class="search-divider d-none d-md-block" style="height: 24px;"></div>
-                <div class="hero-search-field d-flex align-items-center px-3 w-100">
+                <div class="hero-search-field d-flex align-items-center px-2 w-100">
                     <i class="fa-solid fa-location-dot text-secondary me-2 flex-shrink-0"></i>
                     <select class="form-select px-0" name="district_id" aria-label="Khu vực">
                         <option value="">Khu vực</option>
@@ -56,7 +56,7 @@ require __DIR__ . '/includes/header.php';
                     </select>
                 </div>
                 <div class="search-divider d-none d-md-block" style="height: 24px;"></div>
-                <div class="hero-search-field d-flex align-items-center px-3 w-100">
+                <div class="hero-search-field d-flex align-items-center px-2 w-100">
                     <i class="fa-solid fa-coins text-secondary me-2 flex-shrink-0"></i>
                     <select class="form-select px-0" name="price_range" aria-label="Khoảng giá">
                         <option value="">Khoảng giá</option>

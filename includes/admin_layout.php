@@ -2,6 +2,19 @@
 /** @var string $adminActive */
 $adminActive = $adminActive ?? 'dashboard';
 $adminUser = gf_require_admin();
+$adminDashboardUrl = gf_url('admin/pages/dashboard.php');
+
+$adminBreadcrumbMap = [
+    'dashboard' => 'Tổng quan',
+    'gyms' => 'Quản lý phòng tập',
+    'trainers' => 'Quản lý huấn luyện viên',
+    'users' => 'Quản lý người dùng',
+    'reviews' => 'Quản lý đánh giá',
+    'categories' => 'Quản lý danh mục',
+    'profile' => 'Hồ sơ cá nhân',
+];
+$adminBreadcrumbCurrent = $adminBreadcrumbMap[$adminActive] ?? 'Tổng quan';
+
 function gf_admin_nav(string $key, string $href, string $icon, string $label, string $active): void
 {
     $cls = $key === $active ? ' active bg-primary-light text-primary' : '';
@@ -12,7 +25,7 @@ function gf_admin_nav(string $key, string $href, string $icon, string $label, st
 <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
 <aside class="sidebar d-flex flex-column" id="sidebar" aria-label="Menu quản trị">
     <div class="p-4 border-bottom d-flex align-items-center justify-content-between gap-2">
-        <?= gf_logo('admin', null, 'admin-brand') ?>
+        <?= gf_logo('admin', $adminDashboardUrl, 'admin-brand') ?>
         <button type="button" class="btn btn-light border d-lg-none shadow-sm admin-sidebar-close" id="sidebarClose" aria-label="Đóng menu">
             <i class="fa-solid fa-xmark"></i>
         </button>
@@ -45,7 +58,18 @@ function gf_admin_nav(string $key, string $href, string $icon, string $label, st
         <button type="button" class="btn btn-light border shadow-sm" id="sidebarOpen" aria-controls="sidebar" aria-expanded="false" aria-label="Mở menu">
             <i class="fa-solid fa-bars"></i>
         </button>
-        <?= gf_logo('admin', null, 'admin-brand') ?>
+        <?= gf_logo('admin', $adminDashboardUrl, 'admin-brand') ?>
         <span style="width:40px;" aria-hidden="true"></span>
     </div>
+    <nav class="admin-breadcrumb" aria-label="Đường dẫn">
+        <ol class="admin-breadcrumb-list">
+            <li class="admin-breadcrumb-item">
+                <a href="<?= gf_h($adminDashboardUrl) ?>" class="admin-breadcrumb-link">Quản trị viên</a>
+            </li>
+            <li class="admin-breadcrumb-sep" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></li>
+            <li class="admin-breadcrumb-item">
+                <span class="admin-breadcrumb-current" aria-current="page"><?= gf_h($adminBreadcrumbCurrent) ?></span>
+            </li>
+        </ol>
+    </nav>
     <script src="<?= gf_h(gf_url('admin/assets/admin.js')) ?>" defer></script>

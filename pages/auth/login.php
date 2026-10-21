@@ -8,18 +8,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $remember = !empty($_POST['remember']);
     $res = gf_login(trim((string)($_POST['login'] ?? '')), (string)($_POST['password'] ?? ''), $remember);
     if ($res['ok']) {
+        $to = trim((string)($_GET['redirect'] ?? $_POST['redirect'] ?? ''));
+        // Only allow same-site redirects; a crafted redirect must not send users off-site.
+        if ($to !== '' && (str_starts_with($to, '//') || str_contains($to, '\\') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $to))) {
+            $to = '';
+        }
         if (($res['user']['role'] ?? '') === 'admin') {
-            // Admins enter the public homepage first, then use its admin menu to open the portal.
+            // Admin vào portal; chỉ giữ redirect nếu đã trỏ vào /admin/.
+            $adminHome = gf_url('admin/pages/dashboard.php');
+            $isAdminPath = $to !== '' && (
+                str_contains($to, '/admin/')
+                || str_starts_with($to, 'admin/')
+                || str_starts_with(ltrim($to, '/'), 'admin/')
+            );
+            $to = $isAdminPath ? $to : $adminHome;
+        } elseif ($to === '') {
             $to = gf_url('index.php');
-        } else {
-            $to = trim((string)($_GET['redirect'] ?? $_POST['redirect'] ?? ''));
-            // Only allow same-site redirects; a crafted redirect must not send users off-site.
-            if ($to !== '' && (str_starts_with($to, '//') || str_contains($to, '\\') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $to))) {
-                $to = '';
-            }
-            if (!$to) {
-                $to = gf_url('index.php');
-            }
         }
         gf_redirect($to);
     }

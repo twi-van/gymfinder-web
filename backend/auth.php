@@ -38,6 +38,37 @@ function gf_require_admin(): array
     return $user;
 }
 
+/**
+ * Admin chỉ làm việc trong /admin (và API/logout).
+ * Mọi trang công khai → redirect dashboard; kiểm tra UI public bằng Guest/User.
+ */
+function gf_enforce_admin_portal_only(): void
+{
+    $user = gf_current_user();
+    if (!$user || ($user['role'] ?? '') !== 'admin') {
+        return;
+    }
+    if (($user['status'] ?? '') === 'locked') {
+        return;
+    }
+
+    $script = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+    $path = str_replace('\\', '/', (string) (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/'));
+
+    $allowed = static function (string $s): bool {
+        return str_contains($s, '/admin/')
+            || str_contains($s, '/api/')
+            || str_ends_with($s, '/pages/auth/logout.php')
+            || str_ends_with($s, '/auth/logout.php');
+    };
+
+    if ($allowed($script) || $allowed($path)) {
+        return;
+    }
+
+    gf_redirect(gf_url('admin/pages/dashboard.php'));
+}
+
 function gf_login(string $login, string $password, bool $remember = false): array
 {
     $raw = trim($login);
@@ -128,6 +159,10 @@ function gf_register(string $fullName, string $email, string $password, ?string 
         $st->execute([$fullName, $email, $phone, $hash]);
     } catch (PDOException $e) {
         if ((string) $e->getCode() === '23000') {
+            $msg = strtolower($e->getMessage());
+            if (str_contains($msg, 'phone')) {
+                return ['ok' => false, 'error' => 'Số điện thoại đã được sử dụng.', 'code' => 'DUPLICATE_PHONE'];
+            }
             return ['ok' => false, 'error' => 'Email đã được sử dụng.', 'code' => 'DUPLICATE_EMAIL'];
         }
         throw $e;

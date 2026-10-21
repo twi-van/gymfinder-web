@@ -140,6 +140,7 @@ function gf_search_gyms_paged(array $f): array
 
     $sort  = (string) ($f['sort'] ?? '');
     $order = match ($sort) {
+        'newest', 'created_desc' => 'g.created_at DESC, g.id DESC',
         'rating_asc'  => 'g.avg_rating ASC, g.id DESC',
         'price_asc'   => 'g.price_min ASC, g.id DESC',
         'price_desc'  => 'g.price_max DESC, g.price_min DESC, g.id DESC',

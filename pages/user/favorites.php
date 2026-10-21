@@ -14,6 +14,13 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         <p class="text-secondary mx-auto mb-4" style="max-width:500px">Vui lòng đăng nhập để lưu và quản lý các phòng tập, huấn luyện viên yêu thích của bạn.</p>
         <a href="<?= gf_h(gf_url('pages/auth/login.php?redirect=' . urlencode(gf_url('pages/user/favorites.php')))) ?>" class="btn btn-primary rounded-pill px-5 py-2 fw-semibold">Đăng nhập / Đăng ký</a>
     </div>
+<?php elseif (($user['role'] ?? '') === 'admin'): ?>
+    <div class="container text-center py-5 mt-5">
+        <div class="mb-4"><span class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm" style="width:100px;height:100px"><i class="fa-solid fa-shield-halved text-primary" style="font-size:40px"></i></span></div>
+        <h2 class="fw-bold mb-3">Tài khoản quản trị không dùng Yêu thích</h2>
+        <p class="text-secondary mx-auto mb-4" style="max-width:520px">Admin quản lý dữ liệu trong khu vực quản trị. Để thử lưu yêu thích như hội viên, hãy đăng nhập tài khoản user (vd. <code>u02@gymfinder.test</code>).</p>
+        <a href="<?= gf_h(gf_url('admin/pages/dashboard.php')) ?>" class="btn btn-primary rounded-pill px-5 py-2 fw-semibold">Vào khu vực quản trị</a>
+    </div>
 <?php else:
     $favs = gf_user_favorites((int)$user['id']);
     $activeTab = in_array($_GET['tab'] ?? '', ['trainers', 'gyms'], true) ? $_GET['tab'] : 'gyms';

@@ -39,11 +39,21 @@ if (in_array($method, ['POST', 'PATCH', 'PUT', 'DELETE'], true)) {
     }
 }
 
-function gf_api_csrf_mutating(string $method): void
+/**
+ * Mutating API: ưu tiên AUTH_REQUIRED (401) trước CSRF (403) trên endpoint cần login,
+ * để guest không bị báo CSRF_INVALID khi chưa đăng nhập (BUG-004).
+ * /auth/login và /auth/register vẫn chỉ check CSRF (chưa có session user).
+ */
+function gf_api_csrf_mutating(string $method, string $path): void
 {
-    if (in_array($method, ['POST', 'PATCH', 'PUT', 'DELETE'], true)) {
-        gf_require_csrf();
+    if (!in_array($method, ['POST', 'PATCH', 'PUT', 'DELETE'], true)) {
+        return;
     }
+    $guestAuthPaths = ['/auth/login', '/auth/register'];
+    if (!in_array($path, $guestAuthPaths, true) && !gf_current_user()) {
+        gf_api_error('AUTH_REQUIRED', 'Cần đăng nhập.', 401);
+    }
+    gf_require_csrf();
 }
 
 function gf_api_user(): ?array
@@ -74,8 +84,8 @@ function gf_api_require_admin(): array
     return $u;
 }
 
-// Bắt buộc kiểm tra CSRF trên toàn bộ mutating methods
-gf_api_csrf_mutating($method);
+// Bắt buộc kiểm tra CSRF trên toàn bộ mutating methods (AUTH trước CSRF nếu cần login)
+gf_api_csrf_mutating($method, $path);
 
 // =========================================================================
 // 1. AUTHENTICATION & PROFILE APIS (Sprint 1)
@@ -86,13 +96,13 @@ if ($path === '/auth/csrf' && $method === 'GET') {
 }
 
 if ($path === '/auth/register' && $method === 'POST') {
-    gf_require_known_body($body, ['full_name', 'email', 'email_or_phone', 'phone', 'password', 'goal'], ['id', 'role', 'status', 'avatar_url', 'created_at', 'updated_at']);
+    // Đặc tả: email bắt buộc; phone tuỳ chọn. (login vẫn dùng email hoặc SĐT)
+    gf_require_known_body($body, ['full_name', 'email', 'phone', 'password'], ['id', 'role', 'status', 'avatar_url', 'created_at', 'updated_at', 'email_or_phone', 'goal']);
     $res = gf_register(
         (string) ($body['full_name'] ?? ''),
-        (string) ($body['email_or_phone'] ?? $body['email'] ?? $body['phone'] ?? ''),
+        (string) ($body['email'] ?? ''),
         (string) ($body['password'] ?? ''),
-        isset($body['phone']) ? (string) $body['phone'] : null,
-        isset($body['goal']) ? (string) $body['goal'] : null
+        isset($body['phone']) && trim((string) $body['phone']) !== '' ? (string) $body['phone'] : null
     );
     if (!$res['ok']) {
         $code = $res['code'] ?? 'VALIDATION_ERROR';
@@ -187,7 +197,6 @@ if ($path === '/profile' && $method === 'GET') {
         'full_name' => $u['full_name'],
         'email' => $u['email'],
         'phone' => $u['phone'],
-        'goal' => $u['goal'] ?? null,
         'role' => $u['role'] ?? 'user',
         'status' => $u['status'] ?? 'active',
         'avatar_url' => $u['avatar_url'],
@@ -658,10 +667,14 @@ if (preg_match('#^/admin/users/(\d+)$#', $path, $m)) {
         gf_json(['data' => $updated]);
     }
     if ($method === 'DELETE') {
-        $admin = gf_api_require_admin();
-        gf_admin_delete_user($targetUserId, $admin);
-        http_response_code(204);
-        exit;
+        // Đặc tả / BR: không xóa cứng tài khoản trên UI — chỉ Khóa / Mở khóa (status).
+        gf_api_require_admin();
+        gf_api_error(
+            'BUSINESS_RULE',
+            'Không hỗ trợ xóa tài khoản. Dùng khóa / mở khóa (PATCH status).',
+            405,
+            ['hint' => 'PATCH /api/admin/users/{id} với status=locked|active']
+        );
     }
 }
 

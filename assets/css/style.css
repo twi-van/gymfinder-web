@@ -355,9 +355,17 @@ body {
     max-width: 1050px;
 }
 
+/* Thu nhẹ so với bản cũ (220px) nhưng đủ chỗ hiện "Khoảng giá" */
 .hero-search-field {
-    max-width: 220px;
+    max-width: 190px;
+    min-width: 160px;
+    flex: 0 0 190px;
+}
+
+.hero-search-field .form-select {
     min-width: 0;
+    overflow: visible;
+    text-overflow: clip;
 }
 
 @media (max-width: 767.98px) {
@@ -391,6 +399,8 @@ body {
     }
     .hero-search-field {
         max-width: none;
+        min-width: 0;
+        flex: 1 1 auto;
     }
 }
 
@@ -400,7 +410,9 @@ body {
         font-size: 2.1rem !important;
     }
     .hero-search-field {
-        max-width: 180px;
+        max-width: 175px;
+        min-width: 150px;
+        flex: 0 0 175px;
     }
 }
 

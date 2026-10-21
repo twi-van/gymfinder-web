@@ -2,32 +2,32 @@ USE gymfinder;
 -- =====================================================================
 -- USERS
 -- =====================================================================
-INSERT INTO users (id, full_name, email, phone, password_hash, role, status, goal) VALUES
-(1, 'Admin GymFinder', 'u01@gymfinder.test', 0900000001, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'admin', 'active', NULL),
-(2, 'Nguyễn Văn An', 'u02@gymfinder.test', 0900000002, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'tang_co'),
-(3, 'Trần Thị Bình', 'u03@gymfinder.test', 0900000003, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'giam_can'),
-(4, 'Lê Minh Châu', 'u04@gymfinder.test', 0900000004, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'cai_thien_suc_khoe'),
-(5, 'Phạm Quang Dũng', 'u05@gymfinder.test', 0900000005, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'tang_suc_manh'),
-(6, 'Võ Quốc Đạt', 'u06@gymfinder.test', 0900000006, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'tang_co'),
-(7, 'Bùi Phương Giang', 'u07@gymfinder.test', 0900000007, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'giam_can'),
-(8, 'Đặng Hữu Hiếu', 'u08@gymfinder.test', 0900000008, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'tang_suc_manh'),
-(9, 'Trịnh Mỹ Linh', 'u09@gymfinder.test', 0900000009, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'cai_thien_suc_khoe'),
-(10, 'Phan Tuấn Kiệt', 'u10@gymfinder.test', 0900000010, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'tang_co'),
-(11, 'Hoàng Khánh Ly', 'u11@gymfinder.test', 0900000011, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'giam_can'),
-(12, 'Lý Gia Huy', 'u12@gymfinder.test', 0900000012, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'tang_suc_manh'),
-(13, 'Đỗ Thanh Thảo', 'u13@gymfinder.test', 0900000013, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'cai_thien_suc_khoe'),
-(14, 'Ngô Bảo Nam', 'u14@gymfinder.test', 0900000014, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'tang_co'),
-(15, 'Vũ Kim Oanh', 'u15@gymfinder.test', 0900000015, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'giam_can'),
-(16, 'Hồ Đức Phát', 'u16@gymfinder.test', 0900000016, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'tang_suc_manh'),
-(17, 'Dương Như Quỳnh', 'u17@gymfinder.test', 0900000017, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'cai_thien_suc_khoe'),
-(18, 'Lâm Quốc Thịnh', 'u18@gymfinder.test', 0900000018, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'tang_co'),
-(19, 'Mai Thu Uyên', 'u19@gymfinder.test', 0900000019, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'giam_can'),
-(20, 'Trương Việt Vỹ', 'u20@gymfinder.test', 0900000020, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'tang_suc_manh'),
-(21, 'Đoàn Phương Vy', 'u21@gymfinder.test', 0900000021, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'cai_thien_suc_khoe'),
-(22, 'Tạ Minh Khang', 'u22@gymfinder.test', 0900000022, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'tang_co'),
-(23, 'Cao Bích Thủy', 'u23@gymfinder.test', 0900000023, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'giam_can'),
-(24, 'Bạch Gia Phúc', 'u24@gymfinder.test', 0900000024, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active', 'tang_suc_manh'),
-(25, 'Võ Thị Em (Khóa)', 'u25@gymfinder.test', 0900000025, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'locked', NULL);
+INSERT INTO users (id, full_name, email, phone, password_hash, role, status) VALUES
+(1, 'Admin GymFinder', 'u01@gymfinder.test', 0900000001, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'admin', 'active'),
+(2, 'Nguyễn Văn An', 'u02@gymfinder.test', 0900000002, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(3, 'Trần Thị Bình', 'u03@gymfinder.test', 0900000003, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(4, 'Lê Minh Châu', 'u04@gymfinder.test', 0900000004, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(5, 'Phạm Quang Dũng', 'u05@gymfinder.test', 0900000005, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(6, 'Võ Quốc Đạt', 'u06@gymfinder.test', 0900000006, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(7, 'Bùi Phương Giang', 'u07@gymfinder.test', 0900000007, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(8, 'Đặng Hữu Hiếu', 'u08@gymfinder.test', 0900000008, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(9, 'Trịnh Mỹ Linh', 'u09@gymfinder.test', 0900000009, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(10, 'Phan Tuấn Kiệt', 'u10@gymfinder.test', 0900000010, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(11, 'Hoàng Khánh Ly', 'u11@gymfinder.test', 0900000011, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(12, 'Lý Gia Huy', 'u12@gymfinder.test', 0900000012, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(13, 'Đỗ Thanh Thảo', 'u13@gymfinder.test', 0900000013, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(14, 'Ngô Bảo Nam', 'u14@gymfinder.test', 0900000014, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(15, 'Vũ Kim Oanh', 'u15@gymfinder.test', 0900000015, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(16, 'Hồ Đức Phát', 'u16@gymfinder.test', 0900000016, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(17, 'Dương Như Quỳnh', 'u17@gymfinder.test', 0900000017, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(18, 'Lâm Quốc Thịnh', 'u18@gymfinder.test', 0900000018, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(19, 'Mai Thu Uyên', 'u19@gymfinder.test', 0900000019, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(20, 'Trương Việt Vỹ', 'u20@gymfinder.test', 0900000020, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(21, 'Đoàn Phương Vy', 'u21@gymfinder.test', 0900000021, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(22, 'Tạ Minh Khang', 'u22@gymfinder.test', 0900000022, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(23, 'Cao Bích Thủy', 'u23@gymfinder.test', 0900000023, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(24, 'Bạch Gia Phúc', 'u24@gymfinder.test', 0900000024, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'active'),
+(25, 'Võ Thị Em (Khóa)', 'u25@gymfinder.test', 0900000025, '$2y$10$/FRhOvA.xweR/mKOVrjXwukbYebNt3hanmHZaYIlAZNBlPwBH61R.', 'user', 'locked');
 
 -- Give demo accounts realistic, staggered join dates (all before seeded reviews).
 UPDATE users SET created_at = CASE email

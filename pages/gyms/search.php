@@ -145,6 +145,14 @@ if (!empty($filters['women'])) {
         'remove_url' => '?' . http_build_query($q),
     ];
 }
+if (!empty($filters['weight_loss'])) {
+    $q = $_GET;
+    unset($q['weight_loss'], $q['page']);
+    $activeChips[] = [
+        'label' => 'Hỗ trợ giảm cân',
+        'remove_url' => '?' . http_build_query($q),
+    ];
+}
 if (!empty($filters['amenity_options'])) {
     $amenityNames = [
         'sauna' => 'Xông hơi',
@@ -174,6 +182,7 @@ $figmaFeatures = [
     ['id' => 'feature_247', 'label' => 'Mở cửa 24/7', 'name' => 'open_247'],
     ['id' => 'feature_pt', 'label' => 'Có huấn luyện viên (PT)', 'name' => 'has_pt'],
     ['id' => 'feature_women', 'label' => 'Dành cho nữ', 'name' => 'women'],
+    ['id' => 'feature_weight_loss', 'label' => 'Hỗ trợ giảm cân', 'name' => 'weight_loss'],
 ];
 $figmaAmenities = [
     ['id' => 'amenity_sauna', 'key' => 'sauna', 'label' => 'Xông hơi', 'amenity_id' => 4],
@@ -244,12 +253,12 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 </div>
                 <div class="filter-group">
                     <div class="filter-group-title">Đánh giá</div>
-                    <?php foreach (['' => 'Tất cả', '4.5' => '4.5', '4.0' => '4.0', '3.0' => '3.0'] as $value => $label): $ratingId = $value === '' ? 'rating0' : 'rating' . str_replace('.', '', $value); ?>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" name="rating" id="<?= $ratingId ?>" value="<?= gf_h($value) ?>" <?= (string)$filters['rating']===(string)$value?'checked':'' ?>>
-                            <label class="form-check-label" for="<?= $ratingId ?>"><?= gf_h($label) ?><?php if ($value !== ''): ?> <i class="fa-solid fa-star text-warning" style="font-size:10px"></i> trở lên<?php endif; ?></label>
-                        </div>
-                    <?php endforeach; ?>
+                    <?php
+                    $ratingFilterName = 'rating';
+                    $ratingFilterValue = $filters['rating'];
+                    $ratingFilterId = 'gymRatingFilter';
+                    require dirname(__DIR__, 2) . '/includes/rating_star_filter.php';
+                    ?>
                 </div>
                 <div class="filter-group">
                     <div class="filter-group-title">Đặc điểm phòng tập</div>
@@ -307,6 +316,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                     <div class="gf-select-wrap gf-select-wrap--sort">
                         <select id="gymSort" name="sort" class="form-select gf-filter-select" onchange="this.form.submit()" aria-label="Sắp xếp">
                             <option value="" <?= $filters['sort']===''?'selected':'' ?>>Phổ biến nhất</option>
+                            <option value="newest" <?= $filters['sort']==='newest'?'selected':'' ?>>Mới nhất</option>
                             <option value="rating_desc" <?= $filters['sort']==='rating_desc'?'selected':'' ?>>Đánh giá cao nhất</option>
                             <option value="price_asc" <?= $filters['sort']==='price_asc'?'selected':'' ?>>Giá thấp → cao</option>
                             <option value="price_desc" <?= $filters['sort']==='price_desc'?'selected':'' ?>>Giá cao → thấp</option>
@@ -316,7 +326,12 @@ require dirname(__DIR__, 2) . '/includes/header.php';
             </div>
             <div class="row g-4 mb-5">
                 <?php if (!$gyms): ?>
-                    <p class="text-secondary">Không có phòng tập phù hợp bộ lọc.</p>
+                    <div class="col-12 text-center py-5">
+                        <div class="text-secondary mb-3"><i class="fa-solid fa-dumbbell" style="font-size:48px"></i></div>
+                        <h4 class="fw-bold text-dark">Không tìm thấy phòng tập</h4>
+                        <p class="text-secondary mb-4">Vui lòng thay đổi từ khóa hoặc bộ lọc của bạn.</p>
+                        <a class="btn btn-outline-primary rounded-pill px-4" href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>">Xóa bộ lọc</a>
+                    </div>
                 <?php endif; ?>
                 <?php foreach ($gyms as $gym): $isFav = in_array((int)$gym['id'], $favGymIds, true); require dirname(__DIR__, 2) . '/includes/gym_card.php'; endforeach; ?>
             </div>
@@ -324,4 +339,5 @@ require dirname(__DIR__, 2) . '/includes/header.php';
     </div>
     <?= gf_render_user_pagination((int)$gymPage['page'], (int)$gymPage['limit'], (int)$gymPage['total'], $_GET) ?>
 </div>
+<script src="<?= gf_h(gf_url('assets/js/rating-filter.js')) ?>" defer></script>
 <?php require dirname(__DIR__, 2) . '/includes/footer.php'; ?>

@@ -51,3 +51,6 @@ $isApi = str_starts_with($path, '/api');
 if (!$isApi && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     gf_require_csrf();
 }
+
+// Admin không dùng portal công khai (trang chủ / gym / PT / user…)
+gf_enforce_admin_portal_only();

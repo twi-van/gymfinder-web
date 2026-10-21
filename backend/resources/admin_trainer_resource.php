@@ -125,7 +125,7 @@ function gf_admin_save_trainer(array $d, ?int $id): array
         $spec = $specIds[0] ?? (int)($existing['specialty_id'] ?? 1);
 
         $years = $merged['years_experience'] ?? null;
-        if (!gf_integer_like($years) || (int) $years < 0 || (int) $years > 60) { $details['years_experience'] = 'years_experience 0–60.'; }
+        if (!gf_integer_like($years) || (int) $years < 1 || (int) $years > 60) { $details['years_experience'] = 'years_experience 1–60.'; }
         if (isset($merged['bio']) && $merged['bio'] !== null && mb_strlen((string) $merged['bio']) > 5000) { $details['bio'] = 'bio tối đa 5000.'; }
 
         $phone = $merged['phone'] ?? null;

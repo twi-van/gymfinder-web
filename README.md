@@ -82,7 +82,7 @@ php -S localhost:8000 router.php
 
 Mở [http://localhost:8000](http://localhost:8000). Lần đầu chạy, hệ thống tự tạo SQLite và nạp dữ liệu mẫu.
 
-Chi tiết MySQL/XAMPP, URL trang, tài khoản demo và xử lý sự cố: xem [`DOCS/GymFinder_HuongDanChay.md`](DOCS/GymFinder_HuongDanChay.md).
+Chi tiết MySQL/XAMPP, URL trang, tài khoản demo và xử lý sự cố: xem [`docs/specs/GymFinder_HuongDanChay.md`](docs/specs/GymFinder_HuongDanChay.md).
 
 ### Tài khoản demo
 
@@ -97,11 +97,16 @@ Chi tiết MySQL/XAMPP, URL trang, tài khoản demo và xử lý sự cố: xem
 
 | Tài liệu | Mô tả |
 | --- | --- |
-| [`DOCS/GYMFINDER_dacta.docx`](DOCS/GYMFINDER_dacta.docx) | Đặc tả yêu cầu & phạm vi |
-| [`DOCS/GYMFINDER_CSDL.docx`](DOCS/GYMFINDER_CSDL.docx) | Thiết kế CSDL |
-| [`DOCS/GymFinder_MoTaDuAn.docx`](DOCS/GymFinder_MoTaDuAn.docx) | Mô tả dự án (cho giảng viên / Google Docs) |
-| [`DOCS/GymFinder_HuongDanChay.md`](DOCS/GymFinder_HuongDanChay.md) | Hướng dẫn chạy & kiểm thử |
-| [`DOCS/PROJECT_STRUCTURE.md`](DOCS/PROJECT_STRUCTURE.md) | Cấu trúc thư mục |
+| [`docs/PROJECT_STRUCTURE.md`](docs/PROJECT_STRUCTURE.md) | Bản đồ thư mục (đọc trước) |
+| [`docs/specs/GYMFINDER_dacta.docx`](docs/specs/GYMFINDER_dacta.docx) | Đặc tả yêu cầu & phạm vi |
+| [`docs/specs/GYMFINDER_CSDL.docx`](docs/specs/GYMFINDER_CSDL.docx) | Thiết kế CSDL |
+| [`docs/specs/GymFinder_MoTaDuAn.docx`](docs/specs/GymFinder_MoTaDuAn.docx) | Mô tả dự án (cho giảng viên / Google Docs) |
+| [`docs/specs/GymFinder_BaoCao_Khung.docx`](docs/specs/GymFinder_BaoCao_Khung.docx) | Khung báo cáo đồ án (6 chương — điền dần) |
+| [`docs/specs/GymFinder_HuongDanChay.md`](docs/specs/GymFinder_HuongDanChay.md) | Hướng dẫn chạy & kiểm thử |
+| [`docs/qa/TEST_PLAN.md`](docs/qa/TEST_PLAN.md) | Kế hoạch kiểm thử QA |
+| [`docs/qa/TEST_CASES.md`](docs/qa/TEST_CASES.md) | Bộ test case |
+| [`docs/qa/TEST_EXECUTION_REPORT.md`](docs/qa/TEST_EXECUTION_REPORT.md) | Báo cáo thực thi |
+| [`docs/qa/BUG_REPORT.md`](docs/qa/BUG_REPORT.md) | Danh sách lỗi / rủi ro |
 
 ---
 

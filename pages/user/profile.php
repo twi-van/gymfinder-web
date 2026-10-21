@@ -1,10 +1,10 @@
 <?php
 require_once dirname(__DIR__, 2) . '/backend/bootstrap.php';
-$user = gf_require_login();
+$user = gf_current_user();
 $msg = '';
 $error = '';
 
-if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+if ($user && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     gf_require_csrf();
     $action = $_POST['action'] ?? 'update_profile';
 
@@ -51,7 +51,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             gf_update_profile((int)$user['id'], [
                 'full_name' => trim((string)($_POST['full_name'] ?? '')),
                 'phone' => trim((string)($_POST['phone'] ?? '')),
-                'goal' => $_POST['goal'] ?? null,
                 'avatar_url' => $avatarUrl,
             ]);
             if ($avatarChanged && $oldAvatar && $oldAvatar !== $avatarUrl) {
@@ -276,6 +275,16 @@ require dirname(__DIR__, 2) . '/includes/header.php';
 }
 </style>
 
+<?php if (!$user): ?>
+<main class="flex-grow-1">
+    <div class="container text-center py-5 mt-5">
+        <div class="mb-4"><span class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm" style="width:100px;height:100px"><i class="fa-solid fa-user text-secondary" style="font-size:40px;color:#cbd5e1!important"></i></span></div>
+        <h2 class="fw-bold mb-3">Đăng nhập để xem hồ sơ</h2>
+        <p class="text-secondary mx-auto mb-4" style="max-width:500px">Vui lòng đăng nhập để xem và cập nhật thông tin cá nhân, ảnh đại diện và mật khẩu.</p>
+        <a href="<?= gf_h(gf_url('pages/auth/login.php?redirect=' . urlencode(gf_url('pages/user/profile.php')))) ?>" class="btn btn-primary rounded-pill px-5 py-2 fw-semibold">Đăng nhập / Đăng ký</a>
+    </div>
+</main>
+<?php else: ?>
 <div class="profile-page" id="profilePage">
     <?php if ($msg): ?>
         <div class="alert alert-success d-flex align-items-center mb-4 rounded-3 shadow-sm">
@@ -616,5 +625,6 @@ function showPasswordAlert(type, message) {
     alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 </script>
+<?php endif; ?>
 
 <?php require dirname(__DIR__, 2) . '/includes/footer.php'; ?>

@@ -431,8 +431,8 @@ function gf_validate_trainer_search_params(array $get, bool $throw = true): arra
     $exp = $get['exp'] ?? $get['experience'] ?? null;
     if ($exp !== null && (string) $exp !== '') {
         $expStr = (string) $exp;
-        if (!in_array($expStr, ['0-2', '3-5', '6plus'], true)) { $details['exp'] = 'exp chỉ nhận: 0-2 | 3-5 | 6plus.'; }
-        else { $params['exp'] = $expStr; }
+        if (!in_array($expStr, ['1-2', '0-2', '3-5', '6plus'], true)) { $details['exp'] = 'exp chỉ nhận: 1-2 | 3-5 | 6plus.'; }
+        else { $params['exp'] = $expStr === '0-2' ? '1-2' : $expStr; }
     }
 
     $feat = $get['featured'] ?? null;
