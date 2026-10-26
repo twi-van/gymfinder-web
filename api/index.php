@@ -49,8 +49,8 @@ function gf_api_csrf_mutating(string $method, string $path): void
     if (!in_array($method, ['POST', 'PATCH', 'PUT', 'DELETE'], true)) {
         return;
     }
-    // Guest được phép: login/register + AI recommend (chat widget trang chủ).
-    $guestOkPaths = ['/auth/login', '/auth/register', '/ai/recommend'];
+    // Guest được phép: login/register + AI recommend/history (widget + trang chat).
+    $guestOkPaths = ['/auth/login', '/auth/register', '/ai/recommend', '/ai/history'];
     if (!in_array($path, $guestOkPaths, true) && !gf_current_user()) {
         gf_api_error('AUTH_REQUIRED', 'Cần đăng nhập.', 401);
     }
@@ -682,15 +682,25 @@ if (preg_match('#^/admin/users/(\d+)$#', $path, $m)) {
 // =========================================================================
 // AI recommend (guest OK) — floating widget + trang chat
 // =========================================================================
+if ($path === '/ai/history' && $method === 'DELETE') {
+    gf_ai_chat_history_clear();
+    gf_json(['data' => ['cleared' => true]]);
+}
+
 if ($path === '/ai/recommend' && $method === 'POST') {
     // Guest/User đều được; Admin portal-only nên ít khi gọi từ đây.
     $message = trim((string) ($body['message'] ?? $body['question'] ?? ''));
     if ($message === '') {
         gf_api_error('VALIDATION_ERROR', 'Vui lòng nhập câu hỏi.', 422, ['message' => 'Bắt buộc.']);
     }
+    $saveHistory = !empty($body['save_history']);
     $res = gf_ai_recommend_gyms($message);
     if (empty($res['ok'])) {
-        gf_api_error('AI_ERROR', (string) ($res['error'] ?? 'Không gọi được AI.'), 503);
+        $errMsg = (string) ($res['error'] ?? 'Không gọi được AI.');
+        if ($saveHistory) {
+            gf_ai_chat_history_append($message, $errMsg, [], [], true);
+        }
+        gf_api_error('AI_ERROR', $errMsg, 503);
     }
 
     $gymPayload = [];
@@ -699,13 +709,17 @@ if ($path === '/ai/recommend' && $method === 'POST') {
         if ($id <= 0) {
             continue;
         }
+        $cats = is_array($g['categories'] ?? null) ? $g['categories'] : [];
         $gymPayload[] = [
             'id' => $id,
             'title' => (string) ($g['name'] ?? ''),
             'subtitle' => trim(
                 (string) ($g['district'] ?? '')
-                . ' · '
-                . gf_format_price((int) ($g['price_min'] ?? 0), (int) ($g['price_max'] ?? 0))
+                . ($cats !== [] ? ' · ' . implode(', ', array_slice($cats, 0, 2)) : '')
+            ),
+            'meta' => trim(
+                gf_format_price((int) ($g['price_min'] ?? 0), (int) ($g['price_max'] ?? 0))
+                . ' · ★ ' . number_format((float) ($g['avg_rating'] ?? 0), 1)
             ),
             'image' => gf_cover_image($g['cover_image_url'] ?? null, $id),
             'url' => gf_url('pages/gyms/detail.php?id=' . $id),
@@ -719,16 +733,35 @@ if ($path === '/ai/recommend' && $method === 'POST') {
             continue;
         }
         $specs = is_array($t['specialties'] ?? null) ? $t['specialties'] : [];
+        $districts = is_array($t['districts'] ?? null) ? $t['districts'] : [];
         $trainerPayload[] = [
             'id' => $id,
             'title' => (string) ($t['full_name'] ?? ''),
             'subtitle' => trim(
+                ($districts !== [] ? implode(', ', array_slice($districts, 0, 2)) . ' · ' : '')
+                . (int) ($t['years_experience'] ?? 0) . ' năm KN'
+            ),
+            'meta' => trim(
                 implode(' · ', array_slice($specs, 0, 2))
-                . (isset($t['avg_rating']) ? ' · ★ ' . number_format((float) $t['avg_rating'], 1) : '')
+                . ' · ★ ' . number_format((float) ($t['avg_rating'] ?? 0), 1)
             ),
             'image' => gf_avatar($t['avatar_url'] ?? null, $id, (string) ($t['full_name'] ?? 'HLV')),
             'url' => gf_url('pages/trainers/detail.php?id=' . $id),
+            'is_avatar' => true,
         ];
+    }
+
+    $suggestRefine = !empty($res['suggest_refine']);
+    if ($saveHistory) {
+        gf_ai_chat_history_append(
+            $message,
+            (string) ($res['reply'] ?? ''),
+            is_array($res['gyms'] ?? null) ? $res['gyms'] : [],
+            is_array($res['trainers'] ?? null) ? $res['trainers'] : [],
+            false,
+            12,
+            $suggestRefine
+        );
     }
 
     gf_json([
@@ -736,6 +769,7 @@ if ($path === '/ai/recommend' && $method === 'POST') {
             'reply' => (string) ($res['reply'] ?? ''),
             'gyms' => $gymPayload,
             'trainers' => $trainerPayload,
+            'suggest_refine' => $suggestRefine,
         ],
     ]);
 }

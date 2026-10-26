@@ -211,7 +211,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                     <div class="modal fade" id="editGymReviewModal" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content rounded-4 border-0 shadow">
-                                <form method="post">
+                                <form method="post" class="js-form-validate" novalidate>
                                     <?= gf_csrf_field() ?>
                                     <input type="hidden" name="action" value="edit_review">
                                     <div class="modal-header border-0 pb-0">
@@ -231,7 +231,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold small">Nhận xét chi tiết</label>
-                                            <textarea name="comment" class="form-control rounded-3" rows="4" required placeholder="Chia sẻ trải nghiệm của bạn..."><?= gf_h($myReview['comment']) ?></textarea>
+                                            <textarea name="comment" class="form-control rounded-3" rows="4" required data-required-msg="Vui lòng nhập nội dung đánh giá." placeholder="Chia sẻ trải nghiệm của bạn..."><?= gf_h($myReview['comment']) ?></textarea>
                                         </div>
                                         <div class="small text-secondary">
                                             <i class="fa-solid fa-circle-info me-1 text-primary"></i>Lưu ý: Sau khi sửa, đánh giá sẽ được gửi để quản trị viên duyệt lại trước khi tiếp tục hiển thị công khai.
@@ -260,7 +260,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 <?= gf_render_user_pagination($reviewPage, $reviewLimit, $totalReviews, array_diff_key($_GET, ['r_page' => '']), 'r_page') ?>
                 
                 <?php if ($canReview && !$myReview): ?>
-                    <form method="post" class="mt-4 pt-3 border-top">
+                    <form method="post" class="mt-4 pt-3 border-top js-form-validate" novalidate>
                         <?= gf_csrf_field() ?>
                         <input type="hidden" name="action" value="create_review">
                         <label class="form-label fw-semibold">Viết đánh giá</label>
@@ -273,7 +273,9 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                             require dirname(__DIR__, 2) . '/includes/rating_star_filter.php';
                             ?>
                         </div>
-                        <textarea name="comment" class="form-control mb-2" rows="3" required placeholder="Chia sẻ trải nghiệm..."></textarea>
+                        <div data-field class="mb-2">
+                        <textarea name="comment" class="form-control" rows="3" required data-required-msg="Vui lòng nhập nội dung đánh giá." placeholder="Chia sẻ trải nghiệm..."></textarea>
+                        </div>
                         <button class="btn btn-primary rounded-pill px-4">Gửi đánh giá</button>
                     </form>
                 <?php elseif ($isAdminUser): ?>

@@ -72,4 +72,5 @@ function gf_admin_nav(string $key, string $href, string $icon, string $label, st
             </li>
         </ol>
     </nav>
+    <script src="<?= gf_h(gf_url('assets/js/form_validate.js')) ?>?v=<?= gf_h((string) @filemtime(dirname(__DIR__) . '/assets/js/form_validate.js')) ?>" defer></script>
     <script src="<?= gf_h(gf_url('admin/assets/admin.js')) ?>" defer></script>

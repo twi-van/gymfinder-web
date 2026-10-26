@@ -1,3 +1,18 @@
+/* Field validation (no browser tooltip) */
+.gf-field-error,
+.auth-field-error {
+    margin-top: 0.4rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #dc3545;
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid,
+.otp-input.is-invalid {
+    border-color: #dc3545 !important;
+}
+
 /* Gym Listing Page Specific Styles */
 
 /* Breadcrumb & Header */

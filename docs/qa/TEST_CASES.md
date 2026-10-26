@@ -205,9 +205,9 @@
 | AI-012 | AI | Pre-filter catalog gym | P0 | Seed có gym Q7 | district=7, max_price | `gf_ai_catalog_gyms` | Chỉ gym Quận 7, `price_min≤500k`, status active |
 | AI-013 | AI | Pre-filter catalog trainer | P0 | Seed | specialty Yoga | `gf_ai_catalog_trainers` | Trainer có specialty chứa Yoga |
 | AI-014 | AI | Soft-hide catalog | P0 | Seed | Catalog full | Duyệt id trong catalog | Chỉ `status=active` |
-| AI-020 | AI | GET trang chat | P0 | Server chạy | `/pages/ai/chat.php` | Guest mở | HTTP 200, form chat, chips |
-| AI-021 | AI | POST thiếu CSRF | P1 | Server | POST message không CSRF | Submit | Bị chặn / không xử lý hợp lệ |
-| AI-022 | AI | POST chat UI E2E | P1 | Server + AI key | Chip HLV Yoga | GET → CSRF → POST | 200 + reply hoặc card gym/HLV |
+| AI-020 | AI | GET trang chat | P0 | Server chạy | `/pages/ai/chat.php` | Guest mở | HTTP 200, form + `ai_chat.js`, chips |
+| AI-021 | AI | POST API thiếu CSRF | P1 | Server | POST `/api/ai/recommend` không CSRF | Submit | 403 CSRF |
+| AI-022 | AI | POST API chat AJAX E2E | P1 | Server + AI key | HLV Yoga | GET CSRF → POST `/api/ai/recommend` + `save_history` | 200 + reply; GET lại thấy history |
 | AI-030 | AI | Rate limit session | P1 | Session | `n≥6` trong 60s | `gf_ai_rate_limit_check` | `ok=false` + thông báo |
 
 ---

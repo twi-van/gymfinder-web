@@ -570,6 +570,76 @@ function gf_ai_extract_json_object(string $text): ?array
 }
 
 /**
+ * Câu hỏi về chính sách / FAQ site (không phải gợi ý gym/PT).
+ */
+function gf_ai_is_site_faq_question(string $message): bool
+{
+    $m = mb_strtolower(str_replace(['đ', 'Đ'], ['d', 'd'], $message));
+    $keys = [
+        'dieu khoan', 'chinh sach', 'bao mat', 'privacy', 'terms',
+        'ban du lieu', 'cookie', 'otp', 'quen mat khau', 'doi mat khau',
+        'dat lich', 'thanh toan', 'ban do', 'google maps',
+        'chat voi', 'nhan tin', 'dang ky the nao', 'cach dang ky',
+        'co can duyet', 'kiem duyet', 'tam an',
+    ];
+    foreach ($keys as $k) {
+        if ($k !== '' && mb_strpos($m, $k) !== false) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Kiến thức site (điều khoản, bảo mật, FAQ vận hành) — không phải dữ liệu bảo mật nội bộ.
+ * Dùng khi user hỏi chính sách / cách dùng website; không thay catalog gym/PT.
+ *
+ * @return array<string,mixed>
+ */
+function gf_ai_site_knowledge(): array
+{
+    $termsUrl = function_exists('gf_url') ? gf_url('pages/legal/terms.php') : '/pages/legal/terms.php';
+    $privacyUrl = function_exists('gf_url') ? gf_url('pages/legal/privacy.php') : '/pages/legal/privacy.php';
+
+    return [
+        'product' => 'GYMFINDER — website tra cứu & đánh giá phòng tập và HLV (PT) tại TP. Hồ Chí Minh (cập nhật 10/2026).',
+        'in_scope' => [
+            'Tìm/lọc gym & PT, xem chi tiết, yêu thích, đánh giá có kiểm duyệt',
+            'Đăng ký/đăng nhập, quên mật khẩu OTP email, hồ sơ cá nhân',
+            'Trợ lý AI gợi ý gym/PT dựa trên catalog công khai',
+        ],
+        'out_of_scope' => [
+            'Không đặt lịch / thanh toán online / ví điện tử',
+            'Không chat realtime hoặc nhắn tin với PT trong app',
+            'Không bản đồ / chỉ đường Google Maps',
+            'Không app mobile native (chỉ web responsive)',
+        ],
+        'terms_summary' => [
+            'Áp dụng khi dùng website để tìm gym/PT tại TP.HCM.',
+            'Đăng ký cần thông tin trung thực; tự bảo mật mật khẩu; Admin có thể khóa tài khoản vi phạm.',
+            'Đánh giá/hồ sơ không spam/xúc phạm; đánh giá có trạng thái chờ duyệt / đã duyệt / từ chối.',
+            'Thông tin gym/PT mang tính tham khảo — liên hệ trực tiếp phòng tập/HLV để xác nhận giá, lịch, điều kiện.',
+            'GYMFINDER không chịu trách nhiệm thỏa thuận ngoài nền tảng giữa user và gym/PT.',
+            'Chi tiết đầy đủ: ' . $termsUrl,
+        ],
+        'privacy_summary' => [
+            'Có thể lưu: họ tên, email, SĐT (nếu có), ảnh đại diện, yêu thích, nội dung đánh giá.',
+            'Cookie phiên đăng nhập; “Ghi nhớ đăng nhập” có thể giữ cookie khoảng 30 ngày.',
+            'Dùng để xác thực, hồ sơ, yêu thích, kiểm duyệt đánh giá, vận hành quản trị — không bán dữ liệu cá nhân.',
+            'Mật khẩu lưu dạng băm một chiều; phân quyền Admin; nên đăng xuất trên máy dùng chung.',
+            'User xem/cập nhật hồ sơ khi đã đăng nhập; ưu tiên khóa/ẩn thay vì xóa cứng dữ liệu vận hành.',
+            'Chi tiết đầy đủ: ' . $privacyUrl,
+        ],
+        'faq' => [
+            'Muốn tập: tìm gym/PT trên site → xem chi tiết → tự liên hệ qua SĐT/thông tin công bố.',
+            'Gửi đánh giá: cần đăng nhập; đánh giá mới chờ Admin duyệt mới công khai.',
+            'Quên mật khẩu: dùng luồng OTP email trên trang quên mật khẩu.',
+            'Gym/PT tạm ẩn không hiện công khai (kể cả trong gợi ý AI).',
+        ],
+    ];
+}
+
+/**
  * Gợi ý gym và/hoặc HLV từ câu hỏi user. Luôn map lại DB.
  *
  * @return array{ok:bool, reply?:string, gyms?:list<array>, trainers?:list<array>, error?:string}
@@ -669,21 +739,22 @@ Bạn là trợ lý tìm phòng tập (gym) và huấn luyện viên cá nhân (
 
 ## Nhiệm vụ
 - Đọc câu hỏi tiếng Việt của user.
-- Quyết định cần gợi ý gym, trainer, hoặc cả hai:
-  · Hỏi phòng tập / giá / tiện ích / loại hình gym → ưu tiên gym_ids.
-  · Hỏi HLV / PT / chuyên môn (Yoga coach, giảm cân 1-1…) → ưu tiên trainer_ids.
-  · Hỏi chung (“tập ở đâu”, “gợi ý”) → có thể trả cả hai nếu hợp lý.
-- Viết "reply" ngắn, rõ (2–4 câu), giải thích vì sao chọn các mục đó.
+- Phân loại ý định:
+  A) Gợi ý gym/PT → dùng catalogs; chọn gym_ids / trainer_ids.
+  B) Hỏi điều khoản, chính sách bảo mật, phạm vi site, cách đăng ký/đánh giá/quên MK, “có đặt lịch không?” → trả lời từ site_knowledge; gym_ids=[] và trainer_ids=[].
+  C) Hỏi chung (“tập ở đâu”, “gợi ý”) → có thể trả cả gym và trainer nếu hợp lý.
+- Viết "reply" ngắn, rõ (2–5 câu). Với (B) có thể nhắc link đầy đủ trong site_knowledge nếu có.
 
 ## Ràng buộc bắt buộc (harness)
-1. CHỈ dùng id trong catalogs.gyms / catalogs.trainers. Cấm bịa id, tên, giá, rating, chuyên môn.
+1. Gợi ý gym/PT: CHỈ dùng id trong catalogs.gyms / catalogs.trainers. Cấm bịa id, tên, giá, rating, chuyên môn.
 2. gym_ids chỉ lấy từ catalogs.gyms; trainer_ids chỉ lấy từ catalogs.trainers. Không trộn id giữa hai loại.
 3. Mỗi mảng tối đa 3 id, không trùng. Có thể một mảng rỗng [].
-4. Không khớp: để mảng tương ứng = [] và giải thích; gợi ý user nêu quận / giá / loại hình / chuyên môn.
-5. Ngoài phạm vi (không phải TP.HCM, đặt lịch, thanh toán, bản đồ, nhắn tin trong app): từ chối lịch sự, cả hai mảng = [].
-6. Ưu tiên khớp: khu vực (district) → giá (gym) / chuyên môn+kinh nghiệm (trainer) → rating cao.
-7. Giá gym là VND/tháng. "dưới 500k" → chọn gym có khoảng giá hợp lý quanh ngưỡng đó.
-8. Không nhắc API/JSON/schema trong reply trừ khi user hỏi.
+4. Không khớp catalog: để mảng tương ứng = [] và giải thích; gợi ý user nêu quận / giá / loại hình / chuyên môn.
+5. Câu hỏi chính sách/FAQ: CHỈ dựa trên site_knowledge (và catalogs nếu cần tên ví dụ). Không bịa điều khoản/chính sách; không tiết lộ mật khẩu, OTP, email user, dữ liệu admin, gym/PT ẩn.
+6. Ngoài phạm vi sản phẩm (đặt lịch, thanh toán, bản đồ, chat với PT, tỉnh khác TP.HCM): từ chối lịch sự theo site_knowledge.out_of_scope; cả hai mảng = [].
+7. Ưu tiên khớp gợi ý: khu vực (district) → giá (gym) / chuyên môn+kinh nghiệm (trainer) → rating cao.
+8. Giá gym là VND/tháng. "dưới 500k" → chọn gym có khoảng giá hợp lý quanh ngưỡng đó.
+9. Không nhắc API/JSON/schema trong reply trừ khi user hỏi.
 
 ## Output format (bắt buộc)
 - ĐÚNG 1 JSON object, không markdown, không code fence, không text ngoài JSON.
@@ -695,6 +766,7 @@ Bạn là trợ lý tìm phòng tập (gym) và huấn luyện viên cá nhân (
 {"reply":"Gợi ý vài phòng tập Quận 7 mức giá vừa phải.","gym_ids":[4],"trainer_ids":[]}
 {"reply":"Một số HLV chuyên Yoga / rating cao trong hệ thống.","gym_ids":[],"trainer_ids":[2,5]}
 {"reply":"GYMFINDER chỉ có dữ liệu TP.HCM, chưa hỗ trợ Đà Nẵng.","gym_ids":[],"trainer_ids":[]}
+{"reply":"Theo Chính sách bảo mật, GYMFINDER không bán dữ liệu cá nhân; mật khẩu được lưu dạng băm. Xem đầy đủ tại trang Chính sách bảo mật trên website.","gym_ids":[],"trainer_ids":[]}
 PROMPT;
 
     $userPayload = json_encode([
@@ -707,12 +779,13 @@ PROMPT;
             'want_trainer' => $hints['want_trainer'],
             'catalog_fallback' => $usedFallbackCatalog,
         ],
+        'site_knowledge' => gf_ai_site_knowledge(),
         'catalogs' => [
             'gyms' => $gymCompact,
             'trainers' => $trainerCompact,
         ],
         'question' => $userMessage,
-        'instructions' => 'Catalog đã được pre-filter từ DB khi có thể. Chọn gym_ids/trainer_ids từ catalogs rồi trả JSON theo system prompt.',
+        'instructions' => 'Nếu hỏi chính sách/FAQ → trả lời từ site_knowledge (ids rỗng). Nếu hỏi gợi ý gym/PT → chọn id từ catalogs đã pre-filter.',
     ], JSON_UNESCAPED_UNICODE);
 
     $chat = gf_ai_chat([
@@ -753,11 +826,15 @@ PROMPT;
     $gyms = gf_ai_pick_ids_from_catalog($parsed['gym_ids'] ?? [], $allowedGyms, 3);
     $trainers = gf_ai_pick_ids_from_catalog($parsed['trainer_ids'] ?? [], $allowedTrainers, 3);
 
+    // Gợi ý refine chỉ khi đang hỏi tìm gym/PT mà chưa gắn được card (không hiện với FAQ/chính sách).
+    $suggestRefine = $gyms === [] && $trainers === [] && !gf_ai_is_site_faq_question($userMessage);
+
     return [
         'ok' => true,
         'reply' => $reply,
         'gyms' => $gyms,
         'trainers' => $trainers,
+        'suggest_refine' => $suggestRefine,
     ];
 }
 
@@ -805,8 +882,15 @@ function gf_ai_chat_history_clear(): void
  * @param list<array<string,mixed>> $gyms
  * @param list<array<string,mixed>> $trainers
  */
-function gf_ai_chat_history_append(string $userText, string $botText, array $gyms = [], array $trainers = [], bool $isError = false, int $maxTurns = 12): void
-{
+function gf_ai_chat_history_append(
+    string $userText,
+    string $botText,
+    array $gyms = [],
+    array $trainers = [],
+    bool $isError = false,
+    int $maxTurns = 12,
+    bool $suggestRefine = false
+): void {
     $history = gf_ai_chat_history_get();
 
     $slimGyms = [];
@@ -842,6 +926,7 @@ function gf_ai_chat_history_append(string $userText, string $botText, array $gym
         'is_error' => $isError,
         'gyms' => $slimGyms,
         'trainers' => $slimTrainers,
+        'suggest_refine' => $suggestRefine && !$isError && $slimGyms === [] && $slimTrainers === [],
         'at' => time(),
     ];
 

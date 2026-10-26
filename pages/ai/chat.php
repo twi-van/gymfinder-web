@@ -8,38 +8,6 @@ $chips = [
     'Phòng tập có Yoga và HLV kèm',
 ];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = (string) ($_POST['action'] ?? 'ask');
-    if ($action === 'clear') {
-        gf_ai_chat_history_clear();
-        gf_redirect(gf_url('pages/ai/chat.php'));
-    }
-
-    $messageValue = trim((string) ($_POST['message'] ?? ''));
-    if ($messageValue !== '') {
-        $res = gf_ai_recommend_gyms($messageValue);
-        if (!empty($res['ok'])) {
-            gf_ai_chat_history_append(
-                $messageValue,
-                (string) ($res['reply'] ?? ''),
-                is_array($res['gyms'] ?? null) ? $res['gyms'] : [],
-                is_array($res['trainers'] ?? null) ? $res['trainers'] : [],
-                false
-            );
-        } else {
-            gf_ai_chat_history_append(
-                $messageValue,
-                (string) ($res['error'] ?? 'Không thể trả lời lúc này.'),
-                [],
-                [],
-                true
-            );
-        }
-        // PRG: tránh F5 gửi lại + giữ history khi reload
-        gf_redirect(gf_url('pages/ai/chat.php'));
-    }
-}
-
 $history = gf_ai_chat_history_get();
 $aiReady = gf_ai_is_configured();
 $pageTitle = 'Trợ lý AI - GYMFINDER';
@@ -49,7 +17,18 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
 require dirname(__DIR__, 2) . '/includes/header.php';
 ?>
 <main class="flex-grow-1">
-    <div class="gf-ai-chat-shell">
+    <div
+        class="gf-ai-chat-shell"
+        id="aiChatRoot"
+        data-enabled="<?= $aiReady ? '1' : '0' ?>"
+        data-has-history="<?= $history !== [] ? '1' : '0' ?>"
+        data-api-url="<?= gf_h(gf_url('api/ai/recommend')) ?>"
+        data-history-url="<?= gf_h(gf_url('api/ai/history')) ?>"
+        data-csrf-url="<?= gf_h(gf_url('api/auth/csrf')) ?>"
+        data-csrf="<?= gf_h(gf_csrf_token()) ?>"
+        data-search-gym-url="<?= gf_h(gf_url('pages/gyms/search.php')) ?>"
+        data-search-pt-url="<?= gf_h(gf_url('pages/trainers/index.php')) ?>"
+    >
         <div class="gf-ai-chat-frame">
             <header class="gf-ai-chat-top">
                 <div class="gf-ai-chat-top-avatar" aria-hidden="true"><i class="fa-solid fa-robot"></i></div>
@@ -59,17 +38,15 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                         <?= $aiReady ? 'Đang sẵn sàng · gym & HLV' : 'Chưa cấu hình AI' ?>
                     </p>
                 </div>
-                <?php if ($history !== []): ?>
-                    <form method="post" class="ms-auto m-0" onsubmit="return confirm('Xóa toàn bộ hội thoại?');">
-                        <?= gf_csrf_field() ?>
-                        <input type="hidden" name="action" value="clear">
-                        <button type="submit" class="gf-ai-chat-top-link border-0 bg-transparent p-0" title="Xóa hội thoại">
+                <div class="ms-auto" id="aiChatHeaderActions">
+                    <?php if ($history !== []): ?>
+                        <button type="button" class="gf-ai-chat-top-link border-0 bg-transparent p-0" data-ai-clear title="Xóa hội thoại">
                             <i class="fa-solid fa-trash-can me-1"></i>Xóa
                         </button>
-                    </form>
-                <?php else: ?>
-                    <a class="gf-ai-chat-top-link" href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>">Tìm kiếm</a>
-                <?php endif; ?>
+                    <?php else: ?>
+                        <a class="gf-ai-chat-top-link" href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>">Tìm kiếm</a>
+                    <?php endif; ?>
+                </div>
             </header>
 
             <div class="gf-ai-chat-thread" id="aiChatThread">
@@ -81,7 +58,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 <?php endif; ?>
 
                 <?php if ($history === []): ?>
-                    <div class="gf-ai-msg gf-ai-msg--bot">
+                    <div class="gf-ai-msg gf-ai-msg--bot" id="aiChatWelcome">
                         <div class="gf-ai-msg-avatar"><i class="fa-solid fa-robot"></i></div>
                         <div class="gf-ai-msg-col">
                             <div class="gf-ai-msg-name">Trợ lý</div>
@@ -97,6 +74,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                     $isError = !empty($turn['is_error']);
                     $gyms = is_array($turn['gyms'] ?? null) ? $turn['gyms'] : [];
                     $trainers = is_array($turn['trainers'] ?? null) ? $turn['trainers'] : [];
+                    $suggestRefine = !empty($turn['suggest_refine']);
                     ?>
                     <?php if ($userText !== ''): ?>
                         <div class="gf-ai-msg gf-ai-msg--user">
@@ -179,7 +157,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                                 </a>
                             <?php endforeach; ?>
 
-                            <?php if (!$isError && $botText !== '' && $gyms === [] && $trainers === []): ?>
+                            <?php if (!$isError && $suggestRefine && $gyms === [] && $trainers === []): ?>
                                 <p class="small text-secondary mb-0 px-1">Chưa gắn gym/HLV cụ thể — thử hỏi rõ quận / giá / chuyên môn hơn.</p>
                             <?php endif; ?>
                         </div>
@@ -198,9 +176,8 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                         ><?= gf_h($chip) ?></button>
                     <?php endforeach; ?>
                 </div>
-                <form method="post" id="aiChatForm" class="gf-ai-chat-input-row">
+                <form id="aiChatForm" class="gf-ai-chat-input-row" action="javascript:void(0)">
                     <?= gf_csrf_field() ?>
-                    <input type="hidden" name="action" value="ask">
                     <textarea
                         id="aiMessage"
                         name="message"
@@ -208,52 +185,18 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                         maxlength="500"
                         placeholder="<?= $aiReady ? 'Nhập câu hỏi về gym hoặc HLV…' : 'AI chưa cấu hình' ?>"
                         <?= $aiReady ? '' : 'disabled' ?>
-                        required
                     ></textarea>
                     <button type="submit" class="gf-ai-chat-send" <?= $aiReady ? '' : 'disabled' ?> aria-label="Gửi">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </form>
-                <p class="gf-ai-chat-hint">Giữ tối đa 12 lượt gần nhất · Kéo lên để xem tin cũ · Nút Xóa để bắt đầu lại</p>
+                <p class="gf-ai-chat-hint">Giữ tối đa 12 lượt gần nhất · Không reload trang · Nút Xóa để bắt đầu lại</p>
             </div>
         </div>
     </div>
 </main>
-<script>
-(() => {
-    const input = document.getElementById('aiMessage');
-    const form = document.getElementById('aiChatForm');
-    const thread = document.getElementById('aiChatThread');
-
-    const resize = () => {
-        if (!input) return;
-        input.style.height = 'auto';
-        input.style.height = Math.min(input.scrollHeight, 120) + 'px';
-    };
-    input?.addEventListener('input', resize);
-    resize();
-
-    document.querySelectorAll('.gf-ai-chat-chip').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            if (!input || input.disabled) return;
-            input.value = btn.getAttribute('data-chip') || '';
-            resize();
-            input.focus();
-            form?.requestSubmit();
-        });
-    });
-
-    form?.addEventListener('submit', () => {
-        const btn = form.querySelector('.gf-ai-chat-send');
-        if (btn && !btn.disabled) {
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-        }
-    });
-
-    if (thread) {
-        thread.scrollTop = thread.scrollHeight;
-    }
-})();
-</script>
+<?php
+$aiChatJsVer = (string) @filemtime(dirname(__DIR__, 2) . '/assets/js/ai_chat.js');
+?>
+<script src="<?= gf_h(gf_url('assets/js/ai_chat.js')) ?>?v=<?= gf_h($aiChatJsVer) ?>"></script>
 <?php require dirname(__DIR__, 2) . '/includes/footer.php'; ?>

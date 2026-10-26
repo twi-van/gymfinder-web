@@ -166,7 +166,7 @@ gf_admin_table_close([
 <div class="modal fade" id="rejectModal<?= (int)$r['id'] ?>" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
-            <form method="post" onsubmit="return validateRejectForm(this);">
+            <form method="post" class="js-form-validate" novalidate onsubmit="return validateRejectForm(this);">
                 <?= gf_csrf_field() ?>
                 <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
                 <input type="hidden" name="action" value="reject">
@@ -190,7 +190,7 @@ gf_admin_table_close([
                     </div>
                     <div class="mb-2">
                         <label class="form-label fw-semibold small" for="rejectReasonInput<?= (int)$r['id'] ?>">Lý do từ chối <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="reason" id="rejectReasonInput<?= (int)$r['id'] ?>" rows="3" required placeholder="Nhập lý do từ chối đánh giá (bắt buộc, không được để trống)..." maxlength="255"></textarea>
+                        <textarea class="form-control" name="reason" id="rejectReasonInput<?= (int)$r['id'] ?>" rows="3" required data-required-msg="Vui lòng nhập lý do từ chối." placeholder="Nhập lý do từ chối đánh giá (bắt buộc, không được để trống)..." maxlength="255"></textarea>
                         <div class="invalid-feedback d-block reject-reason-error d-none"></div>
                         <div class="form-text small text-secondary">
                             Lý do là trường bắt buộc (1–255 ký tự). Không được để trống hoặc chỉ chứa khoảng trắng.

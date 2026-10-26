@@ -58,16 +58,16 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                     <p class="auth-card-subtitle">Chào mừng bạn quay trở lại! Vui lòng đăng nhập để tiếp tục.</p>
                     <?php if (!empty($_GET['registered'])): ?><div class="alert alert-success">Đăng ký thành công. Vui lòng đăng nhập.</div><?php endif; ?>
                     <?php if ($error): ?><div class="alert alert-danger"><?= gf_h($error) ?></div><?php endif; ?>
-                    <form method="post" id="loginForm">
+                    <form method="post" id="loginForm" class="js-auth-validate" novalidate>
                         <?= gf_csrf_field() ?>
                         <input type="hidden" name="redirect" value="<?= gf_h($_GET['redirect'] ?? '') ?>">
-                        <div class="mb-4">
+                        <div class="mb-4" data-auth-field>
                             <label class="form-label" for="username">Email / Số điện thoại</label>
-                            <div class="auth-input-group"><i class="fa-regular fa-user auth-input-icon"></i><input id="username" class="form-control" type="text" name="login" required autocomplete="username" placeholder="Nhập email hoặc số điện thoại" value="<?= gf_h($_POST['login'] ?? '') ?>"></div>
+                            <div class="auth-input-group"><i class="fa-regular fa-user auth-input-icon"></i><input id="username" class="form-control" type="text" name="login" required data-required-msg="Vui lòng nhập email hoặc số điện thoại." autocomplete="username" placeholder="Nhập email hoặc số điện thoại" value="<?= gf_h($_POST['login'] ?? '') ?>"></div>
                         </div>
-                        <div class="mb-4">
+                        <div class="mb-4" data-auth-field>
                             <label class="form-label" for="password">Mật khẩu</label>
-                            <div class="auth-input-group"><i class="fa-solid fa-lock auth-input-icon"></i><input id="password" class="form-control" type="password" name="password" required autocomplete="current-password" placeholder="Nhập mật khẩu"><button type="button" class="auth-toggle-password" id="btnTogglePassword" aria-label="Hiện mật khẩu"><i class="fa-regular fa-eye-slash" id="togglePasswordIcon"></i></button></div>
+                            <div class="auth-input-group"><i class="fa-solid fa-lock auth-input-icon"></i><input id="password" class="form-control" type="password" name="password" required data-required-msg="Vui lòng nhập mật khẩu." autocomplete="current-password" placeholder="Nhập mật khẩu"><button type="button" class="auth-toggle-password" id="btnTogglePassword" aria-label="Hiện mật khẩu"><i class="fa-regular fa-eye-slash" id="togglePasswordIcon"></i></button></div>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-5">
                             <div class="form-check">
@@ -90,6 +90,7 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= gf_h(gf_url('assets/js/auth_validate.js')) ?>?v=<?= gf_h((string) @filemtime(dirname(__DIR__, 2) . '/assets/js/auth_validate.js')) ?>"></script>
 <script>
 document.querySelectorAll('.test-card[data-email]').forEach(card => card.addEventListener('click', () => {
     document.querySelectorAll('.test-card[data-email]').forEach(item => item.classList.remove('active'));

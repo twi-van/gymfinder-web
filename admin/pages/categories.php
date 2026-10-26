@@ -263,7 +263,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 <div class="modal fade" id="catalogCreate" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 rounded-4">
-            <form method="post">
+            <form method="post" class="js-form-validate" novalidate>
                 <?= gf_csrf_field() ?>
                 <input type="hidden" name="action" value="save">
                 <div class="modal-header border-0">
@@ -272,7 +272,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                 </div>
                 <div class="modal-body">
                     <label class="form-label">Tên *</label>
-                    <input class="form-control admin-input mb-3" name="name" required maxlength="100" placeholder="Nhập tên">
+                    <input class="form-control admin-input mb-3" name="name" required maxlength="100" data-required-msg="Vui lòng nhập tên danh mục." placeholder="Nhập tên">
                     <?php if ($tab === 'categories'): ?>
                         <label class="form-label">Mô tả</label>
                         <textarea class="form-control admin-input" name="description" rows="3"></textarea>
@@ -402,7 +402,7 @@ gf_admin_table_close([
 <div class="modal fade" id="catalogEdit<?= (int)$r['id'] ?>" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 rounded-4">
-            <form method="post">
+            <form method="post" class="js-form-validate" novalidate>
                 <?= gf_csrf_field() ?>
                 <input type="hidden" name="action" value="save">
                 <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
@@ -412,7 +412,7 @@ gf_admin_table_close([
                 </div>
                 <div class="modal-body">
                     <label class="form-label">Tên *</label>
-                    <input class="form-control admin-input mb-3" name="name" value="<?= gf_h($r['name']) ?>" required maxlength="100">
+                    <input class="form-control admin-input mb-3" name="name" value="<?= gf_h($r['name']) ?>" required maxlength="100" data-required-msg="Vui lòng nhập tên danh mục.">
                     <?php if ($tab === 'categories'): ?>
                         <label class="form-label">Mô tả</label>
                         <textarea class="form-control admin-input mb-3" name="description" rows="3"><?= gf_h($r['description'] ?? '') ?></textarea>

@@ -179,7 +179,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                 </div>
             </div>
 
-            <form method="post" enctype="multipart/form-data">
+            <form method="post" class="js-form-validate" novalidate enctype="multipart/form-data">
                 <?= gf_csrf_field() ?>
                 <input type="hidden" name="action" value="update_profile">
                 <input type="file" id="adminAvatarInput" name="avatar_file" accept="image/jpeg,image/png,image/webp" class="d-none" onchange="previewAdminAvatar(this)">
@@ -204,7 +204,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold small" for="adminFullName">Họ và tên <span class="text-danger">*</span></label>
-                        <input type="text" id="adminFullName" name="full_name" class="form-control admin-input" value="<?= gf_h($adminUser['full_name']) ?>" required placeholder="Nhập họ và tên...">
+                        <input type="text" id="adminFullName" name="full_name" class="form-control admin-input" value="<?= gf_h($adminUser['full_name']) ?>" required data-required-msg="Vui lòng nhập họ và tên." placeholder="Nhập họ và tên...">
                     </div>
 
                     <div class="col-md-6">
@@ -246,7 +246,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                 </div>
             </div>
 
-            <form method="post" id="adminPasswordForm">
+            <form method="post" id="adminPasswordForm" class="js-form-validate" novalidate>
                 <?= gf_csrf_field() ?>
                 <input type="hidden" name="action" value="change_password">
 
@@ -254,7 +254,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                     <div class="col-md-4">
                         <label class="form-label fw-semibold small" for="adminCurPass">Mật khẩu hiện tại <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <input type="password" id="adminCurPass" name="current_password" class="form-control admin-input" required placeholder="Mật khẩu đang dùng...">
+                            <input type="password" id="adminCurPass" name="current_password" class="form-control admin-input" required data-required-msg="Vui lòng nhập mật khẩu hiện tại." placeholder="Mật khẩu đang dùng...">
                             <button class="btn btn-light border border-start-0" type="button" onclick="togglePassVisibility('adminCurPass', this)">
                                 <i class="fa-regular fa-eye"></i>
                             </button>
@@ -264,7 +264,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                     <div class="col-md-4">
                         <label class="form-label fw-semibold small" for="adminNewPass">Mật khẩu mới <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <input type="password" id="adminNewPass" name="new_password" class="form-control admin-input" minlength="8" required placeholder="Tối thiểu 8 ký tự...">
+                            <input type="password" id="adminNewPass" name="new_password" class="form-control admin-input" minlength="8" required data-required-msg="Vui lòng nhập mật khẩu mới." data-minlength-msg="Mật khẩu tối thiểu 8 ký tự." placeholder="Tối thiểu 8 ký tự...">
                             <button class="btn btn-light border border-start-0" type="button" onclick="togglePassVisibility('adminNewPass', this)">
                                 <i class="fa-regular fa-eye"></i>
                             </button>
@@ -274,7 +274,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                     <div class="col-md-4">
                         <label class="form-label fw-semibold small" for="adminConfirmPass">Xác nhận mật khẩu mới <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <input type="password" id="adminConfirmPass" name="confirm_password" class="form-control admin-input" minlength="8" required placeholder="Nhập lại mật khẩu mới...">
+                            <input type="password" id="adminConfirmPass" name="confirm_password" class="form-control admin-input" minlength="8" required data-required-msg="Vui lòng xác nhận mật khẩu." data-minlength-msg="Mật khẩu tối thiểu 8 ký tự." placeholder="Nhập lại mật khẩu mới...">
                             <button class="btn btn-light border border-start-0" type="button" onclick="togglePassVisibility('adminConfirmPass', this)">
                                 <i class="fa-regular fa-eye"></i>
                             </button>

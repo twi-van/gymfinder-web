@@ -96,23 +96,26 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                     <?php endif; ?>
                     <?php if ($error): ?><div class="alert alert-danger"><?= gf_h($error) ?></div><?php endif; ?>
 
-                    <form method="post" id="otpForm" autocomplete="one-time-code">
+                    <form method="post" id="otpForm" class="js-auth-validate" novalidate autocomplete="one-time-code">
                         <?= gf_csrf_field() ?>
                         <input type="hidden" name="action" value="verify">
-                        <label class="form-label">Mã OTP (6 chữ số)</label>
-                        <div class="otp-boxes mb-2" id="otpBoxes">
-                            <?php for ($i = 0; $i < 6; $i++): ?>
-                                <input
-                                    type="text"
-                                    inputmode="numeric"
-                                    pattern="[0-9]*"
-                                    maxlength="1"
-                                    class="otp-input form-control"
-                                    name="otp[]"
-                                    aria-label="OTP chữ số <?= $i + 1 ?>"
-                                    value="<?= gf_h($otpValue[$i] ?? '') ?>"
-                                >
-                            <?php endfor; ?>
+                        <div class="mb-2" data-auth-field id="otpFieldWrap">
+                            <label class="form-label">Mã OTP (6 chữ số)</label>
+                            <div class="otp-boxes mb-2" id="otpBoxes">
+                                <?php for ($i = 0; $i < 6; $i++): ?>
+                                    <input
+                                        type="text"
+                                        inputmode="numeric"
+                                        pattern="[0-9]*"
+                                        maxlength="1"
+                                        class="otp-input form-control"
+                                        name="otp[]"
+                                        aria-label="OTP chữ số <?= $i + 1 ?>"
+                                        value="<?= gf_h($otpValue[$i] ?? '') ?>"
+                                    >
+                                <?php endfor; ?>
+                            </div>
+                            <div class="auth-field-error" id="otpError" hidden>Vui lòng nhập đủ 6 số OTP.</div>
                         </div>
                         <input type="hidden" name="otp_full" id="otpFull" value="">
                         <button class="auth-btn-submit w-100 d-flex justify-content-center align-items-center gap-2 mt-4" type="submit">
@@ -142,10 +145,16 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
     const inputs = Array.from(document.querySelectorAll('.otp-input'));
     const full = document.getElementById('otpFull');
     const form = document.getElementById('otpForm');
-    if (!inputs.length) return;
+    const err = document.getElementById('otpError');
+    if (!inputs.length || !form) return;
 
     function syncFull() {
         full.value = inputs.map((i) => i.value.replace(/\D/g, '')).join('');
+    }
+
+    function clearOtpError() {
+        if (err) err.hidden = true;
+        inputs.forEach((i) => i.classList.remove('is-invalid'));
     }
 
     inputs.forEach((input, idx) => {
@@ -153,6 +162,7 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
             input.value = input.value.replace(/\D/g, '').slice(0, 1);
             if (input.value && idx < inputs.length - 1) inputs[idx + 1].focus();
             syncFull();
+            clearOtpError();
         });
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && !input.value && idx > 0) {
@@ -164,12 +174,21 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
             const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
             text.split('').forEach((ch, i) => { if (inputs[i]) inputs[i].value = ch; });
             syncFull();
+            clearOtpError();
             const next = inputs[Math.min(text.length, inputs.length - 1)];
             if (next) next.focus();
         });
     });
 
-    form.addEventListener('submit', syncFull);
+    form.addEventListener('submit', (e) => {
+        syncFull();
+        if (full.value.length !== 6) {
+            e.preventDefault();
+            if (err) err.hidden = false;
+            inputs.forEach((i) => i.classList.add('is-invalid'));
+            inputs[0]?.focus();
+        }
+    });
     if (inputs[0]) inputs[0].focus();
 })();
 </script>

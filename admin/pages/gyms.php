@@ -388,7 +388,7 @@ gf_admin_table_close([
 <?php endforeach; ?>
 <div class="modal fade" id="gymEditor" tabindex="-1" aria-labelledby="gym-editor-title" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <form method="post" id="gymForm" class="modal-content border-0 rounded-4 shadow overflow-hidden" enctype="multipart/form-data" onsubmit="return handleGymFormSubmit(event)">
+        <form method="post" id="gymForm" class="modal-content border-0 rounded-4 shadow overflow-hidden js-form-validate" novalidate enctype="multipart/form-data" onsubmit="return handleGymFormSubmit(event)">
             <?= gf_csrf_field() ?>
             <input type="hidden" name="id" id="gym-id">
             <input type="hidden" name="cover_image_url" id="gym-cover-url">
@@ -401,10 +401,10 @@ gf_admin_table_close([
             <div class="modal-body px-4 py-3">
                 <div id="gym-error-alert" class="alert alert-danger d-none"></div>
                 <div class="row g-3">
-                    <div class="col-md-6"><label class="form-label">Tên phòng tập *</label><input class="form-control admin-input" name="name" id="gym-name" required></div>
+                    <div class="col-md-6" data-field><label class="form-label">Tên phòng tập *</label><input class="form-control admin-input" name="name" id="gym-name" required data-required-msg="Vui lòng nhập tên phòng tập."></div>
                     <div class="col-md-6"><label class="form-label">Số điện thoại liên hệ</label><input class="form-control admin-input" name="phone" id="gym-phone" placeholder="VD: +84281234567 hoặc 0901234567" pattern="^\+?[0-9]{9,14}$" title="Từ 9 đến 14 chữ số, có thể bắt đầu bằng dấu +"></div>
-                    <div class="col-md-6"><label class="form-label">Địa chỉ *</label><input class="form-control admin-input" name="address" id="gym-address" required></div>
-                    <div class="col-md-6"><label class="form-label">Khu vực *</label><select class="form-select admin-input" name="district_id" id="gym-district" required><?php foreach ($districts as $d): ?><option value="<?= (int)$d['id'] ?>"><?= gf_h($d['name']) ?></option><?php endforeach; ?></select></div>
+                    <div class="col-md-6" data-field><label class="form-label">Địa chỉ *</label><input class="form-control admin-input" name="address" id="gym-address" required data-required-msg="Vui lòng nhập địa chỉ."></div>
+                    <div class="col-md-6" data-field><label class="form-label">Khu vực *</label><select class="form-select admin-input" name="district_id" id="gym-district" required data-required-msg="Vui lòng chọn khu vực."><?php foreach ($districts as $d): ?><option value="<?= (int)$d['id'] ?>"><?= gf_h($d['name']) ?></option><?php endforeach; ?></select></div>
                     <div class="col-md-6"><label class="form-label">Giá từ</label><input class="form-control admin-input" type="number" min="0" name="price_min" id="gym-min" value="200000"></div>
                     <div class="col-md-6"><label class="form-label">Giá đến</label><input class="form-control admin-input" type="number" min="0" name="price_max" id="gym-max" value="800000"></div>
                     <div class="col-md-6">

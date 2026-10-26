@@ -58,6 +58,7 @@
 </div>
 <?php require __DIR__ . '/contact_modal.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= gf_h(gf_url('assets/js/form_validate.js')) ?>?v=<?= gf_h((string) @filemtime(dirname(__DIR__) . '/assets/js/form_validate.js')) ?>"></script>
 <?php require __DIR__ . '/ui_feedback.php'; ?>
 <script>
 document.querySelectorAll('.js-favorite-toggle').forEach((form) => {

@@ -74,9 +74,9 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                     <p class="auth-card-subtitle">Nhập email đã dùng khi đăng ký. Hệ thống gửi mã OTP qua email (không hỗ trợ OTP SMS).</p>
                     <?php if ($flowNotice): ?><div class="alert alert-warning"><?= gf_h($flowNotice) ?></div><?php endif; ?>
                     <?php if ($error): ?><div class="alert alert-danger"><?= gf_h($error) ?></div><?php endif; ?>
-                    <form method="post" id="forgotPasswordForm">
+                    <form method="post" id="forgotPasswordForm" class="js-auth-validate" novalidate>
                         <?= gf_csrf_field() ?>
-                        <div class="mb-4">
+                        <div class="mb-4" data-auth-field>
                             <label class="form-label" for="forgot-login">Email *</label>
                             <div class="auth-input-group">
                                 <i class="fa-regular fa-envelope auth-input-icon"></i>
@@ -86,6 +86,8 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                                     type="email"
                                     name="login"
                                     required
+                                    data-required-msg="Vui lòng nhập email."
+                                    data-type-msg="Email không hợp lệ."
                                     autocomplete="email"
                                     placeholder="you@email.com"
                                     value="<?= gf_h($loginValue) ?>"
@@ -106,4 +108,5 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= gf_h(gf_url('assets/js/auth_validate.js')) ?>?v=<?= gf_h((string) @filemtime(dirname(__DIR__, 2) . '/assets/js/auth_validate.js')) ?>"></script>
 </body></html>

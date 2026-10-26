@@ -353,7 +353,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         </div>
 
         <!-- Chế độ Chỉnh sửa (Edit Mode Form) -->
-        <form id="profileEditForm" method="post" enctype="multipart/form-data" class="profile-edit-grid">
+        <form id="profileEditForm" method="post" enctype="multipart/form-data" class="profile-edit-grid js-form-validate" novalidate>
             <?= gf_csrf_field() ?>
             <input type="file" id="avatarFile" name="avatar_file" accept="image/jpeg,image/png,image/webp" class="d-none">
             <input type="hidden" name="remove_avatar" id="removeAvatar" value="0">
@@ -369,7 +369,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
             <div class="row g-4 mb-4">
                 <div class="col-md-6">
                     <label class="form-label profile-label" for="profileName">Họ và tên <span class="text-danger">*</span></label>
-                    <input id="profileName" class="form-control profile-edit-input" name="full_name" value="<?= gf_h($user['full_name']) ?>" required placeholder="Nhập họ và tên...">
+                    <input id="profileName" class="form-control profile-edit-input" name="full_name" value="<?= gf_h($user['full_name']) ?>" required data-required-msg="Vui lòng nhập họ và tên." placeholder="Nhập họ và tên...">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label profile-label" for="profilePhone">Số điện thoại</label>
@@ -406,14 +406,14 @@ require dirname(__DIR__, 2) . '/includes/header.php';
 
         <div id="passwordAlert" class="alert d-none mb-4 rounded-3" role="alert"></div>
 
-        <form id="passwordChangeForm" method="post" onsubmit="handlePasswordSubmit(event)">
+        <form id="passwordChangeForm" method="post" class="js-form-validate" novalidate onsubmit="handlePasswordSubmit(event)">
             <?= gf_csrf_field() ?>
             <input type="hidden" name="action" value="change_password">
             <div class="row g-4 mb-4">
                 <div class="col-12 col-md-4">
                     <label class="form-label profile-label" for="currentPassword">Mật khẩu hiện tại <span class="text-danger">*</span></label>
                     <div class="input-group input-password-wrap">
-                        <input type="password" id="currentPassword" name="current_password" class="form-control profile-edit-input" placeholder="Nhập mật khẩu hiện tại..." required autocomplete="current-password">
+                        <input type="password" id="currentPassword" name="current_password" class="form-control profile-edit-input" placeholder="Nhập mật khẩu hiện tại..." required data-required-msg="Vui lòng nhập mật khẩu hiện tại." autocomplete="current-password">
                         <button class="btn btn-toggle-password" type="button" aria-label="Hiện hoặc ẩn mật khẩu" onclick="togglePasswordVisibility('currentPassword', this)">
                             <i class="fa-regular fa-eye"></i>
                         </button>
@@ -423,7 +423,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 <div class="col-12 col-md-4">
                     <label class="form-label profile-label" for="newPassword">Mật khẩu mới <span class="text-danger">*</span></label>
                     <div class="input-group input-password-wrap">
-                        <input type="password" id="newPassword" name="new_password" class="form-control profile-edit-input" placeholder="Tối thiểu 8 ký tự..." minlength="8" required autocomplete="new-password">
+                        <input type="password" id="newPassword" name="new_password" class="form-control profile-edit-input" placeholder="Tối thiểu 8 ký tự..." minlength="8" required data-required-msg="Vui lòng nhập mật khẩu mới." data-minlength-msg="Mật khẩu tối thiểu 8 ký tự." autocomplete="new-password">
                         <button class="btn btn-toggle-password" type="button" aria-label="Hiện hoặc ẩn mật khẩu" onclick="togglePasswordVisibility('newPassword', this)">
                             <i class="fa-regular fa-eye"></i>
                         </button>
@@ -433,7 +433,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 <div class="col-12 col-md-4">
                     <label class="form-label profile-label" for="confirmPassword">Xác nhận mật khẩu mới <span class="text-danger">*</span></label>
                     <div class="input-group input-password-wrap">
-                        <input type="password" id="confirmPassword" name="confirm_password" class="form-control profile-edit-input" placeholder="Nhập lại mật khẩu mới..." minlength="8" required autocomplete="new-password">
+                        <input type="password" id="confirmPassword" name="confirm_password" class="form-control profile-edit-input" placeholder="Nhập lại mật khẩu mới..." minlength="8" required data-required-msg="Vui lòng xác nhận mật khẩu mới." data-minlength-msg="Mật khẩu tối thiểu 8 ký tự." autocomplete="new-password">
                         <button class="btn btn-toggle-password" type="button" aria-label="Hiện hoặc ẩn mật khẩu" onclick="togglePasswordVisibility('confirmPassword', this)">
                             <i class="fa-regular fa-eye"></i>
                         </button>

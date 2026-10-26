@@ -97,6 +97,7 @@ Trình duyệt
 | `docs/specs/GymFinder_MoTaDuAn.docx` | Mô tả dự án |
 | `docs/specs/GymFinder_BaoCao_Khung.docx` | Khung báo cáo đồ án (điền dần) |
 | `docs/specs/GymFinder_HuongDanChay.md` | Hướng dẫn chạy |
+| `docs/specs/GymFinder_QuyDinh_Anh_Va_Form.md` | Quy định ảnh gym/PT + validate form (cho team) |
 | `docs/qa/` | Kế hoạch / case / báo cáo thực thi / bug |
 | `docs/PROJECT_STRUCTURE.md` | Cấu trúc thư mục |
 

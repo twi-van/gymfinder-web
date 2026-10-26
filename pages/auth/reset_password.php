@@ -69,21 +69,21 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                         <h2 class="auth-card-title">Đặt mật khẩu mới</h2>
                         <p class="auth-card-subtitle">OTP đã được xác thực. Hãy tạo mật khẩu mới cho tài khoản.</p>
                         <?php if ($error): ?><div class="alert alert-danger"><?= gf_h($error) ?></div><?php endif; ?>
-                        <form method="post">
+                        <form method="post" class="js-auth-validate" novalidate>
                             <?= gf_csrf_field() ?>
-                            <div class="mb-3">
+                            <div class="mb-3" data-auth-field>
                                 <label class="form-label" for="new-password">Mật khẩu mới *</label>
                                 <div class="auth-input-group">
                                     <i class="fa-solid fa-lock auth-input-icon"></i>
-                                    <input id="new-password" class="form-control" type="password" name="password" required minlength="8" autocomplete="new-password" placeholder="Ít nhất 8 ký tự">
+                                    <input id="new-password" class="form-control" type="password" name="password" required minlength="8" data-required-msg="Vui lòng nhập mật khẩu mới." data-minlength-msg="Mật khẩu tối thiểu 8 ký tự." autocomplete="new-password" placeholder="Ít nhất 8 ký tự">
                                     <button type="button" class="auth-toggle-password" aria-label="Hiện mật khẩu"><i class="fa-regular fa-eye-slash"></i></button>
                                 </div>
                             </div>
-                            <div class="mb-4">
+                            <div class="mb-4" data-auth-field>
                                 <label class="form-label" for="confirm-password">Xác nhận mật khẩu *</label>
                                 <div class="auth-input-group">
                                     <i class="fa-solid fa-lock-open auth-input-icon"></i>
-                                    <input id="confirm-password" class="form-control" type="password" name="confirm" required minlength="8" autocomplete="new-password" placeholder="Nhập lại mật khẩu mới">
+                                    <input id="confirm-password" class="form-control" type="password" name="confirm" required minlength="8" data-required-msg="Vui lòng xác nhận mật khẩu." data-minlength-msg="Mật khẩu tối thiểu 8 ký tự." autocomplete="new-password" placeholder="Nhập lại mật khẩu mới">
                                     <button type="button" class="auth-toggle-password" aria-label="Hiện mật khẩu"><i class="fa-regular fa-eye-slash"></i></button>
                                 </div>
                             </div>
@@ -98,6 +98,7 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= gf_h(gf_url('assets/js/auth_validate.js')) ?>?v=<?= gf_h((string) @filemtime(dirname(__DIR__, 2) . '/assets/js/auth_validate.js')) ?>"></script>
 <script>
 document.querySelectorAll('.auth-toggle-password').forEach((b) => b.addEventListener('click', () => {
     const i = b.parentElement.querySelector('input');

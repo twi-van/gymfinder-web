@@ -193,6 +193,19 @@ body.auth-page {
     box-shadow: 0 0 0 4px var(--primary-light);
 }
 
+.auth-input-group .form-control.is-invalid {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.12);
+}
+
+.auth-field-error {
+    margin-top: 0.4rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #dc3545;
+}
+
 .auth-input-icon {
     position: absolute;
     left: 16px;

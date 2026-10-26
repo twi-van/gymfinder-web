@@ -116,7 +116,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 </div>
 <?php if (!empty($_GET['created'])): ?><div class="alert alert-success"><i class="fa-solid fa-circle-check me-2"></i>Đã thêm huấn luyện viên thành công.</div><?php elseif(!empty($_GET['updated'])): ?><div class="alert alert-success"><i class="fa-solid fa-circle-check me-2"></i>Đã cập nhật huấn luyện viên thành công.</div><?php elseif(!empty($_GET['status_hidden'])): ?><div class="alert alert-success"><i class="fa-solid fa-circle-check me-2"></i>Đã tạm ẩn huấn luyện viên thành công. Hồ sơ sẽ không hiển thị trên các trang công khai.</div><?php elseif(!empty($_GET['status_active'])): ?><div class="alert alert-success"><i class="fa-solid fa-circle-check me-2"></i>Đã kích hoạt lại huấn luyện viên thành công. Hồ sơ đã sẵn sàng hiển thị công khai.</div><?php endif; ?>
 <?php if ($err): ?><div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation me-2"></i><?= gf_h($err) ?></div><?php endif; ?>
-<div class="modal fade" id="trainerCreate" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content border-0 shadow rounded-4"><div class="modal-header border-0"><h5 class="modal-title fw-bold" id="trainerModalTitle">Thêm huấn luyện viên mới</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="trainer-error-alert" class="alert alert-danger d-none"></div><form method="post" id="trainerForm" enctype="multipart/form-data" onsubmit="return handleTrainerFormSubmit(event)">
+<div class="modal fade" id="trainerCreate" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content border-0 shadow rounded-4"><div class="modal-header border-0"><h5 class="modal-title fw-bold" id="trainerModalTitle">Thêm huấn luyện viên mới</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="trainer-error-alert" class="alert alert-danger d-none"></div><form method="post" id="trainerForm" class="js-form-validate" novalidate enctype="multipart/form-data" onsubmit="return handleTrainerFormSubmit(event)">
     <?= gf_csrf_field() ?>
     <input type="hidden" name="id" id="trainerId" value="">
     <input type="hidden" name="avatar_url" id="trainerAvatarUrl" value="">
@@ -138,7 +138,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                 </div>
             </div>
         </div>
-        <div class="col-md-6"><label class="form-label">Họ và tên *</label><input class="form-control admin-input" name="full_name" id="trainerName" placeholder="Họ tên" required></div>
+        <div class="col-md-6" data-field><label class="form-label">Họ và tên *</label><input class="form-control admin-input" name="full_name" id="trainerName" placeholder="Họ tên" required data-required-msg="Vui lòng nhập họ và tên HLV."></div>
         <div class="col-md-6"><label class="form-label">Kinh nghiệm (năm)</label><input class="form-control admin-input" type="number" name="years_experience" id="trainerYears" value="3" min="0" max="60"></div>
         <div class="col-12"><label class="form-label">Chuyên môn * <span class="text-secondary fw-normal">(chọn một hoặc nhiều; tối thiểu 1)</span></label>
             <div id="trainerSpecialtyList" class="border rounded-3 p-3 bg-light" style="max-height:180px;overflow:auto;">

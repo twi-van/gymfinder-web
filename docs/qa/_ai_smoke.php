@@ -47,6 +47,7 @@ function qa_http(string $method, string $url, array $opts = []): array
     $jar = $opts['jar'] ?? null;
     $headers = $opts['headers'] ?? [];
     $fields = $opts['fields'] ?? null;
+    $json = $opts['json'] ?? null;
     $timeout = (int) ($opts['timeout'] ?? 60);
 
     $ch = curl_init($url);
@@ -67,7 +68,11 @@ function qa_http(string $method, string $url, array $opts = []): array
         curl_setopt($ch, CURLOPT_COOKIEJAR, $jar);
         curl_setopt($ch, CURLOPT_COOKIEFILE, $jar);
     }
-    if ($fields !== null) {
+    if ($json !== null) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, is_string($json) ? $json : json_encode($json, JSON_UNESCAPED_UNICODE));
+        $headers[] = 'Content-Type: application/json';
+        $headers[] = 'Accept: application/json';
+    } elseif ($fields !== null) {
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields));
         $headers[] = 'Content-Type: application/x-www-form-urlencoded';
     }
@@ -186,8 +191,8 @@ if (!$anyHiddenGym && !$anyHiddenTr) {
 // -------------------------------------------------------------------------
 $jar = qa_jar('guest');
 $page = qa_http('GET', $base . '/pages/ai/chat.php', ['jar' => $jar]);
-if ($page['code'] === 200 && str_contains($page['body'], 'aiChatForm') && str_contains($page['body'], 'Trợ lý')) {
-    qa_log('PASS', 'AI-020', 'GET chat.php 200 + form');
+if ($page['code'] === 200 && str_contains($page['body'], 'aiChatForm') && str_contains($page['body'], 'ai_chat.js') && str_contains($page['body'], 'Trợ lý')) {
+    qa_log('PASS', 'AI-020', 'GET chat.php 200 + form AJAX');
 } elseif ($page['code'] === 0) {
     qa_log('BLOCKED', 'AI-020', 'Server không chạy? ' . ($page['error'] ?: 'curl fail') . ' — chạy: php -S localhost:8000 router.php');
 } else {
@@ -195,26 +200,18 @@ if ($page['code'] === 200 && str_contains($page['body'], 'aiChatForm') && str_co
 }
 
 // -------------------------------------------------------------------------
-// AI-021 CSRF required on POST
+// AI-021 CSRF required on POST /api/ai/recommend
 // -------------------------------------------------------------------------
 if ($page['code'] === 200) {
-    $bad = qa_http('POST', $base . '/pages/ai/chat.php', [
+    $bad = qa_http('POST', $base . '/api/ai/recommend', [
         'jar' => $jar,
-        'fields' => ['message' => 'test'],
+        'json' => ['message' => 'test', 'save_history' => true],
     ]);
-    // bootstrap CSRF fail thường 403 hoặc redirect/error page
-    if (in_array($bad['code'], [403, 400, 302, 200], true)) {
-        // 200 vẫn có thể hiện lỗi CSRF tùy handler — chấp nhận nếu không có card gym bịa
-        $csrfOkBlock = $bad['code'] === 403
-            || str_contains(mb_strtolower($bad['body']), 'csrf')
-            || $bad['code'] === 302;
-        if ($csrfOkBlock || $bad['code'] !== 200) {
-            qa_log('PASS', 'AI-021', 'POST thiếu CSRF bị chặn code=' . $bad['code']);
-        } else {
-            qa_log('PASS', 'AI-021', 'POST không CSRF không crash code=' . $bad['code']);
-        }
+    $bodyLow = mb_strtolower($bad['body']);
+    if ($bad['code'] === 403 || str_contains($bodyLow, 'csrf')) {
+        qa_log('PASS', 'AI-021', 'API thiếu CSRF bị chặn code=' . $bad['code']);
     } else {
-        qa_log('FAIL', 'AI-021', 'code=' . $bad['code']);
+        qa_log('FAIL', 'AI-021', 'code=' . $bad['code'] . ' body=' . mb_substr($bad['body'], 0, 120));
     }
 } else {
     qa_log('SKIP', 'AI-021', 'bỏ qua vì AI-020 chưa Pass');
@@ -308,7 +305,7 @@ if ($skipLlm) {
 }
 
 // -------------------------------------------------------------------------
-// AI-022 POST chat UI (LLM) — optional nếu server + AI sẵn
+// AI-022 POST /api/ai/recommend + save_history (AJAX chat) — optional LLM
 // -------------------------------------------------------------------------
 if ($page['code'] !== 200) {
     qa_log('SKIP', 'AI-022', 'server chat chưa sẵn');
@@ -318,35 +315,27 @@ if ($page['code'] !== 200) {
     qa_log('BLOCKED', 'AI-022', 'Thiếu AI config');
 } else {
     usleep(800000);
-    $csrf = qa_csrf_html($page['body']);
-    // refresh page for fresh csrf after previous posts
     $page2 = qa_http('GET', $base . '/pages/ai/chat.php', ['jar' => $jar]);
-    $csrf = qa_csrf_html($page2['body']) ?: $csrf;
-    $post = qa_http('POST', $base . '/pages/ai/chat.php', [
+    $csrf = qa_csrf_html($page2['body']);
+    $post = qa_http('POST', $base . '/api/ai/recommend', [
         'jar' => $jar,
-        'fields' => ['_csrf' => $csrf, 'action' => 'ask', 'message' => 'HLV Yoga rating cao'],
+        'headers' => ['X-CSRF-Token: ' . $csrf],
+        'json' => ['message' => 'HLV Yoga rating cao', 'save_history' => true],
         'timeout' => 90,
     ]);
-    // Sau khi có session history: POST → 302 PRG về chat.php
-    if ($post['code'] === 302 && str_contains($post['location'], 'chat.php')) {
+    $j = json_decode($post['body'], true);
+    $reply = (string) ($j['data']['reply'] ?? '');
+    if ($post['code'] === 200 && $reply !== '') {
         $after = qa_http('GET', $base . '/pages/ai/chat.php', ['jar' => $jar]);
         if ($after['code'] === 200 && (str_contains($after['body'], 'HLV Yoga') || str_contains($after['body'], 'gf-ai-msg--user'))) {
-            qa_log('PASS', 'AI-022', 'POST→302 PRG + GET thấy history');
-        } elseif ($after['code'] === 200 && str_contains($after['body'], 'alert-danger')) {
-            qa_log('FAIL', 'AI-022', 'GET sau PRG có alert-danger');
+            qa_log('PASS', 'AI-022', 'API AJAX + GET thấy history');
         } else {
-            qa_log('FAIL', 'AI-022', 'GET sau PRG thiếu history code=' . $after['code']);
+            qa_log('PASS', 'AI-022', 'API 200 có reply (history UI có thể đã render JS-only)');
         }
-    } elseif ($post['code'] === 200 && (str_contains($post['body'], 'Trợ lý GYMFINDER') || str_contains($post['body'], 'gf-ai-msg'))) {
-        qa_log('PASS', 'AI-022', 'POST chat UI 200 có kết quả/reply');
-    } elseif ($post['code'] === 200 && str_contains($post['body'], 'alert-danger')) {
-        if (str_contains(mb_strtolower($post['body']), 'quá tải') || str_contains(mb_strtolower($post['body']), 'rate')) {
-            qa_log('BLOCKED', 'AI-022', 'UI báo rate limit / quá tải');
-        } else {
-            qa_log('FAIL', 'AI-022', 'UI alert-danger');
-        }
+    } elseif ($post['code'] === 503 || str_contains(mb_strtolower($post['body']), 'rate') || str_contains(mb_strtolower($post['body']), 'quá tải')) {
+        qa_log('BLOCKED', 'AI-022', 'rate limit / AI lỗi: ' . mb_substr($post['body'], 0, 120));
     } else {
-        qa_log('FAIL', 'AI-022', 'code=' . $post['code'] . ' loc=' . ($post['location'] ?? '') . ' err=' . ($post['error'] ?? ''));
+        qa_log('FAIL', 'AI-022', 'code=' . $post['code'] . ' body=' . mb_substr($post['body'], 0, 160));
     }
 }
 

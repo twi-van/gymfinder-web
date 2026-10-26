@@ -186,14 +186,26 @@ body {
 
 .brand-logo--admin .brand-logo-mark,
 .logo--admin .logo-mark {
-    width: 34px;
-    height: 34px;
-    padding: 6px;
-    border-radius: 10px;
+    width: 42px;
+    height: 42px;
+    padding: 7px;
+    border-radius: 12px;
 }
 .brand-logo--admin .brand-logo-text,
 .logo--admin .logo-text {
-    font-size: 1.125rem;
+    font-size: 1.3rem;
+}
+
+/* Sidebar brand: hơi lớn hơn so với mặc định admin */
+.sidebar > .p-4 .admin-brand.brand-logo--admin .brand-logo-mark,
+.sidebar > .p-4 .admin-brand.logo--admin .logo-mark {
+    width: 44px;
+    height: 44px;
+    padding: 8px;
+}
+.sidebar > .p-4 .admin-brand.brand-logo--admin .brand-logo-text,
+.sidebar > .p-4 .admin-brand.logo--admin .logo-text {
+    font-size: 1.35rem;
 }
 
 /* Compact brand in the sticky mobile top bar */
