@@ -7,7 +7,55 @@
         }
     }
 
+    function initAdminDragScroll(scroller) {
+        if (!scroller || scroller.dataset.dragScrollBound === '1') return;
+        scroller.dataset.dragScrollBound = '1';
+        var startX = 0;
+        var startScroll = 0;
+        var dragged = false;
+        var suppressClick = false;
+
+        scroller.addEventListener('pointerdown', function (event) {
+            if (event.button !== 0 || scroller.scrollWidth <= scroller.clientWidth) return;
+            if (event.target.closest('button, a, input, select, textarea, form, label')) return;
+            startX = event.clientX;
+            startScroll = scroller.scrollLeft;
+            dragged = false;
+            scroller.setPointerCapture(event.pointerId);
+            scroller.classList.add('is-dragging');
+        });
+        scroller.addEventListener('pointermove', function (event) {
+            if (!scroller.hasPointerCapture(event.pointerId)) return;
+            var delta = event.clientX - startX;
+            if (Math.abs(delta) > 4) dragged = true;
+            if (dragged) {
+                event.preventDefault();
+                scroller.scrollLeft = startScroll - delta;
+            }
+        });
+        function finishDrag(event) {
+            if (scroller.hasPointerCapture(event.pointerId)) {
+                scroller.releasePointerCapture(event.pointerId);
+            }
+            scroller.classList.remove('is-dragging');
+            if (dragged) {
+                suppressClick = true;
+                window.setTimeout(function () { suppressClick = false; }, 0);
+            }
+            dragged = false;
+        }
+        scroller.addEventListener('pointerup', finishDrag);
+        scroller.addEventListener('pointercancel', finishDrag);
+        scroller.addEventListener('click', function (event) {
+            if (!suppressClick) return;
+            event.preventDefault();
+            event.stopPropagation();
+        }, true);
+    }
+
     ready(function () {
+        document.querySelectorAll('.admin-drag-scroll').forEach(initAdminDragScroll);
+
         var sidebar = document.getElementById('sidebar');
         var overlay = document.getElementById('sidebarOverlay');
         var openBtn = document.getElementById('sidebarOpen');

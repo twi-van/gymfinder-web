@@ -100,4 +100,7 @@ require __DIR__ . '/includes/header.php';
         </div>
     </div>
 </section>
-<?php require __DIR__ . '/includes/footer.php'; ?>
+<?php
+require __DIR__ . '/includes/footer.php';
+require __DIR__ . '/includes/ai_widget.php';
+?>

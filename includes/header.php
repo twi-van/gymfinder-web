@@ -5,9 +5,10 @@ $currentScript = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? ''))
 $gymActive = str_contains($currentScript, '/pages/gyms/');
 $trainerActive = str_contains($currentScript, '/pages/trainers/');
 $favoriteActive = str_contains($currentScript, '/pages/user/favorites.php');
+$aiActive = str_contains($currentScript, '/pages/ai/');
 $isAdmin = ($user && ($user['role'] ?? '') === 'admin');
 ?>
-<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm border-bottom">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm border-bottom">
     <div class="container">
         <?= gf_logo('header', $home, 'navbar-brand') ?>
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Mở menu">
@@ -15,10 +16,11 @@ $isAdmin = ($user && ($user['role'] ?? '') === 'admin');
         </button>
         <div class="collapse navbar-collapse" id="navbarContent">
             <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link <?= basename($currentScript) === 'index.php' && !$trainerActive ? 'active' : '' ?>" href="<?= gf_h($home) ?>">Trang chủ</a></li>
+                <li class="nav-item"><a class="nav-link <?= basename($currentScript) === 'index.php' && !$trainerActive && !$aiActive ? 'active' : '' ?>" href="<?= gf_h($home) ?>">Trang chủ</a></li>
                 <li class="nav-item"><a class="nav-link <?= $gymActive ? 'active' : '' ?>" href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>">Phòng tập</a></li>
                 <li class="nav-item"><a class="nav-link <?= $trainerActive ? 'active' : '' ?>" href="<?= gf_h(gf_url('pages/trainers/index.php')) ?>">Huấn luyện viên</a></li>
                 <?php if (!$isAdmin): ?>
+                <li class="nav-item"><a class="nav-link <?= $aiActive ? 'active' : '' ?>" href="<?= gf_h(gf_url('pages/ai/chat.php')) ?>">Trợ lý AI</a></li>
                 <li class="nav-item"><a class="nav-link <?= $favoriteActive ? 'active' : '' ?>" href="<?= gf_h(gf_url('pages/user/favorites.php')) ?>">Yêu thích</a></li>
                 <?php endif; ?>
             </ul>

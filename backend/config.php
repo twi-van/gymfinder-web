@@ -15,9 +15,23 @@ if (is_file($smtpLocalFile)) {
     }
 }
 
+$aiLocal = [];
+$aiLocalFile = __DIR__ . DIRECTORY_SEPARATOR . 'ai.local.php';
+if (is_file($aiLocalFile)) {
+    $loadedAi = require $aiLocalFile;
+    if (is_array($loadedAi)) {
+        $aiLocal = $loadedAi;
+    }
+}
+
 $smtpValue = static function (string $envName, string $key, mixed $default = '') use ($smtpLocal): mixed {
     $value = getenv($envName);
     return $value !== false && $value !== '' ? $value : ($smtpLocal[$key] ?? $default);
+};
+
+$aiValue = static function (string $envName, string $key, mixed $default = '') use ($aiLocal): mixed {
+    $value = getenv($envName);
+    return $value !== false && $value !== '' ? $value : ($aiLocal[$key] ?? $default);
 };
 
 return [
@@ -41,5 +55,12 @@ return [
         'from_email' => (string) $smtpValue('GF_SMTP_FROM_EMAIL', 'from_email'),
         'from_name' => (string) $smtpValue('GF_SMTP_FROM_NAME', 'from_name', 'GYMFINDER'),
         'demo_otp' => filter_var($smtpValue('GF_SMTP_DEMO_OTP', 'demo_otp', false), FILTER_VALIDATE_BOOL),
+    ],
+    'ai' => [
+        'provider' => strtolower((string) $aiValue('GF_AI_PROVIDER', 'provider', 'groq')),
+        'api_key' => (string) $aiValue('GF_AI_API_KEY', 'api_key'),
+        'model' => (string) $aiValue('GF_AI_MODEL', 'model', 'qwen/qwen3.8-27b'),
+        'base_url' => (string) $aiValue('GF_AI_BASE_URL', 'base_url'),
+        'enabled' => filter_var($aiValue('GF_AI_ENABLED', 'enabled', true), FILTER_VALIDATE_BOOL),
     ],
 ];

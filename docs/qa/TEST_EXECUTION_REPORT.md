@@ -4,6 +4,30 @@
 
 ---
 
+## Vòng AI Chat (2026-10-26)
+
+**Công cụ:** `php docs/qa/_ai_smoke.php`  
+**Môi trường:** `php -S 127.0.0.1:8000 router.php` · SQLite · Groq `qwen/qwen3.8-27b` · `ai.local.php`
+
+| ID | Status | Actual |
+| --- | --- | --- |
+| AI-010 | **Pass** | Parse Quận 7 + `max_price=500000` + `want_gym` |
+| AI-011 | **Pass** | Parse HLV + specialty Yoga |
+| AI-012 | **Pass** | Pre-filter gym Quận7/giá → 1 gym |
+| AI-013 | **Pass** | Pre-filter trainer Yoga → 17 |
+| AI-014 | **Pass** | Catalog chỉ `active` |
+| AI-020 | **Pass** | GET `/pages/ai/chat.php` 200 + form |
+| AI-021 | **Pass** | POST thiếu CSRF → **403** |
+| AI-001 | **Pass** | Recommend gym Q7 → reply + 1 gym |
+| AI-002 | **Pass** | Recommend HLV Yoga → reply + 3 trainers |
+| AI-003 | **Pass** | Đà Nẵng → reply; gyms=0 trainers=0 |
+| AI-022 | **Pass** | POST→302 PRG + GET thấy history (sau khi thêm session history) |
+| AI-030 | **Pass** | Rate limit session chặn khi n≥6 |
+
+**Tóm tắt (re-check 2026-10-26):** **12 Pass · 0 Fail · 0 Blocked · 0 Skip.** API widget `/api/ai/recommend` OK; home có `gfAiWidget`.
+
+---
+
 ## Vòng 3 — Favorites / Reviews / OTP / Register (2026-10-21)
 
 **Công cụ:** `php docs/qa/_round3_smoke.php` (+ curl vòng 2 còn hiệu lực)  

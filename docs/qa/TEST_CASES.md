@@ -190,9 +190,31 @@
 
 ---
 
+## M. Trợ lý AI Chat (bổ sung)
+
+**Auto:** `php docs/qa/_ai_smoke.php` (cần `php -S localhost:8000 router.php`; LLM cần `backend/ai.local.php`).  
+**Bỏ LLM:** `GF_QA_SKIP_LLM=1 php docs/qa/_ai_smoke.php`
+
+| ID | Module | Test name | Priority | Preconditions | Test data | Steps | Expected |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| AI-001 | AI | Recommend gym Quận 7 + giá | P0 | AI key + mạng | “Gym Quận 7 giá dưới 500 nghìn” | Gọi recommend / UI POST | `ok` + reply; gym (nếu có) là id thật trong DB |
+| AI-002 | AI | Recommend HLV Yoga | P0 | AI key + mạng | “HLV Yoga rating cao” | Gọi recommend | `ok` + reply; ưu tiên `trainers` |
+| AI-003 | AI | Ngoài TP.HCM | P1 | AI key + mạng | “Gym ở Đà Nẵng” | Gọi recommend | Có reply; không crash; không bịa id ngoài catalog |
+| AI-010 | AI | Parse hints quận/giá | P0 | DB seed | Câu có Quận 7 + dưới 500k | `gf_ai_parse_question_hints` | `district_ids` có Quận 7; `max_price=500000`; `want_gym` |
+| AI-011 | AI | Parse hints HLV/Yoga | P0 | — | “HLV Yoga…” | Parse hints | `want_trainer` + specialty Yoga |
+| AI-012 | AI | Pre-filter catalog gym | P0 | Seed có gym Q7 | district=7, max_price | `gf_ai_catalog_gyms` | Chỉ gym Quận 7, `price_min≤500k`, status active |
+| AI-013 | AI | Pre-filter catalog trainer | P0 | Seed | specialty Yoga | `gf_ai_catalog_trainers` | Trainer có specialty chứa Yoga |
+| AI-014 | AI | Soft-hide catalog | P0 | Seed | Catalog full | Duyệt id trong catalog | Chỉ `status=active` |
+| AI-020 | AI | GET trang chat | P0 | Server chạy | `/pages/ai/chat.php` | Guest mở | HTTP 200, form chat, chips |
+| AI-021 | AI | POST thiếu CSRF | P1 | Server | POST message không CSRF | Submit | Bị chặn / không xử lý hợp lệ |
+| AI-022 | AI | POST chat UI E2E | P1 | Server + AI key | Chip HLV Yoga | GET → CSRF → POST | 200 + reply hoặc card gym/HLV |
+| AI-030 | AI | Rate limit session | P1 | Session | `n≥6` trong 60s | `gf_ai_rate_limit_check` | `ok=false` + thông báo |
+
+---
+
 ## Ghi chú kỹ thuật kiểm thử
 
 - **Star filter (search):** mode `filter` — “từ X★ trở lên”, có Bỏ chọn.  
 - **Star input (review form):** mode `rate` — chọn đúng X sao.  
 - **Kinh nghiệm:** 0–60; filter UI `0-2` / `3-5` / `6plus` (và alias `1-2` nếu còn).  
-- **Không map/booking/payment/chat.**
+- **Không map/booking/payment.** Chat AI là **tính năng bổ sung** (không thuộc đặc tả lõi).

@@ -25,6 +25,7 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/mailer.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/ai_client.php';
 require_once dirname(__DIR__) . '/includes/pagination.php';
 
 // Repositories (data layer — truy vấn DB)

@@ -54,12 +54,12 @@ function gf_admin_nav(string $key, string $href, string $icon, string $label, st
     </div>
 </aside>
 <main class="main-content flex-grow-1 p-4 p-md-5 bg-light" style="min-width:0;">
-    <div class="admin-mobile-bar d-lg-none d-flex align-items-center justify-content-between gap-2 mb-3">
-        <button type="button" class="btn btn-light border shadow-sm" id="sidebarOpen" aria-controls="sidebar" aria-expanded="false" aria-label="Mở menu">
+    <div class="admin-mobile-bar d-lg-none mb-3">
+        <button type="button" class="admin-mobile-toggle" id="sidebarOpen" aria-controls="sidebar" aria-expanded="false" aria-label="Mở menu">
             <i class="fa-solid fa-bars"></i>
         </button>
-        <?= gf_logo('admin', $adminDashboardUrl, 'admin-brand') ?>
-        <span style="width:40px;" aria-hidden="true"></span>
+        <?= gf_logo('admin', $adminDashboardUrl, 'admin-brand admin-brand--bar') ?>
+        <span class="admin-mobile-bar-spacer" aria-hidden="true"></span>
     </div>
     <nav class="admin-breadcrumb" aria-label="Đường dẫn">
         <ol class="admin-breadcrumb-list">

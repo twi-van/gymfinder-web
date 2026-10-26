@@ -34,9 +34,9 @@ if (!function_exists('gf_admin_table_open')) {
         $minWidth = htmlspecialchars($config['min_width'] ?? '1080px', ENT_QUOTES, 'UTF-8');
         $columns = $config['columns'] ?? [];
         ?>
-        <div class="admin-card admin-table-card overflow-hidden shadow-sm border mb-4">
-            <div class="table-responsive admin-table-responsive admin-drag-scroll">
-                <table <?= $tableId ? 'id="' . $tableId . '"' : '' ?> class="table admin-table admin-common-table <?= $extraClass ?> mb-0" style="min-width: <?= $minWidth ?>;">
+        <div class="admin-card admin-table-card shadow-sm border mb-4">
+            <div class="table-responsive admin-table-responsive admin-drag-scroll" tabindex="0" role="region" aria-label="Bảng dữ liệu — vuốt ngang để xem thêm">
+                <table <?= $tableId ? 'id="' . $tableId . '"' : '' ?> class="table admin-table admin-common-table <?= $extraClass ?> mb-0" style="--admin-table-min: <?= $minWidth ?>; width: <?= $minWidth ?>; min-width: <?= $minWidth ?>;">
                     <?php if (!empty($columns)): ?>
                         <colgroup>
                             <?php foreach ($columns as $idx => $col): 

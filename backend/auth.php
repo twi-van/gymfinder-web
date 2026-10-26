@@ -283,10 +283,12 @@ function gf_password_reset_begin(string $login): array
     $smtpConfigured = gf_smtp_is_configured();
     $smtpPartiallyConfigured = !empty($smtp['host']) || !empty($smtp['username']) || !empty($smtp['password']) || !empty($smtp['from_email']);
     $demoAllowed = !empty($smtp['demo_otp']);
-    if (!$smtpConfigured && !$demoAllowed && !$smtpPartiallyConfigured) {
+    // demo_otp=true → hiện OTP trên UI, không gửi mail (ưu tiên hơn SMTP).
+    $useEmail = $smtpConfigured && !$demoAllowed;
+    if (!$useEmail && !$demoAllowed && !$smtpPartiallyConfigured) {
         return ['ok' => false, 'error' => 'Chưa cấu hình SMTP để gửi OTP. Hãy cấu hình backend/smtp.local.php rồi thử lại.'];
     }
-    if (!$smtpConfigured && $smtpPartiallyConfigured) {
+    if (!$useEmail && !$demoAllowed && $smtpPartiallyConfigured) {
         return ['ok' => false, 'error' => 'Cấu hình SMTP chưa đầy đủ. Vui lòng kiểm tra backend/smtp.local.php.'];
     }
 
@@ -311,7 +313,7 @@ function gf_password_reset_begin(string $login): array
              VALUES (?,?,0,?)'
         )->execute([$userId, password_hash($otp, PASSWORD_DEFAULT), $expiresAt]);
         $resetId = (int) gf_pdo()->lastInsertId();
-        if ($smtpConfigured) {
+        if ($useEmail) {
             try {
                 gf_send_password_reset_otp_email($login, $otp);
             } catch (Throwable $e) {
@@ -338,7 +340,7 @@ function gf_password_reset_begin(string $login): array
         'mask'          => $mask,
         'user_id'       => $user ? (int) $user['id'] : null,
         'demo_otp'      => $demoOtp,
-        'delivery'      => $smtpConfigured ? 'email' : 'demo',
+        'delivery'      => $useEmail ? 'email' : 'demo',
         'expires'       => $expiresTs,
         'verified'      => false,
     ];

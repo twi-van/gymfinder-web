@@ -114,9 +114,29 @@ php -S localhost:8000 router.php
 
 ---
 
-## 4. Quên mật khẩu / OTP email
+## 4. Trợ lý AI chat (bổ sung)
 
-Luồng OTP (3 bước) thuộc chức năng chính. **Demo/chấm local:** bật `demo_otp` để hiện mã trên UI, **không cần** SMTP. **Gửi mail thật:** cấu hình SMTP và tắt `demo_otp`.
+Gợi ý **phòng tập** và **HLV (PT)** bằng chat tiếng Việt. **Không bắt buộc** cho đặc tả lõi.
+
+```bash
+cp backend/ai.local.php.example backend/ai.local.php
+# Mở ai.local.php → dán API key Groq/Gemini (không commit file này)
+```
+
+| URL | Mô tả |
+| --- | --- |
+| [/pages/ai/chat.php](http://localhost:8000/pages/ai/chat.php) | Hỏi → câu trả lời + card gym và/hoặc HLV thật trong DB |
+| Trang chủ | Nút chat AI góc phải (widget) → panel hỏi nhanh |
+
+Menu **Trợ lý AI** trên navbar (user/guest). Admin portal-only không thấy menu này.
+
+Câu demo: “Gym Quận 7 giá dưới 500 nghìn” · “HLV Yoga rating cao” · “PT giảm cân cho người mới”.
+
+---
+
+## 5. Quên mật khẩu / OTP email
+
+Luồng OTP (3 bước) thuộc chức năng chính. **Demo/chấm local:** `'demo_otp' => true` → hiện mã trên UI, **không gửi mail** (ưu tiên hơn SMTP). **Gửi mail thật:** cấu hình SMTP và `'demo_otp' => false`.
 
 ```bash
 cp backend/smtp.local.php.example backend/smtp.local.php
@@ -126,14 +146,12 @@ Chỉnh `backend/smtp.local.php` (file này **đã gitignore — không commit**
 
 | Mục | Ý nghĩa |
 | --- | --- |
-| `demo_otp` => `true` | Hiện OTP trên UI (khuyến nghị khi demo chưa có SMTP) |
-| `username` / `password` / `from_email` | SMTP gửi mail thật (vd. Gmail + **App Password**) khi `demo_otp` = `false` |
-
-Không bật đồng thời kỳ vọng “chỉ demo” và “chỉ SMTP”: chọn một chế độ.
+| `demo_otp` => `true` | Hiện OTP trên trang verify (không cần đọc inbox) |
+| `demo_otp` => `false` + SMTP đủ | Gửi OTP qua email thật |
 
 ---
 
-## 5. Tài khoản demo (khớp `seed.sql` / SQLite install)
+## 6. Tài khoản demo (khớp `seed.sql` / SQLite install)
 
 Mật khẩu chung seed: **`password`**
 
@@ -150,7 +168,7 @@ User khác trong seed: `u03@…` … `u24@…` — cùng mật khẩu `password`
 
 ---
 
-## 6. URL chính (port 8000)
+## 7. URL chính (port 8000)
 
 | Chức năng | URL |
 | --- | --- |
@@ -160,6 +178,7 @@ User khác trong seed: `u03@…` … `u24@…` — cùng mật khẩu `password`
 | Danh sách HLV | [/pages/trainers/index.php](http://localhost:8000/pages/trainers/index.php) |
 | Chi tiết HLV | [/pages/trainers/detail.php?id=1](http://localhost:8000/pages/trainers/detail.php?id=1) |
 | Đăng nhập / Đăng ký | [/pages/auth/login.php](http://localhost:8000/pages/auth/login.php) · [/pages/auth/register.php](http://localhost:8000/pages/auth/register.php) |
+| Trợ lý AI (bổ sung) | [/pages/ai/chat.php](http://localhost:8000/pages/ai/chat.php) |
 | Quên MK (3 bước) | `forgot_password.php` → `forgot_verify_otp.php` → `reset_password.php` |
 | Hồ sơ / Yêu thích | [/pages/user/profile.php](http://localhost:8000/pages/user/profile.php) · [/pages/user/favorites.php](http://localhost:8000/pages/user/favorites.php) |
 | Điều khoản / Chính sách | [/pages/legal/terms.php](http://localhost:8000/pages/legal/terms.php) · [/pages/legal/privacy.php](http://localhost:8000/pages/legal/privacy.php) |
@@ -178,7 +197,7 @@ User khác trong seed: `u03@…` … `u24@…` — cùng mật khẩu `password`
 
 ---
 
-## 7. Checklist demo nhanh
+## 8. Checklist demo nhanh
 
 1. Guest: tìm gym → mở chi tiết → xem review đã duyệt → thử heart → modal đăng nhập.  
 2. Login `u02@gymfinder.test` / `password` → yêu thích → gửi review (pending).  
@@ -187,7 +206,7 @@ User khác trong seed: `u03@…` … `u24@…` — cùng mật khẩu `password`
 
 ---
 
-## 8. Xử lý sự cố
+## 9. Xử lý sự cố
 
 ### Cổng 8000 đang dùng
 
@@ -225,7 +244,7 @@ Incognito (`Cmd+Shift+N`) hoặc xóa cache favicon Safari.
 
 ---
 
-## 9. Tài liệu liên quan
+## 10. Tài liệu liên quan
 
 | File | Nội dung |
 | --- | --- |

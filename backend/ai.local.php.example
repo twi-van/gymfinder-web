@@ -1,0 +1,9 @@
+<?php
+// Copy thành ai.local.php (không commit).
+return [
+    'provider' => 'groq', // groq | gemini | ollama
+    'api_key'  => '',     // dán key vào file ai.local.php, không ghi vào file .example
+    'model'    => 'qwen/qwen3.8-27b', // Groq free ổn định; fallback: openai/gpt-oss-20b
+    'base_url' => '',     // để trống = default; Ollama: http://127.0.0.1:11434
+    'enabled'  => true,
+];
