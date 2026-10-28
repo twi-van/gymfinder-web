@@ -61,7 +61,7 @@ function gf_admin_gym_payload(int $id): ?array
 /**
  * Validate các field của gym trước khi insert/update.
  */
-function gf_validate_gym_fields(array $d, array $merged): array
+function gf_validate_gym_fields(array $d, array $merged, ?array $existing = null): array
 {
     $details = [];
     $name    = trim((string) ($merged['name']    ?? ''));
@@ -118,8 +118,14 @@ function gf_validate_gym_fields(array $d, array $merged): array
     if (isset($merged['status']) && !in_array($merged['status'], ['active', 'hidden'], true)) {
         $details['status'] = 'status chỉ active|hidden.';
     }
-    if (array_key_exists('cover_image_url', $merged) && !gf_uploads_url_ok($merged['cover_image_url'] === null ? null : (string) $merged['cover_image_url'])) {
-        $details['cover_image_url'] = 'Chỉ nhận đường dẫn /uploads/...';
+    if (trim((string) ($merged['cover_image_url'] ?? '')) === '') {
+        $details['cover_image_url'] = 'Mỗi phòng tập cần có một ảnh bìa.';
+    }
+    $coverUrl = trim((string) ($merged['cover_image_url'] ?? ''));
+    $coverChanged = array_key_exists('cover_image_url', $d)
+        && $coverUrl !== trim((string) ($existing['cover_image_url'] ?? ''));
+    if ($coverUrl !== '' && $coverChanged && !gf_uploads_url_ok($coverUrl)) {
+        $details['cover_image_url'] = 'Chỉ nhận ảnh mới từ đường dẫn /uploads/...';
     }
 
     return $details;
@@ -163,7 +169,24 @@ function gf_admin_save_gym(array $d, ?int $id): array
             $merged['is_featured'] = gf_parse_flag_body($d['is_featured'], 'is_featured');
         }
 
-        $details = gf_validate_gym_fields($d, $merged);
+        $details = gf_validate_gym_fields($d, $merged, $existing);
+        $imageCount = $id ? null : 0;
+        if (array_key_exists('images', $d)) {
+            if (!is_array($d['images'])) {
+                $details['images'] = 'Danh sách ảnh không hợp lệ.';
+            } else {
+                $imageCount = count($d['images']);
+            }
+        } elseif ($id) {
+            $galleryCount = $pdo->prepare('SELECT COUNT(*) FROM gym_images WHERE gym_id=?');
+            $galleryCount->execute([$id]);
+            $imageCount = (int) $galleryCount->fetchColumn();
+        }
+        if ($imageCount !== null && $imageCount < 3) {
+            $details['images'] = 'Thư viện cần tối thiểu 3 ảnh.';
+        } elseif ($imageCount !== null && $imageCount > 8) {
+            $details['images'] = 'Tối đa 8 ảnh trong thư viện.';
+        }
         if ($details) {
             $pdo->rollBack();
             return ['ok' => false, 'http' => 422, 'code' => 'VALIDATION_ERROR', 'error' => 'Dữ liệu không hợp lệ.', 'details' => $details];

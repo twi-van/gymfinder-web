@@ -8,6 +8,8 @@
     const csrfUrl = root.dataset.csrfUrl || '';
     const searchGymUrl = root.dataset.searchGymUrl || '';
     const searchPtUrl = root.dataset.searchPtUrl || '';
+    const gymDetailUrl = root.dataset.gymDetailUrl || '';
+    const trainerDetailUrl = root.dataset.trainerDetailUrl || '';
 
     const thread = document.getElementById('aiChatThread');
     const form = document.getElementById('aiChatForm');
@@ -87,8 +89,12 @@
     function cardHtml(item, isTrainer) {
         const imgClass = isTrainer || item.is_avatar ? ' class="is-round"' : '';
         const meta = item.meta ? `<p class="gf-ai-result-card-meta">${esc(item.meta)}</p>` : '';
+        const detailBase = isTrainer ? trainerDetailUrl : gymDetailUrl;
+        const href = item.id && detailBase
+            ? `${detailBase}?id=${encodeURIComponent(item.id)}`
+            : (item.url || '#');
         return (
-            `<a class="gf-ai-result-card" href="${esc(item.url || '#')}">` +
+            `<a class="gf-ai-result-card" href="${esc(href)}">` +
             `<img${imgClass} src="${esc(item.image || '')}" alt="">` +
             `<div class="gf-ai-result-card-body">` +
             `<p class="gf-ai-result-card-title">${esc(item.title || '')}</p>` +

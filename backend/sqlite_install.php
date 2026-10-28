@@ -340,6 +340,18 @@ SQL);
     $districtNamesById = array_column($districts, 1, 0);
 
     $gymImages = [
+        'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1579758629938-03607ccdbaba?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1590487988256-9ed24133863e?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1577221084712-45b0449d2d3f?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1534258936925-c58bed479fcb?auto=format&fit=crop&w=800&q=80',
         'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
         'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80',
         'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80',
@@ -349,6 +361,54 @@ SQL);
         'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
         'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80'
     ];
+    $gymCoverImages = array_merge($gymImages, [
+        'https://images.unsplash.com/photo-1728486145245-d4cb0c9c3470?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1738321791421-232f9ee2c487?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1545612036-2872840642dc?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1758448756350-3d0eec02ba37?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1778828494354-9b717d36dc99?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1671970922029-0430d2ae122c?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1775993719568-290840203239?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1775993167276-743bbcde77e1?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1546920120-d60663fd4965?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1778828450059-f39d5bbb01af?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1689877020200-403d8542d95d?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1561214078-f3247647fc5e?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1757924284732-4189190321cf?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1728486887318-398f1448f7ae?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1775993703558-e7afab02b7bd?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1754258167836-6878c54e316c?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1771586791190-97ed536c54af?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1649068618811-9f3547ef98fc?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1741156229623-da94e6d7977d?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1765728617086-5d16a7bac916?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1775993167571-cd1ff4cadada?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1778828494365-c798ff9cce2c?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1689514226761-336eaf77e311?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1623874514711-0f321325f318?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1775993699105-4d18bcac7e54?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1761971974992-6df33df97c3a?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1770493895453-4f758c40d11d?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1687350119840-3e2cc5977e92?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1716367840427-4c148eb7bf15?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1790094181041-add24d34ccfd?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1649847727298-27a50354bd46?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1714181871329-1392197011c2?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1790094180961-8396479c6542?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1632758243488-7e6f9173cfa1?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1675026482188-8102367ecc16?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1761839258420-5c3e2f2e2a74?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1771270786606-f5a0e57db762?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1434682772747-f16d3ea162c3?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1630703178161-1e2f9beddbf8?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1624513764372-a4eb7b334c62?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1521804906057-1df8fdb718b7?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1789629455545-6418611bb5a2?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1770513649465-2c60c8039806?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1729156638758-6fa6405b289b?auto=format&fit=crop&w=800&q=80',
+    ]);
+    $gymGalleryImages = $gymCoverImages;
+    $newGymGalleryImages = array_slice($gymCoverImages, count($gymImages));
 
     $priceRanges = [
         ['min' => 200000, 'max' => 450000],
@@ -401,7 +461,7 @@ SQL);
             } else {
                 $pRange = $priceRanges[$gymId % count($priceRanges)];
             }
-            $cover = $gymImages[($gymId - 1) % count($gymImages)];
+            $cover = str_replace('w=800', 'w=1200', $gymCoverImages[($gymId - 1) % count($gymCoverImages)]);
 
             $phone = sprintf("+8428%07d", 1000000 + $gymId);
             $email = "contact.gym{$gymId}@gymfinder.test";
@@ -433,9 +493,29 @@ SQL);
                 $insGA->execute([$gymId, $amId]);
             }
 
-            // Additional image
-            $subImg = $gymImages[($gymId + 2) % count($gymImages)];
-            $insGI->execute([$gymId, $subImg, 'Khu tập luyện đa năng', 1]);
+            // Seed a complete gallery with distinct images, separate from the cover.
+            $galleryTarget = $isFeatured ? 6 : 5;
+            $galleryUrls = [];
+            $galleryPoolCount = count($gymGalleryImages);
+            $galleryStart = (($gymId - 1) * 13) % $galleryPoolCount;
+            for ($step = 0; $step < $galleryPoolCount && count($galleryUrls) < $galleryTarget; $step++) {
+                $galleryImage = $gymGalleryImages[($galleryStart + $step * 7) % $galleryPoolCount];
+                if (str_replace('w=1200', 'w=800', $cover) === $galleryImage || in_array($galleryImage, $galleryUrls, true)) {
+                    continue;
+                }
+                $galleryUrls[] = $galleryImage;
+            }
+            if ($galleryUrls && !array_intersect($galleryUrls, $newGymGalleryImages)) {
+                foreach ($newGymGalleryImages as $galleryImage) {
+                    if (str_replace('w=1200', 'w=800', $cover) !== $galleryImage && !in_array($galleryImage, $galleryUrls, true)) {
+                        $galleryUrls[count($galleryUrls) - 1] = $galleryImage;
+                        break;
+                    }
+                }
+            }
+            foreach ($galleryUrls as $galleryIndex => $galleryImage) {
+                $insGI->execute([$gymId, $galleryImage, 'Không gian phòng tập', $galleryIndex + 1]);
+            }
 
     }
 
@@ -455,13 +535,38 @@ SQL);
         29 => 'Cao Mỹ Duyên', 30 => 'Bạch Trọng Hiếu'
     ];
 
-    $trainerAvatars = [
-        'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
+    $femaleTrainerIds = [2, 4, 5, 7, 9, 12, 15, 18, 21, 23, 26, 29];
+    $trainerPortraitOverrides = [
+        1 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2502497.webp?update_time=2025-11-27+03%3A30%3A05.737',
+        2 => 'https://images.squarespace-cdn.com/content/v1/62e39313a3615b384cc19035/52a6f1e4-8e7c-40a3-b0c6-14a8bb0c05a2/xiu%2Bting.jpg',
+        3 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2300326.webp?update_time=2025-06-21+08%3A48%3A01.600',
+        4 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/700096.webp?update_time=2025-06-14+03%3A31%3A55.310',
+        5 => 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
+        6 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2405184.webp?update_time=2025-06-14+03%3A31%3A55.120',
+        7 => 'https://tsquaredlab.com/images/trainers/haz.webp',
+        8 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2101491.webp?update_time=2025-05-31+03%3A30%3A36.813',
+        9 => 'https://static.wixstatic.com/media/3712cb_75431a0dff05471281ca426eefc1f808~mv2.jpg/v1/fill/w_980%2Ch_1307%2Cal_c%2Cq_85%2Cusm_0.66_1.00_0.01/3712cb_75431a0dff05471281ca426eefc1f808~mv2.jpg',
+        10 => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+        11 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2103599.webp?update_time=2025-05-29+03%3A31%3A37.583',
+        12 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2405272.webp?update_time=2025-06-21+08%3A48%3A02.017',
+        13 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2002233.webp?update_time=2025-07-31+03%3A30%3A07.820',
+        14 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2502551.webp?update_time=2025-08-05+03%3A30%3A09.267',
+        15 => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+        16 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/790154.webp?update_time=2025-11-06+03%3A30%3A16.210',
+        17 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2500506.webp?update_time=2025-05-31+03%3A30%3A36.857',
+        18 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2402622.webp?update_time=2025-06-19+22%3A05%3A07.700',
+        19 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2504511.webp?update_time=2026-02-15+03%3A30%3A11.880',
+        20 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2302959.webp?update_time=2025-06-05+03%3A33%3A39.200',
+        21 => 'https://images.squarespace-cdn.com/content/v1/588754e7bebafbcb2d477cbf/1759978920243-J0GHN0IZ0LQKLMY4Z3WN/RACH1.jpg',
+        22 => 'https://www.workband.com.tw/store_image/forcefitness/P1174540170056.webp',
+        23 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/370451.webp?update_time=2026-04-22+03%3A30%3A08.133',
+        24 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2500840.webp?update_time=2026-04-22+03%3A30%3A08.127',
+        25 => 'https://pure360-public.s3.ap-southeast-1.amazonaws.com/teacher_image_dev/1900.jpg?t=1663933548000',
+        26 => 'https://stringssg-assets.s3.ap-southeast-1.amazonaws.com/static/personal-trainer/generated/Christabelle.jpeg',
+        27 => 'https://images.squarespace-cdn.com/content/v1/63d9d5adb0b1063f7fa463a2/40365611-db3b-4e8c-9566-f14d5d3e2e6f/copy_AF8E7F50-5222-492E-A210-BFB5553B71CF.JPEG',
+        28 => 'https://unrealpt.sg/cdn/shop/files/Hwa_Yang_Soh_Senior_Trainer.jpg?v=1726637029&width=2000',
+        29 => 'https://images.squarespace-cdn.com/content/v1/66668442d380464892620714/97994512-76a2-433b-8e6c-dcc2dbc6d6e3/IMG_8221.jpg',
+        30 => 'https://www.stringssg.com/_next/image?q=75&url=https%3A%2F%2Fstringssg-assets.s3-ap-southeast-1.amazonaws.com%2Fstatic%2Fpersonal-trainer%2Fgenerated%2FGerald.jpeg&w=1920',
     ];
 
     $insTr = $pdo->prepare('INSERT INTO trainers (id, full_name, slug, avatar_url, specialty_id, years_experience, bio, phone, email, gym_id, district_id, is_featured, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)');
@@ -475,7 +580,8 @@ SQL);
         $bio = "Huấn luyện viên {$name} có {$exp} năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.";
         $phone = sprintf("+84901%06d", $tId);
         $email = "trainer{$tId}@gymfinder.test";
-        $avatar = $trainerAvatars[($tId - 1) % count($trainerAvatars)];
+        $avatarGender = in_array($tId, $femaleTrainerIds, true) ? 'women' : 'men';
+        $avatar = $trainerPortraitOverrides[$tId] ?? "https://randomuser.me/api/portraits/{$avatarGender}/{$tId}.jpg";
         $isFeatured = ($tId % 5 === 0) ? 1 : 0;
         $status = ($tId === 28 || $tId === 29) ? 'hidden' : 'active';
 

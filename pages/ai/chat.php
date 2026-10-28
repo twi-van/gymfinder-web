@@ -28,6 +28,8 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         data-csrf="<?= gf_h(gf_csrf_token()) ?>"
         data-search-gym-url="<?= gf_h(gf_url('pages/gyms/search.php')) ?>"
         data-search-pt-url="<?= gf_h(gf_url('pages/trainers/index.php')) ?>"
+        data-gym-detail-url="<?= gf_h(gf_url('pages/gyms/detail.php')) ?>"
+        data-trainer-detail-url="<?= gf_h(gf_url('pages/trainers/detail.php')) ?>"
     >
         <div class="gf-ai-chat-frame">
             <header class="gf-ai-chat-top">

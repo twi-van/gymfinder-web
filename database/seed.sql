@@ -195,6 +195,75 @@ INSERT INTO gyms (id, name, slug, description, address, district_id, latitude, l
 (63, 'Fit24 Sala', 'fit24-sala-63', 'Phòng tập Fit24 Sala tại Quận 2 có không gian rộng, lớp yoga và khu tập chức năng.', 'Số 10 Đường Mai Chí Thọ, Khu đô thị Sala, Quận 2', 23, NULL, NULL, +84281000063, 'contact.gym63@gymfinder.test', 'https://gym63.gymfinder.test', 700000, 1200000, '05:00 - 23:00', 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 0.0, 0, 0, 'active'),
 (64, 'Elite Fitness Thủ Thiêm', 'elite-fitness-thu-thiem-64', 'Phòng tập Elite Fitness Thủ Thiêm tại Quận 2 có dịch vụ cao cấp, hồ bơi và HLV cá nhân.', 'Số 20 Đường Nguyễn Cơ Thạch, Thủ Thiêm, Quận 2', 23, NULL, NULL, +84281000064, 'contact.gym64@gymfinder.test', 'https://gym64.gymfinder.test', 1500000, 3500000, '05:00 - 23:00', 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80', 0.0, 0, 1, 'active');
 
+UPDATE gyms SET cover_image_url = CASE id
+  WHEN 1 THEN 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=80'
+  WHEN 2 THEN 'https://images.unsplash.com/photo-1579758629938-03607ccdbaba?auto=format&fit=crop&w=1200&q=80'
+  WHEN 3 THEN 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=1200&q=80'
+  WHEN 4 THEN 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=1200&q=80'
+  WHEN 5 THEN 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80'
+  WHEN 6 THEN 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=1200&q=80'
+  WHEN 7 THEN 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=1200&q=80'
+  WHEN 8 THEN 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?auto=format&fit=crop&w=1200&q=80'
+  WHEN 9 THEN 'https://images.unsplash.com/photo-1590487988256-9ed24133863e?auto=format&fit=crop&w=1200&q=80'
+  WHEN 10 THEN 'https://images.unsplash.com/photo-1577221084712-45b0449d2d3f?auto=format&fit=crop&w=1200&q=80'
+  WHEN 11 THEN 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=1200&q=80'
+  WHEN 12 THEN 'https://images.unsplash.com/photo-1534258936925-c58bed479fcb?auto=format&fit=crop&w=1200&q=80'
+  WHEN 13 THEN 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80'
+  WHEN 14 THEN 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=1200&q=80'
+  WHEN 15 THEN 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=1200&q=80'
+  WHEN 16 THEN 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1200&q=80'
+  WHEN 17 THEN 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=1200&q=80'
+  WHEN 18 THEN 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=1200&q=80'
+  WHEN 19 THEN 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=1200&q=80'
+  WHEN 20 THEN 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=1200&q=80'
+  WHEN 21 THEN 'https://images.unsplash.com/photo-1728486145245-d4cb0c9c3470?auto=format&fit=crop&w=1200&q=80'
+  WHEN 22 THEN 'https://images.unsplash.com/photo-1738321791421-232f9ee2c487?auto=format&fit=crop&w=1200&q=80'
+  WHEN 23 THEN 'https://images.unsplash.com/photo-1545612036-2872840642dc?auto=format&fit=crop&w=1200&q=80'
+  WHEN 24 THEN 'https://images.unsplash.com/photo-1758448756350-3d0eec02ba37?auto=format&fit=crop&w=1200&q=80'
+  WHEN 25 THEN 'https://images.unsplash.com/photo-1778828494354-9b717d36dc99?auto=format&fit=crop&w=1200&q=80'
+  WHEN 26 THEN 'https://images.unsplash.com/photo-1671970922029-0430d2ae122c?auto=format&fit=crop&w=1200&q=80'
+  WHEN 27 THEN 'https://images.unsplash.com/photo-1775993719568-290840203239?auto=format&fit=crop&w=1200&q=80'
+  WHEN 28 THEN 'https://images.unsplash.com/photo-1775993167276-743bbcde77e1?auto=format&fit=crop&w=1200&q=80'
+  WHEN 29 THEN 'https://images.unsplash.com/photo-1546920120-d60663fd4965?auto=format&fit=crop&w=1200&q=80'
+  WHEN 30 THEN 'https://images.unsplash.com/photo-1778828450059-f39d5bbb01af?auto=format&fit=crop&w=1200&q=80'
+  WHEN 31 THEN 'https://images.unsplash.com/photo-1689877020200-403d8542d95d?auto=format&fit=crop&w=1200&q=80'
+  WHEN 32 THEN 'https://images.unsplash.com/photo-1561214078-f3247647fc5e?auto=format&fit=crop&w=1200&q=80'
+  WHEN 33 THEN 'https://images.unsplash.com/photo-1757924284732-4189190321cf?auto=format&fit=crop&w=1200&q=80'
+  WHEN 34 THEN 'https://images.unsplash.com/photo-1728486887318-398f1448f7ae?auto=format&fit=crop&w=1200&q=80'
+  WHEN 35 THEN 'https://images.unsplash.com/photo-1775993703558-e7afab02b7bd?auto=format&fit=crop&w=1200&q=80'
+  WHEN 36 THEN 'https://images.unsplash.com/photo-1754258167836-6878c54e316c?auto=format&fit=crop&w=1200&q=80'
+  WHEN 37 THEN 'https://images.unsplash.com/photo-1771586791190-97ed536c54af?auto=format&fit=crop&w=1200&q=80'
+  WHEN 38 THEN 'https://images.unsplash.com/photo-1649068618811-9f3547ef98fc?auto=format&fit=crop&w=1200&q=80'
+  WHEN 39 THEN 'https://images.unsplash.com/photo-1741156229623-da94e6d7977d?auto=format&fit=crop&w=1200&q=80'
+  WHEN 40 THEN 'https://images.unsplash.com/photo-1765728617086-5d16a7bac916?auto=format&fit=crop&w=1200&q=80'
+  WHEN 41 THEN 'https://images.unsplash.com/photo-1775993167571-cd1ff4cadada?auto=format&fit=crop&w=1200&q=80'
+  WHEN 42 THEN 'https://images.unsplash.com/photo-1778828494365-c798ff9cce2c?auto=format&fit=crop&w=1200&q=80'
+  WHEN 43 THEN 'https://images.unsplash.com/photo-1689514226761-336eaf77e311?auto=format&fit=crop&w=1200&q=80'
+  WHEN 44 THEN 'https://images.unsplash.com/photo-1623874514711-0f321325f318?auto=format&fit=crop&w=1200&q=80'
+  WHEN 45 THEN 'https://images.unsplash.com/photo-1775993699105-4d18bcac7e54?auto=format&fit=crop&w=1200&q=80'
+  WHEN 46 THEN 'https://images.unsplash.com/photo-1761971974992-6df33df97c3a?auto=format&fit=crop&w=1200&q=80'
+  WHEN 47 THEN 'https://images.unsplash.com/photo-1770493895453-4f758c40d11d?auto=format&fit=crop&w=1200&q=80'
+  WHEN 48 THEN 'https://images.unsplash.com/photo-1687350119840-3e2cc5977e92?auto=format&fit=crop&w=1200&q=80'
+  WHEN 49 THEN 'https://images.unsplash.com/photo-1716367840427-4c148eb7bf15?auto=format&fit=crop&w=1200&q=80'
+  WHEN 50 THEN 'https://images.unsplash.com/photo-1790094181041-add24d34ccfd?auto=format&fit=crop&w=1200&q=80'
+  WHEN 51 THEN 'https://images.unsplash.com/photo-1649847727298-27a50354bd46?auto=format&fit=crop&w=1200&q=80'
+  WHEN 52 THEN 'https://images.unsplash.com/photo-1714181871329-1392197011c2?auto=format&fit=crop&w=1200&q=80'
+  WHEN 53 THEN 'https://images.unsplash.com/photo-1790094180961-8396479c6542?auto=format&fit=crop&w=1200&q=80'
+  WHEN 54 THEN 'https://images.unsplash.com/photo-1632758243488-7e6f9173cfa1?auto=format&fit=crop&w=1200&q=80'
+  WHEN 55 THEN 'https://images.unsplash.com/photo-1675026482188-8102367ecc16?auto=format&fit=crop&w=1200&q=80'
+  WHEN 56 THEN 'https://images.unsplash.com/photo-1761839258420-5c3e2f2e2a74?auto=format&fit=crop&w=1200&q=80'
+  WHEN 57 THEN 'https://images.unsplash.com/photo-1771270786606-f5a0e57db762?auto=format&fit=crop&w=1200&q=80'
+  WHEN 58 THEN 'https://images.unsplash.com/photo-1434682772747-f16d3ea162c3?auto=format&fit=crop&w=1200&q=80'
+  WHEN 59 THEN 'https://images.unsplash.com/photo-1630703178161-1e2f9beddbf8?auto=format&fit=crop&w=1200&q=80'
+  WHEN 60 THEN 'https://images.unsplash.com/photo-1624513764372-a4eb7b334c62?auto=format&fit=crop&w=1200&q=80'
+  WHEN 61 THEN 'https://images.unsplash.com/photo-1521804906057-1df8fdb718b7?auto=format&fit=crop&w=1200&q=80'
+  WHEN 62 THEN 'https://images.unsplash.com/photo-1789629455545-6418611bb5a2?auto=format&fit=crop&w=1200&q=80'
+  WHEN 63 THEN 'https://images.unsplash.com/photo-1770513649465-2c60c8039806?auto=format&fit=crop&w=1200&q=80'
+  WHEN 64 THEN 'https://images.unsplash.com/photo-1729156638758-6fa6405b289b?auto=format&fit=crop&w=1200&q=80'
+  ELSE cover_image_url
+END
+WHERE id BETWEEN 1 AND 64;
+
 -- Spread demo gyms across every listed district; keep the four Quận 2 gyms together.
 UPDATE gyms g JOIN districts d ON d.id = CASE
   WHEN g.id BETWEEN 61 AND 64 THEN 23
@@ -202,7 +271,8 @@ UPDATE gyms g JOIN districts d ON d.id = CASE
 END
 SET g.district_id=d.id,
     g.address=CONCAT('Số ', 10 + g.id * 3, ' Đường ', g.name, ', ', d.name),
-    g.description=CONCAT('Phòng tập ', g.name, ' tại ', d.name, ' có khu tập luyện tiện nghi, nhiều mức giá, đánh giá hội viên và HLV hỗ trợ.');
+    g.description=CONCAT('Phòng tập ', g.name, ' tại ', d.name, ' có khu tập luyện tiện nghi, nhiều mức giá, đánh giá hội viên và HLV hỗ trợ.')
+WHERE g.id BETWEEN 1 AND 64;
 
 -- Keep two active price points in every district: one matches <300k and
 -- 300-500k, the other matches 500k-1m and >1m. The extra gyms in six
@@ -216,74 +286,340 @@ WHERE id IN (2,5,8,11,13,16,19,22,24,27,30,32,35,38,41,43,46,49,52,54,57,60);
 
 -- =====================================================================
 -- GYM_IMAGES
--- =====================================================================
+-- Cover image URLs are separate; each gallery uses a varied set from the demo photo pool.
 INSERT INTO gym_images (id, gym_id, image_url, caption, sort_order) VALUES
-(1, 1, 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(2, 2, 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(3, 3, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(4, 4, 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(5, 5, 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(6, 6, 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(7, 7, 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(8, 8, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(9, 9, 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(10, 10, 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(11, 11, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(12, 12, 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(13, 13, 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(14, 14, 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(15, 15, 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(16, 16, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(17, 17, 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(18, 18, 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(19, 19, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(20, 20, 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(21, 21, 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(22, 22, 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(23, 23, 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(24, 24, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(25, 25, 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(26, 26, 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(27, 27, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(28, 28, 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(29, 29, 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(30, 30, 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(31, 31, 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(32, 32, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(33, 33, 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(34, 34, 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(35, 35, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(36, 36, 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(37, 37, 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(38, 38, 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(39, 39, 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(40, 40, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(41, 41, 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(42, 42, 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(43, 43, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(44, 44, 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(45, 45, 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(46, 46, 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(47, 47, 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(48, 48, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(49, 49, 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(50, 50, 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(51, 51, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(52, 52, 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(53, 53, 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(54, 54, 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(55, 55, 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(56, 56, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(57, 57, 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(58, 58, 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(59, 59, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(60, 60, 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1);
-
-INSERT INTO gym_images (id, gym_id, image_url, caption, sort_order) VALUES
-(61, 61, 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(62, 62, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(63, 63, 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1),
-(64, 64, 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1);
+(1, 1, 'https://images.unsplash.com/photo-1729156638758-6fa6405b289b?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(2, 1, 'https://images.unsplash.com/photo-1775993167571-cd1ff4cadada?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(3, 1, 'https://images.unsplash.com/photo-1771586791190-97ed536c54af?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(4, 1, 'https://images.unsplash.com/photo-1761971974992-6df33df97c3a?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(5, 1, 'https://images.unsplash.com/photo-1687350119840-3e2cc5977e92?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(6, 1, 'https://images.unsplash.com/photo-1741156229623-da94e6d7977d?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 6),
+(7, 2, 'https://images.unsplash.com/photo-1521804906057-1df8fdb718b7?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(8, 2, 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(9, 2, 'https://images.unsplash.com/photo-1741156229623-da94e6d7977d?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(10, 2, 'https://images.unsplash.com/photo-1775993699105-4d18bcac7e54?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(11, 2, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(12, 2, 'https://images.unsplash.com/photo-1770513649465-2c60c8039806?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 6),
+(13, 3, 'https://images.unsplash.com/photo-1757924284732-4189190321cf?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(14, 3, 'https://images.unsplash.com/photo-1754258167836-6878c54e316c?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(15, 3, 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(16, 3, 'https://images.unsplash.com/photo-1632758243488-7e6f9173cfa1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(17, 3, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(18, 4, 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(19, 4, 'https://images.unsplash.com/photo-1689877020200-403d8542d95d?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(20, 4, 'https://images.unsplash.com/photo-1729156638758-6fa6405b289b?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(21, 4, 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(22, 4, 'https://images.unsplash.com/photo-1765728617086-5d16a7bac916?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(23, 5, 'https://images.unsplash.com/photo-1632758243488-7e6f9173cfa1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(24, 5, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(25, 5, 'https://images.unsplash.com/photo-1741156229623-da94e6d7977d?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(26, 5, 'https://images.unsplash.com/photo-1623874514711-0f321325f318?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(27, 5, 'https://images.unsplash.com/photo-1649847727298-27a50354bd46?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(28, 6, 'https://images.unsplash.com/photo-1716367840427-4c148eb7bf15?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(29, 6, 'https://images.unsplash.com/photo-1649847727298-27a50354bd46?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(30, 6, 'https://images.unsplash.com/photo-1624513764372-a4eb7b334c62?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(31, 6, 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(32, 6, 'https://images.unsplash.com/photo-1741156229623-da94e6d7977d?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(33, 7, 'https://images.unsplash.com/photo-1761839258420-5c3e2f2e2a74?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(34, 7, 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(35, 7, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(36, 7, 'https://images.unsplash.com/photo-1689877020200-403d8542d95d?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(37, 7, 'https://images.unsplash.com/photo-1775993167276-743bbcde77e1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(38, 8, 'https://images.unsplash.com/photo-1758448756350-3d0eec02ba37?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(39, 8, 'https://images.unsplash.com/photo-1775993699105-4d18bcac7e54?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(40, 8, 'https://images.unsplash.com/photo-1623874514711-0f321325f318?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(41, 8, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(42, 8, 'https://images.unsplash.com/photo-1689877020200-403d8542d95d?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(43, 9, 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(44, 9, 'https://images.unsplash.com/photo-1775993167571-cd1ff4cadada?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(45, 9, 'https://images.unsplash.com/photo-1789629455545-6418611bb5a2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(46, 9, 'https://images.unsplash.com/photo-1630703178161-1e2f9beddbf8?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(47, 9, 'https://images.unsplash.com/photo-1675026482188-8102367ecc16?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(48, 9, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 6),
+(49, 10, 'https://images.unsplash.com/photo-1632758243488-7e6f9173cfa1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(50, 10, 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(51, 10, 'https://images.unsplash.com/photo-1775993699105-4d18bcac7e54?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(52, 10, 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(53, 10, 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(54, 11, 'https://images.unsplash.com/photo-1757924284732-4189190321cf?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(55, 11, 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(56, 11, 'https://images.unsplash.com/photo-1689514226761-336eaf77e311?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(57, 11, 'https://images.unsplash.com/photo-1521804906057-1df8fdb718b7?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(58, 11, 'https://images.unsplash.com/photo-1754258167836-6878c54e316c?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(59, 12, 'https://images.unsplash.com/photo-1758448756350-3d0eec02ba37?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(60, 12, 'https://images.unsplash.com/photo-1577221084712-45b0449d2d3f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(61, 12, 'https://images.unsplash.com/photo-1790094181041-add24d34ccfd?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(62, 12, 'https://images.unsplash.com/photo-1649847727298-27a50354bd46?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(63, 12, 'https://images.unsplash.com/photo-1716367840427-4c148eb7bf15?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(64, 13, 'https://images.unsplash.com/photo-1775993719568-290840203239?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(65, 13, 'https://images.unsplash.com/photo-1770493895453-4f758c40d11d?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(66, 13, 'https://images.unsplash.com/photo-1534258936925-c58bed479fcb?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(67, 13, 'https://images.unsplash.com/photo-1790094180961-8396479c6542?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(68, 13, 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(69, 14, 'https://images.unsplash.com/photo-1757924284732-4189190321cf?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(70, 14, 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(71, 14, 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(72, 14, 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(73, 14, 'https://images.unsplash.com/photo-1671970922029-0430d2ae122c?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(74, 15, 'https://images.unsplash.com/photo-1778828494365-c798ff9cce2c?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(75, 15, 'https://images.unsplash.com/photo-1775993167276-743bbcde77e1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(76, 15, 'https://images.unsplash.com/photo-1728486145245-d4cb0c9c3470?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(77, 15, 'https://images.unsplash.com/photo-1761971974992-6df33df97c3a?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(78, 15, 'https://images.unsplash.com/photo-1778828494354-9b717d36dc99?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(79, 15, 'https://images.unsplash.com/photo-1714181871329-1392197011c2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 6),
+(80, 16, 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(81, 16, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(82, 16, 'https://images.unsplash.com/photo-1545612036-2872840642dc?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(83, 16, 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(84, 16, 'https://images.unsplash.com/photo-1757924284732-4189190321cf?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(85, 17, 'https://images.unsplash.com/photo-1790094181041-add24d34ccfd?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(86, 17, 'https://images.unsplash.com/photo-1775993167276-743bbcde77e1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(87, 17, 'https://images.unsplash.com/photo-1716367840427-4c148eb7bf15?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(88, 17, 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(89, 17, 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(90, 18, 'https://images.unsplash.com/photo-1630703178161-1e2f9beddbf8?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(91, 18, 'https://images.unsplash.com/photo-1757924284732-4189190321cf?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(92, 18, 'https://images.unsplash.com/photo-1728486887318-398f1448f7ae?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(93, 18, 'https://images.unsplash.com/photo-1789629455545-6418611bb5a2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(94, 18, 'https://images.unsplash.com/photo-1728486145245-d4cb0c9c3470?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(95, 19, 'https://images.unsplash.com/photo-1778828494365-c798ff9cce2c?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(96, 19, 'https://images.unsplash.com/photo-1590487988256-9ed24133863e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(97, 19, 'https://images.unsplash.com/photo-1630703178161-1e2f9beddbf8?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(98, 19, 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(99, 19, 'https://images.unsplash.com/photo-1714181871329-1392197011c2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(100, 20, 'https://images.unsplash.com/photo-1579758629938-03607ccdbaba?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(101, 20, 'https://images.unsplash.com/photo-1790094180961-8396479c6542?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(102, 20, 'https://images.unsplash.com/photo-1728486145245-d4cb0c9c3470?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(103, 20, 'https://images.unsplash.com/photo-1534258936925-c58bed479fcb?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(104, 20, 'https://images.unsplash.com/photo-1775993703558-e7afab02b7bd?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(105, 20, 'https://images.unsplash.com/photo-1758448756350-3d0eec02ba37?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 6),
+(106, 21, 'https://images.unsplash.com/photo-1590487988256-9ed24133863e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(107, 21, 'https://images.unsplash.com/photo-1789629455545-6418611bb5a2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(108, 21, 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(109, 21, 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(110, 21, 'https://images.unsplash.com/photo-1761839258420-5c3e2f2e2a74?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(111, 22, 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(112, 22, 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(113, 22, 'https://images.unsplash.com/photo-1775993719568-290840203239?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(114, 22, 'https://images.unsplash.com/photo-1687350119840-3e2cc5977e92?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(115, 22, 'https://images.unsplash.com/photo-1675026482188-8102367ecc16?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(116, 23, 'https://images.unsplash.com/photo-1775993167276-743bbcde77e1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(117, 23, 'https://images.unsplash.com/photo-1714181871329-1392197011c2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(118, 23, 'https://images.unsplash.com/photo-1738321791421-232f9ee2c487?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(119, 23, 'https://images.unsplash.com/photo-1771270786606-f5a0e57db762?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(120, 23, 'https://images.unsplash.com/photo-1687350119840-3e2cc5977e92?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(121, 24, 'https://images.unsplash.com/photo-1649068618811-9f3547ef98fc?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(122, 24, 'https://images.unsplash.com/photo-1790094180961-8396479c6542?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(123, 24, 'https://images.unsplash.com/photo-1716367840427-4c148eb7bf15?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(124, 24, 'https://images.unsplash.com/photo-1789629455545-6418611bb5a2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(125, 24, 'https://images.unsplash.com/photo-1623874514711-0f321325f318?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(126, 24, 'https://images.unsplash.com/photo-1671970922029-0430d2ae122c?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 6),
+(127, 25, 'https://images.unsplash.com/photo-1754258167836-6878c54e316c?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(128, 25, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(129, 25, 'https://images.unsplash.com/photo-1675026482188-8102367ecc16?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(130, 25, 'https://images.unsplash.com/photo-1775993167571-cd1ff4cadada?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(131, 25, 'https://images.unsplash.com/photo-1789629455545-6418611bb5a2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(132, 26, 'https://images.unsplash.com/photo-1790094181041-add24d34ccfd?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(133, 26, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(134, 26, 'https://images.unsplash.com/photo-1545612036-2872840642dc?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(135, 26, 'https://images.unsplash.com/photo-1775993167571-cd1ff4cadada?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(136, 26, 'https://images.unsplash.com/photo-1770513649465-2c60c8039806?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(137, 27, 'https://images.unsplash.com/photo-1761839258420-5c3e2f2e2a74?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(138, 27, 'https://images.unsplash.com/photo-1789629455545-6418611bb5a2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(139, 27, 'https://images.unsplash.com/photo-1577221084712-45b0449d2d3f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(140, 27, 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(141, 27, 'https://images.unsplash.com/photo-1545612036-2872840642dc?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(142, 28, 'https://images.unsplash.com/photo-1714181871329-1392197011c2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(143, 28, 'https://images.unsplash.com/photo-1577221084712-45b0449d2d3f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(144, 28, 'https://images.unsplash.com/photo-1521804906057-1df8fdb718b7?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(145, 28, 'https://images.unsplash.com/photo-1671970922029-0430d2ae122c?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(146, 28, 'https://images.unsplash.com/photo-1716367840427-4c148eb7bf15?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(147, 28, 'https://images.unsplash.com/photo-1771270786606-f5a0e57db762?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 6),
+(148, 29, 'https://images.unsplash.com/photo-1778828450059-f39d5bbb01af?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(149, 29, 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(150, 29, 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(151, 29, 'https://images.unsplash.com/photo-1741156229623-da94e6d7977d?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(152, 29, 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(153, 30, 'https://images.unsplash.com/photo-1714181871329-1392197011c2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(154, 30, 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(155, 30, 'https://images.unsplash.com/photo-1623874514711-0f321325f318?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(156, 30, 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(157, 30, 'https://images.unsplash.com/photo-1754258167836-6878c54e316c?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(158, 31, 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(159, 31, 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(160, 31, 'https://images.unsplash.com/photo-1765728617086-5d16a7bac916?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(161, 31, 'https://images.unsplash.com/photo-1624513764372-a4eb7b334c62?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(162, 31, 'https://images.unsplash.com/photo-1775993699105-4d18bcac7e54?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(163, 32, 'https://images.unsplash.com/photo-1778828494354-9b717d36dc99?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(164, 32, 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(165, 32, 'https://images.unsplash.com/photo-1771270786606-f5a0e57db762?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(166, 32, 'https://images.unsplash.com/photo-1521804906057-1df8fdb718b7?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(167, 32, 'https://images.unsplash.com/photo-1545612036-2872840642dc?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(168, 33, 'https://images.unsplash.com/photo-1778828494365-c798ff9cce2c?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(169, 33, 'https://images.unsplash.com/photo-1632758243488-7e6f9173cfa1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(170, 33, 'https://images.unsplash.com/photo-1770493895453-4f758c40d11d?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(171, 33, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(172, 33, 'https://images.unsplash.com/photo-1790094181041-add24d34ccfd?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(173, 34, 'https://images.unsplash.com/photo-1790094180961-8396479c6542?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(174, 34, 'https://images.unsplash.com/photo-1671970922029-0430d2ae122c?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(175, 34, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(176, 34, 'https://images.unsplash.com/photo-1546920120-d60663fd4965?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(177, 34, 'https://images.unsplash.com/photo-1741156229623-da94e6d7977d?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(178, 35, 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(179, 35, 'https://images.unsplash.com/photo-1590487988256-9ed24133863e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(180, 35, 'https://images.unsplash.com/photo-1632758243488-7e6f9173cfa1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(181, 35, 'https://images.unsplash.com/photo-1771586791190-97ed536c54af?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(182, 35, 'https://images.unsplash.com/photo-1778828494354-9b717d36dc99?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(183, 36, 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(184, 36, 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(185, 36, 'https://images.unsplash.com/photo-1771270786606-f5a0e57db762?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(186, 36, 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(187, 36, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(188, 36, 'https://images.unsplash.com/photo-1728486145245-d4cb0c9c3470?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 6),
+(189, 37, 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(190, 37, 'https://images.unsplash.com/photo-1624513764372-a4eb7b334c62?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(191, 37, 'https://images.unsplash.com/photo-1757924284732-4189190321cf?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(192, 37, 'https://images.unsplash.com/photo-1771270786606-f5a0e57db762?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(193, 37, 'https://images.unsplash.com/photo-1729156638758-6fa6405b289b?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(194, 38, 'https://images.unsplash.com/photo-1775993703558-e7afab02b7bd?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(195, 38, 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(196, 38, 'https://images.unsplash.com/photo-1689514226761-336eaf77e311?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(197, 38, 'https://images.unsplash.com/photo-1778828494354-9b717d36dc99?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(198, 38, 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(199, 39, 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(200, 39, 'https://images.unsplash.com/photo-1624513764372-a4eb7b334c62?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(201, 39, 'https://images.unsplash.com/photo-1577221084712-45b0449d2d3f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(202, 39, 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(203, 39, 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(204, 40, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(205, 40, 'https://images.unsplash.com/photo-1546920120-d60663fd4965?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(206, 40, 'https://images.unsplash.com/photo-1770493895453-4f758c40d11d?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(207, 40, 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(208, 40, 'https://images.unsplash.com/photo-1630703178161-1e2f9beddbf8?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(209, 41, 'https://images.unsplash.com/photo-1579758629938-03607ccdbaba?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(210, 41, 'https://images.unsplash.com/photo-1790094180961-8396479c6542?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(211, 41, 'https://images.unsplash.com/photo-1716367840427-4c148eb7bf15?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(212, 41, 'https://images.unsplash.com/photo-1728486887318-398f1448f7ae?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(213, 41, 'https://images.unsplash.com/photo-1754258167836-6878c54e316c?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(214, 42, 'https://images.unsplash.com/photo-1790094180961-8396479c6542?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(215, 42, 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(216, 42, 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(217, 42, 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(218, 42, 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(219, 42, 'https://images.unsplash.com/photo-1623874514711-0f321325f318?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 6),
+(220, 43, 'https://images.unsplash.com/photo-1790094181041-add24d34ccfd?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(221, 43, 'https://images.unsplash.com/photo-1761971974992-6df33df97c3a?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(222, 43, 'https://images.unsplash.com/photo-1771270786606-f5a0e57db762?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(223, 43, 'https://images.unsplash.com/photo-1632758243488-7e6f9173cfa1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(224, 43, 'https://images.unsplash.com/photo-1590487988256-9ed24133863e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(225, 44, 'https://images.unsplash.com/photo-1649068618811-9f3547ef98fc?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(226, 44, 'https://images.unsplash.com/photo-1689877020200-403d8542d95d?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(227, 44, 'https://images.unsplash.com/photo-1632758243488-7e6f9173cfa1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(228, 44, 'https://images.unsplash.com/photo-1546920120-d60663fd4965?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(229, 44, 'https://images.unsplash.com/photo-1771270786606-f5a0e57db762?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(230, 45, 'https://images.unsplash.com/photo-1649068618811-9f3547ef98fc?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(231, 45, 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(232, 45, 'https://images.unsplash.com/photo-1775993703558-e7afab02b7bd?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(233, 45, 'https://images.unsplash.com/photo-1775993167571-cd1ff4cadada?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(234, 45, 'https://images.unsplash.com/photo-1434682772747-f16d3ea162c3?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(235, 46, 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(236, 46, 'https://images.unsplash.com/photo-1789629455545-6418611bb5a2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(237, 46, 'https://images.unsplash.com/photo-1623874514711-0f321325f318?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(238, 46, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(239, 46, 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(240, 47, 'https://images.unsplash.com/photo-1534258936925-c58bed479fcb?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(241, 47, 'https://images.unsplash.com/photo-1754258167836-6878c54e316c?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(242, 47, 'https://images.unsplash.com/photo-1434682772747-f16d3ea162c3?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(243, 47, 'https://images.unsplash.com/photo-1738321791421-232f9ee2c487?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(244, 47, 'https://images.unsplash.com/photo-1689514226761-336eaf77e311?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(245, 48, 'https://images.unsplash.com/photo-1716367840427-4c148eb7bf15?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(246, 48, 'https://images.unsplash.com/photo-1649068618811-9f3547ef98fc?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(247, 48, 'https://images.unsplash.com/photo-1623874514711-0f321325f318?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(248, 48, 'https://images.unsplash.com/photo-1728486887318-398f1448f7ae?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(249, 48, 'https://images.unsplash.com/photo-1546920120-d60663fd4965?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(250, 49, 'https://images.unsplash.com/photo-1778828450059-f39d5bbb01af?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(251, 49, 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(252, 49, 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(253, 49, 'https://images.unsplash.com/photo-1775993167571-cd1ff4cadada?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(254, 49, 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(255, 49, 'https://images.unsplash.com/photo-1789629455545-6418611bb5a2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 6),
+(256, 50, 'https://images.unsplash.com/photo-1545612036-2872840642dc?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(257, 50, 'https://images.unsplash.com/photo-1561214078-f3247647fc5e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(258, 50, 'https://images.unsplash.com/photo-1761971974992-6df33df97c3a?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(259, 50, 'https://images.unsplash.com/photo-1714181871329-1392197011c2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(260, 50, 'https://images.unsplash.com/photo-1546920120-d60663fd4965?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(261, 51, 'https://images.unsplash.com/photo-1534258936925-c58bed479fcb?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(262, 51, 'https://images.unsplash.com/photo-1687350119840-3e2cc5977e92?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(263, 51, 'https://images.unsplash.com/photo-1546920120-d60663fd4965?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(264, 51, 'https://images.unsplash.com/photo-1778828450059-f39d5bbb01af?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(265, 51, 'https://images.unsplash.com/photo-1716367840427-4c148eb7bf15?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(266, 52, 'https://images.unsplash.com/photo-1623874514711-0f321325f318?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(267, 52, 'https://images.unsplash.com/photo-1630703178161-1e2f9beddbf8?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(268, 52, 'https://images.unsplash.com/photo-1728486145245-d4cb0c9c3470?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(269, 52, 'https://images.unsplash.com/photo-1761839258420-5c3e2f2e2a74?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(270, 52, 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(271, 53, 'https://images.unsplash.com/photo-1521804906057-1df8fdb718b7?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(272, 53, 'https://images.unsplash.com/photo-1689877020200-403d8542d95d?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(273, 53, 'https://images.unsplash.com/photo-1757924284732-4189190321cf?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(274, 53, 'https://images.unsplash.com/photo-1579758629938-03607ccdbaba?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(275, 53, 'https://images.unsplash.com/photo-1623874514711-0f321325f318?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(276, 54, 'https://images.unsplash.com/photo-1590487988256-9ed24133863e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(277, 54, 'https://images.unsplash.com/photo-1757924284732-4189190321cf?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(278, 54, 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(279, 54, 'https://images.unsplash.com/photo-1738321791421-232f9ee2c487?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(280, 54, 'https://images.unsplash.com/photo-1624513764372-a4eb7b334c62?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(281, 54, 'https://images.unsplash.com/photo-1761839258420-5c3e2f2e2a74?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 6),
+(282, 55, 'https://images.unsplash.com/photo-1671970922029-0430d2ae122c?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(283, 55, 'https://images.unsplash.com/photo-1790094181041-add24d34ccfd?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(284, 55, 'https://images.unsplash.com/photo-1545612036-2872840642dc?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(285, 55, 'https://images.unsplash.com/photo-1630703178161-1e2f9beddbf8?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(286, 55, 'https://images.unsplash.com/photo-1632758243488-7e6f9173cfa1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(287, 56, 'https://images.unsplash.com/photo-1675026482188-8102367ecc16?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(288, 56, 'https://images.unsplash.com/photo-1561214078-f3247647fc5e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(289, 56, 'https://images.unsplash.com/photo-1579758629938-03607ccdbaba?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(290, 56, 'https://images.unsplash.com/photo-1775993719568-290840203239?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(291, 56, 'https://images.unsplash.com/photo-1789629455545-6418611bb5a2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(292, 57, 'https://images.unsplash.com/photo-1778828450059-f39d5bbb01af?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(293, 57, 'https://images.unsplash.com/photo-1770513649465-2c60c8039806?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(294, 57, 'https://images.unsplash.com/photo-1757924284732-4189190321cf?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(295, 57, 'https://images.unsplash.com/photo-1738321791421-232f9ee2c487?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(296, 57, 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(297, 57, 'https://images.unsplash.com/photo-1689877020200-403d8542d95d?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 6),
+(298, 58, 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(299, 58, 'https://images.unsplash.com/photo-1561214078-f3247647fc5e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(300, 58, 'https://images.unsplash.com/photo-1761839258420-5c3e2f2e2a74?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(301, 58, 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(302, 58, 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(303, 59, 'https://images.unsplash.com/photo-1624513764372-a4eb7b334c62?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(304, 59, 'https://images.unsplash.com/photo-1761971974992-6df33df97c3a?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(305, 59, 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(306, 59, 'https://images.unsplash.com/photo-1790094181041-add24d34ccfd?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(307, 59, 'https://images.unsplash.com/photo-1729156638758-6fa6405b289b?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(308, 60, 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(309, 60, 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(310, 60, 'https://images.unsplash.com/photo-1590487988256-9ed24133863e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(311, 60, 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(312, 60, 'https://images.unsplash.com/photo-1761839258420-5c3e2f2e2a74?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(313, 61, 'https://images.unsplash.com/photo-1778828494354-9b717d36dc99?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(314, 61, 'https://images.unsplash.com/photo-1671970922029-0430d2ae122c?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(315, 61, 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(316, 61, 'https://images.unsplash.com/photo-1771586791190-97ed536c54af?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(317, 61, 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(318, 62, 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(319, 62, 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(320, 62, 'https://images.unsplash.com/photo-1758448756350-3d0eec02ba37?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(321, 62, 'https://images.unsplash.com/photo-1728486887318-398f1448f7ae?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(322, 62, 'https://images.unsplash.com/photo-1714181871329-1392197011c2?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(323, 63, 'https://images.unsplash.com/photo-1577221084712-45b0449d2d3f?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(324, 63, 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(325, 63, 'https://images.unsplash.com/photo-1778828494365-c798ff9cce2c?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(326, 63, 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(327, 63, 'https://images.unsplash.com/photo-1728486145245-d4cb0c9c3470?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5),
+(328, 64, 'https://images.unsplash.com/photo-1738321791421-232f9ee2c487?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 1),
+(329, 64, 'https://images.unsplash.com/photo-1778828450059-f39d5bbb01af?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 2),
+(330, 64, 'https://images.unsplash.com/photo-1687350119840-3e2cc5977e92?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 3),
+(331, 64, 'https://images.unsplash.com/photo-1765728617086-5d16a7bac916?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 4),
+(332, 64, 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=800&q=80', 'Không gian phòng tập', 5);
 
 -- Dữ liệu mẫu có phòng tập, mức giá, đánh giá và HLV trên toàn bộ 23 khu vực.
 UPDATE gyms AS g
@@ -291,7 +627,8 @@ JOIN districts AS d ON d.id = FLOOR((g.id - 1) * 22 / 60) + 1
 SET g.district_id = d.id,
     g.address = CONCAT('Số ', 10 + g.id * 3, ' Đường ', g.name, ', ', d.name),
     g.description = CONCAT('Phòng tập ', g.name, ' tại ', d.name, ' phục vụ dữ liệu demo GYMFINDER với mức giá, đặc điểm và tiện ích đa dạng.'),
-    g.opening_hours = CASE WHEN MOD(g.id, 6) = 0 THEN '24/7' ELSE g.opening_hours END;
+    g.opening_hours = CASE WHEN MOD(g.id, 6) = 0 THEN '24/7' ELSE g.opening_hours END
+WHERE g.id BETWEEN 1 AND 64;
 
 -- =====================================================================
 -- GYM_CATEGORIES
@@ -704,40 +1041,40 @@ INSERT INTO gym_amenities (gym_id, amenity_id) VALUES
 -- TRAINERS
 -- =====================================================================
 INSERT INTO trainers (id, full_name, slug, avatar_url, specialty_id, years_experience, bio, phone, email, gym_id, district_id, avg_rating, review_count, is_featured, status) VALUES
-(1, 'Nguyễn Anh Tuấn', 'nguyen-anh-tuan-1', 'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=400&q=80', 2, 2, 'Huấn luyện viên Nguyễn Anh Tuấn có 2 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000001, 'trainer1@gymfinder.test', 1, 1, 4.5, 4, 0, 'active'),
-(2, 'Trần Thị Kim Lan', 'tran-thi-kim-lan-2', 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=400&q=80', 3, 3, 'Huấn luyện viên Trần Thị Kim Lan có 3 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000002, 'trainer2@gymfinder.test', 2, 1, 4.8, 4, 0, 'active'),
-(3, 'Lê Văn Bình', 'le-van-binh-3', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80', 4, 4, 'Huấn luyện viên Lê Văn Bình có 4 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000003, 'trainer3@gymfinder.test', 3, 1, 4.5, 4, 0, 'active'),
-(4, 'Phạm Thu Hà', 'pham-thu-ha-4', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80', 1, 5, 'Huấn luyện viên Phạm Thu Hà có 5 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000004, 'trainer4@gymfinder.test', 4, 1, 4.5, 4, 0, 'active'),
-(5, 'Võ Thị Mai', 'vo-thi-mai-5', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80', 2, 6, 'Huấn luyện viên Võ Thị Mai có 6 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000005, 'trainer5@gymfinder.test', 5, 1, 4.8, 5, 1, 'active'),
-(6, 'Hoàng Quốc Cường', 'hoang-quoc-cuong-6', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80', 3, 7, 'Huấn luyện viên Hoàng Quốc Cường có 7 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000006, 'trainer6@gymfinder.test', 9, 4, 5.0, 2, 0, 'active'),
-(7, 'Ngô Thanh Hà', 'ngo-thanh-ha-7', 'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=400&q=80', 4, 8, 'Huấn luyện viên Ngô Thanh Hà có 8 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000007, 'trainer7@gymfinder.test', 10, 4, 4.5, 4, 0, 'active'),
-(8, 'Đinh Văn Khoa', 'dinh-van-khoa-8', 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=400&q=80', 1, 9, 'Huấn luyện viên Đinh Văn Khoa có 9 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000008, 'trainer8@gymfinder.test', 11, 4, 4.7, 3, 0, 'active'),
-(9, 'Bùi Thị Nga', 'bui-thi-nga-9', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80', 2, 10, 'Huấn luyện viên Bùi Thị Nga có 10 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000009, 'trainer9@gymfinder.test', 15, 6, 4.7, 3, 0, 'active'),
+(1, 'Nguyễn Anh Tuấn', 'nguyen-anh-tuan-1', 'https://files.worldgymtaiwan.com/pt_coach/portrait/2502497.webp?update_time=2025-11-27+03%3A30%3A05.737', 2, 2, 'Huấn luyện viên Nguyễn Anh Tuấn có 2 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000001, 'trainer1@gymfinder.test', 1, 1, 4.5, 4, 0, 'active'),
+(2, 'Trần Thị Kim Lan', 'tran-thi-kim-lan-2', 'https://images.squarespace-cdn.com/content/v1/62e39313a3615b384cc19035/52a6f1e4-8e7c-40a3-b0c6-14a8bb0c05a2/xiu%2Bting.jpg', 3, 3, 'Huấn luyện viên Trần Thị Kim Lan có 3 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000002, 'trainer2@gymfinder.test', 2, 1, 4.8, 4, 0, 'active'),
+(3, 'Lê Văn Bình', 'le-van-binh-3', 'https://files.worldgymtaiwan.com/pt_coach/portrait/2300326.webp?update_time=2025-06-21+08%3A48%3A01.600', 4, 4, 'Huấn luyện viên Lê Văn Bình có 4 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000003, 'trainer3@gymfinder.test', 3, 1, 4.5, 4, 0, 'active'),
+(4, 'Phạm Thu Hà', 'pham-thu-ha-4', 'https://files.worldgymtaiwan.com/pt_coach/portrait/700096.webp?update_time=2025-06-14+03%3A31%3A55.310', 1, 5, 'Huấn luyện viên Phạm Thu Hà có 5 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000004, 'trainer4@gymfinder.test', 4, 1, 4.5, 4, 0, 'active'),
+(5, 'Võ Thị Mai', 'vo-thi-mai-5', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80', 2, 6, 'Huấn luyện viên Võ Thị Mai có 6 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000005, 'trainer5@gymfinder.test', 5, 1, 4.8, 5, 1, 'active'),
+(6, 'Hoàng Quốc Cường', 'hoang-quoc-cuong-6', 'https://files.worldgymtaiwan.com/pt_coach/portrait/2405184.webp?update_time=2025-06-14+03%3A31%3A55.120', 3, 7, 'Huấn luyện viên Hoàng Quốc Cường có 7 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000006, 'trainer6@gymfinder.test', 9, 4, 5.0, 2, 0, 'active'),
+(7, 'Ngô Thanh Hà', 'ngo-thanh-ha-7', 'https://tsquaredlab.com/images/trainers/haz.webp', 4, 8, 'Huấn luyện viên Ngô Thanh Hà có 8 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000007, 'trainer7@gymfinder.test', 10, 4, 4.5, 4, 0, 'active'),
+(8, 'Đinh Văn Khoa', 'dinh-van-khoa-8', 'https://files.worldgymtaiwan.com/pt_coach/portrait/2101491.webp?update_time=2025-05-31+03%3A30%3A36.813', 1, 9, 'Huấn luyện viên Đinh Văn Khoa có 9 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000008, 'trainer8@gymfinder.test', 11, 4, 4.7, 3, 0, 'active'),
+(9, 'Bùi Thị Nga', 'bui-thi-nga-9', 'https://static.wixstatic.com/media/3712cb_75431a0dff05471281ca426eefc1f808~mv2.jpg/v1/fill/w_980%2Ch_1307%2Cal_c%2Cq_85%2Cusm_0.66_1.00_0.01/3712cb_75431a0dff05471281ca426eefc1f808~mv2.jpg', 2, 10, 'Huấn luyện viên Bùi Thị Nga có 10 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000009, 'trainer9@gymfinder.test', 15, 6, 4.7, 3, 0, 'active'),
 (10, 'Chu Minh Phúc', 'chu-minh-phuc-10', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80', 3, 11, 'Huấn luyện viên Chu Minh Phúc có 11 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000010, 'trainer10@gymfinder.test', 16, 6, 4.5, 4, 1, 'active'),
-(11, 'Trương Gia Bảo', 'truong-gia-bao-11', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80', 4, 12, 'Huấn luyện viên Trương Gia Bảo có 12 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000011, 'trainer11@gymfinder.test', 20, 2, 4.0, 2, 0, 'active'),
-(12, 'Đặng Thảo Vy', 'dang-thao-vy-12', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80', 1, 13, 'Huấn luyện viên Đặng Thảo Vy có 13 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000012, 'trainer12@gymfinder.test', 21, 2, 5.0, 1, 0, 'active'),
-(13, 'Phan Thành Long', 'phan-thanh-long-13', 'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=400&q=80', 2, 14, 'Huấn luyện viên Phan Thành Long có 14 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000013, 'trainer13@gymfinder.test', 24, 2, 5.0, 2, 0, 'active'),
-(14, 'Lý Quốc Hưng', 'ly-quoc-hung-14', 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=400&q=80', 3, 15, 'Huấn luyện viên Lý Quốc Hưng có 15 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000014, 'trainer14@gymfinder.test', 25, 2, 4.0, 1, 0, 'active'),
+(11, 'Trương Gia Bảo', 'truong-gia-bao-11', 'https://files.worldgymtaiwan.com/pt_coach/portrait/2103599.webp?update_time=2025-05-29+03%3A31%3A37.583', 4, 12, 'Huấn luyện viên Trương Gia Bảo có 12 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000011, 'trainer11@gymfinder.test', 20, 2, 4.0, 2, 0, 'active'),
+(12, 'Đặng Thảo Vy', 'dang-thao-vy-12', 'https://files.worldgymtaiwan.com/pt_coach/portrait/2405272.webp?update_time=2025-06-21+08%3A48%3A02.017', 1, 13, 'Huấn luyện viên Đặng Thảo Vy có 13 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000012, 'trainer12@gymfinder.test', 21, 2, 5.0, 1, 0, 'active'),
+(13, 'Phan Thành Long', 'phan-thanh-long-13', 'https://files.worldgymtaiwan.com/pt_coach/portrait/2002233.webp?update_time=2025-07-31+03%3A30%3A07.820', 2, 14, 'Huấn luyện viên Phan Thành Long có 14 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000013, 'trainer13@gymfinder.test', 24, 2, 5.0, 2, 0, 'active'),
+(14, 'Lý Quốc Hưng', 'ly-quoc-hung-14', 'https://files.worldgymtaiwan.com/pt_coach/portrait/2502551.webp?update_time=2025-08-05+03%3A30%3A09.267', 3, 15, 'Huấn luyện viên Lý Quốc Hưng có 15 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000014, 'trainer14@gymfinder.test', 25, 2, 4.0, 1, 0, 'active'),
 (15, 'Dương Thúy Kiều', 'duong-thuy-kieu-15', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80', 4, 1, 'Huấn luyện viên Dương Thúy Kiều có 1 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000015, 'trainer15@gymfinder.test', 29, 9, 5.0, 1, 1, 'active'),
-(16, 'Vũ Đình Trọng', 'vu-dinh-trong-16', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80', 1, 2, 'Huấn luyện viên Vũ Đình Trọng có 2 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000016, 'trainer16@gymfinder.test', 30, 9, 5.0, 2, 0, 'active'),
-(17, 'Đỗ Hoài Nam', 'do-hoai-nam-17', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80', 2, 3, 'Huấn luyện viên Đỗ Hoài Nam có 3 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000017, 'trainer17@gymfinder.test', 36, 13, 4.0, 2, 0, 'active'),
-(18, 'Hồ Ngọc Ánh', 'ho-ngoc-anh-18', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80', 3, 4, 'Huấn luyện viên Hồ Ngọc Ánh có 4 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000018, 'trainer18@gymfinder.test', 42, 14, 5.0, 1, 0, 'active'),
-(19, 'Lâm Khắc Tiệp', 'lam-khac-tiep-19', 'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=400&q=80', 4, 5, 'Huấn luyện viên Lâm Khắc Tiệp có 5 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000019, 'trainer19@gymfinder.test', 45, 14, 0.0, 0, 0, 'active'),
-(20, 'Mai Hải Đăng', 'mai-hai-dang-20', 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=400&q=80', 1, 6, 'Huấn luyện viên Mai Hải Đăng có 6 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000020, 'trainer20@gymfinder.test', 50, 16, 4.0, 1, 1, 'active'),
-(21, 'Nguyễn Bích Ngọc', 'nguyen-bich-ngoc-21', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80', 2, 7, 'Huấn luyện viên Nguyễn Bích Ngọc có 7 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000021, 'trainer21@gymfinder.test', 54, 3, 5.0, 1, 0, 'active'),
-(22, 'Trần Quang Khải', 'tran-quang-khai-22', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80', 3, 8, 'Huấn luyện viên Trần Quang Khải có 8 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000022, 'trainer22@gymfinder.test', 57, 3, 5.0, 1, 0, 'active'),
-(23, 'Lê Hoàng Yến', 'le-hoang-yen-23', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80', 4, 9, 'Huấn luyện viên Lê Hoàng Yến có 9 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000023, 'trainer23@gymfinder.test', 1, 1, 5.0, 2, 0, 'active'),
-(24, 'Phạm Minh Đức', 'pham-minh-duc-24', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80', 1, 10, 'Huấn luyện viên Phạm Minh Đức có 10 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000024, 'trainer24@gymfinder.test', 2, 1, 0.0, 0, 0, 'active'),
-(25, 'Võ Hữu Tín', 'vo-huu-tin-25', 'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=400&q=80', 2, 11, 'Huấn luyện viên Võ Hữu Tín có 11 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000025, 'trainer25@gymfinder.test', 3, 1, 0.0, 0, 1, 'active'),
-(26, 'Hoàng Thùy Linh', 'hoang-thuy-linh-26', 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=400&q=80', 3, 12, 'Huấn luyện viên Hoàng Thùy Linh có 12 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000026, 'trainer26@gymfinder.test', 4, 1, 5.0, 1, 0, 'active'),
-(27, 'Đoàn Nhật Minh', 'doan-nhat-minh-27', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80', 4, 13, 'Huấn luyện viên Đoàn Nhật Minh có 13 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000027, 'trainer27@gymfinder.test', 5, 1, 4.0, 1, 0, 'active'),
-(28, 'Tạ Anh Khoa', 'ta-anh-khoa-28', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80', 1, 14, 'Huấn luyện viên Tạ Anh Khoa có 14 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000028, 'trainer28@gymfinder.test', 9, 4, 0.0, 0, 0, 'hidden'),
-(29, 'Cao Mỹ Duyên', 'cao-my-duyen-29', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80', 2, 15, 'Huấn luyện viên Cao Mỹ Duyên có 15 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000029, 'trainer29@gymfinder.test', 10, 4, 5.0, 1, 0, 'hidden'),
-(30, 'Bạch Trọng Hiếu', 'bach-trong-hieu-30', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80', 3, 1, 'Huấn luyện viên Bạch Trọng Hiếu có 1 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000030, 'trainer30@gymfinder.test', 11, 4, 0.0, 0, 1, 'active');
-
+(16, 'Vũ Đình Trọng', 'vu-dinh-trong-16', 'https://files.worldgymtaiwan.com/pt_coach/portrait/790154.webp?update_time=2025-11-06+03%3A30%3A16.210', 1, 2, 'Huấn luyện viên Vũ Đình Trọng có 2 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000016, 'trainer16@gymfinder.test', 30, 9, 5.0, 2, 0, 'active'),
+(17, 'Đỗ Hoài Nam', 'do-hoai-nam-17', 'https://files.worldgymtaiwan.com/pt_coach/portrait/2500506.webp?update_time=2025-05-31+03%3A30%3A36.857', 2, 3, 'Huấn luyện viên Đỗ Hoài Nam có 3 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000017, 'trainer17@gymfinder.test', 36, 13, 4.0, 2, 0, 'active'),
+(18, 'Hồ Ngọc Ánh', 'ho-ngoc-anh-18', 'https://files.worldgymtaiwan.com/pt_coach/portrait/2402622.webp?update_time=2025-06-19+22%3A05%3A07.700', 3, 4, 'Huấn luyện viên Hồ Ngọc Ánh có 4 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000018, 'trainer18@gymfinder.test', 42, 14, 5.0, 1, 0, 'active'),
+(19, 'Lâm Khắc Tiệp', 'lam-khac-tiep-19', 'https://files.worldgymtaiwan.com/pt_coach/portrait/2504511.webp?update_time=2026-02-15+03%3A30%3A11.880', 4, 5, 'Huấn luyện viên Lâm Khắc Tiệp có 5 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000019, 'trainer19@gymfinder.test', 45, 14, 0.0, 0, 0, 'active'),
+(20, 'Mai Hải Đăng', 'mai-hai-dang-20', 'https://files.worldgymtaiwan.com/pt_coach/portrait/2302959.webp?update_time=2025-06-05+03%3A33%3A39.200', 1, 6, 'Huấn luyện viên Mai Hải Đăng có 6 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000020, 'trainer20@gymfinder.test', 50, 16, 4.0, 1, 1, 'active'),
+(21, 'Nguyễn Bích Ngọc', 'nguyen-bich-ngoc-21', 'https://images.squarespace-cdn.com/content/v1/588754e7bebafbcb2d477cbf/1759978920243-J0GHN0IZ0LQKLMY4Z3WN/RACH1.jpg', 2, 7, 'Huấn luyện viên Nguyễn Bích Ngọc có 7 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000021, 'trainer21@gymfinder.test', 54, 3, 5.0, 1, 0, 'active'),
+(22, 'Trần Quang Khải', 'tran-quang-khai-22', 'https://www.workband.com.tw/store_image/forcefitness/P1174540170056.webp', 3, 8, 'Huấn luyện viên Trần Quang Khải có 8 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000022, 'trainer22@gymfinder.test', 57, 3, 5.0, 1, 0, 'active'),
+(23, 'Lê Hoàng Yến', 'le-hoang-yen-23', 'https://files.worldgymtaiwan.com/pt_coach/portrait/370451.webp?update_time=2026-04-22+03%3A30%3A08.133', 4, 9, 'Huấn luyện viên Lê Hoàng Yến có 9 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000023, 'trainer23@gymfinder.test', 1, 1, 5.0, 2, 0, 'active'),
+(24, 'Phạm Minh Đức', 'pham-minh-duc-24', 'https://files.worldgymtaiwan.com/pt_coach/portrait/2500840.webp?update_time=2026-04-22+03%3A30%3A08.127', 1, 10, 'Huấn luyện viên Phạm Minh Đức có 10 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000024, 'trainer24@gymfinder.test', 2, 1, 0.0, 0, 0, 'active'),
+(25, 'Võ Hữu Tín', 'vo-huu-tin-25', 'https://pure360-public.s3.ap-southeast-1.amazonaws.com/teacher_image_dev/1900.jpg?t=1663933548000', 2, 11, 'Huấn luyện viên Võ Hữu Tín có 11 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000025, 'trainer25@gymfinder.test', 3, 1, 0.0, 0, 1, 'active'),
+(26, 'Hoàng Thùy Linh', 'hoang-thuy-linh-26', 'https://stringssg-assets.s3.ap-southeast-1.amazonaws.com/static/personal-trainer/generated/Christabelle.jpeg', 3, 12, 'Huấn luyện viên Hoàng Thùy Linh có 12 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000026, 'trainer26@gymfinder.test', 4, 1, 5.0, 1, 0, 'active'),
+(27, 'Đoàn Nhật Minh', 'doan-nhat-minh-27', 'https://images.squarespace-cdn.com/content/v1/63d9d5adb0b1063f7fa463a2/40365611-db3b-4e8c-9566-f14d5d3e2e6f/copy_AF8E7F50-5222-492E-A210-BFB5553B71CF.JPEG', 4, 13, 'Huấn luyện viên Đoàn Nhật Minh có 13 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000027, 'trainer27@gymfinder.test', 5, 1, 4.0, 1, 0, 'active'),
+(28, 'Tạ Anh Khoa', 'ta-anh-khoa-28', 'https://unrealpt.sg/cdn/shop/files/Hwa_Yang_Soh_Senior_Trainer.jpg?v=1726637029&width=2000', 1, 14, 'Huấn luyện viên Tạ Anh Khoa có 14 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000028, 'trainer28@gymfinder.test', 9, 4, 0.0, 0, 0, 'hidden'),
+(29, 'Cao Mỹ Duyên', 'cao-my-duyen-29', 'https://images.squarespace-cdn.com/content/v1/66668442d380464892620714/97994512-76a2-433b-8e6c-dcc2dbc6d6e3/IMG_8221.jpg', 2, 15, 'Huấn luyện viên Cao Mỹ Duyên có 15 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000029, 'trainer29@gymfinder.test', 10, 4, 5.0, 1, 0, 'hidden'),
+(30, 'Bạch Trọng Hiếu', 'bach-trong-hieu-30', 'https://www.stringssg.com/_next/image?q=75&url=https%3A%2F%2Fstringssg-assets.s3-ap-southeast-1.amazonaws.com%2Fstatic%2Fpersonal-trainer%2Fgenerated%2FGerald.jpeg&w=1920', 3, 1, 'Huấn luyện viên Bạch Trọng Hiếu có 1 năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác.', +84901000030, 'trainer30@gymfinder.test', 11, 4, 0.0, 0, 1, 'active');
 UPDATE trainers AS t
 JOIN gyms AS g ON g.id = t.gym_id
-SET t.district_id = g.district_id;
+SET t.district_id = g.district_id
+WHERE t.id BETWEEN 1 AND 30;
 
 -- =====================================================================
 -- TRAINER_SPECIALTIES
@@ -1110,5 +1447,5 @@ INSERT INTO favorites (id, user_id, target_type, gym_id, trainer_id) VALUES
 (7, 4, 'trainer', NULL, 8);
 
 -- Cập nhật điểm đánh giá và số lượng review theo dữ liệu approved
-UPDATE gyms SET avg_rating = COALESCE((SELECT ROUND(AVG(rating),1) FROM reviews WHERE gym_id = gyms.id AND status='approved'), 0), review_count = (SELECT COUNT(*) FROM reviews WHERE gym_id = gyms.id AND status='approved');
-UPDATE trainers SET avg_rating = COALESCE((SELECT ROUND(AVG(rating),1) FROM reviews WHERE trainer_id = trainers.id AND status='approved'), 0), review_count = (SELECT COUNT(*) FROM reviews WHERE trainer_id = trainers.id AND status='approved');
+UPDATE gyms SET avg_rating = COALESCE((SELECT ROUND(AVG(rating),1) FROM reviews WHERE gym_id = gyms.id AND status='approved'), 0), review_count = (SELECT COUNT(*) FROM reviews WHERE gym_id = gyms.id AND status='approved') WHERE gyms.id BETWEEN 1 AND 64;
+UPDATE trainers SET avg_rating = COALESCE((SELECT ROUND(AVG(rating),1) FROM reviews WHERE trainer_id = trainers.id AND status='approved'), 0), review_count = (SELECT COUNT(*) FROM reviews WHERE trainer_id = trainers.id AND status='approved') WHERE trainers.id BETWEEN 1 AND 30;

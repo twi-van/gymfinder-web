@@ -280,8 +280,8 @@ function gf_sync_gym_relations(int $gymId, array $d, string $cover): array
     }
 
     if (array_key_exists('images', $d)) {
-        if (!is_array($d['images']) || count($d['images']) > 20) {
-            gf_api_error('VALIDATION_ERROR', 'Dữ liệu không hợp lệ.', 422, ['images' => 'Tối đa 20 ảnh.']);
+        if (!is_array($d['images']) || count($d['images']) > 8) {
+            gf_api_error('VALIDATION_ERROR', 'Dữ liệu không hợp lệ.', 422, ['images' => 'Tối đa 8 ảnh.']);
         }
         $keepIds = [];
         $urls    = [];
@@ -290,9 +290,6 @@ function gf_sync_gym_relations(int $gymId, array $d, string $cover): array
                 gf_api_error('VALIDATION_ERROR', 'Dữ liệu không hợp lệ.', 422, ['images' => 'Phần tử không hợp lệ.']);
             }
             $url = (string) ($img['image_url'] ?? '');
-            if ($url === '' || !gf_uploads_url_ok($url)) {
-                gf_api_error('VALIDATION_ERROR', 'Dữ liệu không hợp lệ.', 422, ['images' => 'image_url không hợp lệ.']);
-            }
             if ($cover !== '' && $url === $cover) {
                 gf_api_error('VALIDATION_ERROR', 'Dữ liệu không hợp lệ.', 422, ['images' => 'Không trùng cover_image_url.']);
             }
@@ -319,9 +316,15 @@ function gf_sync_gym_relations(int $gymId, array $d, string $cover): array
                 if (isset($img['image_url']) && $img['image_url'] !== $row['image_url']) {
                     gf_api_error('VALIDATION_ERROR', 'Dữ liệu không hợp lệ.', 422, ['images' => 'Không đổi image_url khi có id.']);
                 }
+                if ($url === '' || !gf_uploads_url_ok($url) && $url !== (string) $row['image_url']) {
+                    gf_api_error('VALIDATION_ERROR', 'Dữ liệu không hợp lệ.', 422, ['images' => 'Ảnh mới phải nằm trong /uploads/...']);
+                }
                 gf_pdo()->prepare('UPDATE gym_images SET caption=?, sort_order=? WHERE id=?')->execute([$caption, $sort, $imgId]);
                 $keepIds[] = $imgId;
             } else {
+                if ($url === '' || !gf_uploads_url_ok($url)) {
+                    gf_api_error('VALIDATION_ERROR', 'Dữ liệu không hợp lệ.', 422, ['images' => 'Ảnh mới phải nằm trong /uploads/...']);
+                }
                 gf_pdo()->prepare('INSERT INTO gym_images (gym_id, image_url, caption, sort_order) VALUES (?,?,?,?)')
                     ->execute([$gymId, $url, $caption, $sort]);
                 $keepIds[] = (int) gf_pdo()->lastInsertId();

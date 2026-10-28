@@ -99,7 +99,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         <div class="col-lg-4">
             <div class="row g-3">
                 <?php foreach ($images as $img): ?>
-                    <div class="col-6"><img src="<?= gf_h($img['image_url']) ?>" class="w-100 rounded-3" style="height:120px;object-fit:cover;" alt=""></div>
+                    <div class="col-6"><img src="<?= gf_h($img['image_url']) ?>" class="w-100 rounded-3" style="height:120px;object-fit:cover;" alt="Ảnh phòng tập <?= gf_h($gym['name']) ?>" onerror="if(this.dataset.fallbackStage){this.onerror=null;this.src='<?= gf_h(gf_url('assets/images/gym-placeholder.svg')) ?>';}else{this.dataset.fallbackStage='1';this.src='<?= gf_h($gym['cover']) ?>';}"></div>
                 <?php endforeach; ?>
             </div>
         </div>

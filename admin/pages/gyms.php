@@ -22,9 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$up['ok']) { $error = $up['error']; }
             else { $data['cover_image_url'] = $up['url']; }
         }
-        if (!empty($_POST['images_json'])) {
-            $imgs = json_decode($_POST['images_json'], true);
+        if (array_key_exists('images_json', $_POST)) {
+            $imgs = json_decode((string) $_POST['images_json'], true);
             if (is_array($imgs)) { $data['images'] = $imgs; }
+            else { $error = 'Danh sách ảnh thư viện không hợp lệ. Vui lòng tải lại form và thử lại.'; }
+        } else {
+            $error = 'Thiếu dữ liệu thư viện ảnh. Vui lòng tải lại form và thử lại.';
         }
         unset($data['remove_cover'], $data['images_json']);
         if (!$error) {
@@ -57,9 +60,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$up['ok']) { $error = $up['error']; }
             else { $data['cover_image_url'] = $up['url']; }
         }
-        if (!empty($_POST['images_json'])) {
-            $imgs = json_decode($_POST['images_json'], true);
+        if (array_key_exists('images_json', $_POST)) {
+            $imgs = json_decode((string) $_POST['images_json'], true);
             if (is_array($imgs)) { $data['images'] = $imgs; }
+            else { $error = 'Danh sách ảnh thư viện không hợp lệ. Vui lòng tải lại form và thử lại.'; }
+        } else {
+            $error = 'Thiếu dữ liệu thư viện ảnh. Vui lòng tải lại form và thử lại.';
         }
         unset($data['remove_cover'], $data['images_json']);
         if (!$error) {
@@ -446,13 +452,15 @@ gf_admin_table_close([
                             <label class="form-label fw-bold mb-0">Thư viện ảnh</label>
                             <div>
                                 <input type="file" id="gym-gallery-files" name="gallery_files[]" multiple accept="image/jpeg,image/png,image/webp" class="d-none" onchange="addGalleryFiles(this)">
-                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="document.getElementById('gym-gallery-files').click()"><i class="fa-solid fa-plus me-1"></i>Thêm ảnh vào thư viện</button>
+                                <button type="button" id="gym-gallery-add-btn" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="document.getElementById('gym-gallery-files').click()"><i class="fa-solid fa-plus me-1"></i>Thêm ảnh vào thư viện</button>
                             </div>
                         </div>
                         <div id="gym-gallery-list" class="row g-2 pt-2">
                             <!-- Rendered dynamically via JavaScript -->
                         </div>
-                        <div id="gym-gallery-empty" class="text-center py-4 bg-light rounded-3 border text-secondary small">Chưa có ảnh trong thư viện. Bấm "Thêm ảnh vào thư viện" để chọn nhiều ảnh.</div>
+                        <div id="gym-gallery-empty" class="text-center py-4 bg-light rounded-3 border text-secondary small">Chưa có ảnh trong thư viện. Bấm "Thêm ảnh vào thư viện" để chọn ít nhất 3 ảnh.</div>
+                        <div class="form-text mt-2">Nên có 3–5 ảnh (phòng tập nổi bật có thể 6); tối đa 8 ảnh. Mỗi ảnh JPG, PNG hoặc WEBP, tối đa 5 MB.</div>
+                        <div id="gym-gallery-count" class="small text-secondary mt-1" aria-live="polite">0/8 ảnh</div>
                     </div>
                 </div>
             </div>
@@ -628,8 +636,8 @@ function addGalleryFiles(input) {
             typeof window.gfToast === 'function' ? window.gfToast(`File "${file.name}" vượt quá 5 MB.`, 'warning') : null;
             continue;
         }
-        if (galleryItems.length >= 20) {
-            typeof window.gfToast === 'function' ? window.gfToast('Tối đa 20 ảnh trong thư viện.', 'warning') : null;
+        if (galleryItems.length >= 8) {
+            typeof window.gfToast === 'function' ? window.gfToast('Tối đa 8 ảnh trong thư viện.', 'warning') : null;
             break;
         }
         const objUrl = URL.createObjectURL(file);
@@ -650,6 +658,10 @@ function addGalleryFiles(input) {
 function renderGallery() {
     const list = document.getElementById('gym-gallery-list');
     const emptyNotice = document.getElementById('gym-gallery-empty');
+    const countNotice = document.getElementById('gym-gallery-count');
+    const addButton = document.getElementById('gym-gallery-add-btn');
+    countNotice.textContent = `${galleryItems.length}/8 ảnh`;
+    addButton.disabled = galleryItems.length >= 8;
     list.innerHTML = '';
     if (!galleryItems.length) {
         emptyNotice.classList.remove('d-none');
@@ -729,6 +741,22 @@ async function handleGymFormSubmit(e) {
     const errAlert = document.getElementById('gym-error-alert');
     errAlert.classList.add('d-none');
     errAlert.textContent = '';
+
+    const coverFile = document.getElementById('gym-cover-file').files?.[0];
+    const hasCover = !!coverFile || (document.getElementById('gym-cover-url').value.trim() !== ''
+        && document.getElementById('gym-remove-cover').value !== '1');
+    if (!hasCover) {
+        errAlert.textContent = 'Vui lòng chọn một ảnh bìa cho phòng tập.';
+        errAlert.classList.remove('d-none');
+        document.getElementById('gym-cover-file').focus();
+        return false;
+    }
+    if (galleryItems.length < 3 || galleryItems.length > 8) {
+        errAlert.textContent = 'Thư viện cần từ 3 đến 8 ảnh. Phòng tập nổi bật nên có 6 ảnh.';
+        errAlert.classList.remove('d-none');
+        document.getElementById('gym-gallery-add-btn').focus();
+        return false;
+    }
 
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Đang tải ảnh & lưu...';
