@@ -1,8 +1,9 @@
 # HƯỚNG DẪN KHỞI CHẠY & VẬN HÀNH
 
 **Dự án:** GYMFINDER — Tìm kiếm, đánh giá phòng tập & HLV  
-**Cập nhật:** 2026-10-21  
-**Phạm vi:** Website SSR PHP — **không** maps / đặt lịch / chat / thanh toán.
+**Cập nhật:** 2026-10-28  
+**Phạm vi:** Website SSR PHP — **không** maps / đặt lịch / chat / thanh toán.  
+**Môi trường khuyến nghị:** **XAMPP (Apache + PHP) + MySQL** (giống hướng triển khai đồ án mẫu học kỳ trước).
 
 ---
 
@@ -10,57 +11,17 @@
 
 | Thành phần | Yêu cầu |
 | --- | --- |
-| PHP | **8.0+** (khuyến nghị 8.1 / 8.2) — extension `pdo_sqlite` (mặc định) hoặc `pdo_mysql` |
-| CSDL | **SQLite** (tự tạo khi chạy local) hoặc **MySQL** / MariaDB |
+| PHP | **8.0+** (khuyến nghị 8.1 / 8.2) — extension **`pdo_mysql`** |
+| CSDL | **MySQL** / MariaDB (qua XAMPP) |
+| Web server | **Apache** trong XAMPP (hoặc PHP built-in + MySQL XAMPP) |
 | Khác | Không bắt buộc Node.js / Composer |
 | Trình duyệt | Chrome, Edge, Safari, Firefox |
 | OS | macOS, Windows, Linux |
+| Tuỳ chọn | SQLite (`pdo_sqlite`) — chỉ khi không dùng MySQL |
 
 ---
 
-## 2. Cách 1 — PHP built-in server + SQLite (khuyến nghị)
-
-Ưu điểm: không cần XAMPP/MySQL. Lần đầu (hoặc khi chưa có file DB) hệ thống **tự tạo** `database/gymfinder.sqlite`, đủ **15 bảng** (gồm `gym_trainers`, `trainer_specialties`, `password_reset_otps`) và nạp dữ liệu mẫu.
-
-### Bước 1 — Vào thư mục gốc dự án
-
-```bash
-cd /path/to/GYMFINDER
-```
-
-### Bước 2 — Chạy server
-
-```bash
-php -S localhost:8000 router.php
-```
-
-macOS + PHP từ XAMPP:
-
-```bash
-/Applications/XAMPP/xamppfiles/bin/php -S localhost:8000 router.php
-```
-
-### Bước 3 — Mở trình duyệt
-
-[http://localhost:8000](http://localhost:8000)
-
-### Reset DB SQLite (khi schema đổi / lỗi thiếu bảng N–N)
-
-SQLite **chỉ seed khi file mới hoặc gần rỗng**. Nếu máy còn file cũ lệch schema:
-
-```bash
-# Dừng server (Ctrl+C), rồi:
-rm -f database/gymfinder.sqlite database/gymfinder.sqlite-*
-php -S localhost:8000 router.php
-```
-
-Lần request tiếp theo sẽ tạo lại DB + seed.
-
----
-
-## 3. Cách 2 — XAMPP (Apache) + MySQL
-
-Phù hợp khi cần demo đúng MySQL theo đồ án.
+## 2. Cách 1 — XAMPP (Apache) + MySQL (**khuyến nghị**)
 
 ### Bước 1 — Apache + MySQL
 
@@ -80,37 +41,70 @@ phpMyAdmin → [http://localhost/phpmyadmin](http://localhost/phpmyadmin)
 
 Nếu DB MySQL đã có từ bản cũ, xem thêm `database/migrations/` (ví dụ `005_users_email_not_null.mysql.sql`).
 
-### Bước 4 — Đặt mã nguồn
+### Bước 4 — Đặt mã nguồn vào htdocs
 
-Copy / symlink thư mục dự án vào `htdocs` (ví dụ `htdocs/GYMFINDER`).
+Copy hoặc symlink thư mục dự án vào `htdocs` (ví dụ `htdocs/GYMFINDER`).
 
-### Bước 5 — Bật driver MySQL
-
-Mặc định `backend/config.php` dùng **SQLite**. Với XAMPP + MySQL cần chuyển driver:
-
-**Tuỳ chọn A — biến môi trường** (khuyến nghị khi chạy built-in server với MySQL):
+macOS (symlink từ `~/Projects/GYMFINDER`):
 
 ```bash
-export GF_DB_DRIVER=mysql
-export GF_DB_HOST=127.0.0.1
-export GF_DB_NAME=gymfinder
-export GF_DB_USER=root
-export GF_DB_PASS=
-php -S localhost:8000 router.php
+ln -sfn ~/Projects/GYMFINDER /Applications/XAMPP/xamppfiles/htdocs/GYMFINDER
 ```
 
-**Tuỳ chọn B — Apache/XAMPP:** trong `backend/config.php` tạm đổi:
+> Nếu `http://localhost/GYMFINDER/` đang hiện project khác (vd. minihome), đổi tên symlink (vd. `GymFinderApp`) hoặc dùng PHP built-in ở §2 phụ với MySQL.
 
-```php
-'driver' => getenv('GF_DB_DRIVER') ?: 'mysql',  // local demo MySQL
-```
+### Bước 5 — Driver MySQL
 
-(Không commit thay đổi này nếu nhóm đang mặc định SQLite.)
+`backend/config.php` **mặc định** dùng MySQL (`'driver' => … 'mysql'`). Tài khoản mặc định XAMPP:
+
+| Tham số | Giá trị mặc định |
+| --- | --- |
+| Host | `127.0.0.1` |
+| Port | `3306` |
+| Database | `gymfinder` |
+| User | `root` |
+| Password | *(rỗng)* |
+
+Đổi bằng biến môi trường nếu cần: `GF_DB_HOST`, `GF_DB_NAME`, `GF_DB_USER`, `GF_DB_PASS`, `GF_DB_PORT`.
 
 ### Bước 6 — Truy cập
 
-- Apache: [http://localhost/GYMFINDER/](http://localhost/GYMFINDER/)  
-- Hoặc vẫn dùng `php -S … router.php` với `GF_DB_DRIVER=mysql`.
+- Apache: [http://localhost/GYMFINDER/](http://localhost/GYMFINDER/)
+
+### Phụ — PHP built-in + MySQL (vẫn dùng MySQL của XAMPP)
+
+Khi không muốn gắn htdocs / tránh đụng project khác trên `:80`:
+
+```bash
+cd /path/to/GYMFINDER
+# MySQL đã chạy trong XAMPP; config mặc định đã là mysql
+php -S localhost:8000 router.php
+# macOS + PHP từ XAMPP:
+# /Applications/XAMPP/xamppfiles/bin/php -S localhost:8000 router.php
+```
+
+Mở [http://localhost:8000](http://localhost:8000).
+
+---
+
+## 3. Cách 2 — SQLite (tuỳ chọn, không khuyến nghị cho báo cáo)
+
+Dùng khi cần chạy nhanh không cài MySQL. Đặt driver:
+
+```bash
+export GF_DB_DRIVER=sqlite
+php -S localhost:8000 router.php
+```
+
+Lần đầu hệ thống **tự tạo** `database/gymfinder.sqlite` và seed.
+
+### Reset DB SQLite (khi schema đổi / lỗi thiếu bảng N–N)
+
+```bash
+# Dừng server (Ctrl+C), rồi:
+rm -f database/gymfinder.sqlite database/gymfinder.sqlite-*
+GF_DB_DRIVER=sqlite php -S localhost:8000 router.php
+```
 
 ---
 
@@ -131,6 +125,8 @@ cp backend/ai.local.php.example backend/ai.local.php
 Menu **Trợ lý AI** trên navbar (user/guest). Admin portal-only không thấy menu này.
 
 Câu demo: “Gym Quận 7 giá dưới 500 nghìn” · “HLV Yoga rating cao” · “PT giảm cân cho người mới”.
+
+Trên Apache: thêm prefix `/GYMFINDER` vào URL (vd. `/GYMFINDER/pages/ai/chat.php`).
 
 ---
 
@@ -168,22 +164,22 @@ User khác trong seed: `u03@…` … `u24@…` — cùng mật khẩu `password`
 
 ---
 
-## 7. URL chính (port 8000)
+## 7. URL chính
 
-| Chức năng | URL |
-| --- | --- |
-| Trang chủ | [/](http://localhost:8000/) |
-| Tìm phòng tập | [/pages/gyms/search.php](http://localhost:8000/pages/gyms/search.php) |
-| Chi tiết gym | [/pages/gyms/detail.php?id=1](http://localhost:8000/pages/gyms/detail.php?id=1) |
-| Danh sách HLV | [/pages/trainers/index.php](http://localhost:8000/pages/trainers/index.php) |
-| Chi tiết HLV | [/pages/trainers/detail.php?id=1](http://localhost:8000/pages/trainers/detail.php?id=1) |
-| Đăng nhập / Đăng ký | [/pages/auth/login.php](http://localhost:8000/pages/auth/login.php) · [/pages/auth/register.php](http://localhost:8000/pages/auth/register.php) |
-| Trợ lý AI (bổ sung) | [/pages/ai/chat.php](http://localhost:8000/pages/ai/chat.php) |
-| Quên MK (3 bước) | `forgot_password.php` → `forgot_verify_otp.php` → `reset_password.php` |
-| Hồ sơ / Yêu thích | [/pages/user/profile.php](http://localhost:8000/pages/user/profile.php) · [/pages/user/favorites.php](http://localhost:8000/pages/user/favorites.php) |
-| Điều khoản / Chính sách | [/pages/legal/terms.php](http://localhost:8000/pages/legal/terms.php) · [/pages/legal/privacy.php](http://localhost:8000/pages/legal/privacy.php) |
-| Admin dashboard | [/admin/pages/dashboard.php](http://localhost:8000/admin/pages/dashboard.php) |
-| Admin gyms / trainers / users / reviews / categories / profile | `/admin/pages/gyms.php`, `trainers.php`, `users.php`, `reviews.php`, `categories.php`, `profile.php` |
+| Chức năng | URL (`php -S :8000`) | Apache (`/GYMFINDER`) |
+| --- | --- | --- |
+| Trang chủ | [/](http://localhost:8000/) | `/GYMFINDER/` |
+| Tìm phòng tập | `/pages/gyms/search.php` | `/GYMFINDER/pages/gyms/search.php` |
+| Chi tiết gym | `/pages/gyms/detail.php?id=1` | tương tự + prefix |
+| Danh sách HLV | `/pages/trainers/index.php` | … |
+| Chi tiết HLV | `/pages/trainers/detail.php?id=1` | … |
+| Đăng nhập / Đăng ký | `/pages/auth/login.php` · `register.php` | … |
+| Trợ lý AI (bổ sung) | `/pages/ai/chat.php` | … |
+| Quên MK (3 bước) | `forgot_password.php` → `forgot_verify_otp.php` → `reset_password.php` | … |
+| Hồ sơ / Yêu thích | `/pages/user/profile.php` · `favorites.php` | … |
+| Điều khoản / Chính sách | `/pages/legal/terms.php` · `privacy.php` | … |
+| Admin dashboard | `/admin/pages/dashboard.php` | … |
+| Admin gyms / trainers / users / reviews / categories / profile | `/admin/pages/gyms.php`, `trainers.php`, `users.php`, `reviews.php`, `categories.php`, `profile.php` | … |
 
 **Lưu ý nghiệp vụ:**
 
@@ -208,6 +204,25 @@ User khác trong seed: `u03@…` … `u24@…` — cùng mật khẩu `password`
 
 ## 9. Xử lý sự cố
 
+### `localhost/GYMFINDER` hiện project khác (minihome / cloud)
+
+Apache đang phục vụ thư mục/symlink khác. Đổi tên symlink, hoặc dùng `php -S localhost:8000 router.php` với MySQL XAMPP (§2 phụ).
+
+### MySQL kết nối fail
+
+- MySQL trong XAMPP đã Start?
+- Đã tạo DB `gymfinder` và import `schema.sql` + `seed.sql`?
+- Kiểm tra `GF_DB_*` / mật khẩu root trong `backend/config.php`
+- PHP có extension `pdo_mysql`? (`php -m | grep pdo_mysql`)
+
+### Vẫn thấy dữ liệu SQLite cũ
+
+Unset biến `GF_DB_DRIVER=sqlite` nếu từng export; mặc định config là `mysql`.
+
+### Thiếu bảng / lỗi PT–gym (SQLite tuỳ chọn)
+
+Xóa `database/gymfinder.sqlite*` rồi chạy lại với `GF_DB_DRIVER=sqlite` (§3).
+
 ### Cổng 8000 đang dùng
 
 ```bash
@@ -216,10 +231,6 @@ kill <PID>
 # hoặc:
 php -S localhost:8080 router.php
 ```
-
-### Thiếu bảng / lỗi PT–gym / filter `has_pt`
-
-Thường do SQLite cũ. Xóa `database/gymfinder.sqlite*` rồi chạy lại server (§2).
 
 ### Không upload / không hiện ảnh
 
@@ -233,10 +244,6 @@ chmod 775 uploads
 ### Quên mật khẩu báo chưa cấu hình SMTP
 
 Tạo `backend/smtp.local.php` từ example; hoặc đặt `'demo_otp' => true` để hiện OTP trên UI.
-
-### MySQL kết nối fail / vẫn thấy SQLite
-
-Kiểm tra `GF_DB_DRIVER=mysql` (hoặc `'driver' => 'mysql'` trong config) và thông tin `GF_DB_*` / phpMyAdmin.
 
 ### Safari favicon cũ
 

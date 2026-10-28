@@ -53,9 +53,9 @@ GYMFINDER là nền tảng **tra cứu và đánh giá** — người dùng tự
 | --- | --- |
 | Giao diện | PHP SSR, HTML5, CSS3, Bootstrap 5.3, JavaScript, Font Awesome 6, Google Fonts (Inter) |
 | Backend | PHP 8.0+ (thuần, không bắt buộc Composer) |
-| CSDL | SQLite (mặc định khi chạy local) hoặc MySQL |
+| CSDL | **MySQL** (mặc định, qua XAMPP) — SQLite tuỳ chọn |
 | API | REST gateway `api/` (favorites, reviews, …) |
-| Công cụ | Git / GitHub, VS Code / Cursor, XAMPP (tuỳ chọn) |
+| Công cụ | Git / GitHub, VS Code / Cursor, **XAMPP** (Apache + MySQL) |
 
 ```text
         Guest / User / Admin
@@ -66,23 +66,32 @@ GYMFINDER là nền tảng **tra cứu và đánh giá** — người dùng tự
         └────────┬────────┘
               PHP SSR + API
                  │
-         SQLite / MySQL
+         MySQL (XAMPP) / SQLite tuỳ chọn
 ```
 
 ---
 
-## Khởi chạy nhanh
+## Khởi chạy nhanh (XAMPP + MySQL)
+
+1. Bật **Apache** + **MySQL** trong XAMPP.  
+2. phpMyAdmin: tạo DB `gymfinder` → import `database/schema.sql` rồi `database/seed.sql`.  
+3. Symlink/copy project vào `htdocs/GYMFINDER`.  
+4. Mở [http://localhost/GYMFINDER/](http://localhost/GYMFINDER/).
+
+`backend/config.php` mặc định `driver = mysql` (user `root`, mật khẩu rỗng).
+
+Hoặc chạy PHP built-in vẫn dùng MySQL XAMPP:
 
 ```bash
 cd /path/to/GYMFINDER
 php -S localhost:8000 router.php
-# macOS + XAMPP:
+# macOS + PHP từ XAMPP:
 # /Applications/XAMPP/xamppfiles/bin/php -S localhost:8000 router.php
 ```
 
-Mở [http://localhost:8000](http://localhost:8000). Lần đầu chạy, hệ thống tự tạo SQLite và nạp dữ liệu mẫu.
+→ [http://localhost:8000](http://localhost:8000)
 
-Chi tiết MySQL/XAMPP, URL trang, tài khoản demo và xử lý sự cố: xem [`docs/specs/GymFinder_HuongDanChay.md`](docs/specs/GymFinder_HuongDanChay.md).
+Chi tiết, SQLite tuỳ chọn, URL trang và xử lý sự cố: [`docs/specs/GymFinder_HuongDanChay.md`](docs/specs/GymFinder_HuongDanChay.md).
 
 ### Tài khoản demo
 

@@ -20,9 +20,9 @@
 | Hạng mục | Giá trị |
 | --- | --- |
 | OS | macOS (darwin) |
-| App server | PHP built-in: `php -S localhost:8000 router.php` (đang lắng nghe `:8000`) |
+| App server | PHP built-in: `php -S localhost:8000 router.php` (MySQL XAMPP; `:8000` khi cổng 80 bị chiếm) |
 | Base URL | `http://127.0.0.1:8000` |
-| DB | SQLite `database/gymfinder.sqlite` (auto-seed) |
+| DB | MySQL `gymfinder` (XAMPP — khuyến nghị) hoặc SQLite `database/gymfinder.sqlite` (tuỳ chọn) |
 | Trình duyệt | Cursor IDE Browser + Chrome DevTools device emulation |
 | Viewport | Mobile 390×844; Tablet 768×1024; Desktop ~1366×768 |
 

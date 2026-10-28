@@ -51,7 +51,7 @@ GYMFINDER/
 ├── backend/               # TẦNG XỬ LÝ
 │   ├── bootstrap.php      # khởi tạo session, config, PDO
 │   ├── config.php · db.php · auth.php · helpers.php
-│   ├── sqlite_install.php # tạo DB + seed lần đầu (SQLite)
+│   ├── sqlite_install.php # tạo DB + seed lần đầu (SQLite tuỳ chọn)
 │   ├── repositories/      # truy vấn SQL (PDO)
 │   └── resources/         # nghiệp vụ API & admin
 │
@@ -109,5 +109,5 @@ Trình duyệt
 | --- | --- |
 | UI | PHP SSR, Bootstrap 5.3, CSS, JS, Font Awesome 6 |
 | Backend | PHP 8.0+ (không bắt buộc Composer) |
-| DB | SQLite (mặc định) / MySQL (`database/schema.sql`) |
+| DB | **MySQL** (mặc định, XAMPP — `database/schema.sql` + `seed.sql`) / SQLite tuỳ chọn (`sqlite_install.php`) |
 | Bảo mật | PDO prepared statements, CSRF, password hash, phân quyền role |

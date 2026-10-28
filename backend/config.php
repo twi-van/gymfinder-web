@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 /**
  * GYMFINDER – cấu hình (Sprint 0 / TV2 Backend + Database)
- * Schema/seed MySQL: database/schema.sql + database/seed.sql
- * Demo mặc định: SQLite tự tạo lần chạy đầu (database/gymfinder.sqlite)
+ * Mặc định local/demo: MySQL qua XAMPP (schema/seed: database/schema.sql + seed.sql)
+ * Tuỳ chọn: SQLite — đặt GF_DB_DRIVER=sqlite (tự tạo database/gymfinder.sqlite)
  */
 $smtpLocal = [];
 $smtpLocalFile = __DIR__ . DIRECTORY_SEPARATOR . 'smtp.local.php';
@@ -35,7 +35,7 @@ $aiValue = static function (string $envName, string $key, mixed $default = '') u
 };
 
 return [
-    'driver' => getenv('GF_DB_DRIVER') ?: 'sqlite',
+    'driver' => getenv('GF_DB_DRIVER') ?: 'mysql',
     'sqlite_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'gymfinder.sqlite',
     'mysql' => [
         'host' => getenv('GF_DB_HOST') ?: '127.0.0.1',

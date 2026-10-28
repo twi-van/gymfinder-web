@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 function gf_db_init(array $config): void
 {
-    $driver = $config['driver'] ?? 'sqlite';
+    $driver = $config['driver'] ?? 'mysql';
     if ($driver === 'mysql') {
         $m = $config['mysql'];
         $dsn = sprintf(
