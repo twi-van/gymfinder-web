@@ -339,76 +339,8 @@ SQL);
     $allGymNames = array_merge(...array_values($gymNamesByDist));
     $districtNamesById = array_column($districts, 1, 0);
 
-    $gymImages = [
-        'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1579758629938-03607ccdbaba?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1590487988256-9ed24133863e?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1577221084712-45b0449d2d3f?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1534258936925-c58bed479fcb?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80'
-    ];
-    $gymCoverImages = array_merge($gymImages, [
-        'https://images.unsplash.com/photo-1728486145245-d4cb0c9c3470?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1738321791421-232f9ee2c487?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1545612036-2872840642dc?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1758448756350-3d0eec02ba37?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1778828494354-9b717d36dc99?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1671970922029-0430d2ae122c?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1775993719568-290840203239?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1775993167276-743bbcde77e1?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1546920120-d60663fd4965?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1778828450059-f39d5bbb01af?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1689877020200-403d8542d95d?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1561214078-f3247647fc5e?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1757924284732-4189190321cf?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1728486887318-398f1448f7ae?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1775993703558-e7afab02b7bd?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1754258167836-6878c54e316c?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1771586791190-97ed536c54af?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1649068618811-9f3547ef98fc?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1741156229623-da94e6d7977d?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1765728617086-5d16a7bac916?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1775993167571-cd1ff4cadada?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1778828494365-c798ff9cce2c?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1689514226761-336eaf77e311?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1623874514711-0f321325f318?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1775993699105-4d18bcac7e54?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1761971974992-6df33df97c3a?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1770493895453-4f758c40d11d?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1687350119840-3e2cc5977e92?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1716367840427-4c148eb7bf15?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1790094181041-add24d34ccfd?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1649847727298-27a50354bd46?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1714181871329-1392197011c2?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1790094180961-8396479c6542?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1632758243488-7e6f9173cfa1?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1675026482188-8102367ecc16?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1761839258420-5c3e2f2e2a74?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1771270786606-f5a0e57db762?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1434682772747-f16d3ea162c3?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1630703178161-1e2f9beddbf8?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1624513764372-a4eb7b334c62?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1521804906057-1df8fdb718b7?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1789629455545-6418611bb5a2?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1770513649465-2c60c8039806?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1729156638758-6fa6405b289b?auto=format&fit=crop&w=800&q=80',
-    ]);
-    $gymGalleryImages = $gymCoverImages;
-    $newGymGalleryImages = array_slice($gymCoverImages, count($gymImages));
+    $gymCoverImages = gf_demo_gym_cover_photos();
+    $gymGalleryImages = gf_demo_gym_photos();
 
     $priceRanges = [
         ['min' => 200000, 'max' => 450000],
@@ -494,27 +426,32 @@ SQL);
             }
 
             // Seed a complete gallery with distinct images, separate from the cover.
+            // Retain the gym's initial 'Khu tập luyện đa năng' photo as slot 1.
             $galleryTarget = $isFeatured ? 6 : 5;
             $galleryUrls = [];
+            $initialPhoto = gf_demo_gym_initial_gallery_photo($gymId);
+            $initialPhotoId = preg_match('#/photo-([^?]+)#', $initialPhoto, $ipm) ? $ipm[1] : '';
+            $coverPhotoId = preg_match('#/photo-([^?]+)#', $cover, $cpm) ? $cpm[1] : '';
+            if ($initialPhotoId !== $coverPhotoId) {
+                $galleryUrls[] = ['url' => $initialPhoto, 'caption' => 'Khu tập luyện đa năng'];
+            }
+
             $galleryPoolCount = count($gymGalleryImages);
             $galleryStart = (($gymId - 1) * 13) % $galleryPoolCount;
             for ($step = 0; $step < $galleryPoolCount && count($galleryUrls) < $galleryTarget; $step++) {
                 $galleryImage = $gymGalleryImages[($galleryStart + $step * 7) % $galleryPoolCount];
-                if (str_replace('w=1200', 'w=800', $cover) === $galleryImage || in_array($galleryImage, $galleryUrls, true)) {
+                $gPhotoId = preg_match('#/photo-([^?]+)#', $galleryImage, $gpm) ? $gpm[1] : '';
+                if ($gPhotoId === $coverPhotoId) {
                     continue;
                 }
-                $galleryUrls[] = $galleryImage;
-            }
-            if ($galleryUrls && !array_intersect($galleryUrls, $newGymGalleryImages)) {
-                foreach ($newGymGalleryImages as $galleryImage) {
-                    if (str_replace('w=1200', 'w=800', $cover) !== $galleryImage && !in_array($galleryImage, $galleryUrls, true)) {
-                        $galleryUrls[count($galleryUrls) - 1] = $galleryImage;
-                        break;
-                    }
+                $existingUrls = array_column($galleryUrls, 'url');
+                if (in_array($galleryImage, $existingUrls, true)) {
+                    continue;
                 }
+                $galleryUrls[] = ['url' => $galleryImage, 'caption' => 'Không gian phòng tập'];
             }
-            foreach ($galleryUrls as $galleryIndex => $galleryImage) {
-                $insGI->execute([$gymId, $galleryImage, 'Không gian phòng tập', $galleryIndex + 1]);
+            foreach ($galleryUrls as $galleryIndex => $item) {
+                $insGI->execute([$gymId, $item['url'], $item['caption'], $galleryIndex + 1]);
             }
 
     }

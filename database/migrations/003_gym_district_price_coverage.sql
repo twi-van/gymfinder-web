@@ -5,25 +5,30 @@ SELECT 'Quận 2', 'quan-2'
 WHERE NOT EXISTS (SELECT 1 FROM districts WHERE slug='quan-2');
 
 INSERT INTO gyms (name, slug, description, address, district_id, phone, email, website, price_min, price_max, opening_hours, cover_image_url, is_featured, status)
-SELECT 'The New Gym Thảo Điền', 'the-new-gym-thao-dien-61', 'Phòng tập Thảo Điền có thiết bị hiện đại, lớp nhóm và HLV hỗ trợ hội viên.', 'Số 193 Đường Xuân Thủy, Thảo Điền, Quận 2', (SELECT id FROM districts WHERE slug='quan-2'), '+84281000061', 'contact.gym61@gymfinder.test', 'https://gym61.gymfinder.test', 200000, 450000, '05:30 - 22:00', 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80', 1, 'active'
+SELECT 'The New Gym Thảo Điền', 'the-new-gym-thao-dien-61', 'Phòng tập Thảo Điền có thiết bị hiện đại, lớp nhóm và HLV hỗ trợ hội viên.', 'Số 193 Đường Xuân Thủy, Thảo Điền, Quận 2', (SELECT id FROM districts WHERE slug='quan-2'), '+84281000061', 'contact.gym61@gymfinder.test', 'https://gym61.gymfinder.test', 200000, 450000, '05:30 - 22:00', 'https://images.unsplash.com/photo-1521804906057-1df8fdb718b7?auto=format&fit=crop&w=1200&q=80', 1, 'active'
 WHERE NOT EXISTS (SELECT 1 FROM gyms WHERE slug='the-new-gym-thao-dien-61');
 INSERT INTO gyms (name, slug, description, address, district_id, phone, email, website, price_min, price_max, opening_hours, cover_image_url, is_featured, status)
-SELECT 'CityGym An Phú', 'citygym-an-phu-62', 'Phòng tập An Phú có khu tạ, cardio và nhiều lớp huấn luyện theo nhóm.', 'Số 12 Đường Song Hành, An Phú, Quận 2', (SELECT id FROM districts WHERE slug='quan-2'), '+84281000062', 'contact.gym62@gymfinder.test', 'https://gym62.gymfinder.test', 350000, 700000, '06:00 - 22:00', 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 0, 'active'
+SELECT 'CityGym An Phú', 'citygym-an-phu-62', 'Phòng tập An Phú có khu tạ, cardio và nhiều lớp huấn luyện theo nhóm.', 'Số 12 Đường Song Hành, An Phú, Quận 2', (SELECT id FROM districts WHERE slug='quan-2'), '+84281000062', 'contact.gym62@gymfinder.test', 'https://gym62.gymfinder.test', 350000, 700000, '06:00 - 22:00', 'https://images.unsplash.com/photo-1789629455545-6418611bb5a2?auto=format&fit=crop&w=1200&q=80', 0, 'active'
 WHERE NOT EXISTS (SELECT 1 FROM gyms WHERE slug='citygym-an-phu-62');
 INSERT INTO gyms (name, slug, description, address, district_id, phone, email, website, price_min, price_max, opening_hours, cover_image_url, is_featured, status)
-SELECT 'Fit24 Sala', 'fit24-sala-63', 'Phòng tập Sala có không gian rộng, lớp yoga và khu tập chức năng.', 'Số 10 Đường Mai Chí Thọ, Khu đô thị Sala, Quận 2', (SELECT id FROM districts WHERE slug='quan-2'), '+84281000063', 'contact.gym63@gymfinder.test', 'https://gym63.gymfinder.test', 700000, 1200000, '05:00 - 23:00', 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 0, 'active'
+SELECT 'Fit24 Sala', 'fit24-sala-63', 'Phòng tập Sala có không gian rộng, lớp yoga và khu tập chức năng.', 'Số 10 Đường Mai Chí Thọ, Khu đô thị Sala, Quận 2', (SELECT id FROM districts WHERE slug='quan-2'), '+84281000063', 'contact.gym63@gymfinder.test', 'https://gym63.gymfinder.test', 700000, 1200000, '05:00 - 23:00', 'https://images.unsplash.com/photo-1770513649465-2c60c8039806?auto=format&fit=crop&w=1200&q=80', 0, 'active'
 WHERE NOT EXISTS (SELECT 1 FROM gyms WHERE slug='fit24-sala-63');
 INSERT INTO gyms (name, slug, description, address, district_id, phone, email, website, price_min, price_max, opening_hours, cover_image_url, is_featured, status)
-SELECT 'Elite Fitness Thủ Thiêm', 'elite-fitness-thu-thiem-64', 'Phòng tập Thủ Thiêm có dịch vụ cao cấp và HLV cá nhân.', 'Số 20 Đường Nguyễn Cơ Thạch, Thủ Thiêm, Quận 2', (SELECT id FROM districts WHERE slug='quan-2'), '+84281000064', 'contact.gym64@gymfinder.test', 'https://gym64.gymfinder.test', 1500000, 3500000, '05:00 - 23:00', 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80', 1, 'active'
+SELECT 'Elite Fitness Thủ Thiêm', 'elite-fitness-thu-thiem-64', 'Phòng tập Thủ Thiêm có dịch vụ cao cấp và HLV cá nhân.', 'Số 20 Đường Nguyễn Cơ Thạch, Thủ Thiêm, Quận 2', (SELECT id FROM districts WHERE slug='quan-2'), '+84281000064', 'contact.gym64@gymfinder.test', 'https://gym64.gymfinder.test', 1500000, 3500000, '05:00 - 23:00', 'https://images.unsplash.com/photo-1729156638758-6fa6405b289b?auto=format&fit=crop&w=1200&q=80', 1, 'active'
 WHERE NOT EXISTS (SELECT 1 FROM gyms WHERE slug='elite-fitness-thu-thiem-64');
 
 INSERT INTO gym_images (gym_id, image_url, caption, sort_order)
 SELECT g.id, 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1
 FROM gyms g WHERE g.slug='the-new-gym-thao-dien-61' AND NOT EXISTS (SELECT 1 FROM gym_images i WHERE i.gym_id=g.id);
 INSERT INTO gym_images (gym_id, image_url, caption, sort_order)
-SELECT g.id, g.cover_image_url, 'Khu tập luyện đa năng', 1
-FROM gyms g WHERE g.slug IN ('citygym-an-phu-62','fit24-sala-63','elite-fitness-thu-thiem-64')
-AND NOT EXISTS (SELECT 1 FROM gym_images i WHERE i.gym_id=g.id);
+SELECT g.id, 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1
+FROM gyms g WHERE g.slug='citygym-an-phu-62' AND NOT EXISTS (SELECT 1 FROM gym_images i WHERE i.gym_id=g.id);
+INSERT INTO gym_images (gym_id, image_url, caption, sort_order)
+SELECT g.id, 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1
+FROM gyms g WHERE g.slug='fit24-sala-63' AND NOT EXISTS (SELECT 1 FROM gym_images i WHERE i.gym_id=g.id);
+INSERT INTO gym_images (gym_id, image_url, caption, sort_order)
+SELECT g.id, 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=800&q=80', 'Khu tập luyện đa năng', 1
+FROM gyms g WHERE g.slug='elite-fitness-thu-thiem-64' AND NOT EXISTS (SELECT 1 FROM gym_images i WHERE i.gym_id=g.id);
 
 INSERT INTO gym_categories (gym_id, category_id)
 SELECT g.id, c.category_id FROM gyms g
