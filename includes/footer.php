@@ -32,7 +32,7 @@
             </div>
         </div>
         <div class="border-top pt-4 d-flex flex-column flex-sm-row justify-content-between gap-2">
-            <p class="text-secondary mb-0" style="font-size: 14px;">© 2026 GYMFINDER. All rights reserved.</p>
+            <p class="text-secondary mb-0" style="font-size: 14px;">© 2026 GYMFINDER. Bảo lưu mọi quyền.</p>
             <p class="text-secondary mb-0 d-flex flex-wrap gap-3" style="font-size: 14px;">
                 <a href="<?= gf_h(gf_url('pages/legal/terms.php')) ?>" class="text-secondary text-decoration-none">Điều khoản dịch vụ</a>
                 <a href="<?= gf_h(gf_url('pages/legal/privacy.php')) ?>" class="text-secondary text-decoration-none">Chính sách bảo mật</a>
