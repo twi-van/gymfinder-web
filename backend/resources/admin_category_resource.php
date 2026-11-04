@@ -150,14 +150,26 @@ function gf_admin_save_category(array $d, ?int $id): array
 
 
 /**
- * Admin xóa mềm category (set is_active = 0).
+ * Admin xóa cứng category khi không còn gym gắn; còn gắn thì báo lỗi.
  */
 function gf_admin_delete_category(int $id): void
 {
     $st = gf_pdo()->prepare('SELECT id FROM categories WHERE id=?');
     $st->execute([$id]);
-    if (!$st->fetch()) { gf_api_error('NOT_FOUND', 'Không tìm thấy danh mục.', 404); }
-    gf_pdo()->prepare('UPDATE categories SET is_active=0 WHERE id=?')->execute([$id]);
+    if (!$st->fetch()) {
+        gf_api_error('NOT_FOUND', 'Không tìm thấy danh mục.', 404);
+    }
+    $usedSt = gf_pdo()->prepare('SELECT COUNT(*) FROM gym_categories WHERE category_id=?');
+    $usedSt->execute([$id]);
+    $used = (int) $usedSt->fetchColumn();
+    if ($used > 0) {
+        gf_api_error(
+            'CONFLICT',
+            'Không thể xóa: còn ' . $used . ' phòng tập đang gắn loại này. Hãy gỡ danh mục hoặc Ẩn.',
+            409
+        );
+    }
+    gf_pdo()->prepare('DELETE FROM categories WHERE id=?')->execute([$id]);
 }
 
 // ---------------------------------------------------------------------------

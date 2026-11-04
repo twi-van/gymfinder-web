@@ -40,6 +40,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 gf_admin_save_category(['is_active' => $on ? 1 : 0], $id);
                 gf_admin_catalog_redirect('categories');
             }
+            if ($action === 'delete' && $id > 0) {
+                $st = gf_pdo()->prepare('SELECT COUNT(*) FROM gym_categories WHERE category_id=?');
+                $st->execute([$id]);
+                $used = (int) $st->fetchColumn();
+                if ($used > 0) {
+                    throw new RuntimeException(
+                        'Không thể xóa: còn ' . $used . ' phòng tập đang gắn loại này. Hãy gỡ danh mục khỏi các phòng tập hoặc dùng Ẩn.'
+                    );
+                }
+                $exists = gf_pdo()->prepare('SELECT id FROM categories WHERE id=?');
+                $exists->execute([$id]);
+                if (!$exists->fetchColumn()) {
+                    throw new RuntimeException('Không tìm thấy loại phòng tập.');
+                }
+                gf_pdo()->prepare('DELETE FROM categories WHERE id=?')->execute([$id]);
+                gf_admin_catalog_redirect('categories', 'deleted');
+            }
             $name = trim((string) ($_POST['name'] ?? ''));
             $description = trim((string) ($_POST['description'] ?? ''));
             if ($name === '' || mb_strlen($name) > 100) {
@@ -311,7 +328,7 @@ gf_admin_table_open([
         ['label' => 'MÔ TẢ', 'width' => '320px'],
         ['label' => 'SỐ PHÒNG TẬP', 'width' => '140px', 'align' => 'center'],
         ['label' => 'TRẠNG THÁI', 'width' => '120px', 'align' => 'center'],
-        ['label' => 'THAO TÁC', 'width' => '110px', 'align' => 'right', 'th_class' => 'text-end pe-3'],
+        ['label' => 'THAO TÁC', 'width' => '1%', 'align' => 'right', 'th_class' => 'text-end pe-3'],
     ],
 ]);
 ?>
@@ -332,6 +349,19 @@ gf_admin_table_open([
             <button class="btn btn-action <?= $r['is_active'] ? 'btn-action-delete' : 'btn-action-edit' ?>" title="<?= $r['is_active'] ? 'Ẩn' : 'Hiện' ?>">
                 <i class="fa-solid <?= $r['is_active'] ? 'fa-eye-slash' : 'fa-eye' ?>"></i>
             </button>
+        </form>
+        <?php $catUsed = (int) ($usage[(int) $r['id']] ?? 0); ?>
+        <form method="post" class="d-inline js-confirm-submit"
+              data-confirm-title="Xóa loại phòng tập?"
+              data-confirm-message="<?= $catUsed > 0
+                  ? 'Loại này còn ' . $catUsed . ' phòng tập đang gắn. Hãy gỡ danh mục khỏi các phòng hoặc dùng Ẩn.'
+                  : 'Xóa vĩnh viễn loại phòng tập này? Thao tác không hoàn tác.' ?>"
+              data-confirm-label="Xóa"
+              data-confirm-danger="1">
+            <?= gf_csrf_field() ?>
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
+            <button type="submit" class="btn btn-action btn-action-delete" title="<?= $catUsed > 0 ? 'Không xóa được khi còn phòng tập gắn' : 'Xóa' ?>" <?= $catUsed > 0 ? 'disabled' : '' ?>><i class="fa-solid fa-trash"></i></button>
         </form>
     </td>
 </tr>
@@ -355,7 +385,7 @@ if ($tab === 'amenities') {
     $columns[] = ['label' => 'BIỂU TƯỢNG', 'width' => '140px'];
 }
 $columns[] = ['label' => 'ĐANG DÙNG', 'width' => '120px', 'align' => 'center'];
-$columns[] = ['label' => 'THAO TÁC', 'width' => '120px', 'align' => 'right', 'th_class' => 'text-end pe-3'];
+$columns[] = ['label' => 'THAO TÁC', 'width' => '1%', 'align' => 'right', 'th_class' => 'text-end pe-3'];
 gf_admin_table_open([
     'id'        => 'catalogsTable',
     'class'     => 'admin-catalogs-table',
