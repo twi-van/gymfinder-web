@@ -5,6 +5,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libzip-dev \
         unzip \
     && docker-php-ext-install pdo pdo_mysql \
+    # PHP module cần mpm_prefork — tắt MPM khác để tránh AH00534
+    && a2dismod mpm_event mpm_worker 2>/dev/null || true \
+    && a2enmod mpm_prefork \
     && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
 

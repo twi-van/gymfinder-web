@@ -145,7 +145,7 @@ mysql -h <HOST> -P <PORT> -u <USER> -p <DATABASE> < database/deploy_infinityfree
 | Lỗi | Cách xử |
 | --- | --- |
 | Build fail Dockerfile | Xem Build Logs; đảm bảo `Dockerfile` ở root repo |
-| **CRASHED** (đỏ) | Mở deployment → **View Logs** / tab **HTTP Logs**. Hay do Apache không Listen đúng `PORT`. Đã sửa `docker/apache-start.sh` — push lại rồi Redeploy |
+| **CRASHED** (đỏ) | Mở deployment → **View Logs**. Hay gặp: (1) `AH00534 More than one MPM loaded` → Dockerfile phải `a2dismod mpm_event/mpm_worker` + `a2enmod mpm_prefork`; (2) Apache không Listen đúng `PORT` → `docker/apache-start.sh` |
 | Unexposed service | Settings → Networking → **Generate Domain** + đảm bảo service listen `$PORT` |
 | Trắng / 500 DB | Sai `GF_DB_*` — check Variables + MySQL Online; nhớ import schema/seed |
 | AI vẫn lỗi | Thiếu `GF_AI_API_KEY` hoặc key sai; xem Deploy Logs |

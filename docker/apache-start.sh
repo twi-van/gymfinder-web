@@ -6,6 +6,10 @@ PORT="${PORT:-8080}"
 
 echo "GYMFINDER: starting Apache on PORT=${PORT}"
 
+# Chỉ một MPM (AH00534 nếu nạp 2). PHP cần prefork.
+a2dismod mpm_event mpm_worker 2>/dev/null || true
+a2enmod mpm_prefork 2>/dev/null || true
+
 # Tránh cảnh báo/lỗi FQDN trên container
 if ! grep -qE '^ServerName ' /etc/apache2/apache2.conf 2>/dev/null; then
   echo 'ServerName localhost' >> /etc/apache2/apache2.conf
