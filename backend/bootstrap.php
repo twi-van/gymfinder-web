@@ -42,7 +42,20 @@ require_once __DIR__ . '/resources/upload_resource.php';
 require_once __DIR__ . '/resources/admin_resource.php';
 
 // Khởi tạo DB, web root và CSRF token
-gf_db_init($config);
+try {
+    gf_db_init($config);
+} catch (Throwable $e) {
+    error_log('GYMFINDER DB init failed: ' . $e->getMessage());
+    http_response_code(503);
+    header('Content-Type: text/html; charset=utf-8');
+    $safe = htmlspecialchars($e->getMessage(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    echo '<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><title>GYMFINDER</title></head><body>';
+    echo '<h1>Chưa kết nối được database</h1>';
+    echo '<p>Kiểm tra Variables <code>GF_DB_*</code> trên Railway (Reference MySQL) và đã import schema/seed chưa.</p>';
+    echo '<pre style="white-space:pre-wrap">' . $safe . '</pre>';
+    echo '</body></html>';
+    exit;
+}
 gf_boot_web_root();
 gf_csrf_token();
 
