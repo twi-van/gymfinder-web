@@ -195,7 +195,7 @@ gf_admin_table_open([
         ['label' => 'PHÒNG TẬP', 'width' => '210px'],
         ['label' => 'ĐÁNH GIÁ', 'width' => '110px', 'align' => 'center'],
         ['label' => 'TRẠNG THÁI', 'width' => '120px', 'align' => 'center'],
-        ['label' => 'THAO TÁC', 'width' => '165px', 'align' => 'right', 'th_class' => 'text-end pe-3'],
+        ['label' => 'THAO TÁC', 'width' => '140px', 'align' => 'right', 'th_class' => 'text-end pe-3'],
     ]
 ]);
 ?>

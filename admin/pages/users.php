@@ -55,7 +55,7 @@ gf_admin_table_open([
         ['label' => 'VAI TRÒ', 'width' => '130px', 'align' => 'center'],
         ['label' => 'NGÀY THAM GIA', 'width' => '130px', 'align' => 'center'],
         ['label' => 'TRẠNG THÁI', 'width' => '120px', 'align' => 'center'],
-        ['label' => 'THAO TÁC', 'width' => '110px', 'align' => 'right', 'th_class' => 'text-end pe-3'],
+        ['label' => 'THAO TÁC', 'width' => '140px', 'align' => 'right', 'th_class' => 'text-end pe-3'],
     ]
 ]);
 ?>

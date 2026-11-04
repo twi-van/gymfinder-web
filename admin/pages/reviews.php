@@ -69,7 +69,7 @@ gf_admin_table_open([
         ['label' => 'NỘI DUNG', 'width' => '280px'],
         ['label' => 'NGÀY', 'width' => '110px', 'align' => 'center'],
         ['label' => 'TRẠNG THÁI', 'width' => '120px', 'align' => 'center'],
-        ['label' => 'THAO TÁC', 'width' => '120px', 'align' => 'right', 'th_class' => 'text-end pe-3'],
+        ['label' => 'THAO TÁC', 'width' => '140px', 'align' => 'right', 'th_class' => 'text-end pe-3'],
     ]
 ]);
 ?>

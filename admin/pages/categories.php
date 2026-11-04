@@ -328,7 +328,7 @@ gf_admin_table_open([
         ['label' => 'MÔ TẢ', 'width' => '320px'],
         ['label' => 'SỐ PHÒNG TẬP', 'width' => '140px', 'align' => 'center'],
         ['label' => 'TRẠNG THÁI', 'width' => '120px', 'align' => 'center'],
-        ['label' => 'THAO TÁC', 'width' => '1%', 'align' => 'right', 'th_class' => 'text-end pe-3'],
+        ['label' => 'THAO TÁC', 'width' => '160px', 'align' => 'right', 'th_class' => 'text-end pe-3'],
     ],
 ]);
 ?>
@@ -339,7 +339,7 @@ gf_admin_table_open([
     <td><span class="text-secondary"><?= gf_h($r['description'] ?? '—') ?></span></td>
     <td class="text-center text-secondary"><?= (int)($usage[(int)$r['id']] ?? 0) ?> phòng</td>
     <td class="text-center"><span class="admin-badge <?= $r['is_active'] ? 'badge-success' : 'badge-neutral' ?>"><?= $r['is_active'] ? 'Hoạt động' : 'Tạm ẩn' ?></span></td>
-    <td class="text-end pe-3 text-nowrap">
+    <td class="text-end pe-3 text-nowrap admin-actions-cell">
         <button type="button" class="btn btn-action btn-action-edit" data-bs-toggle="modal" data-bs-target="#catalogEdit<?= (int)$r['id'] ?>" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
         <form method="post" class="d-inline">
             <?= gf_csrf_field() ?>
@@ -350,12 +350,15 @@ gf_admin_table_open([
                 <i class="fa-solid <?= $r['is_active'] ? 'fa-eye-slash' : 'fa-eye' ?>"></i>
             </button>
         </form>
-        <?php $catUsed = (int) ($usage[(int) $r['id']] ?? 0); ?>
+        <?php
+        $catUsed = (int) ($usage[(int) $r['id']] ?? 0);
+        $confirmMsg = $catUsed > 0
+            ? 'Loại này còn ' . $catUsed . ' phòng tập đang gắn. Hãy gỡ danh mục khỏi các phòng hoặc dùng Ẩn.'
+            : 'Xóa vĩnh viễn loại phòng tập này? Thao tác không hoàn tác.';
+        ?>
         <form method="post" class="d-inline js-confirm-submit"
               data-confirm-title="Xóa loại phòng tập?"
-              data-confirm-message="<?= $catUsed > 0
-                  ? 'Loại này còn ' . $catUsed . ' phòng tập đang gắn. Hãy gỡ danh mục khỏi các phòng hoặc dùng Ẩn.'
-                  : 'Xóa vĩnh viễn loại phòng tập này? Thao tác không hoàn tác.' ?>"
+              data-confirm-message="<?= gf_h($confirmMsg) ?>"
               data-confirm-label="Xóa"
               data-confirm-danger="1">
             <?= gf_csrf_field() ?>
@@ -385,7 +388,7 @@ if ($tab === 'amenities') {
     $columns[] = ['label' => 'BIỂU TƯỢNG', 'width' => '140px'];
 }
 $columns[] = ['label' => 'ĐANG DÙNG', 'width' => '120px', 'align' => 'center'];
-$columns[] = ['label' => 'THAO TÁC', 'width' => '1%', 'align' => 'right', 'th_class' => 'text-end pe-3'];
+$columns[] = ['label' => 'THAO TÁC', 'width' => '140px', 'align' => 'right', 'th_class' => 'text-end pe-3'];
 gf_admin_table_open([
     'id'        => 'catalogsTable',
     'class'     => 'admin-catalogs-table',

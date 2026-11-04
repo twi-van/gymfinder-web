@@ -36,11 +36,13 @@ if (!function_exists('gf_admin_table_open')) {
         ?>
         <div class="admin-card admin-table-card shadow-sm border mb-4">
             <div class="table-responsive admin-table-responsive admin-drag-scroll" tabindex="0" role="region" aria-label="Bảng dữ liệu — vuốt ngang để xem thêm">
-                <table <?= $tableId ? 'id="' . $tableId . '"' : '' ?> class="table admin-table admin-common-table <?= $extraClass ?> mb-0" style="--admin-table-min: <?= $minWidth ?>; width: <?= $minWidth ?>; min-width: <?= $minWidth ?>;">
+                <table <?= $tableId ? 'id="' . $tableId . '"' : '' ?> class="table admin-table admin-common-table <?= $extraClass ?> mb-0" style="--admin-table-min: <?= $minWidth ?>; min-width: <?= $minWidth ?>;">
                     <?php if (!empty($columns)): ?>
                         <colgroup>
-                            <?php foreach ($columns as $idx => $col): 
-                                $colWidth = !empty($col['width']) ? 'width: ' . htmlspecialchars($col['width'], ENT_QUOTES, 'UTF-8') . ';' : '';
+                            <?php foreach ($columns as $idx => $col):
+                                $colWidth = !empty($col['width'])
+                                    ? 'width: ' . htmlspecialchars((string) $col['width'], ENT_QUOTES, 'UTF-8') . ';'
+                                    : '';
                                 $colClass = htmlspecialchars($col['col_class'] ?? ('col-' . $idx), ENT_QUOTES, 'UTF-8');
                             ?>
                                 <col class="<?= $colClass ?>" style="<?= $colWidth ?>">
