@@ -22,6 +22,7 @@ Thumbs.db
 # Environment variables
 .env
 .env.*
+!.env.example
 backend/smtp.local.php
 
 # Office / Temporary files
@@ -35,9 +36,10 @@ scratch/
 .gemini/
 
 
-# Báo cáo khung (local, không commit)
+# Báo cáo / mẫu local (không commit)
 docs/specs/GymFinder_BaoCao_Khung.docx
-
+docs/specs/Report_Vy.docx
+docs/specs/TỔNG LIÊN ĐOÀN LAO ĐỘNG VIỆT NAM.docx
 docs/specs/maudocx.docx
 
 backend/ai.local.php

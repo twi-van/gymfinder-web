@@ -5,7 +5,16 @@ declare(strict_types=1);
  * GYMFINDER – cấu hình (Sprint 0 / TV2 Backend + Database)
  * Mặc định local/demo: MySQL qua XAMPP (schema/seed: database/schema.sql + seed.sql)
  * Tuỳ chọn: SQLite — đặt GF_DB_DRIVER=sqlite (tự tạo database/gymfinder.sqlite)
+ *
+ * Nguồn cấu hình (ưu tiên cao → thấp):
+ *   1) Env hệ thống / Railway Variables
+ *   2) File `.env` (root dự án) — copy từ `.env.example`
+ *   3) backend/ai.local.php , backend/smtp.local.php
+ *   4) Giá trị mặc định bên dưới
  */
+require_once __DIR__ . '/env.php';
+gf_load_dotenv();
+
 $smtpLocal = [];
 $smtpLocalFile = __DIR__ . DIRECTORY_SEPARATOR . 'smtp.local.php';
 if (is_file($smtpLocalFile)) {

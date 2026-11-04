@@ -16,6 +16,10 @@ Repo đã có `Dockerfile` + `docker/apache-start.sh` cho PHP 8.2 Apache.
 
 > Railway **không** giống InfinityFree (upload File Manager). Deploy bằng Git + Docker + Variables.
 
+**Cấu hình secret:** ưu tiên Railway **Variables** (`GF_AI_API_KEY`, `GF_DB_*`…).  
+Local có thể copy `.env.example` → `.env`, hoặc dùng `backend/ai.local.php` / `smtp.local.php`.  
+Thứ tự: env hệ thống / Variables → file `.env` → `*.local.php` → mặc định trong `config.php`.
+
 ---
 
 ## 1. Đẩy code lên GitHub
@@ -141,7 +145,9 @@ mysql -h <HOST> -P <PORT> -u <USER> -p <DATABASE> < database/deploy_infinityfree
 | Lỗi | Cách xử |
 | --- | --- |
 | Build fail Dockerfile | Xem Build Logs; đảm bảo `Dockerfile` ở root repo |
-| Trắng / 500 DB | Sai `GF_DB_*` — check Variables + MySQL Online |
+| **CRASHED** (đỏ) | Mở deployment → **View Logs** / tab **HTTP Logs**. Hay do Apache không Listen đúng `PORT`. Đã sửa `docker/apache-start.sh` — push lại rồi Redeploy |
+| Unexposed service | Settings → Networking → **Generate Domain** + đảm bảo service listen `$PORT` |
+| Trắng / 500 DB | Sai `GF_DB_*` — check Variables + MySQL Online; nhớ import schema/seed |
 | AI vẫn lỗi | Thiếu `GF_AI_API_KEY` hoặc key sai; xem Deploy Logs |
 | `/api` 404 | Apache chưa `mod_rewrite` — image đã `a2enmod rewrite`; Redeploy |
 | Upload ảnh mất sau deploy | Disk ephemeral free — bình thường với demo; cần volume trả phí nếu giữ lâu |
