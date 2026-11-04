@@ -16,7 +16,6 @@
     const input = document.getElementById('aiMessage');
     const sendBtn = form?.querySelector('.gf-ai-chat-send');
     const headerActions = document.getElementById('aiChatHeaderActions');
-    const welcome = document.getElementById('aiChatWelcome');
 
     let csrf = root.dataset.csrf || '';
     let busy = false;
@@ -67,12 +66,8 @@
         headerActions.appendChild(btn);
     }
 
-    function removeWelcome() {
-        welcome?.remove();
-    }
-
     function appendUser(text) {
-        removeWelcome();
+        // Giữ lời chào ban đầu (#aiChatWelcome) trong thread
         const wrap = document.createElement('div');
         wrap.className = 'gf-ai-msg gf-ai-msg--user';
         wrap.innerHTML =
@@ -107,7 +102,6 @@
     }
 
     function appendBot({ reply, gyms, trainers, suggestRefine, isError }) {
-        removeWelcome();
         const col = document.createElement('div');
         col.className = 'gf-ai-msg-col';
 
