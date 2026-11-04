@@ -941,7 +941,7 @@ function gf_ai_chat_history_append(
     array $gyms = [],
     array $trainers = [],
     bool $isError = false,
-    int $maxTurns = 12,
+    int $maxTurns = 30,
     bool $suggestRefine = false
 ): void {
     $history = gf_ai_chat_history_get();

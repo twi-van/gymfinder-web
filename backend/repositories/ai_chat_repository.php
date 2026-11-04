@@ -4,7 +4,7 @@ declare(strict_types=1);
 /** Số phiên tối đa mỗi user; vượt thì xóa phiên cũ nhất. */
 const GF_AI_SESSION_MAX_PER_USER = 20;
 /** Số lượt tối đa trong một phiên. */
-const GF_AI_SESSION_MAX_TURNS = 12;
+const GF_AI_SESSION_MAX_TURNS = 30;
 
 /**
  * @return list<array{id:int,title:string,updated_at:string,turn_count:int}>

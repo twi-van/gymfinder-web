@@ -849,7 +849,7 @@ if ($path === '/ai/recommend' && $method === 'POST') {
             is_array($res['gyms'] ?? null) ? $res['gyms'] : [],
             is_array($res['trainers'] ?? null) ? $res['trainers'] : [],
             false,
-            12,
+            30,
             $suggestRefine
         );
     }

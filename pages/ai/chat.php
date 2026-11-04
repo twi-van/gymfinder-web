@@ -258,7 +258,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 </form>
                 <p class="gf-ai-chat-hint">
                     <?php if ($canPersist): ?>
-                        Đã đăng nhập · tối đa 12 lượt/phiên · lưu tới 20 phiên
+                        Đã đăng nhập · tối đa 30 lượt/phiên · lưu tới 20 phiên
                     <?php else: ?>
                         Guest: lịch sử tạm trong phiên trình duyệt · Đăng nhập để lưu lâu dài
                     <?php endif; ?>
