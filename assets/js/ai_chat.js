@@ -247,7 +247,17 @@
     }
 
     async function clearHistory() {
-        if (!confirm('Xóa toàn bộ hội thoại?')) return;
+        const ok = typeof window.gfConfirm === 'function'
+            ? await window.gfConfirm({
+                title: 'Xóa hội thoại',
+                message: 'Xóa toàn bộ tin nhắn với Trợ lý AI? Bạn sẽ bắt đầu lại từ đầu.',
+                confirmLabel: 'Xóa hội thoại',
+                cancelLabel: 'Hủy',
+                danger: true,
+            })
+            : window.confirm('Xóa toàn bộ hội thoại?');
+        if (!ok) return;
+
         setBusy(true);
         try {
             await refreshCsrf();
@@ -260,14 +270,13 @@
                 },
             });
             if (!res.ok) {
-                alert('Không xóa được hội thoại. Thử lại.');
+                if (typeof window.gfToast === 'function') {
+                    window.gfToast('Không xóa được hội thoại. Thử lại.', 'danger');
+                }
                 return;
             }
             // Soft reset UI without full reload
             thread.querySelectorAll('.gf-ai-msg').forEach((n) => n.remove());
-            thread.querySelectorAll('.gf-ai-chat-alert').forEach((n) => {
-                /* keep config warning */
-            });
             if (!document.getElementById('aiChatWelcome') && enabled) {
                 const w = document.createElement('div');
                 w.className = 'gf-ai-msg gf-ai-msg--bot';
@@ -285,8 +294,13 @@
                 headerActions.innerHTML = `<a class="gf-ai-chat-top-link" href="${esc(searchGymUrl)}">Tìm kiếm</a>`;
             }
             scrollBottom();
+            if (typeof window.gfToast === 'function') {
+                window.gfToast('Đã xóa hội thoại.', 'success');
+            }
         } catch (_) {
-            alert('Lỗi mạng khi xóa hội thoại.');
+            if (typeof window.gfToast === 'function') {
+                window.gfToast('Lỗi mạng khi xóa hội thoại.', 'danger');
+            }
         } finally {
             setBusy(false);
         }

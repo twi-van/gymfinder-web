@@ -486,27 +486,40 @@ function gf_db_ensure_password_reset_otps(PDO $pdo): void
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_pwreset_expires ON password_reset_otps(expires_at)');
         return;
     }
-    // MySQL: tạo nếu chưa có (idempotent)
-    $st = $pdo->query("SHOW TABLES LIKE 'password_reset_otps'");
-    if ($st && $st->fetch()) {
-        return;
+    // MySQL: tạo nếu chưa có (idempotent). Cần bảng users trước (import schema).
+    try {
+        $st = $pdo->query("SHOW TABLES LIKE 'password_reset_otps'");
+        if ($st && $st->fetch()) {
+            return;
+        }
+        $users = $pdo->query("SHOW TABLES LIKE 'users'");
+        if (!$users || !$users->fetch()) {
+            throw new RuntimeException(
+                'Chưa có bảng users — import database/deploy_infinityfree/schema_infinityfree.sql rồi seed_infinityfree.sql'
+            );
+        }
+        $pdo->exec(
+            "CREATE TABLE password_reset_otps (
+              id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+              user_id INT UNSIGNED NOT NULL,
+              otp_hash VARCHAR(255) NOT NULL,
+              attempts TINYINT UNSIGNED NOT NULL DEFAULT 0,
+              expires_at DATETIME NOT NULL,
+              verified_at DATETIME NULL,
+              consumed_at DATETIME NULL,
+              created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              PRIMARY KEY (id),
+              KEY idx_pwreset_user (user_id),
+              KEY idx_pwreset_expires (expires_at),
+              CONSTRAINT fk_pwreset_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+        );
+    } catch (RuntimeException $e) {
+        throw $e;
+    } catch (Throwable $e) {
+        error_log('GYMFINDER password_reset_otps ensure failed: ' . $e->getMessage());
+        throw $e;
     }
-    $pdo->exec(
-        "CREATE TABLE password_reset_otps (
-          id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-          user_id INT UNSIGNED NOT NULL,
-          otp_hash VARCHAR(255) NOT NULL,
-          attempts TINYINT UNSIGNED NOT NULL DEFAULT 0,
-          expires_at DATETIME NOT NULL,
-          verified_at DATETIME NULL,
-          consumed_at DATETIME NULL,
-          created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-          PRIMARY KEY (id),
-          KEY idx_pwreset_user (user_id),
-          KEY idx_pwreset_expires (expires_at),
-          CONSTRAINT fk_pwreset_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
-    );
 }
 
 /** Đồng bộ tên danh mục tiếng Việt (DB cũ có thể còn Fitness/Premium). */
