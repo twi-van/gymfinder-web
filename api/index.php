@@ -680,9 +680,45 @@ if (preg_match('#^/admin/users/(\d+)$#', $path, $m)) {
 }
 
 // =========================================================================
-// AI recommend (guest OK) — floating widget + trang chat
+// AI sessions (user login only) + recommend/history (guest OK)
 // =========================================================================
+if ($path === '/ai/sessions' && $method === 'GET') {
+    $user = gf_api_require_user();
+    gf_json(['data' => ['sessions' => gf_ai_sessions_list((int) $user['id'])]]);
+}
+
+if ($path === '/ai/sessions' && $method === 'POST') {
+    $user = gf_api_require_user();
+    $title = trim((string) ($body['title'] ?? 'Hội thoại mới'));
+    $created = gf_ai_session_create((int) $user['id'], $title !== '' ? $title : 'Hội thoại mới');
+    gf_json(['data' => $created], 201);
+}
+
+if (preg_match('#^/ai/sessions/(\d+)$#', $path, $m) && $method === 'GET') {
+    $user = gf_api_require_user();
+    $session = gf_ai_session_get((int) $user['id'], (int) $m[1]);
+    if ($session === null) {
+        gf_api_error('NOT_FOUND', 'Không tìm thấy phiên chat.', 404);
+    }
+    gf_json(['data' => $session]);
+}
+
+if (preg_match('#^/ai/sessions/(\d+)$#', $path, $m) && $method === 'DELETE') {
+    $user = gf_api_require_user();
+    $ok = gf_ai_session_delete((int) $user['id'], (int) $m[1]);
+    if (!$ok) {
+        gf_api_error('NOT_FOUND', 'Không tìm thấy phiên chat.', 404);
+    }
+    gf_json(['data' => ['deleted' => true, 'id' => (int) $m[1]]]);
+}
+
 if ($path === '/ai/history' && $method === 'DELETE') {
+    $user = gf_api_user();
+    $sessionId = (int) ($body['session_id'] ?? $_GET['session_id'] ?? 0);
+    if ($user && $sessionId > 0) {
+        $deleted = gf_ai_session_delete((int) $user['id'], $sessionId);
+        gf_json(['data' => ['cleared' => true, 'deleted_session' => $deleted, 'session_id' => $sessionId]]);
+    }
     gf_ai_chat_history_clear();
     gf_json(['data' => ['cleared' => true]]);
 }
@@ -694,13 +730,35 @@ if ($path === '/ai/recommend' && $method === 'POST') {
         gf_api_error('VALIDATION_ERROR', 'Vui lòng nhập câu hỏi.', 422, ['message' => 'Bắt buộc.']);
     }
     $saveHistory = !empty($body['save_history']);
+    $sessionId = (int) ($body['session_id'] ?? 0);
+    $user = gf_api_user();
+    // Chỉ trang chat (persist_session / session_id) mới ghi DB; widget giữ session PHP.
+    $persistDb = $user && ($sessionId > 0 || !empty($body['persist_session']));
+
     $res = gf_ai_recommend_gyms($message);
     if (empty($res['ok'])) {
         $errMsg = (string) ($res['error'] ?? 'Không gọi được AI.');
-        if ($saveHistory) {
+        $outSessionId = null;
+        if ($persistDb && $user) {
+            if ($sessionId <= 0) {
+                $created = gf_ai_session_create((int) $user['id'], $message);
+                $sessionId = (int) $created['id'];
+            }
+            $saved = gf_ai_session_append_turn(
+                (int) $user['id'],
+                $sessionId,
+                $message,
+                $errMsg,
+                [],
+                [],
+                true,
+                false
+            );
+            $outSessionId = $saved['id'] ?? $sessionId;
+        } elseif ($saveHistory) {
             gf_ai_chat_history_append($message, $errMsg, [], [], true);
         }
-        gf_api_error('AI_ERROR', $errMsg, 503);
+        gf_api_error('AI_ERROR', $errMsg, 503, $outSessionId ? ['session_id' => $outSessionId] : []);
     }
 
     $gymPayload = [];
@@ -752,7 +810,39 @@ if ($path === '/ai/recommend' && $method === 'POST') {
     }
 
     $suggestRefine = !empty($res['suggest_refine']);
-    if ($saveHistory) {
+    $outSessionId = null;
+    if ($persistDb && $user) {
+        if ($sessionId <= 0) {
+            $created = gf_ai_session_create((int) $user['id'], $message);
+            $sessionId = (int) $created['id'];
+        }
+        $saved = gf_ai_session_append_turn(
+            (int) $user['id'],
+            $sessionId,
+            $message,
+            (string) ($res['reply'] ?? ''),
+            is_array($res['gyms'] ?? null) ? $res['gyms'] : [],
+            is_array($res['trainers'] ?? null) ? $res['trainers'] : [],
+            false,
+            $suggestRefine
+        );
+        if ($saved === null) {
+            // session_id sai / không thuộc user → tạo phiên mới
+            $created = gf_ai_session_create((int) $user['id'], $message);
+            $sessionId = (int) $created['id'];
+            $saved = gf_ai_session_append_turn(
+                (int) $user['id'],
+                $sessionId,
+                $message,
+                (string) ($res['reply'] ?? ''),
+                is_array($res['gyms'] ?? null) ? $res['gyms'] : [],
+                is_array($res['trainers'] ?? null) ? $res['trainers'] : [],
+                false,
+                $suggestRefine
+            );
+        }
+        $outSessionId = $saved['id'] ?? $sessionId;
+    } elseif ($saveHistory) {
         gf_ai_chat_history_append(
             $message,
             (string) ($res['reply'] ?? ''),
@@ -770,6 +860,7 @@ if ($path === '/ai/recommend' && $method === 'POST') {
             'gyms' => $gymPayload,
             'trainers' => $trainerPayload,
             'suggest_refine' => $suggestRefine,
+            'session_id' => $outSessionId,
         ],
     ]);
 }

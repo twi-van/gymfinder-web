@@ -34,6 +34,7 @@ require_once __DIR__ . '/repositories/gym_repository.php';
 require_once __DIR__ . '/repositories/trainer_repository.php';
 require_once __DIR__ . '/repositories/review_repository.php';
 require_once __DIR__ . '/repositories/favorite_repository.php';
+require_once __DIR__ . '/repositories/ai_chat_repository.php';
 
 // Resources (business logic layer — xử lý API)
 require_once __DIR__ . '/resources/common.php';

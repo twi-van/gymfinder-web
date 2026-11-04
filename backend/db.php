@@ -44,6 +44,7 @@ function gf_db_init(array $config): void
     gf_db_ensure_demo_gym_gallery($pdo);
     gf_db_ensure_demo_trainer_avatars($pdo);
     gf_db_ensure_password_reset_otps($pdo);
+    gf_db_ensure_ai_chat_sessions($pdo);
     gf_db_ensure_category_labels_vi($pdo);
     gf_db_ensure_premium_exclusive($pdo);
     $GLOBALS['GF_PDO'] = $pdo;
@@ -519,6 +520,52 @@ function gf_db_ensure_password_reset_otps(PDO $pdo): void
     } catch (Throwable $e) {
         error_log('GYMFINDER password_reset_otps ensure failed: ' . $e->getMessage());
         throw $e;
+    }
+}
+
+/** Bảng phiên chat AI (user đã login). Idempotent cho DB cũ / Railway. */
+function gf_db_ensure_ai_chat_sessions(PDO $pdo): void
+{
+    $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+    if ($driver === 'sqlite') {
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS ai_chat_sessions (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              user_id INTEGER NOT NULL,
+              title TEXT NOT NULL DEFAULT \'Hội thoại mới\',
+              turns_json TEXT NOT NULL DEFAULT \'[]\',
+              created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )'
+        );
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_ai_sessions_user_updated ON ai_chat_sessions(user_id, updated_at)');
+        return;
+    }
+    try {
+        $st = $pdo->query("SHOW TABLES LIKE 'ai_chat_sessions'");
+        if ($st && $st->fetch()) {
+            return;
+        }
+        $users = $pdo->query("SHOW TABLES LIKE 'users'");
+        if (!$users || !$users->fetch()) {
+            return;
+        }
+        $pdo->exec(
+            "CREATE TABLE ai_chat_sessions (
+              id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+              user_id INT UNSIGNED NOT NULL,
+              title VARCHAR(120) NOT NULL DEFAULT 'Hội thoại mới',
+              turns_json JSON NOT NULL,
+              created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+              PRIMARY KEY (id),
+              KEY idx_ai_sessions_user_updated (user_id, updated_at),
+              CONSTRAINT fk_ai_sessions_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+        );
+    } catch (Throwable $e) {
+        error_log('GYMFINDER ai_chat_sessions ensure failed: ' . $e->getMessage());
     }
 }
 

@@ -4,7 +4,7 @@ USE gymfinder;
 
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS
-  password_reset_otps, favorites, reviews,
+  ai_chat_sessions, password_reset_otps, favorites, reviews,
   gym_amenities, gym_categories, gym_images,
   gym_trainers, trainer_specialties,
   trainers, gyms,
@@ -428,5 +428,25 @@ CREATE TABLE password_reset_otps (
 
   CONSTRAINT chk_pwreset_attempts
     CHECK (attempts <= 5)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================================
+-- 14. ai_chat_sessions
+-- Phiên chat AI theo user đã đăng nhập (turns JSON = lịch sử tối đa ~12 lượt)
+-- =====================================================================
+CREATE TABLE ai_chat_sessions (
+  id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id    INT UNSIGNED NOT NULL,
+  title      VARCHAR(120) NOT NULL DEFAULT 'Hội thoại mới',
+  turns_json JSON NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (id),
+  KEY idx_ai_sessions_user_updated (user_id, updated_at),
+
+  CONSTRAINT fk_ai_sessions_user
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

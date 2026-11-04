@@ -8,8 +8,25 @@ $chips = [
     'Phòng tập có Yoga và HLV kèm',
 ];
 
-$history = gf_ai_chat_history_get();
+$currentUser = gf_current_user();
+$canPersist = $currentUser && ($currentUser['role'] ?? '') === 'user' && ($currentUser['status'] ?? '') === 'active';
+$sessions = [];
+$activeSessionId = 0;
+$history = [];
+
+if ($canPersist) {
+    $sessions = gf_ai_sessions_list((int) $currentUser['id']);
+    if ($sessions !== []) {
+        $activeSessionId = (int) $sessions[0]['id'];
+        $loaded = gf_ai_session_get((int) $currentUser['id'], $activeSessionId);
+        $history = is_array($loaded['turns'] ?? null) ? $loaded['turns'] : [];
+    }
+} else {
+    $history = gf_ai_chat_history_get();
+}
+
 $aiReady = gf_ai_is_configured();
+$loginUrl = gf_url('pages/auth/login.php?redirect=' . rawurlencode(gf_url('pages/ai/chat.php')));
 $pageTitle = 'Trợ lý AI - GYMFINDER';
 $bodyClass = 'gf-ai-chat-page d-flex flex-column min-vh-100';
 $extraCss = ['assets/css/ai_chat.css'];
@@ -18,19 +35,65 @@ require dirname(__DIR__, 2) . '/includes/header.php';
 ?>
 <main class="flex-grow-1">
     <div
-        class="gf-ai-chat-shell"
+        class="gf-ai-chat-shell<?= $canPersist ? ' gf-ai-chat-shell--persist' : '' ?>"
         id="aiChatRoot"
         data-enabled="<?= $aiReady ? '1' : '0' ?>"
+        data-can-persist="<?= $canPersist ? '1' : '0' ?>"
+        data-session-id="<?= (int) $activeSessionId ?>"
         data-has-history="<?= $history !== [] ? '1' : '0' ?>"
         data-api-url="<?= gf_h(gf_url('api/ai/recommend')) ?>"
         data-history-url="<?= gf_h(gf_url('api/ai/history')) ?>"
+        data-sessions-url="<?= gf_h(gf_url('api/ai/sessions')) ?>"
         data-csrf-url="<?= gf_h(gf_url('api/auth/csrf')) ?>"
         data-csrf="<?= gf_h(gf_csrf_token()) ?>"
+        data-login-url="<?= gf_h($loginUrl) ?>"
         data-search-gym-url="<?= gf_h(gf_url('pages/gyms/search.php')) ?>"
         data-search-pt-url="<?= gf_h(gf_url('pages/trainers/index.php')) ?>"
         data-gym-detail-url="<?= gf_h(gf_url('pages/gyms/detail.php')) ?>"
         data-trainer-detail-url="<?= gf_h(gf_url('pages/trainers/detail.php')) ?>"
     >
+        <?php if ($canPersist): ?>
+            <aside class="gf-ai-sessions" aria-label="Phiên chat đã lưu">
+                <div class="gf-ai-sessions-head">
+                    <h2>Phiên chat</h2>
+                    <button type="button" class="gf-ai-sessions-new" id="aiSessionNew" title="Phiên mới">
+                        <i class="fa-solid fa-plus"></i> Mới
+                    </button>
+                </div>
+                <ul class="gf-ai-sessions-list" id="aiSessionsList">
+                    <?php if ($sessions === []): ?>
+                        <li class="gf-ai-sessions-empty" id="aiSessionsEmpty">Chưa có phiên lưu. Hỏi AI để tạo phiên đầu.</li>
+                    <?php endif; ?>
+                    <?php foreach ($sessions as $s): ?>
+                        <li>
+                            <button
+                                type="button"
+                                class="gf-ai-session-item<?= (int) $s['id'] === $activeSessionId ? ' is-active' : '' ?>"
+                                data-session-id="<?= (int) $s['id'] ?>"
+                                title="<?= gf_h((string) $s['title']) ?>"
+                            >
+                                <span class="gf-ai-session-title"><?= gf_h((string) $s['title']) ?></span>
+                                <span class="gf-ai-session-meta"><?= (int) ($s['turn_count'] ?? 0) ?> lượt</span>
+                            </button>
+                            <button
+                                type="button"
+                                class="gf-ai-session-del"
+                                data-session-delete="<?= (int) $s['id'] ?>"
+                                title="Xóa phiên"
+                                aria-label="Xóa phiên"
+                            ><i class="fa-solid fa-trash-can"></i></button>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </aside>
+        <?php else: ?>
+            <div class="gf-ai-persist-cta alert alert-light border mb-2">
+                <i class="fa-solid fa-bookmark text-primary me-1"></i>
+                <strong>Đăng nhập</strong> để lưu nhiều phiên chat và mở lại sau.
+                <a href="<?= gf_h($loginUrl) ?>" class="alert-link ms-1">Đăng nhập</a>
+            </div>
+        <?php endif; ?>
+
         <div class="gf-ai-chat-frame">
             <header class="gf-ai-chat-top">
                 <div class="gf-ai-chat-top-avatar" aria-hidden="true"><i class="fa-solid fa-robot"></i></div>
@@ -42,7 +105,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 </div>
                 <div class="ms-auto" id="aiChatHeaderActions">
                     <?php if ($history !== []): ?>
-                        <button type="button" class="gf-ai-chat-top-link border-0 bg-transparent p-0" data-ai-clear title="Xóa hội thoại">
+                        <button type="button" class="gf-ai-chat-top-link border-0 bg-transparent p-0" data-ai-clear title="Xóa hội thoại đang mở">
                             <i class="fa-solid fa-trash-can me-1"></i>Xóa
                         </button>
                     <?php else: ?>
@@ -55,7 +118,8 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 <?php if (!$aiReady): ?>
                     <div class="alert alert-warning gf-ai-chat-alert mb-0">
                         <strong>AI chưa cấu hình.</strong>
-                        Copy <code>backend/ai.local.php.example</code> → <code>ai.local.php</code> và thêm API key.
+                        Copy <code>backend/ai.local.php.example</code> → <code>ai.local.php</code> và thêm API key,
+                        hoặc đặt <code>GF_AI_API_KEY</code> trên Railway.
                     </div>
                 <?php endif; ?>
 
@@ -64,7 +128,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                         <div class="gf-ai-msg-avatar"><i class="fa-solid fa-robot"></i></div>
                         <div class="gf-ai-msg-col">
                             <div class="gf-ai-msg-name">Trợ lý</div>
-                            <div class="gf-ai-msg-bubble">Xin chào! Mình gợi ý <strong>phòng tập</strong> và <strong>HLV</strong> trong hệ thống GYMFINDER (TP.HCM). Hỏi theo quận, giá, Yoga… hoặc chọn gợi ý bên dưới. Hội thoại được giữ khi bạn hỏi tiếp — kéo lên để xem tin cũ.</div>
+                            <div class="gf-ai-msg-bubble">Xin chào! Mình gợi ý <strong>phòng tập</strong> và <strong>HLV</strong> trong hệ thống GYMFINDER (TP.HCM). Hỏi theo quận, giá, Yoga… hoặc chọn gợi ý bên dưới.<?php if ($canPersist): ?> Phiên chat được lưu khi bạn đã đăng nhập.<?php endif; ?></div>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -103,7 +167,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
 
                             <?php foreach ($gyms as $g): ?>
                                 <?php
-                                $gid = (int) $g['id'];
+                                $gid = (int) ($g['id'] ?? 0);
                                 if ($gid <= 0) {
                                     continue;
                                 }
@@ -115,7 +179,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                                 <a class="gf-ai-result-card" href="<?= gf_h($detailUrl) ?>">
                                     <img src="<?= gf_h($cover) ?>" alt="">
                                     <div class="gf-ai-result-card-body">
-                                        <p class="gf-ai-result-card-title"><?= gf_h((string) $g['name']) ?></p>
+                                        <p class="gf-ai-result-card-title"><?= gf_h((string) ($g['name'] ?? '')) ?></p>
                                         <p class="gf-ai-result-card-sub">
                                             <i class="fa-solid fa-location-dot me-1"></i><?= gf_h((string) ($g['district'] ?? '')) ?>
                                             <?php if ($cats !== []): ?> · <?= gf_h(implode(', ', array_slice($cats, 0, 2))) ?><?php endif; ?>
@@ -131,7 +195,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
 
                             <?php foreach ($trainers as $t): ?>
                                 <?php
-                                $tid = (int) $t['id'];
+                                $tid = (int) ($t['id'] ?? 0);
                                 if ($tid <= 0) {
                                     continue;
                                 }
@@ -143,7 +207,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                                 <a class="gf-ai-result-card" href="<?= gf_h($detailUrl) ?>">
                                     <img class="is-round" src="<?= gf_h($avatar) ?>" alt="">
                                     <div class="gf-ai-result-card-body">
-                                        <p class="gf-ai-result-card-title"><?= gf_h((string) $t['full_name']) ?></p>
+                                        <p class="gf-ai-result-card-title"><?= gf_h((string) ($t['full_name'] ?? '')) ?></p>
                                         <p class="gf-ai-result-card-sub">
                                             <?php if ($districts !== []): ?>
                                                 <i class="fa-solid fa-location-dot me-1"></i><?= gf_h(implode(', ', array_slice($districts, 0, 2))) ?> ·
@@ -192,7 +256,13 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </form>
-                <p class="gf-ai-chat-hint">Giữ tối đa 12 lượt gần nhất · Không reload trang · Nút Xóa để bắt đầu lại</p>
+                <p class="gf-ai-chat-hint">
+                    <?php if ($canPersist): ?>
+                        Đã đăng nhập · tối đa 12 lượt/phiên · lưu tới 20 phiên
+                    <?php else: ?>
+                        Guest: lịch sử tạm trong phiên trình duyệt · Đăng nhập để lưu lâu dài
+                    <?php endif; ?>
+                </p>
             </div>
         </div>
     </div>

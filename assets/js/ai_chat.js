@@ -3,23 +3,28 @@
     if (!root) return;
 
     const enabled = root.dataset.enabled === '1';
+    const canPersist = root.dataset.canPersist === '1';
     const apiUrl = root.dataset.apiUrl || '';
     const historyUrl = root.dataset.historyUrl || '';
+    const sessionsUrl = root.dataset.sessionsUrl || '';
     const csrfUrl = root.dataset.csrfUrl || '';
     const searchGymUrl = root.dataset.searchGymUrl || '';
     const searchPtUrl = root.dataset.searchPtUrl || '';
     const gymDetailUrl = root.dataset.gymDetailUrl || '';
     const trainerDetailUrl = root.dataset.trainerDetailUrl || '';
+    const loginUrl = root.dataset.loginUrl || '';
 
     const thread = document.getElementById('aiChatThread');
     const form = document.getElementById('aiChatForm');
     const input = document.getElementById('aiMessage');
     const sendBtn = form?.querySelector('.gf-ai-chat-send');
     const headerActions = document.getElementById('aiChatHeaderActions');
+    const sessionsList = document.getElementById('aiSessionsList');
 
     let csrf = root.dataset.csrf || '';
     let busy = false;
     let hasTurns = root.dataset.hasHistory === '1';
+    let sessionId = Number(root.dataset.sessionId || 0) || 0;
 
     function esc(s) {
         return String(s ?? '')
@@ -54,20 +59,53 @@
     }
 
     function ensureClearButton() {
-        if (!headerActions || headerActions.querySelector('[data-ai-clear]')) return;
+        if (!headerActions) return;
+        if (headerActions.querySelector('[data-ai-clear]')) return;
         headerActions.innerHTML = '';
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'gf-ai-chat-top-link border-0 bg-transparent p-0';
-        btn.title = 'Xóa hội thoại';
+        btn.title = 'Xóa hội thoại đang mở';
         btn.setAttribute('data-ai-clear', '1');
         btn.innerHTML = '<i class="fa-solid fa-trash-can me-1"></i>Xóa';
         btn.addEventListener('click', clearHistory);
         headerActions.appendChild(btn);
     }
 
+    function setHeaderSearchLink() {
+        if (!headerActions) return;
+        headerActions.innerHTML = `<a class="gf-ai-chat-top-link" href="${esc(searchGymUrl)}">Tìm kiếm</a>`;
+    }
+
+    function welcomeHtml() {
+        const persistHint = canPersist
+            ? ' Phiên chat được lưu khi bạn đã đăng nhập.'
+            : '';
+        return (
+            '<div class="gf-ai-msg-avatar"><i class="fa-solid fa-robot"></i></div>' +
+            '<div class="gf-ai-msg-col">' +
+            '<div class="gf-ai-msg-name">Trợ lý</div>' +
+            '<div class="gf-ai-msg-bubble">Xin chào! Mình gợi ý <strong>phòng tập</strong> và <strong>HLV</strong> trong hệ thống GYMFINDER (TP.HCM). Hỏi theo quận, giá, Yoga… hoặc chọn gợi ý bên dưới.' +
+            persistHint +
+            '</div></div>'
+        );
+    }
+
+    function resetThreadToWelcome() {
+        thread.querySelectorAll('.gf-ai-msg').forEach((n) => n.remove());
+        if (!document.getElementById('aiChatWelcome') && enabled) {
+            const w = document.createElement('div');
+            w.className = 'gf-ai-msg gf-ai-msg--bot';
+            w.id = 'aiChatWelcome';
+            w.innerHTML = welcomeHtml();
+            thread.appendChild(w);
+        }
+        hasTurns = false;
+        setHeaderSearchLink();
+        scrollBottom();
+    }
+
     function appendUser(text) {
-        // Giữ lời chào ban đầu (#aiChatWelcome) trong thread
         const wrap = document.createElement('div');
         wrap.className = 'gf-ai-msg gf-ai-msg--user';
         wrap.innerHTML =
@@ -81,19 +119,57 @@
         scrollBottom();
     }
 
+    function mapGymCard(g) {
+        if (g.title) return g;
+        const cats = Array.isArray(g.categories) ? g.categories : [];
+        const priceMin = Number(g.price_min || 0);
+        const priceMax = Number(g.price_max || 0);
+        let price = '';
+        if (priceMin || priceMax) {
+            price = priceMin === priceMax
+                ? `${priceMin.toLocaleString('vi-VN')}₫`
+                : `${priceMin.toLocaleString('vi-VN')}₫ – ${priceMax.toLocaleString('vi-VN')}₫`;
+        }
+        return {
+            id: g.id,
+            title: g.name || '',
+            subtitle: [g.district, cats.slice(0, 2).join(', ')].filter(Boolean).join(' · '),
+            meta: `${price}${price ? ' · ' : ''}★ ${Number(g.avg_rating || 0).toFixed(1)}`,
+            image: g.cover_image_url || g.image || '',
+        };
+    }
+
+    function mapTrainerCard(t) {
+        if (t.title) return t;
+        const specs = Array.isArray(t.specialties) ? t.specialties : [];
+        const districts = Array.isArray(t.districts) ? t.districts : [];
+        return {
+            id: t.id,
+            title: t.full_name || '',
+            subtitle: [
+                districts.slice(0, 2).join(', '),
+                `${Number(t.years_experience || 0)} năm KN`,
+            ].filter(Boolean).join(' · '),
+            meta: `${specs.slice(0, 2).join(' · ')} · ★ ${Number(t.avg_rating || 0).toFixed(1)}`,
+            image: t.avatar_url || t.image || '',
+            is_avatar: true,
+        };
+    }
+
     function cardHtml(item, isTrainer) {
-        const imgClass = isTrainer || item.is_avatar ? ' class="is-round"' : '';
-        const meta = item.meta ? `<p class="gf-ai-result-card-meta">${esc(item.meta)}</p>` : '';
+        const mapped = isTrainer ? mapTrainerCard(item) : mapGymCard(item);
+        const imgClass = isTrainer || mapped.is_avatar ? ' class="is-round"' : '';
+        const meta = mapped.meta ? `<p class="gf-ai-result-card-meta">${esc(mapped.meta)}</p>` : '';
         const detailBase = isTrainer ? trainerDetailUrl : gymDetailUrl;
-        const href = item.id && detailBase
-            ? `${detailBase}?id=${encodeURIComponent(item.id)}`
-            : (item.url || '#');
+        const href = mapped.id && detailBase
+            ? `${detailBase}?id=${encodeURIComponent(mapped.id)}`
+            : (mapped.url || '#');
         return (
             `<a class="gf-ai-result-card" href="${esc(href)}">` +
-            `<img${imgClass} src="${esc(item.image || '')}" alt="">` +
+            `<img${imgClass} src="${esc(mapped.image || '')}" alt="">` +
             `<div class="gf-ai-result-card-body">` +
-            `<p class="gf-ai-result-card-title">${esc(item.title || '')}</p>` +
-            `<p class="gf-ai-result-card-sub">${esc(item.subtitle || '')}</p>` +
+            `<p class="gf-ai-result-card-title">${esc(mapped.title || '')}</p>` +
+            `<p class="gf-ai-result-card-sub">${esc(mapped.subtitle || '')}</p>` +
             meta +
             `</div>` +
             `<i class="fa-solid fa-chevron-right text-secondary"></i>` +
@@ -165,6 +241,28 @@
         return el;
     }
 
+    function renderTurns(turns) {
+        thread.querySelectorAll('.gf-ai-msg').forEach((n) => n.remove());
+        const list = Array.isArray(turns) ? turns : [];
+        if (!list.length) {
+            resetThreadToWelcome();
+            return;
+        }
+        list.forEach((turn) => {
+            const userText = String(turn.user || '');
+            if (userText) appendUser(userText);
+            appendBot({
+                reply: String(turn.bot || ''),
+                gyms: turn.gyms || [],
+                trainers: turn.trainers || [],
+                suggestRefine: !!turn.suggest_refine,
+                isError: !!turn.is_error,
+            });
+        });
+        hasTurns = true;
+        ensureClearButton();
+    }
+
     async function refreshCsrf() {
         if (!csrfUrl) return csrf;
         try {
@@ -177,6 +275,150 @@
             /* keep */
         }
         return csrf;
+    }
+
+    function markActiveSession(id) {
+        sessionId = Number(id) || 0;
+        root.dataset.sessionId = String(sessionId || '');
+        sessionsList?.querySelectorAll('.gf-ai-session-item').forEach((btn) => {
+            btn.classList.toggle('is-active', Number(btn.dataset.sessionId) === sessionId);
+        });
+    }
+
+    function renderSessionsList(sessions, activeId) {
+        if (!sessionsList) return;
+        const items = Array.isArray(sessions) ? sessions : [];
+        if (!items.length) {
+            sessionsList.innerHTML =
+                '<li class="gf-ai-sessions-empty" id="aiSessionsEmpty">Chưa có phiên lưu. Hỏi AI để tạo phiên đầu.</li>';
+            return;
+        }
+        sessionsList.innerHTML = items
+            .map((s) => {
+                const id = Number(s.id);
+                const active = id === Number(activeId) ? ' is-active' : '';
+                return (
+                    `<li>` +
+                    `<button type="button" class="gf-ai-session-item${active}" data-session-id="${id}" title="${esc(s.title || '')}">` +
+                    `<span class="gf-ai-session-title">${esc(s.title || 'Hội thoại mới')}</span>` +
+                    `<span class="gf-ai-session-meta">${Number(s.turn_count || 0)} lượt</span>` +
+                    `</button>` +
+                    `<button type="button" class="gf-ai-session-del" data-session-delete="${id}" title="Xóa phiên" aria-label="Xóa phiên">` +
+                    `<i class="fa-solid fa-trash-can"></i></button>` +
+                    `</li>`
+                );
+            })
+            .join('');
+    }
+
+    async function refreshSessionsList(preferActiveId) {
+        if (!canPersist || !sessionsUrl) return;
+        try {
+            const res = await fetch(sessionsUrl, {
+                credentials: 'same-origin',
+                headers: { Accept: 'application/json' },
+            });
+            if (res.status === 401) return;
+            const json = await res.json().catch(() => ({}));
+            const sessions = json?.data?.sessions || [];
+            const active = preferActiveId != null ? preferActiveId : sessionId;
+            renderSessionsList(sessions, active);
+            markActiveSession(active);
+        } catch (_) {
+            /* ignore */
+        }
+    }
+
+    async function loadSession(id) {
+        if (!canPersist || !sessionsUrl || busy) return;
+        const sid = Number(id);
+        if (!sid) return;
+        setBusy(true);
+        try {
+            const res = await fetch(`${sessionsUrl}/${sid}`, {
+                credentials: 'same-origin',
+                headers: { Accept: 'application/json' },
+            });
+            const json = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                if (typeof window.gfToast === 'function') {
+                    window.gfToast(json?.error?.message || 'Không mở được phiên.', 'danger');
+                }
+                return;
+            }
+            markActiveSession(sid);
+            renderTurns(json?.data?.turns || []);
+        } catch (_) {
+            if (typeof window.gfToast === 'function') {
+                window.gfToast('Lỗi mạng khi mở phiên.', 'danger');
+            }
+        } finally {
+            setBusy(false);
+        }
+    }
+
+    async function startNewSession() {
+        if (!canPersist) {
+            resetThreadToWelcome();
+            sessionId = 0;
+            return;
+        }
+        markActiveSession(0);
+        resetThreadToWelcome();
+        sessionsList?.querySelectorAll('.gf-ai-session-item').forEach((btn) => {
+            btn.classList.remove('is-active');
+        });
+        if (typeof window.gfToast === 'function') {
+            window.gfToast('Phiên mới — hỏi AI để bắt đầu lưu.', 'info');
+        }
+    }
+
+    async function deleteSessionById(id) {
+        const sid = Number(id);
+        if (!sid || !canPersist) return;
+        const ok = typeof window.gfConfirm === 'function'
+            ? await window.gfConfirm({
+                title: 'Xóa phiên chat',
+                message: 'Xóa phiên này? Không thể hoàn tác.',
+                confirmLabel: 'Xóa phiên',
+                cancelLabel: 'Hủy',
+                danger: true,
+            })
+            : window.confirm('Xóa phiên này?');
+        if (!ok) return;
+
+        setBusy(true);
+        try {
+            await refreshCsrf();
+            const res = await fetch(`${sessionsUrl}/${sid}`, {
+                method: 'DELETE',
+                credentials: 'same-origin',
+                headers: {
+                    Accept: 'application/json',
+                    'X-CSRF-Token': csrf,
+                },
+            });
+            if (!res.ok) {
+                if (typeof window.gfToast === 'function') {
+                    window.gfToast('Không xóa được phiên.', 'danger');
+                }
+                return;
+            }
+            if (sessionId === sid) {
+                markActiveSession(0);
+                resetThreadToWelcome();
+            }
+            await refreshSessionsList(sessionId || 0);
+            if (typeof window.gfToast === 'function') {
+                window.gfToast('Đã xóa phiên.', 'success');
+            }
+        } catch (_) {
+            if (typeof window.gfToast === 'function') {
+                window.gfToast('Lỗi mạng khi xóa phiên.', 'danger');
+            }
+        } finally {
+            setBusy(false);
+        }
     }
 
     async function ask(text) {
@@ -197,6 +439,14 @@
 
         try {
             await refreshCsrf();
+            const payload = {
+                message,
+                save_history: !canPersist,
+            };
+            if (canPersist) {
+                payload.persist_session = true;
+                if (sessionId > 0) payload.session_id = sessionId;
+            }
             const res = await fetch(apiUrl, {
                 method: 'POST',
                 credentials: 'same-origin',
@@ -205,10 +455,18 @@
                     Accept: 'application/json',
                     'X-CSRF-Token': csrf,
                 },
-                body: JSON.stringify({ message, save_history: true }),
+                body: JSON.stringify(payload),
             });
             const json = await res.json().catch(() => ({}));
             loading.remove();
+
+            const data = json.data || {};
+            const returnedSessionId =
+                Number(data.session_id || json?.error?.details?.session_id || 0) || 0;
+            if (canPersist && returnedSessionId) {
+                markActiveSession(returnedSessionId);
+                await refreshSessionsList(returnedSessionId);
+            }
 
             if (!res.ok || json?.error) {
                 const msg =
@@ -217,7 +475,6 @@
                 return;
             }
 
-            const data = json.data || {};
             appendBot({
                 reply: data.reply || 'Đây là một số gợi ý.',
                 gyms: data.gyms || [],
@@ -243,25 +500,33 @@
     async function clearHistory() {
         const ok = typeof window.gfConfirm === 'function'
             ? await window.gfConfirm({
-                title: 'Xóa hội thoại',
-                message: 'Xóa toàn bộ tin nhắn với Trợ lý AI? Bạn sẽ bắt đầu lại từ đầu.',
-                confirmLabel: 'Xóa hội thoại',
+                title: canPersist ? 'Xóa phiên đang mở' : 'Xóa hội thoại',
+                message: canPersist
+                    ? 'Xóa phiên chat hiện tại khỏi danh sách đã lưu?'
+                    : 'Xóa toàn bộ tin nhắn với Trợ lý AI? Bạn sẽ bắt đầu lại từ đầu.',
+                confirmLabel: 'Xóa',
                 cancelLabel: 'Hủy',
                 danger: true,
             })
-            : window.confirm('Xóa toàn bộ hội thoại?');
+            : window.confirm('Xóa hội thoại?');
         if (!ok) return;
 
         setBusy(true);
         try {
             await refreshCsrf();
+            const headers = {
+                Accept: 'application/json',
+                'X-CSRF-Token': csrf,
+                'Content-Type': 'application/json',
+            };
+            const body = canPersist && sessionId > 0
+                ? JSON.stringify({ session_id: sessionId })
+                : undefined;
             const res = await fetch(historyUrl, {
                 method: 'DELETE',
                 credentials: 'same-origin',
-                headers: {
-                    Accept: 'application/json',
-                    'X-CSRF-Token': csrf,
-                },
+                headers,
+                body,
             });
             if (!res.ok) {
                 if (typeof window.gfToast === 'function') {
@@ -269,27 +534,14 @@
                 }
                 return;
             }
-            // Soft reset UI without full reload
-            thread.querySelectorAll('.gf-ai-msg').forEach((n) => n.remove());
-            if (!document.getElementById('aiChatWelcome') && enabled) {
-                const w = document.createElement('div');
-                w.className = 'gf-ai-msg gf-ai-msg--bot';
-                w.id = 'aiChatWelcome';
-                w.innerHTML =
-                    '<div class="gf-ai-msg-avatar"><i class="fa-solid fa-robot"></i></div>' +
-                    '<div class="gf-ai-msg-col">' +
-                    '<div class="gf-ai-msg-name">Trợ lý</div>' +
-                    '<div class="gf-ai-msg-bubble">Xin chào! Mình gợi ý <strong>phòng tập</strong> và <strong>HLV</strong> trong hệ thống GYMFINDER (TP.HCM). Hỏi theo quận, giá, Yoga… hoặc chọn gợi ý bên dưới.</div>' +
-                    '</div>';
-                thread.appendChild(w);
+            const clearedId = sessionId;
+            markActiveSession(0);
+            resetThreadToWelcome();
+            if (canPersist) {
+                await refreshSessionsList(0);
             }
-            hasTurns = false;
-            if (headerActions) {
-                headerActions.innerHTML = `<a class="gf-ai-chat-top-link" href="${esc(searchGymUrl)}">Tìm kiếm</a>`;
-            }
-            scrollBottom();
             if (typeof window.gfToast === 'function') {
-                window.gfToast('Đã xóa hội thoại.', 'success');
+                window.gfToast(clearedId ? 'Đã xóa phiên.' : 'Đã xóa hội thoại.', 'success');
             }
         } catch (_) {
             if (typeof window.gfToast === 'function') {
@@ -323,6 +575,26 @@
     });
 
     headerActions?.querySelector('[data-ai-clear]')?.addEventListener('click', clearHistory);
+
+    document.getElementById('aiSessionNew')?.addEventListener('click', () => {
+        if (busy) return;
+        startNewSession();
+    });
+
+    sessionsList?.addEventListener('click', (e) => {
+        const del = e.target.closest('[data-session-delete]');
+        if (del) {
+            e.preventDefault();
+            deleteSessionById(del.getAttribute('data-session-delete'));
+            return;
+        }
+        const item = e.target.closest('.gf-ai-session-item');
+        if (item) {
+            e.preventDefault();
+            const id = Number(item.dataset.sessionId);
+            if (id && id !== sessionId) loadSession(id);
+        }
+    });
 
     scrollBottom();
 })();

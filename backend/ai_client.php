@@ -882,17 +882,21 @@ function gf_ai_chat_history_clear(): void
  * @param list<array<string,mixed>> $gyms
  * @param list<array<string,mixed>> $trainers
  */
-function gf_ai_chat_history_append(
+/**
+ * Chuẩn hóa 1 lượt chat (session PHP hoặc DB).
+ *
+ * @param list<array<string,mixed>> $gyms
+ * @param list<array<string,mixed>> $trainers
+ * @return array<string,mixed>
+ */
+function gf_ai_build_history_turn(
     string $userText,
     string $botText,
     array $gyms = [],
     array $trainers = [],
     bool $isError = false,
-    int $maxTurns = 12,
     bool $suggestRefine = false
-): void {
-    $history = gf_ai_chat_history_get();
-
+): array {
     $slimGyms = [];
     foreach ($gyms as $g) {
         $slimGyms[] = [
@@ -920,7 +924,7 @@ function gf_ai_chat_history_append(
         ];
     }
 
-    $history[] = [
+    return [
         'user' => mb_substr(trim($userText), 0, 500),
         'bot' => mb_substr(trim($botText), 0, 2000),
         'is_error' => $isError,
@@ -929,7 +933,19 @@ function gf_ai_chat_history_append(
         'suggest_refine' => $suggestRefine && !$isError && $slimGyms === [] && $slimTrainers === [],
         'at' => time(),
     ];
+}
 
+function gf_ai_chat_history_append(
+    string $userText,
+    string $botText,
+    array $gyms = [],
+    array $trainers = [],
+    bool $isError = false,
+    int $maxTurns = 12,
+    bool $suggestRefine = false
+): void {
+    $history = gf_ai_chat_history_get();
+    $history[] = gf_ai_build_history_turn($userText, $botText, $gyms, $trainers, $isError, $suggestRefine);
     if (count($history) > $maxTurns) {
         $history = array_slice($history, -$maxTurns);
     }
