@@ -14,12 +14,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = $res['error'];
     }
 }
-$pageTitle = 'Đăng ký - GYMFINDER';
+$pageTitle = gf_t('Đăng ký - GYMFINDER');
 $bodyClass = 'auth-page';
 $extraCss = ['assets/css/auth.css'];
 require dirname(__DIR__, 2) . '/includes/layout_head.php';
 ?>
 <div class="auth-wrapper">
+    <div class="position-absolute top-0 end-0 p-3" style="z-index:2;"><?= gf_lang_switch_html() ?></div>
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6 mb-5 mb-lg-0">

@@ -3,39 +3,39 @@
         <div class="row g-4 mb-5">
             <div class="col-12 col-md-5 col-lg-5 pe-lg-4">
                 <?= gf_logo('footer', null, 'mb-4') ?>
-                <p class="text-secondary mb-4" style="font-size: 14px; line-height: 1.6; max-width: 380px;">Nền tảng tìm kiếm và so sánh các phòng tập gym, tiện ích, loại hình tập luyện và đội ngũ huấn luyện viên.</p>
+                <p class="text-secondary mb-4" style="font-size: 14px; line-height: 1.6; max-width: 380px;"><?= gf_h(gf_t('Nền tảng tìm kiếm và so sánh các phòng tập gym, tiện ích, loại hình tập luyện và đội ngũ huấn luyện viên.')) ?></p>
                 <div class="d-flex align-items-center gap-2 text-secondary" style="font-size: 14px;">
                     <i class="fa-solid fa-location-dot"></i>
-                    <span>TP. Hồ Chí Minh</span>
+                    <span><?= gf_h(gf_t('TP. Hồ Chí Minh')) ?></span>
                 </div>
             </div>
             <div class="col-12 col-md-7 col-lg-6 offset-lg-1">
                 <div class="row g-4 justify-content-between">
                     <div class="col-6 col-sm-6">
-                        <h5 class="fw-bold text-dark mb-4" style="font-size: 15px;">Phòng tập</h5>
+                        <h5 class="fw-bold text-dark mb-4" style="font-size: 15px;"><?= gf_h(gf_t('Phòng tập')) ?></h5>
                         <ul class="list-unstyled mb-0 d-flex flex-column gap-3" style="font-size: 14px;">
-                            <li><a href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>" class="text-secondary text-decoration-none">Tất cả phòng tập</a></li>
-                            <li><a href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>" class="text-secondary text-decoration-none">Tìm phòng tập</a></li>
-                            <li><a href="<?= gf_h(gf_url('pages/gyms/search.php?featured=1')) ?>" class="text-secondary text-decoration-none">Gym nổi bật</a></li>
-                            <li><a href="<?= gf_h(gf_url('pages/gyms/search.php?has_pt=1')) ?>" class="text-secondary text-decoration-none">Phòng tập có PT</a></li>
+                            <li><a href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>" class="text-secondary text-decoration-none"><?= gf_h(gf_t('Tất cả phòng tập')) ?></a></li>
+                            <li><a href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>" class="text-secondary text-decoration-none"><?= gf_h(gf_t('Tìm phòng tập')) ?></a></li>
+                            <li><a href="<?= gf_h(gf_url('pages/gyms/search.php?featured=1')) ?>" class="text-secondary text-decoration-none"><?= gf_h(gf_t('Gym nổi bật')) ?></a></li>
+                            <li><a href="<?= gf_h(gf_url('pages/gyms/search.php?has_pt=1')) ?>" class="text-secondary text-decoration-none"><?= gf_h(gf_t('Phòng tập có PT')) ?></a></li>
                         </ul>
                     </div>
                     <div class="col-6 col-sm-6">
-                        <h5 class="fw-bold text-dark mb-4" style="font-size: 15px;">Huấn luyện viên</h5>
+                        <h5 class="fw-bold text-dark mb-4" style="font-size: 15px;"><?= gf_h(gf_t('Huấn luyện viên')) ?></h5>
                         <ul class="list-unstyled mb-0 d-flex flex-column gap-3" style="font-size: 14px;">
-                            <li><a href="<?= gf_h(gf_url('pages/trainers/index.php')) ?>" class="text-secondary text-decoration-none">Tìm huấn luyện viên</a></li>
-                            <li><a href="<?= gf_h(gf_url('pages/trainers/index.php?featured=1')) ?>" class="text-secondary text-decoration-none">HLV nổi bật</a></li>
-                            <li><a href="<?= gf_h(gf_url('pages/trainers/index.php')) ?>" class="text-secondary text-decoration-none">Theo bộ môn</a></li>
+                            <li><a href="<?= gf_h(gf_url('pages/trainers/index.php')) ?>" class="text-secondary text-decoration-none"><?= gf_h(gf_t('Tìm huấn luyện viên')) ?></a></li>
+                            <li><a href="<?= gf_h(gf_url('pages/trainers/index.php?featured=1')) ?>" class="text-secondary text-decoration-none"><?= gf_h(gf_t('HLV nổi bật')) ?></a></li>
+                            <li><a href="<?= gf_h(gf_url('pages/trainers/index.php')) ?>" class="text-secondary text-decoration-none"><?= gf_h(gf_t('Theo bộ môn')) ?></a></li>
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
         <div class="border-top pt-4 d-flex flex-column flex-sm-row justify-content-between gap-2">
-            <p class="text-secondary mb-0" style="font-size: 14px;">© 2026 GYMFINDER. Bảo lưu mọi quyền.</p>
+            <p class="text-secondary mb-0" style="font-size: 14px;"><?= gf_h(gf_t('© 2026 GYMFINDER. Bảo lưu mọi quyền.')) ?></p>
             <p class="text-secondary mb-0 d-flex flex-wrap gap-3" style="font-size: 14px;">
-                <a href="<?= gf_h(gf_url('pages/legal/terms.php')) ?>" class="text-secondary text-decoration-none">Điều khoản dịch vụ</a>
-                <a href="<?= gf_h(gf_url('pages/legal/privacy.php')) ?>" class="text-secondary text-decoration-none">Chính sách bảo mật</a>
+                <a href="<?= gf_h(gf_url('pages/legal/terms.php')) ?>" class="text-secondary text-decoration-none"><?= gf_h(gf_t('Điều khoản dịch vụ')) ?></a>
+                <a href="<?= gf_h(gf_url('pages/legal/privacy.php')) ?>" class="text-secondary text-decoration-none"><?= gf_h(gf_t('Chính sách bảo mật')) ?></a>
             </p>
         </div>
     </div>

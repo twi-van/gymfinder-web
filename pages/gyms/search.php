@@ -194,7 +194,7 @@ $figmaAmenities = [
 ];
 $user = gf_current_user();
 $favGymIds = $user ? array_map(static fn ($g) => (int) $g['id'], gf_user_favorites((int)$user['id'])['gyms']) : [];
-$pageTitle = 'Tìm kiếm phòng tập - GYMFINDER';
+$pageTitle = gf_t('Tìm kiếm phòng tập - GYMFINDER');
 $bodyClass = 'bg-light';
 require dirname(__DIR__, 2) . '/includes/layout_head.php';
 require dirname(__DIR__, 2) . '/includes/header.php';
@@ -208,7 +208,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         <form method="get" class="gf-keyword-search bg-white shadow-sm mx-auto d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2 gap-sm-0 p-2" style="max-width:700px;border:1px solid #f1f5f9;">
             <div class="d-flex align-items-center flex-grow-1 min-w-0">
                 <i class="fa-solid fa-magnifying-glass text-secondary ms-2 ms-sm-3 flex-shrink-0"></i>
-                <input type="text" name="keyword" class="form-control border-0 shadow-none" value="<?= gf_h($filters['keyword']) ?>" placeholder="Tìm kiếm tên phòng tập, khu vực...">
+                <input type="text" name="keyword" class="form-control border-0 shadow-none" value="<?= gf_h($filters['keyword']) ?>" placeholder="<?= gf_h(gf_t('Tìm kiếm tên phòng tập, khu vực...')) ?>">
             </div>
             <button class="btn btn-primary rounded-pill px-4 py-2 fw-semibold flex-shrink-0" type="submit">Tìm kiếm</button>
         </form>
@@ -224,35 +224,35 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 <input type="hidden" name="keyword" value="<?= gf_h($filters['keyword']) ?>">
                 <?php if ($filters['sort'] !== ''): ?><input type="hidden" name="sort" value="<?= gf_h($filters['sort']) ?>"><?php endif; ?>
                 <div class="filter-group gf-filter-field">
-                    <div class="filter-group-title">Khu vực</div>
+                    <div class="filter-group-title"><?= gf_h(gf_t('Khu vực')) ?></div>
                     <div class="gf-select-wrap gf-select-wrap--sidebar">
                         <select name="district_id" id="districtFilter" class="form-select gf-filter-select" aria-label="Khu vực">
-                            <option value="">Tất cả</option>
+                            <option value=""><?= gf_h(gf_t('Tất cả')) ?></option>
                             <?php foreach ($districts as $d): ?>
-                                <option value="<?= (int)$d['id'] ?>" <?= (string)$filters['district_id']===(string)$d['id']?'selected':'' ?>><?= gf_h($d['name']) ?></option>
+                                <option value="<?= (int)$d['id'] ?>" <?= (string)$filters['district_id']===(string)$d['id']?'selected':'' ?>><?= gf_h(gf_place_name((string) $d['name'])) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                 </div>
                 <div class="filter-group">
-                    <div class="filter-group-title">Khoảng giá (VNĐ/tháng)</div>
+                    <div class="filter-group-title"><?= gf_h(gf_t('Khoảng giá (VNĐ/tháng)')) ?></div>
                     <?php foreach ($priceRanges as $key => $label): $pId = $key === '' ? 'price_all' : 'price_' . $key; ?>
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="radio" name="price_range" id="<?= $pId ?>" value="<?= gf_h($key) ?>" <?= $selectedPriceRange === $key ? 'checked' : '' ?> onchange="if(this.value){document.getElementById('customPriceMin').value='';document.getElementById('customPriceMax').value='';}">
-                            <label class="form-check-label" for="<?= $pId ?>"><?= gf_h($label) ?></label>
+                            <label class="form-check-label" for="<?= $pId ?>"><?= gf_h(gf_t((string) $label)) ?></label>
                         </div>
                     <?php endforeach; ?>
                     <div class="mt-2 pt-2 border-top">
-                        <label class="small text-secondary mb-1 d-block" style="font-size:12px">Hoặc khoảng giá tùy chỉnh:</label>
+                        <label class="small text-secondary mb-1 d-block" style="font-size:12px"><?= gf_h(gf_t('Hoặc khoảng giá tùy chỉnh:')) ?></label>
                         <div class="d-flex align-items-center gap-2">
-                            <input type="number" id="customPriceMin" name="price_min" class="form-control form-control-sm text-center" placeholder="Từ" value="<?= gf_h((string)$customPriceMin) ?>" style="font-size:13px" min="0" step="50000" oninput="document.getElementById('price_all').checked=true">
+                            <input type="number" id="customPriceMin" name="price_min" class="form-control form-control-sm text-center" placeholder="<?= gf_h(gf_t('Từ')) ?>" value="<?= gf_h((string)$customPriceMin) ?>" style="font-size:13px" min="0" step="50000" oninput="document.getElementById('price_all').checked=true">
                             <span class="text-secondary">-</span>
-                            <input type="number" id="customPriceMax" name="price_max" class="form-control form-control-sm text-center" placeholder="Đến" value="<?= gf_h((string)$customPriceMax) ?>" style="font-size:13px" min="0" step="50000" oninput="document.getElementById('price_all').checked=true">
+                            <input type="number" id="customPriceMax" name="price_max" class="form-control form-control-sm text-center" placeholder="<?= gf_h(gf_t('Đến')) ?>" value="<?= gf_h((string)$customPriceMax) ?>" style="font-size:13px" min="0" step="50000" oninput="document.getElementById('price_all').checked=true">
                         </div>
                     </div>
                 </div>
                 <div class="filter-group">
-                    <div class="filter-group-title">Đánh giá</div>
+                    <div class="filter-group-title"><?= gf_h(gf_t('Đánh giá')) ?></div>
                     <?php
                     $ratingFilterName = 'rating';
                     $ratingFilterValue = $filters['rating'];
@@ -261,7 +261,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                     ?>
                 </div>
                 <div class="filter-group">
-                    <div class="filter-group-title">Đặc điểm phòng tập</div>
+                    <div class="filter-group-title"><?= gf_h(gf_t('Đặc điểm phòng tập')) ?></div>
                     <?php foreach ($figmaFeatures as $feature): ?>
                         <div class="form-check mb-2">
                             <?php if (isset($feature['category_id'])): ?>
@@ -269,12 +269,12 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                             <?php else: $field = $feature['name'] ?? ''; $checked = $field !== '' && !empty($filters[$field]); ?>
                                 <input class="form-check-input" type="checkbox" <?= $field !== '' ? 'name="' . gf_h($field) . '"' : '' ?> value="1" id="<?= gf_h($feature['id']) ?>" <?= $checked?'checked':'' ?> <?= !empty($feature['disabled']) || $field === ''?'disabled title="Cơ sở dữ liệu hiện chưa có trường dữ liệu cho lựa chọn này"':'' ?>>
                             <?php endif; ?>
-                            <label class="form-check-label" for="<?= gf_h($feature['id']) ?>"><?= gf_h($feature['label']) ?></label>
+                            <label class="form-check-label" for="<?= gf_h($feature['id']) ?>"><?= gf_h(gf_t((string) $feature['label'])) ?></label>
                         </div>
                     <?php endforeach; ?>
                 </div>
                 <div class="filter-group">
-                    <div class="filter-group-title">Tiện ích</div>
+                    <div class="filter-group-title"><?= gf_h(gf_t('Tiện ích')) ?></div>
                     <?php foreach ($figmaAmenities as $amenity): ?>
                         <div class="form-check mb-2">
                             <?php if (isset($amenity['amenity_id'])): ?>
@@ -282,7 +282,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                             <?php else: ?>
                                 <input class="form-check-input" type="checkbox" id="<?= gf_h($amenity['id']) ?>" disabled title="Cơ sở dữ liệu hiện chưa có trường dữ liệu cho lựa chọn này">
                             <?php endif; ?>
-                            <label class="form-check-label" for="<?= gf_h($amenity['id']) ?>"><?= gf_h($amenity['label']) ?></label>
+                            <label class="form-check-label" for="<?= gf_h($amenity['id']) ?>"><?= gf_h(gf_t((string) $amenity['label'])) ?></label>
                         </div>
                     <?php endforeach; ?>
                 </div>

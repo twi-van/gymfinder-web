@@ -17,6 +17,9 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
+require_once __DIR__ . '/i18n.php';
+gf_lang_apply_request();
+
 $config = require __DIR__ . '/config.php';
 $GLOBALS['GF_CONFIG'] = $config;
 

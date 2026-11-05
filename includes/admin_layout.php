@@ -5,13 +5,13 @@ $adminUser = gf_require_admin();
 $adminDashboardUrl = gf_url('admin/pages/dashboard.php');
 
 $adminBreadcrumbMap = [
-    'dashboard' => 'Tổng quan',
-    'gyms' => 'Quản lý phòng tập',
-    'trainers' => 'Quản lý huấn luyện viên',
-    'users' => 'Quản lý người dùng',
-    'reviews' => 'Quản lý đánh giá',
-    'categories' => 'Quản lý danh mục',
-    'profile' => 'Hồ sơ cá nhân',
+    'dashboard' => gf_t('Tổng quan'),
+    'gyms' => gf_t('Phòng tập'),
+    'trainers' => gf_t('Huấn luyện viên'),
+    'users' => gf_t('Người dùng'),
+    'reviews' => gf_t('Đánh giá'),
+    'categories' => gf_t('Danh mục'),
+    'profile' => gf_t('Hồ sơ cá nhân'),
 ];
 $adminBreadcrumbCurrent = $adminBreadcrumbMap[$adminActive] ?? 'Tổng quan';
 
@@ -26,30 +26,30 @@ function gf_admin_nav(string $key, string $href, string $icon, string $label, st
 <aside class="sidebar d-flex flex-column" id="sidebar" aria-label="Menu quản trị">
     <div class="p-4 border-bottom d-flex align-items-center justify-content-between gap-2">
         <?= gf_logo('admin', $adminDashboardUrl, 'admin-brand') ?>
-        <button type="button" class="btn btn-light border d-lg-none shadow-sm admin-sidebar-close" id="sidebarClose" aria-label="Đóng menu">
+        <button type="button" class="btn btn-light border d-lg-none shadow-sm admin-sidebar-close" id="sidebarClose" aria-label="<?= gf_h(gf_t('Đóng menu')) ?>">
             <i class="fa-solid fa-xmark"></i>
         </button>
     </div>
     <div class="p-3 flex-grow-1 overflow-auto">
         <ul class="nav flex-column gap-1">
             <?php
-            gf_admin_nav('dashboard', 'admin/pages/dashboard.php', 'fa-chart-pie', 'Tổng quan', $adminActive);
-            gf_admin_nav('gyms', 'admin/pages/gyms.php', 'fa-dumbbell', 'Phòng tập', $adminActive);
-            gf_admin_nav('trainers', 'admin/pages/trainers.php', 'fa-user-tie', 'Huấn luyện viên', $adminActive);
-            gf_admin_nav('users', 'admin/pages/users.php', 'fa-users', 'Người dùng', $adminActive);
-            gf_admin_nav('reviews', 'admin/pages/reviews.php', 'fa-star', 'Đánh giá', $adminActive);
-            gf_admin_nav('categories', 'admin/pages/categories.php', 'fa-list', 'Danh mục', $adminActive);
-            gf_admin_nav('profile', 'admin/pages/profile.php', 'fa-user-shield', 'Hồ sơ cá nhân', $adminActive);
+            gf_admin_nav('dashboard', 'admin/pages/dashboard.php', 'fa-chart-pie', gf_t('Tổng quan'), $adminActive);
+            gf_admin_nav('gyms', 'admin/pages/gyms.php', 'fa-dumbbell', gf_t('Phòng tập'), $adminActive);
+            gf_admin_nav('trainers', 'admin/pages/trainers.php', 'fa-user-tie', gf_t('Huấn luyện viên'), $adminActive);
+            gf_admin_nav('users', 'admin/pages/users.php', 'fa-users', gf_t('Người dùng'), $adminActive);
+            gf_admin_nav('reviews', 'admin/pages/reviews.php', 'fa-star', gf_t('Đánh giá'), $adminActive);
+            gf_admin_nav('categories', 'admin/pages/categories.php', 'fa-list', gf_t('Danh mục'), $adminActive);
+            gf_admin_nav('profile', 'admin/pages/profile.php', 'fa-user-shield', gf_t('Hồ sơ cá nhân'), $adminActive);
             ?>
         </ul>
     </div>
     <div class="p-3 border-top mt-auto">
         <div class="d-flex align-items-center gap-2">
-            <a href="<?= gf_h(gf_url('admin/pages/profile.php')) ?>" class="d-flex align-items-center gap-2 text-decoration-none min-w-0 flex-grow-1 text-dark" title="Xem và sửa hồ sơ quản trị">
+            <a href="<?= gf_h(gf_url('admin/pages/profile.php')) ?>" class="d-flex align-items-center gap-2 text-decoration-none min-w-0 flex-grow-1 text-dark" title="<?= gf_h(gf_t('Xem và sửa hồ sơ quản trị')) ?>">
                 <img src="<?= gf_h(gf_avatar($adminUser['avatar_url'] ?? null, !empty($adminUser['avatar_url']) ? (int) $adminUser['id'] : 0, $adminUser['full_name'])) ?>" class="rounded-circle shadow-sm" style="width:40px;height:40px;object-fit:cover;aspect-ratio:1/1;flex:0 0 40px;" alt="<?= gf_h($adminUser['full_name']) ?>">
-                <div class="min-w-0 text-truncate"><div class="fw-bold small text-truncate"><?= gf_h($adminUser['full_name']) ?></div><div class="text-secondary" style="font-size:11.5px;">Quản trị viên</div></div>
+                <div class="min-w-0 text-truncate"><div class="fw-bold small text-truncate"><?= gf_h($adminUser['full_name']) ?></div><div class="text-secondary" style="font-size:11.5px;"><?= gf_h(gf_t('Quản trị viên')) ?></div></div>
             </a>
-            <form method="post" action="<?= gf_h(gf_url('pages/auth/logout.php')) ?>" class="ms-auto"><?= gf_csrf_field() ?><button class="btn btn-action btn-action-view" title="Đăng xuất"><i class="fa-solid fa-arrow-right-from-bracket"></i></button></form>
+            <form method="post" action="<?= gf_h(gf_url('pages/auth/logout.php')) ?>" class="ms-auto"><?= gf_csrf_field() ?><button class="btn btn-action btn-action-view" title="<?= gf_h(gf_t('Đăng xuất')) ?>"><i class="fa-solid fa-arrow-right-from-bracket"></i></button></form>
         </div>
     </div>
 </aside>
@@ -61,10 +61,11 @@ function gf_admin_nav(string $key, string $href, string $icon, string $label, st
         <?= gf_logo('admin', $adminDashboardUrl, 'admin-brand admin-brand--bar') ?>
         <span class="admin-mobile-bar-spacer" aria-hidden="true"></span>
     </div>
-    <nav class="admin-breadcrumb" aria-label="Đường dẫn">
+    <div class="d-flex justify-content-end mb-2"><?= gf_lang_switch_html() ?></div>
+    <nav class="admin-breadcrumb" aria-label="Breadcrumb">
         <ol class="admin-breadcrumb-list">
             <li class="admin-breadcrumb-item">
-                <a href="<?= gf_h($adminDashboardUrl) ?>" class="admin-breadcrumb-link">Quản trị viên</a>
+                <a href="<?= gf_h($adminDashboardUrl) ?>" class="admin-breadcrumb-link"><?= gf_h(gf_t('Quản trị viên')) ?></a>
             </li>
             <li class="admin-breadcrumb-sep" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></li>
             <li class="admin-breadcrumb-item">

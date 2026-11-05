@@ -6,7 +6,7 @@ $bodyClass = $bodyClass ?? '';
 $styleVersion = (string) @filemtime(dirname(__DIR__) . '/assets/css/style.css');
 ?>
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="<?= gf_lang() === 'en' ? 'en' : 'vi' ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

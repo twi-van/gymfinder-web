@@ -29,12 +29,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $error = $res['error'];
 }
-$pageTitle = 'Đăng nhập - GYMFINDER';
+$pageTitle = gf_t('Đăng nhập - GYMFINDER');
 $bodyClass = 'auth-page';
 $extraCss = ['assets/css/auth.css'];
 require dirname(__DIR__, 2) . '/includes/layout_head.php';
 ?>
 <div class="auth-wrapper">
+    <div class="position-absolute top-0 end-0 p-3" style="z-index:2;"><?= gf_lang_switch_html() ?></div>
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6 mb-5 mb-lg-0">
@@ -42,9 +43,9 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                     <div class="auth-brand mb-5">
                         <?= gf_logo('login') ?>
                     </div>
-                    <div class="auth-badge"><i class="fa-solid fa-circle" style="font-size:6px"></i> KHÁM PHÁ • KẾT NỐI • TẬP LUYỆN</div>
-                    <h1 class="auth-heading">Hành trình <span class="text-primary">khỏe mạnh</span><br>bắt đầu từ hôm nay</h1>
-                    <p class="auth-desc">Đăng nhập để lưu phòng tập yêu thích, quản lý thông tin cá nhân và kết nối với huấn luyện viên tại TP.HCM.</p>
+                    <div class="auth-badge"><i class="fa-solid fa-circle" style="font-size:6px"></i> <?= gf_h(gf_t('KHÁM PHÁ • KẾT NỐI • TẬP LUYỆN')) ?></div>
+                    <h1 class="auth-heading"><?= gf_lang() === 'en' ? 'A <span class="text-primary">healthier</span><br>journey starts today' : 'Hành trình <span class="text-primary">khỏe mạnh</span><br>bắt đầu từ hôm nay' ?></h1>
+                    <p class="auth-desc"><?= gf_h(gf_t('Đăng nhập để lưu phòng tập yêu thích, quản lý thông tin cá nhân và kết nối với huấn luyện viên tại TP.HCM.')) ?></p>
                     <div class="auth-features">
                         <div class="auth-feature"><div class="auth-feature-icon"><i class="fa-solid fa-magnifying-glass"></i></div><div><div class="auth-feature-title">Tìm kiếm dễ dàng</div><p class="auth-feature-desc">Hàng trăm phòng tập chất lượng</p></div></div>
                         <div class="auth-feature"><div class="auth-feature-icon"><i class="fa-solid fa-heart"></i></div><div><div class="auth-feature-title">Lưu yêu thích</div><p class="auth-feature-desc">Quản lý danh sách phòng tập của bạn</p></div></div>

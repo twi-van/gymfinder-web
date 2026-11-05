@@ -23,7 +23,7 @@ $specialties = gf_list_specialties();
 $districts = gf_list_districts();
 $gymOptions = gf_search_gyms(['limit' => 100]);
 $user = gf_current_user();
-$pageTitle = 'Huấn luyện viên - GYMFINDER';
+$pageTitle = gf_t('Huấn luyện viên - GYMFINDER');
 $bodyClass = 'bg-light';
 require dirname(__DIR__, 2) . '/includes/layout_head.php';
 require dirname(__DIR__, 2) . '/includes/header.php';

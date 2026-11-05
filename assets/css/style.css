@@ -562,6 +562,14 @@ body {
     border-color: #e2e8f0;
 }
 
+/* Keep "1 năm" on one line; let gym name truncate instead */
+.trainer-card-exp {
+    white-space: nowrap;
+}
+.trainer-card-place {
+    min-width: 0;
+}
+
 .trainer-avatar {
     width: 80px;
     height: 80px;
@@ -616,4 +624,31 @@ footer a {
 
 footer a:hover {
     color: var(--primary-color);
+}
+
+.gf-lang-switch {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #fff;
+    flex-shrink: 0;
+}
+.gf-lang-switch a {
+    padding: 0.35rem 0.7rem;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    text-decoration: none;
+    line-height: 1.2;
+}
+.gf-lang-switch a.is-active {
+    background: #00c9b1;
+    color: #fff;
+}
+.gf-lang-switch a:hover:not(.is-active) {
+    background: #f1f5f9;
+    color: #0f172a;
 }

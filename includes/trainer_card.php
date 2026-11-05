@@ -56,9 +56,11 @@ $heart = $isFav ? '<i class="fa-solid fa-heart text-danger"></i>' : '<i class="f
                 $cardGymLabel = (string) ($trainer['district_name'] ?? $trainer['gym_name'] ?? '');
             }
             ?>
-            <div class="d-flex align-items-center justify-content-center gap-3 small text-secondary">
-                <div><i class="fa-solid fa-briefcase opacity-75 me-1"></i> <?= (int)$trainer['years_experience'] ?> năm</div>
-                <div><i class="fa-solid fa-location-dot opacity-75 me-1"></i> <?= gf_h($cardGymLabel) ?></div>
+            <div class="d-flex align-items-center justify-content-center gap-2 small text-secondary w-100 px-1">
+                <div class="trainer-card-exp text-nowrap flex-shrink-0"><i class="fa-solid fa-briefcase opacity-75 me-1"></i><?= (int)$trainer['years_experience'] ?>&nbsp;<?= gf_h(gf_lang() === 'en' ? 'yrs' : 'năm') ?></div>
+                <?php if ($cardGymLabel !== ''): ?>
+                <div class="trainer-card-place text-truncate min-w-0"><i class="fa-solid fa-location-dot opacity-75 me-1"></i><?= gf_h($cardGymLabel) ?></div>
+                <?php endif; ?>
             </div>
         </div>
         <p class="text-secondary small text-center mb-4 flex-grow-1" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;"><?= gf_h($trainer['bio'] ?? '') ?></p>
@@ -76,7 +78,7 @@ $heart = $isFav ? '<i class="fa-solid fa-heart text-danger"></i>' : '<i class="f
                 data-subtitle="<?= gf_h($trainerSubtitle) ?>"
                 data-phone="<?= gf_h($trainer['phone'] ?? '') ?>"
                 style="font-size:14px;border-radius:8px;">
-                <i class="fa-solid fa-phone me-1"></i> Liên hệ
+                <i class="fa-solid fa-phone me-1"></i> <?= gf_h(gf_t('Liên hệ')) ?>
             </button>
         </div>
     </div>

@@ -9,7 +9,7 @@ $cats = $gym['categories'] ?? [];
 $badge = '';
 foreach ($cats as $c) {
     if (($c['slug'] ?? '') === 'premium') {
-        $badge = '<div class="position-absolute badge bg-dark text-warning px-2 py-1 rounded" style="top: 10px; left: 10px; font-size: 11px; font-weight: 600;"><i class="fa-solid fa-crown me-1"></i>Cao cấp</div>';
+        $badge = '<div class="position-absolute badge bg-dark text-warning px-2 py-1 rounded" style="top: 10px; left: 10px; font-size: 11px; font-weight: 600;"><i class="fa-solid fa-crown me-1"></i>' . gf_h(gf_t('Cao cấp')) . '</div>';
     }
 }
 $heart = $isFav ? '<i class="fa-solid fa-heart text-danger"></i>' : '<i class="fa-regular fa-heart" style="color:#cbd5e1;"></i>';
@@ -38,25 +38,25 @@ $reviews = (int) ($gym['review_count'] ?? 0);
             <div class="d-flex align-items-center mb-2" style="font-size: 13px;">
                 <?php if ($reviews > 0): ?>
                     <i class="fa-solid fa-star text-warning me-1"></i><strong><?= gf_h((string)$rating) ?></strong>
-                    <span class="text-secondary ms-1">(<?= $reviews ?> đánh giá)</span>
+                    <span class="text-secondary ms-1">(<?= $reviews ?> <?= gf_h(gf_t('đánh giá')) ?>)</span>
                 <?php else: ?>
-                    <span class="text-secondary">Chưa có đánh giá</span>
+                    <span class="text-secondary"><?= gf_h(gf_t('Chưa có đánh giá')) ?></span>
                 <?php endif; ?>
             </div>
             <p class="text-secondary mb-3" style="font-size: 13px;">
-                <i class="fa-solid fa-location-dot me-2 text-primary opacity-75"></i><?= gf_h($gym['district_name'] ?? '') ?>, TP.HCM
+                <i class="fa-solid fa-location-dot me-2 text-primary opacity-75"></i><?= gf_h(gf_place_name((string) ($gym['district_name'] ?? ''))) ?>, <?= gf_h(gf_lang() === 'en' ? 'HCMC' : 'TP.HCM') ?>
             </p>
             <div class="fw-bold text-dark mb-3" style="font-size: 14px;"><?= gf_h($gym['price_label'] ?? '') ?></div>
             <div class="mb-3 d-flex flex-wrap gap-1 position-relative" style="z-index:2;">
                 <?php foreach (array_slice($gym['amenities'] ?? [], 0, 3) as $a): ?>
-                    <span class="badge bg-light text-secondary border fw-normal" style="font-size:11px;"><?= gf_h($a['name']) ?></span>
+                    <span class="badge bg-light text-secondary border fw-normal" style="font-size:11px;"><?= gf_h(gf_t((string) $a['name'])) ?></span>
                 <?php endforeach; ?>
                 <?php if (!empty($gym['has_pt'])): ?>
-                    <span class="badge bg-light text-secondary border fw-normal" style="font-size:11px;">Có PT</span>
+                    <span class="badge bg-light text-secondary border fw-normal" style="font-size:11px;"><?= gf_h(gf_t('Có PT')) ?></span>
                 <?php endif; ?>
             </div>
             <div class="mt-auto pt-3 border-top position-relative" style="z-index:2;">
-                <a href="<?= gf_h($href) ?>" class="btn btn-outline-primary w-100 rounded-3 py-2 fw-semibold" style="font-size:13px;">Xem chi tiết</a>
+                <a href="<?= gf_h($href) ?>" class="btn btn-outline-primary w-100 rounded-3 py-2 fw-semibold" style="font-size:13px;"><?= gf_h(gf_t('Xem chi tiết')) ?></a>
             </div>
         </div>
     </div>
