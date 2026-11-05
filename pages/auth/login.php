@@ -71,12 +71,7 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                         </div>
                         <button class="auth-btn-submit w-100 d-flex justify-content-center align-items-center gap-2" type="submit"><?= gf_h(gf_t('Đăng nhập')) ?> <i class="fa-solid fa-arrow-right"></i></button>
                     </form>
-                    <div class="auth-divider"><hr><span><?= gf_h(gf_t('CHỌN NHANH TÀI KHOẢN KIỂM THỬ')) ?></span><hr></div>
-                    <div class="row g-3 mb-5">
-                        <div class="col-6"><button type="button" class="test-card w-100 text-start" data-email="u02@gymfinder.test" data-password="password"><span class="test-status-dot"></span><div class="d-flex align-items-center gap-2 mb-2"><i class="fa-regular fa-user text-primary"></i><span class="fw-bold text-dark"><?= gf_h(gf_t('Người dùng')) ?></span></div><div class="text-primary fw-semibold small text-break">u02@gymfinder.test</div></button></div>
-                        <div class="col-6"><button type="button" class="test-card w-100 text-start" data-email="u01@gymfinder.test" data-password="password"><span class="test-status-dot"></span><div class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-shield-halved text-primary"></i><span class="fw-bold text-dark"><?= gf_h(gf_t('Quản trị viên')) ?></span></div><div class="text-primary fw-semibold small text-break">u01@gymfinder.test</div></button></div>
-                    </div>
-                    <div class="text-center mt-auto" style="font-size:15px;color:#64748b"><?= gf_h(gf_t('Chưa có tài khoản?')) ?> <a class="text-primary text-decoration-none fw-bold" href="<?= gf_h(gf_url('pages/auth/register.php')) ?>"><?= gf_h(gf_t('Đăng ký ngay')) ?></a></div>
+                    <div class="text-center mt-4" style="font-size:15px;color:#64748b"><?= gf_h(gf_t('Chưa có tài khoản?')) ?> <a class="text-primary text-decoration-none fw-bold" href="<?= gf_h(gf_url('pages/auth/register.php')) ?>"><?= gf_h(gf_t('Đăng ký ngay')) ?></a></div>
                 </div>
             </div>
         </div>
@@ -85,12 +80,6 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="<?= gf_h(gf_url('assets/js/auth_validate.js')) ?>?v=<?= gf_h((string) @filemtime(dirname(__DIR__, 2) . '/assets/js/auth_validate.js')) ?>"></script>
 <script>
-document.querySelectorAll('.test-card[data-email]').forEach(card => card.addEventListener('click', () => {
-    document.querySelectorAll('.test-card[data-email]').forEach(item => item.classList.remove('active'));
-    card.classList.add('active');
-    document.getElementById('username').value = card.dataset.email;
-    document.getElementById('password').value = card.dataset.password;
-}));
 document.getElementById('btnTogglePassword')?.addEventListener('click', () => {
     const input = document.getElementById('password');
     const icon = document.getElementById('togglePasswordIcon');

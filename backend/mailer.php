@@ -114,14 +114,24 @@ function gf_send_password_reset_otp_email(string $recipient, string $otp): bool
         gf_smtp_command($socket, 'DATA', [354]);
 
         $fromName = (string) ($smtp['from_name'] ?? 'GYMFINDER');
-        $subject = mb_encode_mimeheader('Mã OTP đặt lại mật khẩu GYMFINDER', 'UTF-8', 'B');
+        $englishMail = function_exists('gf_lang') && gf_lang() === 'en';
+        $subjectText = $englishMail ? 'GYMFINDER password reset code' : 'Mã OTP đặt lại mật khẩu GYMFINDER';
+        $subject = mb_encode_mimeheader($subjectText, 'UTF-8', 'B');
         $boundary = 'gf_' . bin2hex(random_bytes(16));
-        $plain = "Xin chào,\n\nMã OTP đặt lại mật khẩu GYMFINDER của bạn là: {$otp}\nMã có hiệu lực trong 10 phút và chỉ sử dụng một lần.\n\nNếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này.";
-        $html = '<!doctype html><html lang="vi"><body style="font-family:Arial,sans-serif;color:#1e293b">'
-            . '<h2>Đặt lại mật khẩu GYMFINDER</h2><p>Mã xác nhận của bạn:</p>'
-            . '<p style="font-size:30px;font-weight:bold;letter-spacing:8px;color:#00bfae">' . $otp . '</p>'
-            . '<p>Mã có hiệu lực trong <strong>10 phút</strong> và chỉ sử dụng một lần.</p>'
-            . '<p>Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này.</p></body></html>';
+        $plain = $englishMail
+            ? "Hello,\n\nYour GYMFINDER password reset code is: {$otp}\nThe code works for 10 minutes and can be used once.\n\nIf you did not ask to reset your password, ignore this email."
+            : "Xin chào,\n\nMã OTP đặt lại mật khẩu GYMFINDER của bạn là: {$otp}\nMã có hiệu lực trong 10 phút và chỉ sử dụng một lần.\n\nNếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này.";
+        $html = $englishMail
+            ? '<!doctype html><html lang="en"><body style="font-family:Arial,sans-serif;color:#1e293b">'
+                . '<h2>Reset your GYMFINDER password</h2><p>Your confirmation code:</p>'
+                . '<p style="font-size:30px;font-weight:bold;letter-spacing:8px;color:#00bfae">' . $otp . '</p>'
+                . '<p>The code works for <strong>10 minutes</strong> and can be used once.</p>'
+                . '<p>If you did not ask to reset your password, ignore this email.</p></body></html>'
+            : '<!doctype html><html lang="vi"><body style="font-family:Arial,sans-serif;color:#1e293b">'
+                . '<h2>Đặt lại mật khẩu GYMFINDER</h2><p>Mã xác nhận của bạn:</p>'
+                . '<p style="font-size:30px;font-weight:bold;letter-spacing:8px;color:#00bfae">' . $otp . '</p>'
+                . '<p>Mã có hiệu lực trong <strong>10 phút</strong> và chỉ sử dụng một lần.</p>'
+                . '<p>Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này.</p></body></html>';
         $body = '--' . $boundary . "\r\n"
             . "Content-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n"
             . chunk_split(base64_encode($plain), 76, "\r\n")

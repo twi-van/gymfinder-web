@@ -44,7 +44,7 @@ $reviews = (int) ($gym['review_count'] ?? 0);
                 <?php endif; ?>
             </div>
             <p class="text-secondary mb-3" style="font-size: 13px;">
-                <i class="fa-solid fa-location-dot me-2 text-primary opacity-75"></i><?= gf_h(gf_place_name((string) ($gym['district_name'] ?? ''))) ?>, TP.HCM
+                <i class="fa-solid fa-location-dot me-2 text-primary opacity-75"></i><?= gf_h(gf_place_name((string) ($gym['district_name'] ?? ''))) ?>, <?= gf_h(gf_place_name('TP.HCM')) ?>
             </p>
             <div class="fw-bold text-dark mb-3" style="font-size: 14px;"><?= gf_h($gym['price_label'] ?? '') ?></div>
             <div class="mb-3 d-flex flex-wrap gap-1 position-relative" style="z-index:2;">

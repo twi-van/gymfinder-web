@@ -28,6 +28,29 @@
 
     function gfPlace(name) {
         const text = String(name || '');
+        if (window.GF_LANG === 'en') {
+            const match = text.match(/^Quận\s+(\d+)$/);
+            if (match) return 'District ' + match[1];
+            const places = {
+                'Huyện Bình Chánh': 'Binh Chanh District',
+                'Huyện Cần Giờ': 'Can Gio District',
+                'Huyện Củ Chi': 'Cu Chi District',
+                'Huyện Hóc Môn': 'Hoc Mon District',
+                'Huyện Nhà Bè': 'Nha Be District',
+                'Bình Tân': 'Binh Tan District',
+                'Bình Thạnh': 'Binh Thanh District',
+                'Gò Vấp': 'Go Vap District',
+                'Phú Nhuận': 'Phu Nhuan District',
+                'Tân Bình': 'Tan Binh District',
+                'Tân Phú': 'Tan Phu District',
+                'TP Thủ Đức': 'Thu Duc City',
+                'Thủ Đức': 'Thu Duc City',
+                'TP. Hồ Chí Minh': 'Ho Chi Minh City',
+                'TP.HCM': 'Ho Chi Minh City',
+                'TPHCM': 'Ho Chi Minh City'
+            };
+            if (places[text]) return places[text];
+        }
         return text;
     }
 

@@ -276,7 +276,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                         data-type-label="<?= gf_h(gf_t('Huấn luyện viên cá nhân')) ?>"
                         data-name="<?= gf_h($t['full_name']) ?>"
                         data-avatar="<?= gf_h($t['avatar'] ?? '') ?>"
-                        data-subtitle="<?= gf_h(($detailSpecLabel !== '' ? $detailSpecLabel : ($t['specialty_name'] ?? '')) . (!empty($t['district_name']) ? ' • ' . $t['district_name'] : '')) ?>"
+                        data-subtitle="<?= gf_h(($detailSpecLabel !== '' ? $detailSpecLabel : ($t['specialty_name'] ?? '')) . (!empty($t['district_name']) ? ' • ' . gf_place_name((string) $t['district_name']) : '')) ?>"
                         data-phone="<?= gf_h($t['phone'] ?? '') ?>">
                         <i class="fa-solid fa-phone me-2"></i><?= gf_h(gf_t('Liên hệ')) ?>
                     </button>
@@ -296,7 +296,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                                     <h6 class="fw-bold mb-1"><?= gf_h($pg['name']) ?></h6>
                                     <?php if (!empty($pg['district_name']) || !empty($pg['address'])): ?>
                                         <p class="text-secondary small mb-2">
-                                            <i class="fa-solid fa-location-dot me-1"></i><?= gf_h($pg['address'] ?: $pg['district_name']) ?>
+                                            <i class="fa-solid fa-location-dot me-1"></i><?= gf_h($pg['address'] ?: gf_place_name((string) ($pg['district_name'] ?? ''))) ?>
                                         </p>
                                     <?php endif; ?>
                                     <a href="<?= gf_h(gf_url('pages/gyms/detail.php?id='.(int)$pg['id'])) ?>" class="btn btn-outline-primary btn-sm rounded-pill px-3"><?= gf_h(gf_t('Xem phòng tập')) ?></a>

@@ -400,7 +400,7 @@ $colspan = count($columns);
 <?php foreach ($rows as $r): ?>
 <tr>
     <td class="text-center text-muted fw-semibold"><?= (int)$r['id'] ?></td>
-    <td><span class="admin-cell-title"><?= gf_h($r['name']) ?></span></td>
+    <td><span class="admin-cell-title"><?= gf_h($tab === 'districts' ? gf_place_name((string) $r['name']) : (string) $r['name']) ?></span></td>
     <td><code class="small text-secondary"><?= gf_h($r['slug'] ?? '') ?></code></td>
     <?php if ($tab === 'amenities'): ?>
         <td><span class="text-secondary small"><?= gf_h($r['icon'] ?? '—') ?></span></td>
@@ -445,7 +445,7 @@ gf_admin_table_close([
                 </div>
                 <div class="modal-body">
                     <label class="form-label"><?= gf_h(gf_t('Tên *')) ?></label>
-                    <input class="form-control admin-input mb-3" name="name" value="<?= gf_h($r['name']) ?>" required maxlength="100" data-required-msg="<?= gf_h(gf_t('Vui lòng nhập tên danh mục.')) ?>">
+                    <input class="form-control admin-input mb-3" name="name" value="<?= $tab === 'districts' ? htmlspecialchars((string) $r['name'], ENT_QUOTES, 'UTF-8') : gf_h($r['name']) ?>" required maxlength="100" data-required-msg="<?= gf_h(gf_t('Vui lòng nhập tên danh mục.')) ?>">
                     <?php if ($tab === 'categories'): ?>
                         <label class="form-label"><?= gf_h(gf_t('Mô tả')) ?></label>
                         <textarea class="form-control admin-input mb-3" name="description" rows="3"><?= gf_h($r['description'] ?? '') ?></textarea>

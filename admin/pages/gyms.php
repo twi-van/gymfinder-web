@@ -168,7 +168,7 @@ require_once dirname(__DIR__) . '/components/table.php';
             <select class="form-select admin-input" name="district_id" style="height: 42px;">
                 <option value=""><?= gf_h(gf_t('Tất cả khu vực')) ?></option>
                 <?php foreach ($districts as $d): ?>
-                    <option value="<?= (int)$d['id'] ?>" <?= (string)($_GET['district_id'] ?? '') === (string)$d['id'] ? 'selected' : '' ?>><?= gf_h($d['name']) ?></option>
+                    <option value="<?= (int)$d['id'] ?>" <?= (string)($_GET['district_id'] ?? '') === (string)$d['id'] ? 'selected' : '' ?>><?= gf_h(gf_place_name((string) $d['name'])) ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -241,7 +241,7 @@ gf_admin_table_open([
                         </div>
                     </td>
                     <td>
-                        <span class="fw-medium text-secondary"><?= gf_h($districtNames[(int)$r['district_id']] ?? '—') ?></span>
+                        <span class="fw-medium text-secondary"><?= gf_h(gf_place_name((string) ($districtNames[(int)$r['district_id']] ?? '—'))) ?></span>
                     </td>
                     <td>
                         <div class="d-flex flex-wrap gap-1">
@@ -355,11 +355,11 @@ gf_admin_table_close([
                     
                     <div class="col-md-7">
                         <h4 class="fw-bold mb-1 text-dark"><?= gf_h($r['name']) ?></h4>
-                        <p class="text-secondary mb-3"><i class="fa-solid fa-location-dot me-1 text-muted"></i><?= gf_h($r['address']) ?>, <?= gf_h($districtNames[(int)$r['district_id']] ?? '') ?></p>
+                        <p class="text-secondary mb-3"><i class="fa-solid fa-location-dot me-1 text-muted"></i><?= gf_h((string) ($r['address'] !== '' ? $r['address'] : gf_place_name((string) ($districtNames[(int)$r['district_id']] ?? '')))) ?></p>
                         
                         <div class="p-3 bg-light rounded-3 mb-3 border">
                             <div class="row g-2 small">
-                                <div class="col-6"><strong><?= gf_h(gf_t('Khu vực:')) ?></strong> <?= gf_h($districtNames[(int)$r['district_id']] ?? '—') ?></div>
+                                <div class="col-6"><strong><?= gf_h(gf_t('Khu vực:')) ?></strong> <?= gf_h(gf_place_name((string) ($districtNames[(int)$r['district_id']] ?? '—'))) ?></div>
                                 <div class="col-6"><strong><?= gf_h(gf_t('Số điện thoại:')) ?></strong> <?= !empty($r['phone']) ? gf_h($r['phone']) : '<span class="text-muted fst-italic">' . gf_h(gf_t('Chưa cập nhật')) . '</span>' ?></div>
                                 <div class="col-6"><strong><?= gf_h(gf_t('Đánh giá:')) ?></strong> <i class="fa-solid fa-star text-warning"></i> <?= number_format((float)($r['avg_rating'] ?? 0), 1) ?> (<?= gf_h(gf_t((int) $r['review_count'] . ' đánh giá')) ?>)</div>
                                 <div class="col-6"><strong><?= gf_h(gf_t('Khoảng giá:')) ?></strong> <span class="text-primary fw-bold"><?= gf_h(gf_format_price((int)$r['price_min'], (int)$r['price_max'])) ?></span></div>
@@ -410,7 +410,7 @@ gf_admin_table_close([
                     <div class="col-md-6" data-field><label class="form-label"><?= gf_h(gf_t('Tên phòng tập *')) ?></label><input class="form-control admin-input" name="name" id="gym-name" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập tên phòng tập.')) ?>"></div>
                     <div class="col-md-6"><label class="form-label"><?= gf_h(gf_t('Số điện thoại liên hệ')) ?></label><input class="form-control admin-input" name="phone" id="gym-phone" placeholder="<?= gf_h(gf_t('VD: +84281234567 hoặc 0901234567')) ?>" pattern="^\+?[0-9]{9,14}$" title="<?= gf_h(gf_t('Từ 9 đến 14 chữ số, có thể bắt đầu bằng dấu +')) ?>"></div>
                     <div class="col-md-6" data-field><label class="form-label"><?= gf_h(gf_t('Địa chỉ *')) ?></label><input class="form-control admin-input" name="address" id="gym-address" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập địa chỉ.')) ?>"></div>
-                    <div class="col-md-6" data-field><label class="form-label"><?= gf_h(gf_t('Khu vực *')) ?></label><select class="form-select admin-input" name="district_id" id="gym-district" required data-required-msg="<?= gf_h(gf_t('Vui lòng chọn khu vực.')) ?>"><?php foreach ($districts as $d): ?><option value="<?= (int)$d['id'] ?>"><?= gf_h($d['name']) ?></option><?php endforeach; ?></select></div>
+                    <div class="col-md-6" data-field><label class="form-label"><?= gf_h(gf_t('Khu vực *')) ?></label><select class="form-select admin-input" name="district_id" id="gym-district" required data-required-msg="<?= gf_h(gf_t('Vui lòng chọn khu vực.')) ?>"><?php foreach ($districts as $d): ?><option value="<?= (int)$d['id'] ?>"><?= gf_h(gf_place_name((string) $d['name'])) ?></option><?php endforeach; ?></select></div>
                     <div class="col-md-6"><label class="form-label"><?= gf_h(gf_t('Giá từ')) ?></label><input class="form-control admin-input" type="number" min="0" name="price_min" id="gym-min" value="200000"></div>
                     <div class="col-md-6"><label class="form-label"><?= gf_h(gf_t('Giá đến')) ?></label><input class="form-control admin-input" type="number" min="0" name="price_max" id="gym-max" value="800000"></div>
                     <div class="col-md-6">
@@ -684,7 +684,7 @@ function renderGallery() {
                         <i class="fa-solid fa-xmark" style="font-size:11px;"></i>
                     </button>
                 </div>
-                <input class="form-control form-control-sm mb-2" placeholder="<?= gf_h(gf_t('Chú thích...')) ?>" value="${item.caption || ''}" onchange="galleryItems[${index}].caption = this.value">
+                <input class="form-control form-control-sm mb-2" placeholder="<?= gf_h(gf_t('Chú thích...')) ?>" value="${gfT(item.caption || '')}" onchange="galleryItems[${index}].caption = this.value">
                 <button type="button" class="btn btn-sm btn-outline-secondary w-100 mt-auto rounded-pill" style="font-size:11px;" onclick="makeGalleryCover(${index})">
                     <i class="fa-solid fa-star me-1 text-warning"></i><?= gf_h(gf_t('Đặt làm ảnh bìa')) ?>
                 </button>

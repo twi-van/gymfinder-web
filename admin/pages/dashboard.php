@@ -315,7 +315,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                         <div class="p-3 d-flex flex-column flex-grow-1">
                             <strong class="text-dark mb-1 text-truncate" title="<?= gf_h($gym['name']) ?>"><?= gf_h($gym['name']) ?></strong>
                             <div class="small text-secondary mb-2 text-truncate">
-                                <i class="fa-solid fa-location-dot text-muted me-1"></i><?= gf_h($gym['district_name']) ?>
+                                <i class="fa-solid fa-location-dot text-muted me-1"></i><?= gf_h(gf_place_name((string) $gym['district_name'])) ?>
                             </div>
                             <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center">
                                 <span class="fw-bold text-primary small">
@@ -338,7 +338,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const districtLabels = <?= json_encode(array_column($districtStats, 'name'), JSON_UNESCAPED_UNICODE) ?>;
+    const districtLabels = <?= json_encode(array_map(static fn ($name) => gf_place_name((string) $name), array_column($districtStats, 'name')), JSON_UNESCAPED_UNICODE) ?>;
     const districtValues = <?= json_encode(array_map('intval', array_column($districtStats, 'total'))) ?>;
     const chartCanvas = document.getElementById('gymRegionChart');
 

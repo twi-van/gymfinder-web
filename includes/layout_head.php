@@ -24,7 +24,7 @@ $styleVersion = (string) @filemtime(dirname(__DIR__) . '/assets/css/style.css');
     <?php endforeach; ?>
     <script>
     window.GF_LANG = <?= json_encode(gf_lang()) ?>;
-    window.GF_I18N = <?= gf_lang() === 'en' ? json_encode(gf_i18n_en(), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) : '{}' ?>;
+    window.GF_I18N = <?= gf_lang() === 'en' ? json_encode(array_map('gf_place_phrase', gf_i18n_en()), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) : '{}' ?>;
     window.gfT = function (s) {
         if (window.GF_LANG !== 'en' || typeof s !== 'string' || s === '') return s;
         if (Object.prototype.hasOwnProperty.call(window.GF_I18N, s)) return window.GF_I18N[s];

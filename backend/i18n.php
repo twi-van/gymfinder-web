@@ -57,25 +57,25 @@ function gf_t(string $vi, ?string $en = null): string
         return $vi;
     }
     if ($en !== null && $en !== '') {
-        return $en;
+        return gf_place_phrase($en);
     }
     $mapped = gf_i18n_en()[$vi] ?? null;
     if ($mapped !== null && $mapped !== '') {
-        return $mapped;
+        return gf_place_phrase($mapped);
     }
-    return gf_i18n_pattern($vi);
+    return gf_place_phrase(gf_i18n_pattern($vi));
 }
 
 function gf_i18n_pattern(string $text): string
 {
     if (preg_match('/^Phòng tập (.+) tại (.+) có khu tập luyện tiện nghi, nhiều mức giá, đánh giá hội viên và HLV hỗ trợ\.$/u', $text, $m)) {
-        return $m[1] . ' in ' . $m[2] . ' has a well-equipped training floor, several price levels, member reviews, and trainer support.';
+        return $m[1] . ' in ' . gf_place_name($m[2]) . ' has a well-equipped training floor, several price levels, member reviews, and trainer support.';
     }
     if (preg_match('/^Phòng tập (.+) tại (.+) phục vụ dữ liệu demo GYMFINDER với mức giá, đặc điểm và tiện ích đa dạng\.$/u', $text, $m)) {
-        return $m[1] . ' in ' . $m[2] . ' is listed on GYMFINDER with a range of prices, features, and amenities.';
+        return $m[1] . ' in ' . gf_place_name($m[2]) . ' is listed on GYMFINDER with a range of prices, features, and amenities.';
     }
     if (preg_match('/^Phòng tập (.+) tại (.+) sở hữu không gian tập luyện chuyên nghiệp, trang bị máy tập cao cấp, không gian rộng rãi thoáng mát cùng nhiều tiện ích đẳng cấp\.$/u', $text, $m)) {
-        return $m[1] . ' in ' . $m[2] . ' has a professional training floor, modern equipment, an open space, and full amenities.';
+        return $m[1] . ' in ' . gf_place_name($m[2]) . ' has a professional training floor, modern equipment, an open space, and full amenities.';
     }
     if (preg_match('/^Huấn luyện viên (.+) có (\d+) năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác\.$/u', $text, $m)) {
         $years = (int) $m[2];
@@ -134,6 +134,9 @@ function gf_i18n_pattern(string $text): string
     if (preg_match('/^Ảnh phòng tập (.+)$/u', $text, $m)) {
         return 'Photo of ' . $m[1];
     }
+    if (preg_match('/^Ảnh #(\d+)$/u', $text, $m)) {
+        return 'Photo #' . $m[1];
+    }
     if (preg_match('/^OTP chữ số (\d+)$/u', $text, $m)) {
         return 'OTP digit ' . $m[1];
     }
@@ -158,10 +161,65 @@ function gf_i18n_pattern(string $text): string
     return $text;
 }
 
-/** Địa danh giữ nguyên ở cả hai ngôn ngữ. */
+/** Quận đánh số, huyện và thành phố khi giao diện tiếng Anh. */
 function gf_place_name(string $name): string
 {
-    return $name;
+    if (gf_lang() !== 'en') {
+        return $name;
+    }
+    if (preg_match('/^Quận\s+(\d+)$/u', $name, $m)) {
+        return 'District ' . $m[1];
+    }
+    $map = [
+        'Huyện Bình Chánh' => 'Binh Chanh District',
+        'Huyện Cần Giờ' => 'Can Gio District',
+        'Huyện Củ Chi' => 'Cu Chi District',
+        'Huyện Hóc Môn' => 'Hoc Mon District',
+        'Huyện Nhà Bè' => 'Nha Be District',
+        'Bình Tân' => 'Binh Tan District',
+        'Bình Thạnh' => 'Binh Thanh District',
+        'Gò Vấp' => 'Go Vap District',
+        'Phú Nhuận' => 'Phu Nhuan District',
+        'Tân Bình' => 'Tan Binh District',
+        'Tân Phú' => 'Tan Phu District',
+        'TP Thủ Đức' => 'Thu Duc City',
+        'Thủ Đức' => 'Thu Duc City',
+        'TP. Hồ Chí Minh' => 'Ho Chi Minh City',
+        'TP Hồ Chí Minh' => 'Ho Chi Minh City',
+        'TP.HCM' => 'Ho Chi Minh City',
+        'TPHCM' => 'Ho Chi Minh City',
+    ];
+    return $map[$name] ?? $name;
+}
+
+function gf_place_phrase(string $text): string
+{
+    if (gf_lang() !== 'en' || $text === '') {
+        return $text;
+    }
+    $exact = gf_place_name($text);
+    if ($exact !== $text) {
+        return $exact;
+    }
+    if (preg_match('/^(.*),\s*([^,]+)$/u', $text, $m)) {
+        $tail = trim($m[2]);
+        $mapped = gf_place_name($tail);
+        if ($mapped !== $tail) {
+            $text = $m[1] . ', ' . $mapped;
+        }
+    }
+    return strtr($text, [
+        'TP. Hồ Chí Minh' => 'Ho Chi Minh City',
+        'TP Hồ Chí Minh' => 'Ho Chi Minh City',
+        'TP Thủ Đức' => 'Thu Duc City',
+        'Huyện Bình Chánh' => 'Binh Chanh District',
+        'Huyện Cần Giờ' => 'Can Gio District',
+        'Huyện Củ Chi' => 'Cu Chi District',
+        'Huyện Hóc Môn' => 'Hoc Mon District',
+        'Huyện Nhà Bè' => 'Nha Be District',
+        'TP.HCM' => 'Ho Chi Minh City',
+        'TPHCM' => 'Ho Chi Minh City',
+    ]);
 }
 
 function gf_lang_url(string $lang): string

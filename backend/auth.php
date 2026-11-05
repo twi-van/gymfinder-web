@@ -41,7 +41,7 @@ function gf_require_admin(): array
     $user = gf_require_login(gf_url('admin/pages/dashboard.php'));
     if (($user['role'] ?? '') !== 'admin') {
         http_response_code(403);
-        echo 'Bạn không có quyền truy cập khu vực quản trị.';
+        echo gf_h(gf_t('Bạn không có quyền truy cập khu vực quản trị.'));
         exit;
     }
     return $user;

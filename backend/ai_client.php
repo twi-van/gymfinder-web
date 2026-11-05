@@ -716,7 +716,7 @@ function gf_ai_recommend_gyms(string $userMessage): array
         return [
             'id' => $g['id'],
             'name' => $g['name'],
-            'district' => $g['district'],
+            'district' => gf_place_name((string) $g['district']),
             'price_min' => $g['price_min'],
             'price_max' => $g['price_max'],
             'avg_rating' => $g['avg_rating'],
@@ -731,7 +731,7 @@ function gf_ai_recommend_gyms(string $userMessage): array
             'years_experience' => $t['years_experience'],
             'avg_rating' => $t['avg_rating'],
             'specialties' => array_slice($t['specialties'], 0, 4),
-            'districts' => array_slice($t['districts'], 0, 3),
+            'districts' => array_map(static fn ($name) => gf_place_name((string) $name), array_slice($t['districts'], 0, 3)),
             'gyms' => array_slice($t['gyms'], 0, 2),
         ];
     }, $trainerCatalog);
@@ -771,12 +771,12 @@ Bạn là trợ lý tìm phòng tập (gym) và huấn luyện viên cá nhân (
 {"reply":"Theo Chính sách bảo mật, GYMFINDER không bán dữ liệu cá nhân; mật khẩu được lưu dạng băm. Xem đầy đủ tại trang Chính sách bảo mật trên website.","gym_ids":[],"trainer_ids":[]}
 PROMPT;
     if (function_exists('gf_lang') && gf_lang() === 'en') {
-        $system .= "\n\n## Language\nThe visitor is using the English interface. Write reply in clear natural English. Keep the JSON schema and keys. Do not translate gym names, trainer names, or place names from the catalog. Keep forms such as Quận 1, Huyện Củ Chi, and TP.HCM as written.\n";
+        $system .= "\n\n## Language\nThe visitor is using the English interface. Write reply in clear natural English. Keep the JSON schema and keys. Do not translate gym names or trainer names. Use the place labels from the catalog: District 7, Cu Chi District, Thu Duc City, Ho Chi Minh City. Do not write Quận, Huyện, TP Thủ Đức, or TP.HCM.\n";
     }
 
     $userPayload = json_encode([
         'prefilter' => [
-            'districts' => $hints['district_names'],
+            'districts' => array_map(static fn ($name) => gf_place_name((string) $name), $hints['district_names']),
             'max_price' => $hints['max_price'],
             'category_keywords' => $hints['category_keywords'],
             'specialty_keywords' => $hints['specialty_keywords'],
