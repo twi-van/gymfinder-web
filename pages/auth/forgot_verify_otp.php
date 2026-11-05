@@ -111,7 +111,7 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                                         maxlength="1"
                                         class="otp-input form-control"
                                         name="otp[]"
-                                        aria-label="OTP chữ số <?= $i + 1 ?>"
+                                        aria-label="<?= gf_h(gf_t('OTP chữ số ' . ($i + 1))) ?>"
                                         value="<?= gf_h($otpValue[$i] ?? '') ?>"
                                     >
                                 <?php endfor; ?>

@@ -12,7 +12,7 @@
         }
         if (input.validity.tooShort) {
             const min = input.getAttribute('minlength') || '';
-            return input.getAttribute('data-minlength-msg') || `Tối thiểu ${min} ký tự.`;
+            return input.getAttribute('data-minlength-msg') || (window.GF_LANG === 'en' ? `At least ${min} characters.` : `Tối thiểu ${min} ký tự.`);
         }
         if (input.validity.patternMismatch) {
             return input.getAttribute('data-pattern-msg') || gfT('Giá trị không hợp lệ.');

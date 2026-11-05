@@ -771,7 +771,7 @@ Bạn là trợ lý tìm phòng tập (gym) và huấn luyện viên cá nhân (
 {"reply":"Theo Chính sách bảo mật, GYMFINDER không bán dữ liệu cá nhân; mật khẩu được lưu dạng băm. Xem đầy đủ tại trang Chính sách bảo mật trên website.","gym_ids":[],"trainer_ids":[]}
 PROMPT;
     if (function_exists('gf_lang') && gf_lang() === 'en') {
-        $system .= "\n\n## Language\nThe visitor is using the English interface. Write reply in clear natural English. Keep the JSON schema and keys. Do not translate gym or trainer names from the catalog. District names may be written as District 1, District 7, and so on.\n";
+        $system .= "\n\n## Language\nThe visitor is using the English interface. Write reply in clear natural English. Keep the JSON schema and keys. Do not translate gym names, trainer names, or place names from the catalog. Keep forms such as Quận 1, Huyện Củ Chi, and TP.HCM as written.\n";
     }
 
     $userPayload = json_encode([

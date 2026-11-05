@@ -45,7 +45,7 @@ $aiChips = [
                 type="text"
                 class="gf-ai-input"
                 maxlength="500"
-                placeholder="<?= $aiWidgetEnabled ? 'Nhập câu hỏi…' : 'AI chưa cấu hình' ?>"
+                placeholder="<?= gf_h($aiWidgetEnabled ? 'Nhập câu hỏi…' : 'AI chưa cấu hình') ?>"
                 <?= $aiWidgetEnabled ? '' : 'disabled' ?>
                 aria-label="<?= gf_h(gf_t('Câu hỏi cho trợ lý AI')) ?>"
             >

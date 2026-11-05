@@ -19,7 +19,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
     <div class="container text-center py-5 mt-5">
         <div class="mb-4"><span class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm" style="width:100px;height:100px"><i class="fa-solid fa-shield-halved text-primary" style="font-size:40px"></i></span></div>
         <h2 class="fw-bold mb-3"><?= gf_h(gf_t('Tài khoản quản trị không dùng Yêu thích')) ?></h2>
-        <p class="text-secondary mx-auto mb-4" style="max-width:520px">Admin quản lý dữ liệu trong khu vực quản trị. Để thử lưu yêu thích như hội viên, hãy đăng nhập tài khoản user (vd. <code>u02@gymfinder.test</code>).</p>
+        <p class="text-secondary mx-auto mb-4" style="max-width:520px"><?= gf_h(gf_t('Admin quản lý dữ liệu trong khu vực quản trị. Để thử lưu yêu thích như hội viên, hãy đăng nhập tài khoản user (vd. u02@gymfinder.test).')) ?></p>
         <a href="<?= gf_h(gf_url('admin/pages/dashboard.php')) ?>" class="btn btn-primary rounded-pill px-5 py-2 fw-semibold"><?= gf_h(gf_t('Vào khu vực quản trị')) ?></a>
     </div>
 <?php else:
@@ -49,8 +49,8 @@ require dirname(__DIR__, 2) . '/includes/header.php';
             <p class="text-secondary"><?= gf_h(gf_t('Lưu lại những phòng tập và huấn luyện viên bạn quan tâm.')) ?></p>
         </div>
         <ul class="nav nav-pills justify-content-center mb-4">
-            <li class="nav-item"><button class="nav-link <?= $activeTab === 'gyms' ? 'active' : '' ?>" id="gyms-tab" data-bs-toggle="pill" data-bs-target="#fg" type="button" role="tab">Phòng tập (<?= $totalGyms ?>)</button></li>
-            <li class="nav-item"><button class="nav-link <?= $activeTab === 'trainers' ? 'active' : '' ?>" id="trainers-tab" data-bs-toggle="pill" data-bs-target="#ft" type="button" role="tab">Huấn luyện viên (<?= $totalTrainers ?>)</button></li>
+            <li class="nav-item"><button class="nav-link <?= $activeTab === 'gyms' ? 'active' : '' ?>" id="gyms-tab" data-bs-toggle="pill" data-bs-target="#fg" type="button" role="tab"><?= gf_h(gf_t('Phòng tập')) ?> (<?= (int) $totalGyms ?>)</button></li>
+            <li class="nav-item"><button class="nav-link <?= $activeTab === 'trainers' ? 'active' : '' ?>" id="trainers-tab" data-bs-toggle="pill" data-bs-target="#ft" type="button" role="tab"><?= gf_h(gf_t('Huấn luyện viên')) ?> (<?= (int) $totalTrainers ?>)</button></li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane fade <?= $activeTab === 'gyms' ? 'show active' : '' ?>" id="fg">

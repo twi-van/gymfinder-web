@@ -126,7 +126,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
         <div class="col-12">
             <label class="form-label fw-bold mb-2"><?= gf_h(gf_t('Ảnh đại diện huấn luyện viên')) ?></label>
             <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
-                <img id="trainerAvatarPreview" src="https://ui-avatars.com/api/?name=HLV&background=00c9b1&color=fff" class="rounded-circle shadow-sm object-fit-cover" style="width:72px;height:72px;flex:0 0 72px;" alt="Xem trước ảnh đại diện">
+                <img id="trainerAvatarPreview" src="https://ui-avatars.com/api/?name=HLV&background=00c9b1&color=fff" class="rounded-circle shadow-sm object-fit-cover" style="width:72px;height:72px;flex:0 0 72px;" alt="<?= gf_h(gf_t('Xem trước ảnh đại diện')) ?>">
                 <div class="flex-grow-1">
                     <div class="d-flex flex-wrap gap-2 mb-2">
                         <input type="file" id="trainerAvatarFile" name="avatar_file" accept="image/jpeg,image/png,image/webp" class="d-none" onchange="previewTrainerAvatar(this)">
@@ -138,7 +138,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                 </div>
             </div>
         </div>
-        <div class="col-md-6" data-field><label class="form-label"><?= gf_h(gf_t('Họ và tên *')) ?></label><input class="form-control admin-input" name="full_name" id="trainerName" placeholder="Họ tên" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập họ và tên HLV.')) ?>"></div>
+        <div class="col-md-6" data-field><label class="form-label"><?= gf_h(gf_t('Họ và tên *')) ?></label><input class="form-control admin-input" name="full_name" id="trainerName" placeholder="<?= gf_h(gf_t('Họ tên')) ?>" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập họ và tên HLV.')) ?>"></div>
         <div class="col-md-6"><label class="form-label"><?= gf_h(gf_t('Kinh nghiệm (năm)')) ?></label><input class="form-control admin-input" type="number" name="years_experience" id="trainerYears" value="3" min="0" max="60"></div>
         <div class="col-12"><label class="form-label"><?= gf_h(gf_t('Chuyên môn *')) ?> <span class="text-secondary fw-normal"><?= gf_h(gf_t('(chọn một hoặc nhiều; tối thiểu 1)')) ?></span></label>
             <div id="trainerSpecialtyList" class="border rounded-3 p-3 bg-light" style="max-height:180px;overflow:auto;">
@@ -163,7 +163,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
             <div class="form-text"><?= gf_h(gf_t('Một huấn luyện viên có thể liên kết với nhiều phòng tập trên cùng một hồ sơ.')) ?></div>
         </div>
         <div class="col-md-6"><label class="form-label"><?= gf_h(gf_t('Số điện thoại')) ?></label><input class="form-control admin-input" name="phone" id="trainerPhone"></div>
-        <div class="col-md-6"><label class="form-label">Trạng thái</label><select class="form-select admin-input" name="status" id="trainerStatus"><option value="active"><?= gf_h(gf_t('Hoạt động')) ?></option><option value="hidden"><?= gf_h(gf_t('Tạm ẩn')) ?></option></select></div>
+        <div class="col-md-6"><label class="form-label"><?= gf_h(gf_t('Trạng thái')) ?></label><select class="form-select admin-input" name="status" id="trainerStatus"><option value="active"><?= gf_h(gf_t('Hoạt động')) ?></option><option value="hidden"><?= gf_h(gf_t('Tạm ẩn')) ?></option></select></div>
         <div class="col-12">
             <div class="form-check">
                 <input type="hidden" name="is_featured" value="0">
@@ -173,9 +173,9 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
         </div>
         <div class="col-12"><label class="form-label"><?= gf_h(gf_t('Tiểu sử')) ?></label><textarea class="form-control admin-input" rows="3" name="bio" id="trainerBio"></textarea></div>
     </div>
-    <div class="d-flex justify-content-end gap-2 mt-4"><button type="button" class="btn btn-light" data-bs-dismiss="modal"><?= gf_h(gf_t('Hủy')) ?></button><button type="submit" class="btn btn-primary" id="trainerSubmit">Lưu thông tin</button></div>
+    <div class="d-flex justify-content-end gap-2 mt-4"><button type="button" class="btn btn-light" data-bs-dismiss="modal"><?= gf_h(gf_t('Hủy')) ?></button><button type="submit" class="btn btn-primary" id="trainerSubmit"><?= gf_h(gf_t('Lưu thông tin')) ?></button></div>
 </form></div></div></div></div>
-<form method="get" class="admin-card p-3 mb-4"><div class="row g-3"><div class="col-md-5"><input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q']??'') ?>" placeholder="<?= gf_h(gf_t('⌕  Tìm kiếm huấn luyện viên...')) ?>"></div><div class="col-md-3"><select class="form-select admin-input" name="specialty_id"><option value=""><?= gf_h(gf_t('Tất cả chuyên môn')) ?></option><?php foreach($specs as $s): ?><option value="<?= (int)$s['id'] ?>" <?= (string)($_GET['specialty_id']??'')===(string)$s['id']?'selected':'' ?>><?= gf_h($s['name']) ?></option><?php endforeach; ?></select></div><div class="col-md-2"><select class="form-select admin-input" name="status"><option value="" <?= empty($_GET['status'])?'selected':'' ?>>Trạng thái</option><option value="active" <?= ($_GET['status']??'')==='active'?'selected':'' ?>><?= gf_h(gf_t('Hoạt động')) ?></option><option value="hidden" <?= ($_GET['status']??'')==='hidden'?'selected':'' ?>><?= gf_h(gf_t('Tạm ẩn')) ?></option></select></div><div class="col-md-2"><button class="btn btn-light border w-100"><?= gf_h(gf_t('Lọc')) ?></button></div></div></form>
+<form method="get" class="admin-card p-3 mb-4"><div class="row g-3"><div class="col-md-5"><input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q']??'') ?>" placeholder="<?= gf_h(gf_t('⌕  Tìm kiếm huấn luyện viên...')) ?>"></div><div class="col-md-3"><select class="form-select admin-input" name="specialty_id"><option value=""><?= gf_h(gf_t('Tất cả chuyên môn')) ?></option><?php foreach($specs as $s): ?><option value="<?= (int)$s['id'] ?>" <?= (string)($_GET['specialty_id']??'')===(string)$s['id']?'selected':'' ?>><?= gf_h($s['name']) ?></option><?php endforeach; ?></select></div><div class="col-md-2"><select class="form-select admin-input" name="status"><option value="" <?= empty($_GET['status'])?'selected':'' ?>><?= gf_h(gf_t('Trạng thái')) ?></option><option value="active" <?= ($_GET['status']??'')==='active'?'selected':'' ?>><?= gf_h(gf_t('Hoạt động')) ?></option><option value="hidden" <?= ($_GET['status']??'')==='hidden'?'selected':'' ?>><?= gf_h(gf_t('Tạm ẩn')) ?></option></select></div><div class="col-md-2"><button class="btn btn-light border w-100"><?= gf_h(gf_t('Lọc')) ?></button></div></div></form>
 <?php
 $trainerPaginationHtml = gf_render_admin_pagination(
     $trainerPage,
@@ -243,7 +243,7 @@ foreach ($rows as $r):
         <?php endif; ?>
     </td>
     <td class="text-center admin-cell-rating text-nowrap"><i class="fa-solid fa-star"></i> <?= gf_h((string)($r['avg_rating']??0)) ?></td>
-    <td class="text-center"><span class="admin-badge <?= $r['status']==='active'?'badge-success':'badge-neutral' ?>"><?= $r['status']==='active'?'Hoạt động':'Tạm ẩn' ?></span></td>
+    <td class="text-center"><span class="admin-badge <?= $r['status']==='active'?'badge-success':'badge-neutral' ?>"><?= gf_h(gf_t($r['status']==='active'?'Hoạt động':'Tạm ẩn')) ?></span></td>
     <td class="text-end pe-3 text-nowrap">
         <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#trainerView<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Xem chi tiết')) ?>"><i class="fa-solid fa-eye"></i></button>
         <button type="button" class="btn btn-action btn-action-edit" title="<?= gf_h(gf_t('Chỉnh sửa')) ?>" data-bs-toggle="modal" data-bs-target="#trainerCreate" onclick="trainerModalEdit(this)" data-id="<?= (int)$r['id'] ?>" data-name="<?= gf_h($r['full_name']) ?>" data-specialty="<?= (int)($linkedSpecIds[0] ?? 0) ?>" data-specialties="<?= gf_h(implode(',', $linkedSpecIds)) ?>" data-gym="<?= (int)($linkedGymIds[0] ?? 0) ?>" data-gyms="<?= gf_h(implode(',', $linkedGymIds)) ?>" data-years="<?= (int)$r['years_experience'] ?>" data-phone="<?= gf_h($r['phone']??'') ?>" data-status="<?= gf_h($r['status']) ?>" data-featured="<?= (int)($r['is_featured'] ?? 0) ?>" data-bio="<?= gf_h($r['bio']??'') ?>" data-avatar="<?= gf_h($r['avatar_url']??'') ?>" data-avatar-display="<?= gf_h(gf_avatar($r['avatar_url']??null, (int)$r['id'], $r['full_name'])) ?>"><i class="fa-solid fa-pen"></i></button>
@@ -307,7 +307,7 @@ gf_admin_table_close([
                                 <?= gf_h(implode(', ', $viewGymNames)) ?>
                             <?php endif; ?>
                         </div>
-                        <div class="col-6"><strong><?= gf_h(gf_t('Kinh nghiệm:')) ?></strong> <?= (int)$r['years_experience'] ?> năm</div>
+                        <div class="col-6"><strong><?= gf_h(gf_t('Kinh nghiệm:')) ?></strong> <?= gf_h(gf_t((int) $r['years_experience'] . ' năm')) ?></div>
                         <div class="col-6"><strong><?= gf_h(gf_t('Số điện thoại:')) ?></strong> <?= gf_h($r['phone'] ?? '—') ?></div>
                         <div class="col-6"><strong><?= gf_h(gf_t('Đánh giá:')) ?></strong> <span class="text-warning"><i class="fa-solid fa-star"></i> <?= gf_h((string)$r['avg_rating']) ?> / 5</span></div>
                     </div>
@@ -379,7 +379,7 @@ function trainerModalCreate(){
     document.getElementById('trainerAvatarCancelBtn').classList.add('d-none');
     document.getElementById('trainer-error-alert').classList.add('d-none');
     document.getElementById('trainerModalTitle').textContent=gfT('Thêm huấn luyện viên mới');
-    document.getElementById('trainerSubmit').textContent='Thêm huấn luyện viên';
+    document.getElementById('trainerSubmit').textContent=gfT('Thêm huấn luyện viên');
     document.getElementById('trainerSubmit').disabled = false;
     setTrainerGymChecks([]);
     setTrainerSpecialtyChecks([]);
@@ -419,20 +419,20 @@ function trainerModalEdit(button){
     document.getElementById('trainerAvatarPreview').src = originalTrainerAvatarDisplay;
     document.getElementById('trainerAvatarCancelBtn').classList.add('d-none');
 
-    document.getElementById('trainerModalTitle').textContent='Sửa huấn luyện viên: '+button.dataset.name;
-    document.getElementById('trainerSubmit').textContent='Lưu thông tin';
+    document.getElementById('trainerModalTitle').textContent=gfT('Sửa huấn luyện viên:') + ' ' + button.dataset.name;
+    document.getElementById('trainerSubmit').textContent=gfT('Lưu thông tin');
 }
 
 function previewTrainerAvatar(input) {
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-        typeof window.gfToast === 'function' ? window.gfToast('File không hợp lệ. Vui lòng chọn ảnh JPG, PNG hoặc WEBP.', 'warning') : null;
+        typeof window.gfToast === 'function' ? window.gfToast(gfT('File không hợp lệ. Vui lòng chọn ảnh JPG, PNG hoặc WEBP.'), 'warning') : null;
         input.value = '';
         return;
     }
     if (file.size > 5 * 1024 * 1024) {
-        typeof window.gfToast === 'function' ? window.gfToast('Dung lượng ảnh vượt quá 5 MB.', 'warning') : null;
+        typeof window.gfToast === 'function' ? window.gfToast(gfT('Dung lượng ảnh vượt quá 5 MB.'), 'warning') : null;
         input.value = '';
         return;
     }
@@ -469,18 +469,18 @@ async function handleTrainerFormSubmit(e) {
     errAlert.textContent = '';
 
     if (getSelectedTrainerSpecialtyIds().length === 0) {
-        errAlert.textContent = 'Vui lòng chọn ít nhất một chuyên môn.';
+        errAlert.textContent = gfT('Vui lòng chọn ít nhất một chuyên môn.');
         errAlert.classList.remove('d-none');
         return false;
     }
     if (getSelectedTrainerGymIds().length === 0) {
-        errAlert.textContent = 'Vui lòng chọn ít nhất một phòng tập liên kết.';
+        errAlert.textContent = gfT('Vui lòng chọn ít nhất một phòng tập liên kết.');
         errAlert.classList.remove('d-none');
         return false;
     }
 
     saveBtn.disabled = true;
-    saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Đang tải ảnh & lưu...';
+    saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>' + gfT('Đang tải ảnh & lưu...');
 
     try {
         const fileInput = document.getElementById('trainerAvatarFile');
@@ -497,7 +497,7 @@ async function handleTrainerFormSubmit(e) {
             });
             const data = await res.json();
             if (!res.ok || !data.data || !data.data.url) {
-                throw new Error(data.error?.message || 'Tải ảnh đại diện thất bại.');
+                throw new Error(data.error?.message || gfT('Tải ảnh đại diện thất bại.'));
             }
             document.getElementById('trainerAvatarUrl').value = data.data.url;
             fileInput.value = ''; // Tránh submit file qua standard post lần 2
@@ -506,8 +506,8 @@ async function handleTrainerFormSubmit(e) {
         document.getElementById('trainerForm').submit();
     } catch (err) {
         saveBtn.disabled = false;
-        saveBtn.textContent = document.getElementById('trainerId').value ? 'Lưu thông tin' : 'Thêm huấn luyện viên';
-        errAlert.textContent = err.message || 'Đã xảy ra lỗi khi lưu thông tin.';
+        saveBtn.textContent = document.getElementById('trainerId').value ? gfT('Lưu thông tin') : gfT('Thêm huấn luyện viên');
+        errAlert.textContent = err.message || gfT('Đã xảy ra lỗi khi lưu thông tin.');
         errAlert.classList.remove('d-none');
     }
     return false;

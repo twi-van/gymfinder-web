@@ -13,7 +13,7 @@ $adminBreadcrumbMap = [
     'categories' => gf_t('Danh mục'),
     'profile' => gf_t('Hồ sơ cá nhân'),
 ];
-$adminBreadcrumbCurrent = $adminBreadcrumbMap[$adminActive] ?? 'Tổng quan';
+$adminBreadcrumbCurrent = $adminBreadcrumbMap[$adminActive] ?? gf_t('Tổng quan');
 
 function gf_admin_nav(string $key, string $href, string $icon, string $label, string $active): void
 {

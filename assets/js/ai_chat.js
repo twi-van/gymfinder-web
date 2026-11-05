@@ -28,10 +28,7 @@
 
     function gfPlace(name) {
         const text = String(name || '');
-        if (window.GF_LANG !== 'en') return text;
-        return text
-            .replace(/Quận\s+(\d+)/g, 'District $1')
-            .replace(/Thành phố Hồ Chí Minh|TP\.\s*Hồ Chí Minh|TP\.HCM|TPHCM/g, 'Ho Chi Minh City');
+        return text;
     }
 
     function esc(s) {

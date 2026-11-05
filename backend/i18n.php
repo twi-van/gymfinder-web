@@ -69,10 +69,18 @@ function gf_t(string $vi, ?string $en = null): string
 function gf_i18n_pattern(string $text): string
 {
     if (preg_match('/^Phòng tập (.+) tại (.+) có khu tập luyện tiện nghi, nhiều mức giá, đánh giá hội viên và HLV hỗ trợ\.$/u', $text, $m)) {
-        return $m[1] . ' in ' . gf_place_name($m[2]) . ' has a well-equipped training floor, several price levels, member reviews, and trainer support.';
+        return $m[1] . ' in ' . $m[2] . ' has a well-equipped training floor, several price levels, member reviews, and trainer support.';
     }
     if (preg_match('/^Phòng tập (.+) tại (.+) phục vụ dữ liệu demo GYMFINDER với mức giá, đặc điểm và tiện ích đa dạng\.$/u', $text, $m)) {
-        return $m[1] . ' in ' . gf_place_name($m[2]) . ' is listed on GYMFINDER with a range of prices, features, and amenities.';
+        return $m[1] . ' in ' . $m[2] . ' is listed on GYMFINDER with a range of prices, features, and amenities.';
+    }
+    if (preg_match('/^Phòng tập (.+) tại (.+) sở hữu không gian tập luyện chuyên nghiệp, trang bị máy tập cao cấp, không gian rộng rãi thoáng mát cùng nhiều tiện ích đẳng cấp\.$/u', $text, $m)) {
+        return $m[1] . ' in ' . $m[2] . ' has a professional training floor, modern equipment, an open space, and full amenities.';
+    }
+    if (preg_match('/^Huấn luyện viên (.+) có (\d+) năm kinh nghiệm thực chiến trong lĩnh vực thể hình và fitness, chuyên sâu xây dựng giáo án cá nhân hóa và hướng dẫn kỹ thuật chuẩn xác\.$/u', $text, $m)) {
+        $years = (int) $m[2];
+        $yearLabel = $years === 1 ? '1 year' : ($years . ' years');
+        return $m[1] . ' is a trainer with ' . $yearLabel . ' of hands-on fitness experience, focused on personal programs and correct technique.';
     }
     if (preg_match('/^(\d+) sao$/u', $text, $m)) {
         return $m[1] . ((int) $m[1] === 1 ? ' star' : ' stars');
@@ -129,26 +137,31 @@ function gf_i18n_pattern(string $text): string
     if (preg_match('/^OTP chữ số (\d+)$/u', $text, $m)) {
         return 'OTP digit ' . $m[1];
     }
-    if (preg_match('/Quận\s+\d+|TP\.\s*Hồ Chí Minh|TP\.HCM|TPHCM|Thành phố Hồ Chí Minh/u', $text)) {
-        $out = preg_replace_callback('/Quận\s+(\d+)/u', static fn (array $m): string => 'District ' . $m[1], $text) ?? $text;
-        return str_replace(
-            ['Thành phố Hồ Chí Minh', 'TP. Hồ Chí Minh', 'TP.HCM', 'TPHCM'],
-            'Ho Chi Minh City',
-            $out
-        );
+    if (preg_match('/^Không thể xóa: còn (\d+) phòng tập đang gắn loại này\. Hãy gỡ danh mục khỏi các phòng tập hoặc dùng Ẩn\.$/u', $text, $m)) {
+        return 'Cannot delete: ' . $m[1] . ' gyms still use this category. Remove it from those gyms, or hide it instead.';
+    }
+    if (preg_match('/^Không thể xóa: còn (\d+) huấn luyện viên đang dùng chuyên môn này\.$/u', $text, $m)) {
+        return 'Cannot delete: ' . $m[1] . ' trainers still use this specialty.';
+    }
+    if (preg_match('/^Không thể xóa: còn (\d+) phòng tập đang gắn tiện ích này\.$/u', $text, $m)) {
+        return 'Cannot delete: ' . $m[1] . ' gyms still use this amenity.';
+    }
+    if (preg_match('/^Không thể xóa: còn (\d+) phòng tập thuộc khu vực này\.$/u', $text, $m)) {
+        return 'Cannot delete: ' . $m[1] . ' gyms are in this area.';
+    }
+    if (preg_match('/^Không thể xóa: còn (\d+) huấn luyện viên gắn khu vực này\.$/u', $text, $m)) {
+        return 'Cannot delete: ' . $m[1] . ' trainers are linked to this area.';
+    }
+    if (preg_match('/^Loại này còn (\d+) phòng tập đang gắn\. Hãy gỡ danh mục khỏi các phòng hoặc dùng Ẩn\.$/u', $text, $m)) {
+        return 'This category is still on ' . $m[1] . ' gyms. Remove it from those gyms, or hide it instead.';
     }
     return $text;
 }
 
+/** Địa danh giữ nguyên ở cả hai ngôn ngữ. */
 function gf_place_name(string $name): string
 {
-    if (gf_lang() !== 'en') {
-        return $name;
-    }
-    if (preg_match('/^Quận\s+(\d+)$/u', $name, $m)) {
-        return 'District ' . $m[1];
-    }
-    return gf_t($name);
+    return $name;
 }
 
 function gf_lang_url(string $lang): string

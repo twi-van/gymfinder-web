@@ -138,7 +138,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 </section>
                 <section class="info-card" id="reviews">
                     <div class="d-flex align-items-center justify-content-between mb-4">
-                        <h5 class="fw-bold mb-0"><?= gf_h(gf_t('Đánh giá từ học viên')) ?> <span class="text-secondary small fw-normal">(<?= $totalReviews ?> đã công khai)</span></h5>
+                        <h5 class="fw-bold mb-0"><?= gf_h(gf_t('Đánh giá từ học viên')) ?> <span class="text-secondary small fw-normal">(<?= gf_h(gf_t((int) $totalReviews . ' đã công khai')) ?>)</span></h5>
                         <?php if ($canReview && !$myReview): ?>
                             <a href="#reviewForm" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold"><?= gf_h(gf_t('Viết đánh giá')) ?></a>
                         <?php endif; ?>
@@ -195,7 +195,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                                         <input type="hidden" name="action" value="edit_review">
                                         <div class="modal-header border-0 pb-0">
                                             <h5 class="modal-title fw-bold"><?= gf_h(gf_t('Chỉnh sửa đánh giá của bạn')) ?></h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= gf_h(gf_t('Đóng')) ?>"></button>
                                         </div>
                                         <div class="modal-body py-3">
                                             <div class="mb-3">

@@ -79,7 +79,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
     <div class="d-flex align-items-center gap-2">
         <div class="text-secondary small bg-white border px-3 py-2 rounded-3 shadow-sm d-flex align-items-center">
             <i class="fa-regular fa-clock me-2 text-primary"></i>
-            <span>Cập nhật: <strong class="text-dark"><?= date('H:i - d/m/Y') ?></strong></span>
+            <span><?= gf_h(gf_t('Cập nhật:')) ?> <strong class="text-dark"><?= date('H:i - d/m/Y') ?></strong></span>
         </div>
         <button type="button" class="btn bg-white border shadow-sm rounded-3 py-2 px-3 text-secondary" onclick="window.location.reload()" title="<?= gf_h(gf_t('Làm mới dữ liệu')) ?>">
             <i class="fa-solid fa-rotate-right"></i>
@@ -255,7 +255,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                                     <?php if ($review['status'] === 'pending'): ?>
                                         <span class="admin-badge badge-warning" style="font-size: 10.5px; padding: 2px 7px;"><?= gf_h(gf_t('Chờ duyệt')) ?></span>
                                     <?php elseif ($review['status'] === 'approved'): ?>
-                                        <span class="admin-badge badge-success" style="font-size: 10.5px; padding: 2px 7px;">Đã duyệt</span>
+                                        <span class="admin-badge badge-success" style="font-size: 10.5px; padding: 2px 7px;"><?= gf_h(gf_t('Đã duyệt')) ?></span>
                                     <?php else: ?>
                                         <span class="admin-badge badge-danger" style="font-size: 10.5px; padding: 2px 7px;"><?= gf_h(gf_t('Từ chối')) ?></span>
                                     <?php endif; ?>
@@ -348,7 +348,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: districtLabels,
                 datasets: [{
-                    label: 'Số phòng tập',
+                    label: gfT('Số phòng tập'),
                     data: districtValues,
                     backgroundColor: 'rgba(0, 201, 177, 0.85)',
                     hoverBackgroundColor: '#00c9b1',
@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         cornerRadius: 8,
                         callbacks: {
                             label: function(context) {
-                                return ' ' + context.raw + ' phòng tập';
+                                return ' ' + context.raw + ' ' + gfT('phòng tập');
                             }
                         }
                     }

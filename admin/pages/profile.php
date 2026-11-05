@@ -222,7 +222,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold small"><?= gf_h(gf_t('Vai trò tài khoản (Không thể tự thay đổi)')) ?></label>
-                        <input type="text" class="form-control admin-input bg-light text-muted" value="Quản trị viên (admin)" disabled readonly>
+                        <input type="text" class="form-control admin-input bg-light text-muted" value="<?= gf_h(gf_t('Quản trị viên (admin)')) ?>" disabled readonly>
                     </div>
                 </div>
 
@@ -304,12 +304,12 @@ function previewAdminAvatar(input) {
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-        typeof window.gfToast === 'function' ? window.gfToast('Vui lòng chọn ảnh định dạng JPG, PNG hoặc WEBP.', 'warning') : null;
+        typeof window.gfToast === 'function' ? window.gfToast(gfT('Vui lòng chọn ảnh định dạng JPG, PNG hoặc WEBP.'), 'warning') : null;
         input.value = '';
         return;
     }
     if (file.size > 5 * 1024 * 1024) {
-        typeof window.gfToast === 'function' ? window.gfToast('Dung lượng ảnh vượt quá 5 MB. Vui lòng chọn ảnh nhỏ hơn.', 'warning') : null;
+        typeof window.gfToast === 'function' ? window.gfToast(gfT('Dung lượng ảnh vượt quá 5 MB. Vui lòng chọn ảnh nhỏ hơn.'), 'warning') : null;
         input.value = '';
         return;
     }

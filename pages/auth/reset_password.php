@@ -73,7 +73,7 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                         <form method="post" class="js-auth-validate" novalidate>
                             <?= gf_csrf_field() ?>
                             <div class="mb-3" data-auth-field>
-                                <label class="form-label" for="new-password">Mật khẩu mới *</label>
+                                <label class="form-label" for="new-password"><?= gf_h(gf_t('Mật khẩu mới *')) ?></label>
                                 <div class="auth-input-group">
                                     <i class="fa-solid fa-lock auth-input-icon"></i>
                                     <input id="new-password" class="form-control" type="password" name="password" required minlength="8" data-required-msg="<?= gf_h(gf_t('Vui lòng nhập mật khẩu mới.')) ?>" data-minlength-msg="<?= gf_h(gf_t('Mật khẩu tối thiểu 8 ký tự.')) ?>" autocomplete="new-password" placeholder="<?= gf_h(gf_t('Ít nhất 8 ký tự')) ?>">

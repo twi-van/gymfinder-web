@@ -162,7 +162,7 @@
                         submitBtn.disabled = true;
                         const original = submitBtn.innerHTML;
                         submitBtn.dataset.originalHtml = original;
-                        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Đang xử lý...';
+                        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>' + gfT('Đang xử lý...');
                     }
                     return;
                 }

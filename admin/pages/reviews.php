@@ -81,7 +81,7 @@ gf_admin_table_open([
             <span class="admin-cell-title"><?= gf_h($r['full_name']) ?></span>
         </div>
     </td>
-    <td><span class="text-secondary"><?= gf_h($r['gym_name'] ?: ($r['trainer_name'] ? 'Huấn luyện viên: ' . $r['trainer_name'] : '—')) ?></span></td>
+    <td><span class="text-secondary"><?= ($r['gym_name'] ? gf_h($r['gym_name']) : ($r['trainer_name'] ? gf_h(gf_t('Huấn luyện viên:')) . ' ' . gf_h($r['trainer_name']) : '—')) ?></span></td>
     <td class="text-center text-warning text-nowrap"><?php for($i=1;$i<=5;$i++): ?><i class="fa-solid fa-star <?= $i>(int)$r['rating']?'text-secondary opacity-25':'' ?>"></i><?php endfor; ?></td>
     <td><div class="text-secondary" style="max-width: 270px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="<?= gf_h($r['comment']) ?>"><?= gf_h($r['comment']) ?></div></td>
     <td class="text-center text-secondary text-nowrap"><?= gf_h(date('d/m/Y',strtotime($r['created_at']))) ?></td>
@@ -95,7 +95,7 @@ gf_admin_table_open([
     ?>
     <td class="text-center"><span class="admin-badge <?= gf_h($reviewStatusUi['class']) ?>"><?= gf_h($reviewStatusUi['label']) ?></span></td>
     <td class="text-end pe-3 text-nowrap">
-        <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#reviewModal<?= (int)$r['id'] ?>" title="Xem"><i class="fa-solid fa-eye"></i></button>
+        <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#reviewModal<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Xem')) ?>"><i class="fa-solid fa-eye"></i></button>
         <?php if ($r['status']==='pending'): ?>
         <form method="post" class="d-inline"><?= gf_csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><input type="hidden" name="action" value="approve"><button class="btn btn-action btn-outline-success" title="<?= gf_h(gf_t('Duyệt')) ?>"><i class="fa-solid fa-check"></i></button></form>
         <button type="button" class="btn btn-action btn-action-delete" data-bs-toggle="modal" data-bs-target="#rejectModal<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Từ chối')) ?>"><i class="fa-solid fa-xmark"></i></button>
@@ -136,7 +136,7 @@ gf_admin_table_close([
                 <div class="d-flex align-items-center justify-content-between mb-3 bg-light p-3 rounded-3">
                     <div>
                         <div class="fw-bold"><?= gf_h($r['full_name']) ?></div>
-                        <div class="small text-secondary"><?= gf_h($r['gym_name'] ?: ($r['trainer_name'] ? 'Huấn luyện viên: ' . $r['trainer_name'] : '')) ?></div>
+                        <div class="small text-secondary"><?= ($r['gym_name'] ? gf_h($r['gym_name']) : ($r['trainer_name'] ? gf_h(gf_t('Huấn luyện viên:')) . ' ' . gf_h($r['trainer_name']) : '')) ?></div>
                     </div>
                     <div class="text-warning">
                         <?php for($i=1;$i<=5;$i++): ?><i class="fa-solid fa-star <?= $i>(int)$r['rating']?'text-secondary opacity-25':'' ?>"></i><?php endfor; ?>
@@ -182,7 +182,7 @@ gf_admin_table_close([
                         </div>
                         <div class="d-flex justify-content-between mb-1">
                             <span class="text-secondary"><?= gf_h(gf_t('Đối tượng:')) ?></span>
-                            <span class="fw-semibold text-dark"><?= gf_h($r['gym_name'] ?: ($r['trainer_name'] ? 'Huấn luyện viên: ' . $r['trainer_name'] : '—')) ?></span>
+                            <span class="fw-semibold text-dark"><?= ($r['gym_name'] ? gf_h($r['gym_name']) : ($r['trainer_name'] ? gf_h(gf_t('Huấn luyện viên:')) . ' ' . gf_h($r['trainer_name']) : '—')) ?></span>
                         </div>
                         <div class="mt-2 text-muted fst-italic border-top pt-2">
                             "<?= gf_h(mb_strimwidth($r['comment'], 0, 120, '...')) ?>"
@@ -232,7 +232,7 @@ function validateRejectForm(form) {
     }
     textarea.classList.remove('is-invalid');
     if (!reason) {
-        showError('Vui lòng nhập lý do từ chối. Không được để trống hoặc chỉ gồm khoảng trắng.');
+        showError(gfT('Vui lòng nhập lý do từ chối. Không được để trống hoặc chỉ gồm khoảng trắng.'));
         return false;
     }
     if (reason.length > 255) {
@@ -242,7 +242,7 @@ function validateRejectForm(form) {
     const submitBtn = form.querySelector('button[type="submit"]');
     if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Đang xử lý...';
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>' + gfT('Đang xử lý...');
     }
     return true;
 }

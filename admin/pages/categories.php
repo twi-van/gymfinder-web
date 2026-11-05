@@ -289,7 +289,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                 </div>
                 <div class="modal-body">
                     <label class="form-label"><?= gf_h(gf_t('Tên *')) ?></label>
-                    <input class="form-control admin-input mb-3" name="name" required maxlength="100" data-required-msg="<?= gf_h(gf_t('Vui lòng nhập tên danh mục.')) ?>" placeholder="Nhập tên">
+                    <input class="form-control admin-input mb-3" name="name" required maxlength="100" data-required-msg="<?= gf_h(gf_t('Vui lòng nhập tên danh mục.')) ?>" placeholder="<?= gf_h(gf_t('Nhập tên')) ?>">
                     <?php if ($tab === 'categories'): ?>
                         <label class="form-label"><?= gf_h(gf_t('Mô tả')) ?></label>
                         <textarea class="form-control admin-input" name="description" rows="3"></textarea>
@@ -312,7 +312,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
     <input type="hidden" name="tab" value="<?= gf_h($tab) ?>">
     <div class="position-relative">
         <i class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-        <input class="form-control admin-input ps-5" name="q" value="<?= gf_h($q) ?>" placeholder="Tìm <?= gf_h(mb_strtolower($tabs[$tab]['label'])) ?>...">
+        <input class="form-control admin-input ps-5" name="q" value="<?= gf_h($q) ?>" placeholder="<?= gf_h(gf_t('Tìm kiếm')) ?>">
     </div>
 </form>
 
@@ -338,7 +338,7 @@ gf_admin_table_open([
     <td><span class="admin-cell-title"><?= gf_h($r['name']) ?></span></td>
     <td><span class="text-secondary"><?= gf_h($r['description'] ?? '—') ?></span></td>
     <td class="text-center text-secondary"><?= (int)($usage[(int)$r['id']] ?? 0) ?> <?= gf_h(gf_t('phòng')) ?></td>
-    <td class="text-center"><span class="admin-badge <?= $r['is_active'] ? 'badge-success' : 'badge-neutral' ?>"><?= $r['is_active'] ? 'Hoạt động' : 'Tạm ẩn' ?></span></td>
+    <td class="text-center"><span class="admin-badge <?= $r['is_active'] ? 'badge-success' : 'badge-neutral' ?>"><?= gf_h(gf_t($r['is_active'] ? 'Hoạt động' : 'Tạm ẩn')) ?></span></td>
     <td class="text-end pe-3 text-nowrap admin-actions-cell">
         <button type="button" class="btn btn-action btn-action-edit" data-bs-toggle="modal" data-bs-target="#catalogEdit<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Chỉnh sửa')) ?>"><i class="fa-solid fa-pen"></i></button>
         <form method="post" class="d-inline">
@@ -346,7 +346,7 @@ gf_admin_table_open([
             <input type="hidden" name="action" value="toggle">
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
             <input type="hidden" name="is_active" value="<?= $r['is_active'] ? '0' : '1' ?>">
-            <button class="btn btn-action <?= $r['is_active'] ? 'btn-action-delete' : 'btn-action-edit' ?>" title="<?= $r['is_active'] ? 'Ẩn' : 'Hiện' ?>">
+            <button class="btn btn-action <?= $r['is_active'] ? 'btn-action-delete' : 'btn-action-edit' ?>" title="<?= gf_h(gf_t($r['is_active'] ? 'Ẩn' : 'Hiện')) ?>">
                 <i class="fa-solid <?= $r['is_active'] ? 'fa-eye-slash' : 'fa-eye' ?>"></i>
             </button>
         </form>
@@ -364,7 +364,7 @@ gf_admin_table_open([
             <?= gf_csrf_field() ?>
             <input type="hidden" name="action" value="delete">
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
-            <button type="submit" class="btn btn-action btn-action-delete" title="<?= $catUsed > 0 ? 'Không xóa được khi còn phòng tập gắn' : 'Xóa' ?>" <?= $catUsed > 0 ? 'disabled' : '' ?>><i class="fa-solid fa-trash"></i></button>
+            <button type="submit" class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t($catUsed > 0 ? 'Không xóa được khi còn phòng tập gắn' : 'Xóa')) ?>" <?= $catUsed > 0 ? 'disabled' : '' ?>><i class="fa-solid fa-trash"></i></button>
         </form>
     </td>
 </tr>

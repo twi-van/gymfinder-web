@@ -15,7 +15,7 @@ $heart = $isFav ? '<i class="fa-solid fa-heart text-danger"></i>' : '<i class="f
             <input type="hidden" name="target_type" value="trainer">
             <input type="hidden" name="target_id" value="<?= (int)$trainer['id'] ?>">
             <input type="hidden" name="redirect" value="<?= gf_h($_SERVER['REQUEST_URI'] ?? '') ?>">
-            <button class="btn-trainer-favorite border-0 bg-transparent" type="submit" style="font-size:20px;" aria-label="Yêu thích huấn luyện viên" aria-pressed="<?= $isFav ? 'true' : 'false' ?>"><?= $heart ?></button>
+            <button class="btn-trainer-favorite border-0 bg-transparent" type="submit" style="font-size:20px;" aria-label="<?= gf_h(gf_t('Yêu thích huấn luyện viên')) ?>" aria-pressed="<?= $isFav ? 'true' : 'false' ?>"><?= $heart ?></button>
         </form>
         <?php endif; ?>
         <div class="d-flex flex-column align-items-center text-center mb-3">

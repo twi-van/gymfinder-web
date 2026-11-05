@@ -266,7 +266,7 @@ gf_admin_table_open([
                     </td>
                     <td>
                         <span class="admin-badge <?= $r['status'] === 'active' ? 'badge-success' : 'badge-neutral' ?>">
-                            <?= $r['status'] === 'active' ? 'Hoạt động' : 'Tạm ẩn' ?>
+                            <?= gf_h(gf_t($r['status'] === 'active' ? 'Hoạt động' : 'Tạm ẩn')) ?>
                         </span>
                     </td>
                     <td class="text-end gym-actions pe-3 text-nowrap">
@@ -318,7 +318,7 @@ gf_admin_table_close([
                                 <img src="<?= gf_h(gf_cover_image($r['cover_image_url'] ?? null, (int)$r['id'])) ?>" 
                                      class="w-100 object-fit-cover d-block" 
                                      style="height:190px;" 
-                                     alt="Ảnh bìa"
+                                     alt="<?= gf_h(gf_t('Ảnh bìa')) ?>"
                                      onerror="this.onerror=null;this.src='<?= gf_h(gf_cover_image(null, (int)$r['id'])) ?>';">
                             </div>
                         </div>
@@ -361,9 +361,9 @@ gf_admin_table_close([
                             <div class="row g-2 small">
                                 <div class="col-6"><strong><?= gf_h(gf_t('Khu vực:')) ?></strong> <?= gf_h($districtNames[(int)$r['district_id']] ?? '—') ?></div>
                                 <div class="col-6"><strong><?= gf_h(gf_t('Số điện thoại:')) ?></strong> <?= !empty($r['phone']) ? gf_h($r['phone']) : '<span class="text-muted fst-italic">' . gf_h(gf_t('Chưa cập nhật')) . '</span>' ?></div>
-                                <div class="col-6"><strong><?= gf_h(gf_t('Đánh giá:')) ?></strong> <i class="fa-solid fa-star text-warning"></i> <?= number_format((float)($r['avg_rating'] ?? 0), 1) ?> (<?= (int)$r['review_count'] ?> đánh giá)</div>
+                                <div class="col-6"><strong><?= gf_h(gf_t('Đánh giá:')) ?></strong> <i class="fa-solid fa-star text-warning"></i> <?= number_format((float)($r['avg_rating'] ?? 0), 1) ?> (<?= gf_h(gf_t((int) $r['review_count'] . ' đánh giá')) ?>)</div>
                                 <div class="col-6"><strong><?= gf_h(gf_t('Khoảng giá:')) ?></strong> <span class="text-primary fw-bold"><?= gf_h(gf_format_price((int)$r['price_min'], (int)$r['price_max'])) ?></span></div>
-                                <div class="col-6"><strong><?= gf_h(gf_t('Trạng thái:')) ?></strong> <span class="admin-badge <?= $r['status'] === 'active' ? 'badge-success' : 'badge-neutral' ?>"><?= $r['status'] === 'active' ? 'Hoạt động' : 'Tạm ẩn' ?></span></div>
+                                <div class="col-6"><strong><?= gf_h(gf_t('Trạng thái:')) ?></strong> <span class="admin-badge <?= $r['status'] === 'active' ? 'badge-success' : 'badge-neutral' ?>"><?= gf_h(gf_t($r['status'] === 'active' ? 'Hoạt động' : 'Tạm ẩn')) ?></span></div>
                             </div>
                         </div>
                         
@@ -433,7 +433,7 @@ gf_admin_table_close([
                     <div class="col-12 pt-3 border-top">
                         <label class="form-label fw-bold d-block mb-2"><?= gf_h(gf_t('Ảnh bìa phòng tập')) ?></label>
                         <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
-                            <img id="gym-cover-preview" src="<?= gf_h(gf_cover_image(null, 1)) ?>" class="rounded-3 shadow-sm object-fit-cover" style="width:110px;height:80px;flex:0 0 110px;" alt="Xem trước ảnh bìa">
+                            <img id="gym-cover-preview" src="<?= gf_h(gf_cover_image(null, 1)) ?>" class="rounded-3 shadow-sm object-fit-cover" style="width:110px;height:80px;flex:0 0 110px;" alt="<?= gf_h(gf_t('Xem trước ảnh bìa')) ?>">
                             <div class="flex-grow-1">
                                 <div class="d-flex flex-wrap gap-2 mb-2">
                                     <input type="file" id="gym-cover-file" name="cover_file" accept="image/jpeg,image/png,image/webp" class="d-none" onchange="previewGymCover(this)">
@@ -466,7 +466,7 @@ gf_admin_table_close([
             </div>
             <div class="modal-footer border-top px-4 py-3 bg-white sticky-bottom">
                 <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal"><?= gf_h(gf_t('Hủy')) ?></button>
-                <button type="submit" class="btn btn-primary rounded-pill px-4" id="gym-save">Lưu thông tin</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4" id="gym-save"><?= gf_h(gf_t('Lưu thông tin')) ?></button>
             </div>
         </form>
     </div>
@@ -543,8 +543,8 @@ function gymModalEdit(b){
     const cats=b.dataset.categories.split(',').filter(Boolean),amens=b.dataset.amenities.split(',').filter(Boolean);
     f.querySelectorAll('.gym-category').forEach(x=>x.checked=cats.includes(x.value));
     f.querySelectorAll('.gym-amenity').forEach(x=>x.checked=amens.includes(x.value));
-    document.getElementById('gym-editor-title').textContent='Chỉnh sửa phòng tập: ' + b.dataset.name;
-    document.getElementById('gym-save').textContent='Lưu thông tin';
+    document.getElementById('gym-editor-title').textContent=gfT('Chỉnh sửa phòng tập:') + ' ' + b.dataset.name;
+    document.getElementById('gym-save').textContent=gfT('Lưu thông tin');
 
     // Cover
     originalCoverUrl = b.dataset.cover || '';
@@ -582,12 +582,12 @@ function previewGymCover(input) {
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-        typeof window.gfToast === 'function' ? window.gfToast('Định dạng ảnh không hỗ trợ. Vui lòng chọn JPG, PNG hoặc WEBP.', 'warning') : null;
+        typeof window.gfToast === 'function' ? window.gfToast(gfT('Định dạng ảnh không hỗ trợ. Vui lòng chọn JPG, PNG hoặc WEBP.'), 'warning') : null;
         input.value = '';
         return;
     }
     if (file.size > 5 * 1024 * 1024) {
-        typeof window.gfToast === 'function' ? window.gfToast('Dung lượng ảnh vượt quá 5 MB.', 'warning') : null;
+        typeof window.gfToast === 'function' ? window.gfToast(gfT('Dung lượng ảnh vượt quá 5 MB.'), 'warning') : null;
         input.value = '';
         return;
     }
@@ -629,15 +629,15 @@ function addGalleryFiles(input) {
     for (let i = 0; i < input.files.length; i++) {
         const file = input.files[i];
         if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-            typeof window.gfToast === 'function' ? window.gfToast(`File "${file.name}" không hợp lệ. Chỉ nhận JPG, PNG, WEBP.`, 'warning') : null;
+            typeof window.gfToast === 'function' ? window.gfToast(gfT('Định dạng ảnh không hỗ trợ. Vui lòng chọn JPG, PNG hoặc WEBP.') + ' (' + file.name + ')', 'warning') : null;
             continue;
         }
         if (file.size > 5 * 1024 * 1024) {
-            typeof window.gfToast === 'function' ? window.gfToast(`File "${file.name}" vượt quá 5 MB.`, 'warning') : null;
+            typeof window.gfToast === 'function' ? window.gfToast(gfT('Dung lượng ảnh vượt quá 5 MB.') + ' (' + file.name + ')', 'warning') : null;
             continue;
         }
         if (galleryItems.length >= 8) {
-            typeof window.gfToast === 'function' ? window.gfToast('Tối đa 8 ảnh trong thư viện.', 'warning') : null;
+            typeof window.gfToast === 'function' ? window.gfToast(gfT('Tối đa 8 ảnh trong thư viện.'), 'warning') : null;
             break;
         }
         const objUrl = URL.createObjectURL(file);
@@ -660,7 +660,7 @@ function renderGallery() {
     const emptyNotice = document.getElementById('gym-gallery-empty');
     const countNotice = document.getElementById('gym-gallery-count');
     const addButton = document.getElementById('gym-gallery-add-btn');
-    countNotice.textContent = `${galleryItems.length}/8 ảnh`;
+    countNotice.textContent = galleryItems.length + '/8 ' + gfT('ảnh');
     addButton.disabled = galleryItems.length >= 8;
     list.innerHTML = '';
     if (!galleryItems.length) {
@@ -746,7 +746,7 @@ async function handleGymFormSubmit(e) {
     const hasCover = !!coverFile || (document.getElementById('gym-cover-url').value.trim() !== ''
         && document.getElementById('gym-remove-cover').value !== '1');
     if (!hasCover) {
-        errAlert.textContent = 'Vui lòng chọn một ảnh bìa cho phòng tập.';
+        errAlert.textContent = gfT('Vui lòng chọn một ảnh bìa cho phòng tập.');
         errAlert.classList.remove('d-none');
         document.getElementById('gym-cover-file').focus();
         return false;
@@ -759,7 +759,7 @@ async function handleGymFormSubmit(e) {
     }
 
     saveBtn.disabled = true;
-    saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Đang tải ảnh & lưu...';
+    saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>' + gfT('Đang tải ảnh & lưu...');
 
     try {
         // 1. Upload Cover nếu có file mới chọn
@@ -777,7 +777,7 @@ async function handleGymFormSubmit(e) {
             });
             const data = await res.json();
             if (!res.ok || !data.data || !data.data.url) {
-                throw new Error(data.error?.message || 'Tải ảnh bìa thất bại.');
+                throw new Error(data.error?.message || gfT('Tải ảnh bìa thất bại.'));
             }
             document.getElementById('gym-cover-url').value = data.data.url;
             coverInput.value = ''; // Đã upload xong, tránh gửi trùng
@@ -799,7 +799,7 @@ async function handleGymFormSubmit(e) {
                 });
                 const data = await res.json();
                 if (!res.ok || !data.data || !data.data.url) {
-                    throw new Error(data.error?.message || `Tải ảnh thư viện #${i + 1} thất bại.`);
+                    throw new Error(data.error?.message || (gfT('Tải ảnh thư viện thất bại.') + ' #' + (i + 1)));
                 }
                 item.image_url = data.data.url;
                 item.isNew = false;
@@ -823,8 +823,8 @@ async function handleGymFormSubmit(e) {
         document.getElementById('gymForm').submit();
     } catch (err) {
         saveBtn.disabled = false;
-        saveBtn.textContent = document.getElementById('gym-id').value ? 'Lưu thông tin' : gfT('Thêm phòng tập');
-        errAlert.textContent = err.message || 'Đã xảy ra lỗi khi lưu thông tin.';
+        saveBtn.textContent = document.getElementById('gym-id').value ? gfT('Lưu thông tin') : gfT('Thêm phòng tập');
+        errAlert.textContent = err.message || gfT('Đã xảy ra lỗi khi lưu thông tin.');
         errAlert.classList.remove('d-none');
     }
     return false;

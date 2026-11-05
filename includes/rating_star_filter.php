@@ -18,14 +18,14 @@ if ($ratingFilterMode === 'rate') {
     $ratingSelected = in_array($ratingFilterValue, ['1', '2', '3', '4', '5'], true)
         ? (int) $ratingFilterValue
         : 5;
-    $ratingHint = $ratingSelected . ' sao';
-    $ratingAria = 'Chọn số sao đánh giá';
+    $ratingHint = gf_t($ratingSelected . ' sao');
+    $ratingAria = gf_t('Chọn số sao đánh giá');
 } else {
     $ratingSelected = in_array($ratingFilterValue, ['1', '2', '3', '4', '5'], true)
         ? (int) $ratingFilterValue
         : 0;
-    $ratingHint = $ratingSelected > 0 ? ('Từ ' . $ratingSelected . '★ trở lên') : 'Mọi mức đánh giá';
-    $ratingAria = 'Chọn mức đánh giá tối thiểu';
+    $ratingHint = gf_t($ratingSelected > 0 ? ('Từ ' . $ratingSelected . '★ trở lên') : 'Mọi mức đánh giá');
+    $ratingAria = gf_t('Chọn mức đánh giá tối thiểu');
 }
 ?>
 <div class="gf-star-filter" data-gf-star-filter data-mode="<?= gf_h($ratingFilterMode) ?>" id="<?= gf_h($ratingFilterId) ?>">
@@ -42,7 +42,7 @@ if ($ratingFilterMode === 'rate') {
                 type="button"
                 class="gf-star-filter-btn<?= $star <= $ratingSelected ? ' is-active' : '' ?>"
                 data-value="<?= $star ?>"
-                aria-label="<?= gf_h($ratingFilterMode === 'rate' ? ($star . ' sao') : ('Từ ' . $star . ' sao trở lên')) ?>"
+                aria-label="<?= gf_h(gf_t($ratingFilterMode === 'rate' ? ($star . ' sao') : ('Từ ' . $star . ' sao trở lên'))) ?>"
                 aria-pressed="<?= $star === $ratingSelected ? 'true' : 'false' ?>"
             ><i class="fa-solid fa-star" aria-hidden="true"></i></button>
         <?php endfor; ?>

@@ -27,7 +27,7 @@ $reviews = (int) ($gym['review_count'] ?? 0);
                 <input type="hidden" name="target_type" value="gym">
                 <input type="hidden" name="target_id" value="<?= (int)$gym['id'] ?>">
                 <input type="hidden" name="redirect" value="<?= gf_h($_SERVER['REQUEST_URI'] ?? '') ?>">
-                <button class="btn-favorite bg-white d-flex align-items-center justify-content-center border-0 shadow-sm" type="submit" style="width:32px;height:32px;border-radius:50%;" aria-label="Favorite" aria-pressed="<?= $isFav ? 'true' : 'false' ?>"><?= $heart ?></button>
+                <button class="btn-favorite bg-white d-flex align-items-center justify-content-center border-0 shadow-sm" type="submit" style="width:32px;height:32px;border-radius:50%;" aria-label="<?= gf_h(gf_t('Yêu thích phòng tập')) ?>" aria-pressed="<?= $isFav ? 'true' : 'false' ?>"><?= $heart ?></button>
             </form>
             <?php endif; ?>
         </div>
@@ -44,7 +44,7 @@ $reviews = (int) ($gym['review_count'] ?? 0);
                 <?php endif; ?>
             </div>
             <p class="text-secondary mb-3" style="font-size: 13px;">
-                <i class="fa-solid fa-location-dot me-2 text-primary opacity-75"></i><?= gf_h(gf_place_name((string) ($gym['district_name'] ?? ''))) ?>, <?= gf_h(gf_lang() === 'en' ? 'HCMC' : 'TP.HCM') ?>
+                <i class="fa-solid fa-location-dot me-2 text-primary opacity-75"></i><?= gf_h(gf_place_name((string) ($gym['district_name'] ?? ''))) ?>, TP.HCM
             </p>
             <div class="fw-bold text-dark mb-3" style="font-size: 14px;"><?= gf_h($gym['price_label'] ?? '') ?></div>
             <div class="mb-3 d-flex flex-wrap gap-1 position-relative" style="z-index:2;">

@@ -20,7 +20,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         <h2 class="h5 fw-bold mt-4 mb-2"><?= gf_h(gf_t('3. Nội dung người dùng')) ?></h2>
         <p class="text-secondary"><?= gf_h(gf_t('Đánh giá và thông tin hồ sơ phải phù hợp, không spam, không xúc phạm. Đánh giá có thể ở trạng thái chờ duyệt, đã duyệt hoặc từ chối theo quy trình kiểm duyệt của quản trị viên.')) ?></p>
 
-        <h2 class="h5 fw-bold mt-4 mb-2">4. Thông tin phòng tập &amp; HLV</h2>
+        <h2 class="h5 fw-bold mt-4 mb-2"><?= gf_h(gf_t('4. Thông tin phòng tập & HLV')) ?></h2>
         <p class="text-secondary"><?= gf_h(gf_t('Thông tin trên hệ thống mang tính tham khảo để tìm kiếm và so sánh. Liên hệ trực tiếp với phòng tập/HLV để xác nhận giá, lịch và điều kiện tập luyện.')) ?></p>
 
         <h2 class="h5 fw-bold mt-4 mb-2"><?= gf_h(gf_t('5. Giới hạn trách nhiệm')) ?></h2>

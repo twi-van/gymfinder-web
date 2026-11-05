@@ -584,7 +584,7 @@ async function handlePasswordSubmit(e) {
     const submitBtn = e.target.querySelector('button[type="submit"]');
     const originalContent = submitBtn.innerHTML;
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Đang xử lý...';
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>' + gfT('Đang xử lý...');
 
     try {
         const res = await fetch('<?= gf_h(gf_url('api/auth/change-password')) ?>', {
@@ -600,7 +600,7 @@ async function handlePasswordSubmit(e) {
         });
 
         if (res.status === 204) {
-            showPasswordAlert('success', '<i class="fa-solid fa-circle-check me-2"></i>Đổi mật khẩu thành công! Mật khẩu mới đã được cập nhật.');
+            showPasswordAlert('success', '<i class="fa-solid fa-circle-check me-2"></i>' + gfT('Đổi mật khẩu thành công! Mật khẩu mới đã được cập nhật.'));
             resetPasswordForm();
         } else {
             const data = await res.json().catch(() => null);
