@@ -40,9 +40,9 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                     <div class="auth-brand mb-5">
                         <?= gf_logo('login') ?>
                     </div>
-                    <div class="auth-badge"><i class="fa-solid fa-circle" style="font-size:6px"></i> BẢO MẬT • ĐĂNG NHẬP LẠI</div>
-                    <h1 class="auth-heading">Tạo <span class="text-primary">mật khẩu mới</span><br>cho tài khoản</h1>
-                    <p class="auth-desc">Chọn mật khẩu mạnh (ít nhất 8 ký tự). Sau khi lưu, bạn có thể đăng nhập lại bằng mật khẩu mới.</p>
+                    <div class="auth-badge"><i class="fa-solid fa-circle" style="font-size:6px"></i> <?= gf_h(gf_t('BẢO MẬT • ĐĂNG NHẬP LẠI')) ?></div>
+                    <h1 class="auth-heading"><?= gf_h(gf_t('Tạo')) ?> <span class="text-primary"><?= gf_h(gf_t('mật khẩu mới')) ?></span><br><?= gf_h(gf_t('cho tài khoản')) ?></h1>
+                    <p class="auth-desc"><?= gf_h(gf_t('Chọn mật khẩu mạnh (ít nhất 8 ký tự). Sau khi lưu, bạn có thể đăng nhập lại bằng mật khẩu mới.')) ?></p>
                 </div>
             </div>
             <div class="col-lg-5 ms-auto">
@@ -52,7 +52,7 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                         <span class="auth-step-sep"></span>
                         <span class="auth-step done">2. OTP</span>
                         <span class="auth-step-sep"></span>
-                        <span class="auth-step active">3. Mật khẩu mới</span>
+                        <span class="auth-step active"><?= gf_h(gf_t('3. Mật khẩu mới')) ?></span>
                     </div>
 
                     <?php if ($done): ?>
@@ -60,36 +60,36 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                             <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4" style="width:72px;height:72px;background:rgba(0,201,177,0.12);color:var(--primary-color,#00c9b1);">
                                 <i class="fa-solid fa-circle-check fs-3"></i>
                             </div>
-                            <h2 class="auth-card-title mb-2">Đặt lại mật khẩu thành công</h2>
-                            <p class="auth-card-subtitle mb-4">Bạn có thể đăng nhập bằng mật khẩu mới.</p>
+                            <h2 class="auth-card-title mb-2"><?= gf_h(gf_t('Đặt lại mật khẩu thành công')) ?></h2>
+                            <p class="auth-card-subtitle mb-4"><?= gf_h(gf_t('Bạn có thể đăng nhập bằng mật khẩu mới.')) ?></p>
                             <a href="<?= gf_h(gf_url('pages/auth/login.php')) ?>" class="auth-btn-submit w-100 d-inline-flex justify-content-center align-items-center gap-2 text-decoration-none">
-                                Đăng nhập ngay <i class="fa-solid fa-arrow-right"></i>
+                                <?= gf_h(gf_t('Đăng nhập ngay')) ?> <i class="fa-solid fa-arrow-right"></i>
                             </a>
                         </div>
                     <?php else: ?>
-                        <h2 class="auth-card-title">Đặt mật khẩu mới</h2>
-                        <p class="auth-card-subtitle">OTP đã được xác thực. Hãy tạo mật khẩu mới cho tài khoản.</p>
-                        <?php if ($error): ?><div class="alert alert-danger"><?= gf_h($error) ?></div><?php endif; ?>
+                        <h2 class="auth-card-title"><?= gf_h(gf_t('Đặt mật khẩu mới')) ?></h2>
+                        <p class="auth-card-subtitle"><?= gf_h(gf_t('OTP đã được xác thực. Hãy tạo mật khẩu mới cho tài khoản.')) ?></p>
+                        <?php if ($error): ?><div class="alert alert-danger"><?= gf_h(gf_t((string) $error)) ?></div><?php endif; ?>
                         <form method="post" class="js-auth-validate" novalidate>
                             <?= gf_csrf_field() ?>
                             <div class="mb-3" data-auth-field>
                                 <label class="form-label" for="new-password">Mật khẩu mới *</label>
                                 <div class="auth-input-group">
                                     <i class="fa-solid fa-lock auth-input-icon"></i>
-                                    <input id="new-password" class="form-control" type="password" name="password" required minlength="8" data-required-msg="Vui lòng nhập mật khẩu mới." data-minlength-msg="Mật khẩu tối thiểu 8 ký tự." autocomplete="new-password" placeholder="Ít nhất 8 ký tự">
-                                    <button type="button" class="auth-toggle-password" aria-label="Hiện mật khẩu"><i class="fa-regular fa-eye-slash"></i></button>
+                                    <input id="new-password" class="form-control" type="password" name="password" required minlength="8" data-required-msg="<?= gf_h(gf_t('Vui lòng nhập mật khẩu mới.')) ?>" data-minlength-msg="<?= gf_h(gf_t('Mật khẩu tối thiểu 8 ký tự.')) ?>" autocomplete="new-password" placeholder="<?= gf_h(gf_t('Ít nhất 8 ký tự')) ?>">
+                                    <button type="button" class="auth-toggle-password" aria-label="<?= gf_h(gf_t('Hiện mật khẩu')) ?>"><i class="fa-regular fa-eye-slash"></i></button>
                                 </div>
                             </div>
                             <div class="mb-4" data-auth-field>
-                                <label class="form-label" for="confirm-password">Xác nhận mật khẩu *</label>
+                                <label class="form-label" for="confirm-password"><?= gf_h(gf_t('Xác nhận mật khẩu *')) ?></label>
                                 <div class="auth-input-group">
                                     <i class="fa-solid fa-lock-open auth-input-icon"></i>
-                                    <input id="confirm-password" class="form-control" type="password" name="confirm" required minlength="8" data-required-msg="Vui lòng xác nhận mật khẩu." data-minlength-msg="Mật khẩu tối thiểu 8 ký tự." autocomplete="new-password" placeholder="Nhập lại mật khẩu mới">
-                                    <button type="button" class="auth-toggle-password" aria-label="Hiện mật khẩu"><i class="fa-regular fa-eye-slash"></i></button>
+                                    <input id="confirm-password" class="form-control" type="password" name="confirm" required minlength="8" data-required-msg="<?= gf_h(gf_t('Vui lòng xác nhận mật khẩu.')) ?>" data-minlength-msg="<?= gf_h(gf_t('Mật khẩu tối thiểu 8 ký tự.')) ?>" autocomplete="new-password" placeholder="<?= gf_h(gf_t('Nhập lại mật khẩu mới')) ?>">
+                                    <button type="button" class="auth-toggle-password" aria-label="<?= gf_h(gf_t('Hiện mật khẩu')) ?>"><i class="fa-regular fa-eye-slash"></i></button>
                                 </div>
                             </div>
                             <button class="auth-btn-submit w-100 d-flex justify-content-center align-items-center gap-2" type="submit">
-                                Lưu mật khẩu mới <i class="fa-solid fa-arrow-right"></i>
+                                <?= gf_h(gf_t('Lưu mật khẩu mới')) ?> <i class="fa-solid fa-arrow-right"></i>
                             </button>
                         </form>
                     <?php endif; ?>

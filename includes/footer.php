@@ -36,6 +36,7 @@
             <p class="text-secondary mb-0 d-flex flex-wrap gap-3" style="font-size: 14px;">
                 <a href="<?= gf_h(gf_url('pages/legal/terms.php')) ?>" class="text-secondary text-decoration-none"><?= gf_h(gf_t('Điều khoản dịch vụ')) ?></a>
                 <a href="<?= gf_h(gf_url('pages/legal/privacy.php')) ?>" class="text-secondary text-decoration-none"><?= gf_h(gf_t('Chính sách bảo mật')) ?></a>
+                <a href="<?= gf_h(gf_url('pages/legal/faq.php')) ?>" class="text-secondary text-decoration-none"><?= gf_h(gf_t('Hỏi đáp')) ?></a>
             </p>
         </div>
     </div>
@@ -43,14 +44,14 @@
 <div class="modal fade" id="authRequiredModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
-            <div class="modal-header border-0 pb-0"><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button></div>
+            <div class="modal-header border-0 pb-0"><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= gf_h(gf_t('Đóng')) ?>"></button></div>
             <div class="modal-body text-center p-4 pt-0">
                 <div class="mb-3"><i class="fa-solid fa-lock text-primary opacity-75" style="font-size:48px"></i></div>
-                <h4 class="fw-bold mb-2">Đăng nhập để tiếp tục</h4>
-                <p class="text-secondary mb-4">Bạn cần đăng nhập để lưu phòng tập hoặc huấn luyện viên vào danh sách yêu thích.</p>
+                <h4 class="fw-bold mb-2"><?= gf_h(gf_t('Đăng nhập để tiếp tục')) ?></h4>
+                <p class="text-secondary mb-4"><?= gf_h(gf_t('Bạn cần đăng nhập để lưu phòng tập hoặc huấn luyện viên vào danh sách yêu thích.')) ?></p>
                 <div class="d-flex gap-2 justify-content-center">
-                    <a href="#" id="authModalLoginBtn" class="btn btn-primary px-4 fw-semibold rounded-pill">Đăng nhập</a>
-                    <button type="button" class="btn btn-outline-secondary px-4 fw-semibold rounded-pill" data-bs-dismiss="modal">Để sau</button>
+                    <a href="#" id="authModalLoginBtn" class="btn btn-primary px-4 fw-semibold rounded-pill"><?= gf_h(gf_t('Đăng nhập')) ?></a>
+                    <button type="button" class="btn btn-outline-secondary px-4 fw-semibold rounded-pill" data-bs-dismiss="modal"><?= gf_h(gf_t('Để sau')) ?></button>
                 </div>
             </div>
         </div>
@@ -100,7 +101,7 @@ document.querySelectorAll('.js-favorite-toggle').forEach((form) => {
             }
             if (!response.ok) {
                 const payload = await response.json().catch(() => ({}));
-                throw new Error(payload.error?.message || 'Không thể cập nhật yêu thích.');
+                throw new Error(payload.error?.message || gfT('Không thể cập nhật yêu thích.'));
             }
 
             const isFavorited = !wasFavorited;
@@ -112,11 +113,11 @@ document.querySelectorAll('.js-favorite-toggle').forEach((form) => {
                 icon.classList.add(isFavorited ? 'fa-solid' : 'fa-regular');
                 if (isFavorited) icon.classList.add('text-danger');
             } else {
-                button.textContent = isFavorited ? 'Bỏ yêu thích' : 'Lưu yêu thích';
+                button.textContent = isFavorited ? gfT('Bỏ yêu thích') : gfT('Lưu yêu thích');
             }
         } catch (error) {
             if (typeof window.gfToast === 'function') {
-                window.gfToast(error.message || 'Không thể kết nối tới máy chủ.', 'danger');
+                window.gfToast(error.message || gfT('Không thể kết nối tới máy chủ.'), 'danger');
             }
         } finally {
             button.disabled = false;
@@ -163,7 +164,7 @@ document.querySelectorAll('.js-favorite-toggle').forEach((form) => {
             copyIcon.className = 'fa-regular fa-copy';
         }
         if (copyText) {
-            copyText.textContent = 'Sao chép số điện thoại';
+            copyText.textContent = gfT('Sao chép số điện thoại');
         }
     }
 
@@ -176,9 +177,9 @@ document.querySelectorAll('.js-favorite-toggle').forEach((form) => {
 
         resetCopyFeedback();
 
-        const name = (btn.dataset.name || 'Thông tin liên hệ').trim();
+        const name = (btn.dataset.name || gfT('Thông tin liên hệ')).trim();
         const type = (btn.dataset.type || 'trainer').trim();
-        const typeLabel = (btn.dataset.typeLabel || (type === 'gym' ? 'Phòng tập thể hình' : 'Huấn luyện viên cá nhân')).trim();
+        const typeLabel = (btn.dataset.typeLabel || (type === 'gym' ? gfT('Phòng tập thể hình') : gfT('Huấn luyện viên cá nhân'))).trim();
         const avatar = (btn.dataset.avatar || '').trim();
         const subtitle = (btn.dataset.subtitle || '').trim();
         let phone = (btn.dataset.phone || '').trim();
@@ -239,7 +240,7 @@ document.querySelectorAll('.js-favorite-toggle').forEach((form) => {
             if (phoneWrapper) phoneWrapper.classList.add('d-none');
             if (noPhoneNotice) {
                 noPhoneNotice.classList.remove('d-none');
-                noPhoneNotice.textContent = 'Chưa cập nhật số điện thoại';
+                noPhoneNotice.textContent = gfT('Chưa cập nhật số điện thoại');
             }
             if (copyBtn) {
                 copyBtn.disabled = true;
@@ -291,7 +292,7 @@ document.querySelectorAll('.js-favorite-toggle').forEach((form) => {
 
             if (success) {
                 if (copyIcon) copyIcon.className = 'fa-solid fa-check';
-                if (copyText) copyText.textContent = 'Đã sao chép!';
+                if (copyText) copyText.textContent = gfT('Đã sao chép!');
                 copyBtn.classList.remove('btn-primary');
                 copyBtn.classList.add('btn-success');
 

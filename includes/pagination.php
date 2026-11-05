@@ -46,7 +46,7 @@ if (!function_exists('gf_render_user_pagination')) {
 
         ob_start();
         ?>
-        <nav aria-label="Điều hướng phân trang" class="pagination-container my-4">
+        <nav aria-label="<?= gf_h(gf_t('Điều hướng phân trang')) ?>" class="pagination-container my-4">
             <ul class="pagination justify-content-center flex-wrap gap-1 mb-0">
                 <?php
                 $prevParams = array_merge($cleanParams, [$pageParam => max(1, $currentPage - 1)]);
@@ -54,7 +54,7 @@ if (!function_exists('gf_render_user_pagination')) {
                 ?>
                 <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
                     <a class="page-link" href="?<?= htmlspecialchars(http_build_query($prevParams), ENT_QUOTES, 'UTF-8') ?>" <?= $currentPage <= 1 ? 'tabindex="-1" aria-disabled="true"' : '' ?>>
-                        <i class="fa-solid fa-arrow-left me-2"></i>Trước
+                        <i class="fa-solid fa-arrow-left me-2"></i><?= gf_h(gf_t('Trước')) ?>
                     </a>
                 </li>
 

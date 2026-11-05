@@ -82,7 +82,7 @@
 
     async function ask(message) {
         if (!enabled) {
-            addBubble('AI chưa cấu hình trên máy này. Xem hướng dẫn trong GymFinder_HuongDanChay.md.', 'bot');
+            addBubble(gfT('AI chưa cấu hình trên máy này. Xem hướng dẫn trong GymFinder_HuongDanChay.md.'), 'bot');
             return;
         }
         if (busy) return;
@@ -92,7 +92,7 @@
         busy = true;
         if (sendBtn) sendBtn.disabled = true;
         addBubble(text, 'user');
-        const loading = addBubble('Đang tìm…', 'meta');
+        const loading = addBubble(gfT('Đang tìm…'), 'meta');
 
         try {
             await refreshCsrf();
@@ -109,12 +109,12 @@
             const json = await res.json().catch(() => ({}));
             loading.remove();
             if (!res.ok || json?.error) {
-                const msg = json?.error?.message || json?.message || 'Không gọi được trợ lý AI. Thử lại sau.';
+                const msg = json?.error?.message || json?.message || gfT('Không gọi được trợ lý AI. Thử lại sau.');
                 addBubble(msg, 'bot');
                 return;
             }
             const data = json.data || {};
-            addBubble(data.reply || 'Đây là một số gợi ý.', 'bot');
+            addBubble(data.reply || gfT('Đây là một số gợi ý.'), 'bot');
             addCards(data.gyms || [], 'gym');
             addCards(data.trainers || [], 'trainer');
             if ((data.gyms || []).length === 0 && (data.trainers || []).length === 0) {
@@ -122,7 +122,7 @@
             }
         } catch (err) {
             loading.remove();
-            addBubble('Lỗi mạng. Kiểm tra kết nối và thử lại.', 'bot');
+            addBubble(gfT('Lỗi mạng. Kiểm tra kết nối và thử lại.'), 'bot');
         } finally {
             busy = false;
             if (sendBtn) sendBtn.disabled = false;

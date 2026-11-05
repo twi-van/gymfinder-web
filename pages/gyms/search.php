@@ -201,32 +201,32 @@ require dirname(__DIR__, 2) . '/includes/header.php';
 ?>
 <div class="page-title-section gf-page-hero" style="background:linear-gradient(135deg,#f0fdfa 0%,#fff 100%);border-bottom:1px solid #e2e8f0;text-align:center;">
     <div class="container">
-        <h1 class="hero-title text-uppercase">TÌM KIẾM <span class="text-primary position-relative">PHÒNG TẬP
+        <h1 class="hero-title text-uppercase"><?= gf_h(gf_t('TÌM KIẾM')) ?> <span class="text-primary position-relative"><?= gf_h(gf_t('PHÒNG TẬP')) ?>
             <svg class="position-absolute w-100 bottom-0 start-0 translate-middle-y text-primary opacity-50" style="height:10px" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="4" fill="transparent"></path></svg>
-        </span> CỦA BẠN</h1>
-        <p class="text-secondary mb-5" style="font-size:16px">Khám phá và tìm phòng tập phù hợp với nhu cầu của bạn tại TP. Hồ Chí Minh.</p>
+        </span> <?= gf_h(gf_t('CỦA BẠN')) ?></h1>
+        <p class="text-secondary mb-5" style="font-size:16px"><?= gf_h(gf_t('Khám phá và tìm phòng tập phù hợp với nhu cầu của bạn tại TP. Hồ Chí Minh.')) ?></p>
         <form method="get" class="gf-keyword-search bg-white shadow-sm mx-auto d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2 gap-sm-0 p-2" style="max-width:700px;border:1px solid #f1f5f9;">
             <div class="d-flex align-items-center flex-grow-1 min-w-0">
                 <i class="fa-solid fa-magnifying-glass text-secondary ms-2 ms-sm-3 flex-shrink-0"></i>
                 <input type="text" name="keyword" class="form-control border-0 shadow-none" value="<?= gf_h($filters['keyword']) ?>" placeholder="<?= gf_h(gf_t('Tìm kiếm tên phòng tập, khu vực...')) ?>">
             </div>
-            <button class="btn btn-primary rounded-pill px-4 py-2 fw-semibold flex-shrink-0" type="submit">Tìm kiếm</button>
+            <button class="btn btn-primary rounded-pill px-4 py-2 fw-semibold flex-shrink-0" type="submit"><?= gf_h(gf_t('Tìm kiếm')) ?></button>
         </form>
     </div>
 </div>
 <div class="container pb-5">
     <div class="row">
         <div class="col-lg-3">
-            <button class="btn bg-white border shadow-sm w-100 d-lg-none mb-3 d-flex justify-content-between align-items-center fw-semibold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#filterSidebar"><span><i class="fa-solid fa-bars me-2"></i>Bộ lọc</span><i class="fa-solid fa-chevron-down"></i></button>
+            <button class="btn bg-white border shadow-sm w-100 d-lg-none mb-3 d-flex justify-content-between align-items-center fw-semibold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#filterSidebar"><span><i class="fa-solid fa-bars me-2"></i><?= gf_h(gf_t('Bộ lọc')) ?></span><i class="fa-solid fa-chevron-down"></i></button>
             <div class="collapse d-lg-block" id="filterSidebar">
             <form method="get" class="filter-section">
-                <div class="filter-title"><i class="fa-solid fa-sliders text-primary"></i> Bộ lọc</div>
+                <div class="filter-title"><i class="fa-solid fa-sliders text-primary"></i> <?= gf_h(gf_t('Bộ lọc')) ?></div>
                 <input type="hidden" name="keyword" value="<?= gf_h($filters['keyword']) ?>">
                 <?php if ($filters['sort'] !== ''): ?><input type="hidden" name="sort" value="<?= gf_h($filters['sort']) ?>"><?php endif; ?>
                 <div class="filter-group gf-filter-field">
                     <div class="filter-group-title"><?= gf_h(gf_t('Khu vực')) ?></div>
                     <div class="gf-select-wrap gf-select-wrap--sidebar">
-                        <select name="district_id" id="districtFilter" class="form-select gf-filter-select" aria-label="Khu vực">
+                        <select name="district_id" id="districtFilter" class="form-select gf-filter-select" aria-label="<?= gf_h(gf_t('Khu vực')) ?>">
                             <option value=""><?= gf_h(gf_t('Tất cả')) ?></option>
                             <?php foreach ($districts as $d): ?>
                                 <option value="<?= (int)$d['id'] ?>" <?= (string)$filters['district_id']===(string)$d['id']?'selected':'' ?>><?= gf_h(gf_place_name((string) $d['name'])) ?></option>
@@ -267,7 +267,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                             <?php if (isset($feature['category_id'])): ?>
                                 <input class="form-check-input" type="checkbox" name="category_ids[]" id="<?= gf_h($feature['id']) ?>" value="<?= (int)$feature['category_id'] ?>" <?= in_array((int)$feature['category_id'], $filters['category_ids'], true)?'checked':'' ?>>
                             <?php else: $field = $feature['name'] ?? ''; $checked = $field !== '' && !empty($filters[$field]); ?>
-                                <input class="form-check-input" type="checkbox" <?= $field !== '' ? 'name="' . gf_h($field) . '"' : '' ?> value="1" id="<?= gf_h($feature['id']) ?>" <?= $checked?'checked':'' ?> <?= !empty($feature['disabled']) || $field === ''?'disabled title="Cơ sở dữ liệu hiện chưa có trường dữ liệu cho lựa chọn này"':'' ?>>
+                                <input class="form-check-input" type="checkbox" <?= $field !== '' ? 'name="' . gf_h($field) . '"' : '' ?> value="1" id="<?= gf_h($feature['id']) ?>" <?= $checked?'checked':'' ?> <?= !empty($feature['disabled']) || $field === ''?'disabled title="' . gf_h(gf_t('Cơ sở dữ liệu hiện chưa có trường dữ liệu cho lựa chọn này')) . '"':'' ?>>
                             <?php endif; ?>
                             <label class="form-check-label" for="<?= gf_h($feature['id']) ?>"><?= gf_h(gf_t((string) $feature['label'])) ?></label>
                         </div>
@@ -280,46 +280,46 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                             <?php if (isset($amenity['amenity_id'])): ?>
                                 <input class="form-check-input" type="checkbox" name="amenities[]" id="<?= gf_h($amenity['id']) ?>" value="<?= gf_h($amenity['key']) ?>" <?= in_array($amenity['key'], $filters['amenity_options'], true)?'checked':'' ?>>
                             <?php else: ?>
-                                <input class="form-check-input" type="checkbox" id="<?= gf_h($amenity['id']) ?>" disabled title="Cơ sở dữ liệu hiện chưa có trường dữ liệu cho lựa chọn này">
+                                <input class="form-check-input" type="checkbox" id="<?= gf_h($amenity['id']) ?>" disabled title="<?= gf_h(gf_t('Cơ sở dữ liệu hiện chưa có trường dữ liệu cho lựa chọn này')) ?>">
                             <?php endif; ?>
                             <label class="form-check-label" for="<?= gf_h($amenity['id']) ?>"><?= gf_h(gf_t((string) $amenity['label'])) ?></label>
                         </div>
                     <?php endforeach; ?>
                 </div>
-                <button id="btnFilter" type="submit" class="btn btn-primary w-100 rounded-3 py-2 fw-semibold mb-2" style="font-size:14px">Lọc kết quả</button>
-                <a href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>" class="btn btn-light w-100 rounded-3 py-2 text-secondary fw-semibold" style="font-size:14px">Xóa bộ lọc</a>
+                <button id="btnFilter" type="submit" class="btn btn-primary w-100 rounded-3 py-2 fw-semibold mb-2" style="font-size:14px"><?= gf_h(gf_t('Lọc kết quả')) ?></button>
+                <a href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>" class="btn btn-light w-100 rounded-3 py-2 text-secondary fw-semibold" style="font-size:14px"><?= gf_h(gf_t('Xóa bộ lọc')) ?></a>
             </form>
             </div>
         </div>
         <div class="col-lg-9">
             <?php if (!empty($activeChips)): ?>
                 <div class="mb-4 p-3 bg-white rounded-3 shadow-sm border d-flex flex-wrap gap-2 align-items-center">
-                    <span class="text-secondary fw-semibold small me-1"><i class="fa-solid fa-filter me-1 text-primary"></i>Đang lọc:</span>
+                    <span class="text-secondary fw-semibold small me-1"><i class="fa-solid fa-filter me-1 text-primary"></i><?= gf_h(gf_t('Đang lọc:')) ?></span>
                     <?php foreach ($activeChips as $chip): ?>
                         <span class="badge bg-primary-light text-primary border border-primary-subtle px-3 py-2 fw-medium rounded-pill d-inline-flex align-items-center gap-2" style="font-size:13px">
-                            <?= gf_h($chip['label']) ?>
-                            <a href="<?= gf_h($chip['remove_url']) ?>" class="text-primary text-decoration-none" title="Bỏ điều kiện này" style="opacity:0.75;line-height:1"><i class="fa-solid fa-xmark"></i></a>
+                            <?= gf_h(gf_t((string) $chip['label'])) ?>
+                            <a href="<?= gf_h($chip['remove_url']) ?>" class="text-primary text-decoration-none" title="<?= gf_h(gf_t('Bỏ điều kiện này')) ?>" style="opacity:0.75;line-height:1"><i class="fa-solid fa-xmark"></i></a>
                         </span>
                     <?php endforeach; ?>
-                    <a href="<?= gf_h(gf_url('pages/gyms/search.php' . (!empty($filters['keyword']) ? '?keyword=' . urlencode($filters['keyword']) : ''))) ?>" class="btn btn-sm btn-link text-decoration-none text-danger fw-semibold ms-sm-auto p-0" style="font-size:13px"><i class="fa-solid fa-trash-can me-1"></i>Xóa tất cả</a>
+                    <a href="<?= gf_h(gf_url('pages/gyms/search.php' . (!empty($filters['keyword']) ? '?keyword=' . urlencode($filters['keyword']) : ''))) ?>" class="btn btn-sm btn-link text-decoration-none text-danger fw-semibold ms-sm-auto p-0" style="font-size:13px"><i class="fa-solid fa-trash-can me-1"></i><?= gf_h(gf_t('Xóa tất cả')) ?></a>
                 </div>
             <?php endif; ?>
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3 pb-3 border-bottom">
-                <h2 class="fw-bold text-dark m-0" style="font-size:16px"><?= (int)$gymPage['total'] ?> phòng tập được tìm thấy</h2>
+                <h2 class="fw-bold text-dark m-0" style="font-size:16px"><?= gf_h(gf_t((int) $gymPage['total'] . ' phòng tập được tìm thấy')) ?></h2>
                 <form method="get" class="d-flex align-items-center gap-2">
                     <?php foreach ($_GET as $key => $value): if (in_array($key, ['sort', 'page'], true)) continue; if (is_array($value)): foreach ($value as $nestedValue): ?>
                         <input type="hidden" name="<?= gf_h((string)$key) ?>[]" value="<?= gf_h((string)$nestedValue) ?>">
                     <?php endforeach; else: ?>
                         <input type="hidden" name="<?= gf_h((string)$key) ?>" value="<?= gf_h((string)$value) ?>">
                     <?php endif; endforeach; ?>
-                    <label for="gymSort" class="text-secondary text-nowrap" style="font-size:14px">Sắp xếp</label>
+                    <label for="gymSort" class="text-secondary text-nowrap" style="font-size:14px"><?= gf_h(gf_t('Sắp xếp')) ?></label>
                     <div class="gf-select-wrap gf-select-wrap--sort">
-                        <select id="gymSort" name="sort" class="form-select gf-filter-select" onchange="this.form.submit()" aria-label="Sắp xếp">
-                            <option value="" <?= $filters['sort']===''?'selected':'' ?>>Phổ biến nhất</option>
-                            <option value="newest" <?= $filters['sort']==='newest'?'selected':'' ?>>Mới nhất</option>
-                            <option value="rating_desc" <?= $filters['sort']==='rating_desc'?'selected':'' ?>>Đánh giá cao nhất</option>
-                            <option value="price_asc" <?= $filters['sort']==='price_asc'?'selected':'' ?>>Giá thấp → cao</option>
-                            <option value="price_desc" <?= $filters['sort']==='price_desc'?'selected':'' ?>>Giá cao → thấp</option>
+                        <select id="gymSort" name="sort" class="form-select gf-filter-select" onchange="this.form.submit()" aria-label="<?= gf_h(gf_t('Sắp xếp')) ?>">
+                            <option value="" <?= $filters['sort']===''?'selected':'' ?>><?= gf_h(gf_t('Phổ biến nhất')) ?></option>
+                            <option value="newest" <?= $filters['sort']==='newest'?'selected':'' ?>><?= gf_h(gf_t('Mới nhất')) ?></option>
+                            <option value="rating_desc" <?= $filters['sort']==='rating_desc'?'selected':'' ?>><?= gf_h(gf_t('Đánh giá cao nhất')) ?></option>
+                            <option value="price_asc" <?= $filters['sort']==='price_asc'?'selected':'' ?>><?= gf_h(gf_t('Giá thấp → cao')) ?></option>
+                            <option value="price_desc" <?= $filters['sort']==='price_desc'?'selected':'' ?>><?= gf_h(gf_t('Giá cao → thấp')) ?></option>
                         </select>
                     </div>
                 </form>
@@ -328,9 +328,9 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 <?php if (!$gyms): ?>
                     <div class="col-12 text-center py-5">
                         <div class="text-secondary mb-3"><i class="fa-solid fa-dumbbell" style="font-size:48px"></i></div>
-                        <h4 class="fw-bold text-dark">Không tìm thấy phòng tập</h4>
-                        <p class="text-secondary mb-4">Vui lòng thay đổi từ khóa hoặc bộ lọc của bạn.</p>
-                        <a class="btn btn-outline-primary rounded-pill px-4" href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>">Xóa bộ lọc</a>
+                        <h4 class="fw-bold text-dark"><?= gf_h(gf_t('Không tìm thấy phòng tập')) ?></h4>
+                        <p class="text-secondary mb-4"><?= gf_h(gf_t('Vui lòng thay đổi từ khóa hoặc bộ lọc của bạn.')) ?></p>
+                        <a class="btn btn-outline-primary rounded-pill px-4" href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>"><?= gf_h(gf_t('Xóa bộ lọc')) ?></a>
                     </div>
                 <?php endif; ?>
                 <?php foreach ($gyms as $gym): $isFav = in_array((int)$gym['id'], $favGymIds, true); require dirname(__DIR__, 2) . '/includes/gym_card.php'; endforeach; ?>

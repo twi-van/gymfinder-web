@@ -73,15 +73,15 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 <!-- TIÊU ĐỀ TRANG VÀ THỜI GIAN CẬP NHẬT -->
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
-        <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;">Tổng quan</h2>
-        <p class="text-secondary mb-0 small">Theo dõi và quản lý hoạt động toàn hệ thống GYMFINDER</p>
+        <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;"><?= gf_h(gf_t('Tổng quan')) ?></h2>
+        <p class="text-secondary mb-0 small"><?= gf_h(gf_t('Theo dõi và quản lý hoạt động toàn hệ thống GYMFINDER')) ?></p>
     </div>
     <div class="d-flex align-items-center gap-2">
         <div class="text-secondary small bg-white border px-3 py-2 rounded-3 shadow-sm d-flex align-items-center">
             <i class="fa-regular fa-clock me-2 text-primary"></i>
             <span>Cập nhật: <strong class="text-dark"><?= date('H:i - d/m/Y') ?></strong></span>
         </div>
-        <button type="button" class="btn bg-white border shadow-sm rounded-3 py-2 px-3 text-secondary" onclick="window.location.reload()" title="Làm mới dữ liệu">
+        <button type="button" class="btn bg-white border shadow-sm rounded-3 py-2 px-3 text-secondary" onclick="window.location.reload()" title="<?= gf_h(gf_t('Làm mới dữ liệu')) ?>">
             <i class="fa-solid fa-rotate-right"></i>
         </button>
     </div>
@@ -95,12 +95,12 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
             <i class="fa-solid fa-triangle-exclamation"></i>
         </div>
         <div>
-            <h6 class="fw-bold mb-0 text-dark">Có <?= (int)$stats['pending_reviews'] ?> đánh giá mới đang chờ kiểm duyệt</h6>
-            <div class="text-secondary small">Vui lòng kiểm tra và phê duyệt hoặc từ chối để cập nhật đánh giá cho phòng tập & huấn luyện viên.</div>
+            <h6 class="fw-bold mb-0 text-dark"><?= gf_h(gf_t('Có')) ?> <?= (int)$stats['pending_reviews'] ?> <?= gf_h(gf_t('đánh giá mới đang chờ kiểm duyệt')) ?></h6>
+            <div class="text-secondary small"><?= gf_h(gf_t('Vui lòng kiểm tra và phê duyệt hoặc từ chối để cập nhật đánh giá cho phòng tập & huấn luyện viên.')) ?></div>
         </div>
     </div>
     <a href="<?= gf_h(gf_url('admin/pages/reviews.php?status=pending')) ?>" class="btn btn-warning btn-sm rounded-pill px-3 fw-semibold">
-        <i class="fa-solid fa-clipboard-check me-1"></i>Kiểm duyệt ngay
+        <i class="fa-solid fa-clipboard-check me-1"></i><?= gf_h(gf_t('Kiểm duyệt ngay')) ?>
     </a>
 </div>
 <?php endif; ?>
@@ -111,7 +111,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
     <div class="col-12 col-sm-6 col-xl-3">
         <a href="<?= gf_h(gf_url('admin/pages/gyms.php')) ?>" class="stat-card">
             <div class="d-flex justify-content-between align-items-start mb-3">
-                <span class="text-secondary fw-semibold small">Tổng phòng tập</span>
+                <span class="text-secondary fw-semibold small"><?= gf_h(gf_t('Tổng phòng tập')) ?></span>
                 <div class="stat-icon stat-icon-teal">
                     <i class="fa-solid fa-dumbbell"></i>
                 </div>
@@ -120,7 +120,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                 <h3 class="fw-bold mb-1 text-dark"><?= number_format((int)$stats['gyms']) ?></h3>
                 <div class="text-secondary small d-flex align-items-center gap-1">
                     <i class="fa-solid fa-circle-check text-success" style="font-size: 11px;"></i>
-                    <span><strong><?= (int)$stats['total_gyms_active'] ?></strong> đang hoạt động</span>
+                    <span><strong><?= (int)$stats['total_gyms_active'] ?></strong> <?= gf_h(gf_t('đang hoạt động')) ?></span>
                 </div>
             </div>
         </a>
@@ -130,7 +130,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
     <div class="col-12 col-sm-6 col-xl-3">
         <a href="<?= gf_h(gf_url('admin/pages/trainers.php')) ?>" class="stat-card">
             <div class="d-flex justify-content-between align-items-start mb-3">
-                <span class="text-secondary fw-semibold small">Huấn luyện viên</span>
+                <span class="text-secondary fw-semibold small"><?= gf_h(gf_t('Huấn luyện viên')) ?></span>
                 <div class="stat-icon stat-icon-teal">
                     <i class="fa-solid fa-user-tie"></i>
                 </div>
@@ -139,7 +139,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                 <h3 class="fw-bold mb-1 text-dark"><?= number_format((int)$stats['trainers']) ?></h3>
                 <div class="text-secondary small d-flex align-items-center gap-1">
                     <i class="fa-solid fa-circle-check text-success" style="font-size: 11px;"></i>
-                    <span><strong><?= (int)$stats['total_trainers_active'] ?></strong> đang hoạt động</span>
+                    <span><strong><?= (int)$stats['total_trainers_active'] ?></strong> <?= gf_h(gf_t('đang hoạt động')) ?></span>
                 </div>
             </div>
         </a>
@@ -149,7 +149,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
     <div class="col-12 col-sm-6 col-xl-3">
         <a href="<?= gf_h(gf_url('admin/pages/users.php')) ?>" class="stat-card">
             <div class="d-flex justify-content-between align-items-start mb-3">
-                <span class="text-secondary fw-semibold small">Người dùng hệ thống</span>
+                <span class="text-secondary fw-semibold small"><?= gf_h(gf_t('Người dùng hệ thống')) ?></span>
                 <div class="stat-icon stat-icon-teal">
                     <i class="fa-solid fa-users"></i>
                 </div>
@@ -158,7 +158,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                 <h3 class="fw-bold mb-1 text-dark"><?= number_format((int)$stats['users']) ?></h3>
                 <div class="text-secondary small d-flex align-items-center gap-1">
                     <i class="fa-solid fa-user-check text-primary" style="font-size: 11px;"></i>
-                    <span>Tài khoản hội viên</span>
+                    <span><?= gf_h(gf_t('Tài khoản hội viên')) ?></span>
                 </div>
             </div>
         </a>
@@ -168,7 +168,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
     <div class="col-12 col-sm-6 col-xl-3">
         <a href="<?= gf_h(gf_url('admin/pages/reviews.php?status=pending')) ?>" class="stat-card">
             <div class="d-flex justify-content-between align-items-start mb-3">
-                <span class="text-secondary fw-semibold small">Đánh giá chờ duyệt</span>
+                <span class="text-secondary fw-semibold small"><?= gf_h(gf_t('Đánh giá chờ duyệt')) ?></span>
                 <div class="stat-icon <?= (int)$stats['pending_reviews'] > 0 ? 'stat-icon-warning' : 'stat-icon-teal' ?>">
                     <i class="fa-solid fa-clock"></i>
                 </div>
@@ -179,11 +179,11 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                 </h3>
                 <div class="small d-flex align-items-center gap-1">
                     <?php if ((int)$stats['pending_reviews'] > 0): ?>
-                        <span class="text-warning fw-semibold"><i class="fa-solid fa-circle-exclamation me-1" style="font-size: 11px;"></i>Cần xử lý</span>
+                        <span class="text-warning fw-semibold"><i class="fa-solid fa-circle-exclamation me-1" style="font-size: 11px;"></i><?= gf_h(gf_t('Cần xử lý')) ?></span>
                     <?php else: ?>
-                        <span class="text-success"><i class="fa-solid fa-circle-check me-1" style="font-size: 11px;"></i>Đã duyệt hết</span>
+                        <span class="text-success"><i class="fa-solid fa-circle-check me-1" style="font-size: 11px;"></i><?= gf_h(gf_t('Đã duyệt hết')) ?></span>
                     <?php endif; ?>
-                    <span class="text-secondary ms-1">/ <?= (int)$stats['reviews'] ?> tổng</span>
+                    <span class="text-secondary ms-1">/ <?= (int)$stats['reviews'] ?> <?= gf_h(gf_t('tổng')) ?></span>
                 </div>
             </div>
         </a>
@@ -197,17 +197,17 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
         <div class="admin-card flex-grow-1 p-4 d-flex flex-column">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
-                    <h6 class="fw-bold mb-1 text-dark">Phòng tập theo khu vực</h6>
-                    <div class="text-secondary small">Phân bố số lượng phòng theo các quận/huyện TP.HCM</div>
+                    <h6 class="fw-bold mb-1 text-dark"><?= gf_h(gf_t('Phòng tập theo khu vực')) ?></h6>
+                    <div class="text-secondary small"><?= gf_h(gf_t('Phân bố số lượng phòng theo các quận/huyện TP.HCM')) ?></div>
                 </div>
-                <span class="badge bg-light text-secondary border small px-2 py-1">Top khu vực</span>
+                <span class="badge bg-light text-secondary border small px-2 py-1"><?= gf_h(gf_t('Top khu vực')) ?></span>
             </div>
             
             <div class="flex-grow-1 position-relative" style="min-height: 280px; width: 100%;">
                 <?php if (empty($districtStats)): ?>
                     <div class="empty-state py-5 text-center">
                         <i class="fa-regular fa-map fa-2x text-muted mb-2 d-block"></i>
-                        <p class="text-secondary small mb-0">Chưa có dữ liệu phân bố phòng tập theo khu vực.</p>
+                        <p class="text-secondary small mb-0"><?= gf_h(gf_t('Chưa có dữ liệu phân bố phòng tập theo khu vực.')) ?></p>
                     </div>
                 <?php else: ?>
                     <canvas id="gymRegionChart"></canvas>
@@ -221,11 +221,11 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
         <div class="admin-card h-100 p-0 overflow-hidden d-flex flex-column">
             <div class="p-4 border-bottom d-flex justify-content-between align-items-center bg-white">
                 <div>
-                    <h6 class="fw-bold mb-1 text-dark">Đánh giá gần đây</h6>
-                    <div class="text-secondary small">Ưu tiên các đánh giá mới gửi</div>
+                    <h6 class="fw-bold mb-1 text-dark"><?= gf_h(gf_t('Đánh giá gần đây')) ?></h6>
+                    <div class="text-secondary small"><?= gf_h(gf_t('Ưu tiên các đánh giá mới gửi')) ?></div>
                 </div>
                 <a href="<?= gf_h(gf_url('admin/pages/reviews.php')) ?>" class="text-primary text-decoration-none small fw-semibold">
-                    Xem tất cả <i class="fa-solid fa-angle-right ms-1"></i>
+                    <?= gf_h(gf_t('Xem tất cả')) ?> <i class="fa-solid fa-angle-right ms-1"></i>
                 </a>
             </div>
 
@@ -233,7 +233,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                 <?php if (empty($recentReviews)): ?>
                     <div class="p-4 text-center text-secondary small">
                         <i class="fa-regular fa-comment-dots fa-2x text-muted mb-2 d-block"></i>
-                        Chưa có đánh giá nào trên hệ thống.
+                        <?= gf_h(gf_t('Chưa có đánh giá nào trên hệ thống.')) ?>
                     </div>
                 <?php else: ?>
                     <?php foreach ($recentReviews as $review): ?>
@@ -253,11 +253,11 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                                         <?php endfor; ?>
                                     </div>
                                     <?php if ($review['status'] === 'pending'): ?>
-                                        <span class="admin-badge badge-warning" style="font-size: 10.5px; padding: 2px 7px;">Chờ duyệt</span>
+                                        <span class="admin-badge badge-warning" style="font-size: 10.5px; padding: 2px 7px;"><?= gf_h(gf_t('Chờ duyệt')) ?></span>
                                     <?php elseif ($review['status'] === 'approved'): ?>
                                         <span class="admin-badge badge-success" style="font-size: 10.5px; padding: 2px 7px;">Đã duyệt</span>
                                     <?php else: ?>
-                                        <span class="admin-badge badge-danger" style="font-size: 10.5px; padding: 2px 7px;">Từ chối</span>
+                                        <span class="admin-badge badge-danger" style="font-size: 10.5px; padding: 2px 7px;"><?= gf_h(gf_t('Từ chối')) ?></span>
                                     <?php endif; ?>
                                 </div>
                                 <p class="text-secondary small mb-1 text-truncate" title="<?= gf_h($review['comment']) ?>" style="line-height: 1.4;">
@@ -269,7 +269,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                                     <?php elseif (!empty($review['trainer_name'])): ?>
                                         <i class="fa-solid fa-user-tie text-secondary me-1"></i><span class="text-dark fw-medium"><?= gf_h($review['trainer_name']) ?></span>
                                     <?php else: ?>
-                                        <span class="text-muted">Đối tượng đã ẩn</span>
+                                        <span class="text-muted"><?= gf_h(gf_t('Đối tượng đã ẩn')) ?></span>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -285,18 +285,18 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 <div class="admin-card p-4 mb-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <h6 class="fw-bold mb-1 text-dark">Phòng tập nổi bật</h6>
-            <div class="text-secondary small">Các cơ sở tiêu biểu đang hoạt động trên hệ thống GYMFINDER</div>
+            <h6 class="fw-bold mb-1 text-dark"><?= gf_h(gf_t('Phòng tập nổi bật')) ?></h6>
+            <div class="text-secondary small"><?= gf_h(gf_t('Các cơ sở tiêu biểu đang hoạt động trên hệ thống GYMFINDER')) ?></div>
         </div>
         <a href="<?= gf_h(gf_url('admin/pages/gyms.php')) ?>" class="text-primary text-decoration-none small fw-semibold">
-            Quản lý phòng tập <i class="fa-solid fa-angle-right ms-1"></i>
+            <?= gf_h(gf_t('Quản lý phòng tập')) ?> <i class="fa-solid fa-angle-right ms-1"></i>
         </a>
     </div>
 
     <?php if (empty($featuredGyms)): ?>
         <div class="text-center py-4 text-secondary small">
             <i class="fa-regular fa-building fa-2x text-muted mb-2 d-block"></i>
-            Chưa có phòng tập nổi bật nào đang hoạt động.
+            <?= gf_h(gf_t('Chưa có phòng tập nổi bật nào đang hoạt động.')) ?>
         </div>
     <?php else: ?>
         <div class="row g-3">
@@ -322,7 +322,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                                     <?= gf_h(gf_format_price((int)$gym['price_min'], (int)$gym['price_max'])) ?>
                                 </span>
                                 <span class="text-secondary" style="font-size: 11px;">
-                                    <?= (int)($gym['review_count'] ?? 0) ?> đánh giá
+                                    <?= (int)($gym['review_count'] ?? 0) ?> <?= gf_h(gf_t('đánh giá')) ?>
                                 </span>
                             </div>
                         </div>

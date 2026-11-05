@@ -143,30 +143,30 @@ require_once dirname(__DIR__) . '/components/table.php';
 ?>
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
-        <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;">Quản lý phòng tập</h2>
-        <p class="text-secondary mb-0 small">Thêm, chỉnh sửa, tạm ẩn và theo dõi thông tin phòng tập trên hệ thống</p>
+        <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;"><?= gf_h(gf_t('Quản lý phòng tập')) ?></h2>
+        <p class="text-secondary mb-0 small"><?= gf_h(gf_t('Thêm, chỉnh sửa, tạm ẩn và theo dõi thông tin phòng tập trên hệ thống')) ?></p>
     </div>
     <button class="btn btn-primary px-3 py-2 rounded-3 d-inline-flex align-items-center gap-2 fw-semibold shadow-sm" onclick="gymModalCreate()" style="height: 42px;">
-        <i class="fa-solid fa-plus"></i> Thêm mới
+        <i class="fa-solid fa-plus"></i> <?= gf_h(gf_t('Thêm mới')) ?>
     </button>
 </div>
-<?php if (!empty($_GET['created'])): ?><div class="alert alert-success border-0 shadow-sm rounded-3"><i class="fa-solid fa-circle-check me-2"></i>Đã thêm phòng tập thành công.</div><?php endif; ?>
-<?php if (!empty($_GET['updated'])): ?><div class="alert alert-success border-0 shadow-sm rounded-3"><i class="fa-solid fa-circle-check me-2"></i>Đã cập nhật phòng tập thành công.</div><?php endif; ?>
-<?php if (!empty($_GET['status_hidden'])): ?><div class="alert alert-success border-0 shadow-sm rounded-3"><i class="fa-solid fa-circle-check me-2"></i>Đã tạm ẩn phòng tập thành công. Phòng tập sẽ không hiển thị trên các trang công khai.</div><?php endif; ?>
-<?php if (!empty($_GET['status_active'])): ?><div class="alert alert-success border-0 shadow-sm rounded-3"><i class="fa-solid fa-circle-check me-2"></i>Đã kích hoạt lại phòng tập thành công. Phòng tập đã sẵn sàng hiển thị công khai.</div><?php endif; ?>
-<?php if ($error): ?><div class="alert alert-danger border-0 shadow-sm rounded-3"><i class="fa-solid fa-circle-exclamation me-2"></i><?= gf_h($error) ?></div><?php endif; ?>
+<?php if (!empty($_GET['created'])): ?><div class="alert alert-success border-0 shadow-sm rounded-3"><i class="fa-solid fa-circle-check me-2"></i><?= gf_h(gf_t('Đã thêm phòng tập thành công.')) ?></div><?php endif; ?>
+<?php if (!empty($_GET['updated'])): ?><div class="alert alert-success border-0 shadow-sm rounded-3"><i class="fa-solid fa-circle-check me-2"></i><?= gf_h(gf_t('Đã cập nhật phòng tập thành công.')) ?></div><?php endif; ?>
+<?php if (!empty($_GET['status_hidden'])): ?><div class="alert alert-success border-0 shadow-sm rounded-3"><i class="fa-solid fa-circle-check me-2"></i><?= gf_h(gf_t('Đã tạm ẩn phòng tập thành công. Phòng tập sẽ không hiển thị trên các trang công khai.')) ?></div><?php endif; ?>
+<?php if (!empty($_GET['status_active'])): ?><div class="alert alert-success border-0 shadow-sm rounded-3"><i class="fa-solid fa-circle-check me-2"></i><?= gf_h(gf_t('Đã kích hoạt lại phòng tập thành công. Phòng tập đã sẵn sàng hiển thị công khai.')) ?></div><?php endif; ?>
+<?php if ($error): ?><div class="alert alert-danger border-0 shadow-sm rounded-3"><i class="fa-solid fa-circle-exclamation me-2"></i><?= gf_h(gf_t((string) $error)) ?></div><?php endif; ?>
 
 <form method="get" class="admin-card p-3 mb-4 shadow-sm border">
     <div class="row g-3 align-items-center">
         <div class="col-12 col-md-5">
             <div class="position-relative">
                 <i class="fa-solid fa-magnifying-glass text-secondary position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none;"></i>
-                <input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q'] ?? '') ?>" placeholder="Tìm kiếm phòng tập..." style="padding-left: 38px; height: 42px;">
+                <input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q'] ?? '') ?>" placeholder="<?= gf_h(gf_t('Tìm kiếm phòng tập...')) ?>" style="padding-left: 38px; height: 42px;">
             </div>
         </div>
         <div class="col-12 col-sm-6 col-md-3">
             <select class="form-select admin-input" name="district_id" style="height: 42px;">
-                <option value="">Tất cả khu vực</option>
+                <option value=""><?= gf_h(gf_t('Tất cả khu vực')) ?></option>
                 <?php foreach ($districts as $d): ?>
                     <option value="<?= (int)$d['id'] ?>" <?= (string)($_GET['district_id'] ?? '') === (string)$d['id'] ? 'selected' : '' ?>><?= gf_h($d['name']) ?></option>
                 <?php endforeach; ?>
@@ -174,14 +174,14 @@ require_once dirname(__DIR__) . '/components/table.php';
         </div>
         <div class="col-12 col-sm-6 col-md-2">
             <select class="form-select admin-input" name="status" style="height: 42px;">
-                <option value="">Tất cả trạng thái</option>
-                <option value="active" <?= ($_GET['status'] ?? '') === 'active' ? 'selected' : '' ?>>Hoạt động</option>
-                <option value="hidden" <?= ($_GET['status'] ?? '') === 'hidden' ? 'selected' : '' ?>>Tạm ẩn</option>
+                <option value=""><?= gf_h(gf_t('Tất cả trạng thái')) ?></option>
+                <option value="active" <?= ($_GET['status'] ?? '') === 'active' ? 'selected' : '' ?>><?= gf_h(gf_t('Hoạt động')) ?></option>
+                <option value="hidden" <?= ($_GET['status'] ?? '') === 'hidden' ? 'selected' : '' ?>><?= gf_h(gf_t('Tạm ẩn')) ?></option>
             </select>
         </div>
         <div class="col-12 col-md-2">
             <button type="submit" class="btn btn-filter w-100 d-inline-flex align-items-center justify-content-center gap-2 fw-medium" style="height: 42px;">
-                <i class="fa-solid fa-arrows-rotate"></i> Lọc
+                <i class="fa-solid fa-arrows-rotate"></i> <?= gf_h(gf_t('Lọc')) ?>
             </button>
         </div>
     </div>
@@ -228,12 +228,12 @@ gf_admin_table_open([
                                 <span class="gym-name"><?= gf_h($r['name']) ?></span>
                                 <div class="gym-address"><i class="fa-solid fa-location-dot me-1 text-muted" style="font-size: 11px;"></i><?= gf_h($r['address']) ?></div>
                                 <div class="small text-muted mt-1" style="font-size: 11px;">
-                                    <i class="fa-solid fa-phone me-1 text-primary" style="font-size: 10px;"></i><?= !empty($r['phone']) ? gf_h($r['phone']) : '<span class="text-secondary fst-italic">Chưa có SĐT</span>' ?>
+                                    <i class="fa-solid fa-phone me-1 text-primary" style="font-size: 10px;"></i><?= !empty($r['phone']) ? gf_h($r['phone']) : '<span class="text-secondary fst-italic">' . gf_h(gf_t('Chưa có SĐT')) . '</span>' ?>
                                 </div>
                                 <?php if (!empty($gymGalleries[(int)$r['id']])): ?>
                                     <div class="mt-1">
                                         <span class="badge bg-light text-secondary border px-2 py-0" style="font-size: 10.5px; font-weight: 500;">
-                                            <i class="fa-solid fa-images me-1 text-primary"></i><?= count($gymGalleries[(int)$r['id']]) ?> ảnh
+                                            <i class="fa-solid fa-images me-1 text-primary"></i><?= count($gymGalleries[(int)$r['id']]) ?> <?= gf_h(gf_t('ảnh')) ?>
                                         </span>
                                     </div>
                                 <?php endif; ?>
@@ -271,16 +271,16 @@ gf_admin_table_open([
                     </td>
                     <td class="text-end gym-actions pe-3 text-nowrap">
                         <div class="d-inline-flex align-items-center justify-content-end gap-2">
-                            <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#gymView<?= (int)$r['id'] ?>" title="Xem chi tiết"><i class="fa-solid fa-eye"></i></button>
-                            <button type="button" class="btn btn-action btn-action-edit" data-id="<?= (int)$r['id'] ?>" data-name="<?= gf_h($r['name']) ?>" data-phone="<?= gf_h($r['phone'] ?? '') ?>" data-address="<?= gf_h($r['address']) ?>" data-district="<?= (int)$r['district_id'] ?>" data-min="<?= (int)$r['price_min'] ?>" data-max="<?= (int)$r['price_max'] ?>" data-hours="<?= gf_h($r['opening_hours'] ?? '') ?>" data-featured="<?= (int)($r['is_featured'] ?? 0) ?>" data-description="<?= gf_h($gymDescriptions[(int)$r['id']] ?? '') ?>" data-cover="<?= gf_h($r['cover_image_url'] ?? '') ?>" data-cover-display="<?= gf_h(gf_cover_image($r['cover_image_url'] ?? null, (int)$r['id'])) ?>" data-gallery='<?= htmlspecialchars(json_encode($gymGalleries[(int)$r['id']] ?? []), ENT_QUOTES, 'UTF-8') ?>' data-categories="<?= gf_h(implode(',', $gymCategoryIds[(int)$r['id']] ?? [])) ?>" data-amenities="<?= gf_h(implode(',', $gymAmenityIds[(int)$r['id']] ?? [])) ?>" onclick="gymModalEdit(this)" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+                            <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#gymView<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Xem chi tiết')) ?>"><i class="fa-solid fa-eye"></i></button>
+                            <button type="button" class="btn btn-action btn-action-edit" data-id="<?= (int)$r['id'] ?>" data-name="<?= gf_h($r['name']) ?>" data-phone="<?= gf_h($r['phone'] ?? '') ?>" data-address="<?= gf_h($r['address']) ?>" data-district="<?= (int)$r['district_id'] ?>" data-min="<?= (int)$r['price_min'] ?>" data-max="<?= (int)$r['price_max'] ?>" data-hours="<?= gf_h($r['opening_hours'] ?? '') ?>" data-featured="<?= (int)($r['is_featured'] ?? 0) ?>" data-description="<?= gf_h($gymDescriptions[(int)$r['id']] ?? '') ?>" data-cover="<?= gf_h($r['cover_image_url'] ?? '') ?>" data-cover-display="<?= gf_h(gf_cover_image($r['cover_image_url'] ?? null, (int)$r['id'])) ?>" data-gallery='<?= htmlspecialchars(json_encode($gymGalleries[(int)$r['id']] ?? []), ENT_QUOTES, 'UTF-8') ?>' data-categories="<?= gf_h(implode(',', $gymCategoryIds[(int)$r['id']] ?? [])) ?>" data-amenities="<?= gf_h(implode(',', $gymAmenityIds[(int)$r['id']] ?? [])) ?>" onclick="gymModalEdit(this)" title="<?= gf_h(gf_t('Chỉnh sửa')) ?>"><i class="fa-solid fa-pen"></i></button>
                             <form method="post" class="d-inline m-0 p-0" onsubmit="return handleGymStatusSubmit(this);">
                                 <?= gf_csrf_field() ?>
                                 <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
                                 <input type="hidden" name="status" value="<?= $r['status'] === 'active' ? 'hidden' : 'active' ?>">
                                 <?php if ($r['status'] === 'active'): ?>
-                                    <button type="submit" class="btn btn-action btn-action-toggle" title="Tạm ẩn phòng tập"><i class="fa-solid fa-eye-slash"></i></button>
+                                    <button type="submit" class="btn btn-action btn-action-toggle" title="<?= gf_h(gf_t('Tạm ẩn phòng tập')) ?>"><i class="fa-solid fa-eye-slash"></i></button>
                                 <?php else: ?>
-                                    <button type="submit" class="btn btn-action btn-action-activate" title="Kích hoạt lại phòng tập"><i class="fa-solid fa-rotate-left"></i></button>
+                                    <button type="submit" class="btn btn-action btn-action-activate" title="<?= gf_h(gf_t('Kích hoạt lại phòng tập')) ?>"><i class="fa-solid fa-rotate-left"></i></button>
                                 <?php endif; ?>
                             </form>
                         </div>
@@ -302,8 +302,8 @@ gf_admin_table_close([
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 rounded-4 shadow overflow-hidden">
             <div class="modal-header border-bottom px-4 py-3 bg-white sticky-top">
-                <h5 class="modal-title fw-bold text-dark" id="gymViewTitle<?= (int)$r['id'] ?>"><i class="fa-solid fa-dumbbell text-primary me-2"></i>Chi tiết phòng tập</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                <h5 class="modal-title fw-bold text-dark" id="gymViewTitle<?= (int)$r['id'] ?>"><i class="fa-solid fa-dumbbell text-primary me-2"></i><?= gf_h(gf_t('Chi tiết phòng tập')) ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= gf_h(gf_t('Đóng')) ?>"></button>
             </div>
             <div class="modal-body p-4">
                 <div class="row g-4">
@@ -311,8 +311,8 @@ gf_admin_table_close([
                         <!-- Ảnh Cover -->
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="small fw-bold text-dark"><i class="fa-solid fa-image me-1 text-primary"></i>Ảnh bìa</span>
-                                <span class="admin-badge badge-success" style="font-size: 10px;">Ảnh đại diện</span>
+                                <span class="small fw-bold text-dark"><i class="fa-solid fa-image me-1 text-primary"></i><?= gf_h(gf_t('Ảnh bìa')) ?></span>
+                                <span class="admin-badge badge-success" style="font-size: 10px;"><?= gf_h(gf_t('Ảnh đại diện')) ?></span>
                             </div>
                             <div class="position-relative overflow-hidden rounded-3 shadow-sm border">
                                 <img src="<?= gf_h(gf_cover_image($r['cover_image_url'] ?? null, (int)$r['id'])) ?>" 
@@ -326,12 +326,12 @@ gf_admin_table_close([
                         <!-- Bộ sưu tập ảnh (Gallery) -->
                         <div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="small fw-bold text-dark"><i class="fa-solid fa-images me-1 text-primary"></i>Bộ sưu tập ảnh</span>
-                                <span class="admin-badge badge-neutral" style="font-size: 10px;"><?= count($gymGalleries[(int)$r['id']] ?? []) ?> ảnh</span>
+                                <span class="small fw-bold text-dark"><i class="fa-solid fa-images me-1 text-primary"></i><?= gf_h(gf_t('Bộ sưu tập ảnh')) ?></span>
+                                <span class="admin-badge badge-neutral" style="font-size: 10px;"><?= count($gymGalleries[(int)$r['id']] ?? []) ?> <?= gf_h(gf_t('ảnh')) ?></span>
                             </div>
                             <?php if (empty($gymGalleries[(int)$r['id']])): ?>
                                 <div class="text-center py-3 bg-light rounded-3 text-muted small border">
-                                    <i class="fa-regular fa-image me-1"></i>Chưa có ảnh trong thư viện
+                                    <i class="fa-regular fa-image me-1"></i><?= gf_h(gf_t('Chưa có ảnh trong thư viện')) ?>
                                 </div>
                             <?php else: ?>
                                 <div class="row g-2">
@@ -359,23 +359,23 @@ gf_admin_table_close([
                         
                         <div class="p-3 bg-light rounded-3 mb-3 border">
                             <div class="row g-2 small">
-                                <div class="col-6"><strong>Khu vực:</strong> <?= gf_h($districtNames[(int)$r['district_id']] ?? '—') ?></div>
-                                <div class="col-6"><strong>Số điện thoại:</strong> <?= !empty($r['phone']) ? gf_h($r['phone']) : '<span class="text-muted fst-italic">Chưa cập nhật</span>' ?></div>
-                                <div class="col-6"><strong>Đánh giá:</strong> <i class="fa-solid fa-star text-warning"></i> <?= number_format((float)($r['avg_rating'] ?? 0), 1) ?> (<?= (int)$r['review_count'] ?> đánh giá)</div>
-                                <div class="col-6"><strong>Khoảng giá:</strong> <span class="text-primary fw-bold"><?= gf_h(gf_format_price((int)$r['price_min'], (int)$r['price_max'])) ?></span></div>
-                                <div class="col-6"><strong>Trạng thái:</strong> <span class="admin-badge <?= $r['status'] === 'active' ? 'badge-success' : 'badge-neutral' ?>"><?= $r['status'] === 'active' ? 'Hoạt động' : 'Tạm ẩn' ?></span></div>
+                                <div class="col-6"><strong><?= gf_h(gf_t('Khu vực:')) ?></strong> <?= gf_h($districtNames[(int)$r['district_id']] ?? '—') ?></div>
+                                <div class="col-6"><strong><?= gf_h(gf_t('Số điện thoại:')) ?></strong> <?= !empty($r['phone']) ? gf_h($r['phone']) : '<span class="text-muted fst-italic">' . gf_h(gf_t('Chưa cập nhật')) . '</span>' ?></div>
+                                <div class="col-6"><strong><?= gf_h(gf_t('Đánh giá:')) ?></strong> <i class="fa-solid fa-star text-warning"></i> <?= number_format((float)($r['avg_rating'] ?? 0), 1) ?> (<?= (int)$r['review_count'] ?> đánh giá)</div>
+                                <div class="col-6"><strong><?= gf_h(gf_t('Khoảng giá:')) ?></strong> <span class="text-primary fw-bold"><?= gf_h(gf_format_price((int)$r['price_min'], (int)$r['price_max'])) ?></span></div>
+                                <div class="col-6"><strong><?= gf_h(gf_t('Trạng thái:')) ?></strong> <span class="admin-badge <?= $r['status'] === 'active' ? 'badge-success' : 'badge-neutral' ?>"><?= $r['status'] === 'active' ? 'Hoạt động' : 'Tạm ẩn' ?></span></div>
                             </div>
                         </div>
                         
                         <?php if (!empty($gymDescriptions[(int)$r['id']])): ?>
                             <div class="mb-3">
-                                <div class="small fw-bold text-dark mb-1">Mô tả:</div>
+                                <div class="small fw-bold text-dark mb-1"><?= gf_h(gf_t('Mô tả:')) ?></div>
                                 <p class="small text-muted mb-0" style="line-height:1.5;"><?= nl2br(gf_h($gymDescriptions[(int)$r['id']])) ?></p>
                             </div>
                         <?php endif; ?>
                         
                         <div>
-                            <div class="small fw-bold text-dark mb-1">Danh mục:</div>
+                            <div class="small fw-bold text-dark mb-1"><?= gf_h(gf_t('Danh mục:')) ?></div>
                             <div class="d-flex flex-wrap gap-1">
                                 <?php foreach ($gymCategoryNames[(int)$r['id']] ?? [] as $categoryName): ?>
                                     <span class="admin-cat-badge <?= gf_admin_cat_badge($categoryName) ?>"><?= gf_h($categoryName) ?></span>
@@ -386,7 +386,7 @@ gf_admin_table_close([
                 </div>
             </div>
             <div class="modal-footer border-top px-4 py-3 bg-white sticky-bottom">
-                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal"><?= gf_h(gf_t('Đóng')) ?></button>
             </div>
         </div>
     </div>
@@ -401,47 +401,47 @@ gf_admin_table_close([
             <input type="hidden" name="remove_cover" id="gym-remove-cover" value="0">
             <input type="hidden" name="images_json" id="gym-images-json" value="[]">
             <div class="modal-header border-bottom px-4 py-3 bg-white sticky-top">
-                <h5 class="modal-title fw-bold text-dark" id="gym-editor-title"><i class="fa-solid fa-dumbbell text-primary me-2"></i>Thêm phòng tập</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                <h5 class="modal-title fw-bold text-dark" id="gym-editor-title"><i class="fa-solid fa-dumbbell text-primary me-2"></i><?= gf_h(gf_t('Thêm phòng tập')) ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= gf_h(gf_t('Đóng')) ?>"></button>
             </div>
             <div class="modal-body px-4 py-3">
                 <div id="gym-error-alert" class="alert alert-danger d-none"></div>
                 <div class="row g-3">
-                    <div class="col-md-6" data-field><label class="form-label">Tên phòng tập *</label><input class="form-control admin-input" name="name" id="gym-name" required data-required-msg="Vui lòng nhập tên phòng tập."></div>
-                    <div class="col-md-6"><label class="form-label">Số điện thoại liên hệ</label><input class="form-control admin-input" name="phone" id="gym-phone" placeholder="VD: +84281234567 hoặc 0901234567" pattern="^\+?[0-9]{9,14}$" title="Từ 9 đến 14 chữ số, có thể bắt đầu bằng dấu +"></div>
-                    <div class="col-md-6" data-field><label class="form-label">Địa chỉ *</label><input class="form-control admin-input" name="address" id="gym-address" required data-required-msg="Vui lòng nhập địa chỉ."></div>
-                    <div class="col-md-6" data-field><label class="form-label">Khu vực *</label><select class="form-select admin-input" name="district_id" id="gym-district" required data-required-msg="Vui lòng chọn khu vực."><?php foreach ($districts as $d): ?><option value="<?= (int)$d['id'] ?>"><?= gf_h($d['name']) ?></option><?php endforeach; ?></select></div>
-                    <div class="col-md-6"><label class="form-label">Giá từ</label><input class="form-control admin-input" type="number" min="0" name="price_min" id="gym-min" value="200000"></div>
-                    <div class="col-md-6"><label class="form-label">Giá đến</label><input class="form-control admin-input" type="number" min="0" name="price_max" id="gym-max" value="800000"></div>
+                    <div class="col-md-6" data-field><label class="form-label"><?= gf_h(gf_t('Tên phòng tập *')) ?></label><input class="form-control admin-input" name="name" id="gym-name" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập tên phòng tập.')) ?>"></div>
+                    <div class="col-md-6"><label class="form-label"><?= gf_h(gf_t('Số điện thoại liên hệ')) ?></label><input class="form-control admin-input" name="phone" id="gym-phone" placeholder="<?= gf_h(gf_t('VD: +84281234567 hoặc 0901234567')) ?>" pattern="^\+?[0-9]{9,14}$" title="<?= gf_h(gf_t('Từ 9 đến 14 chữ số, có thể bắt đầu bằng dấu +')) ?>"></div>
+                    <div class="col-md-6" data-field><label class="form-label"><?= gf_h(gf_t('Địa chỉ *')) ?></label><input class="form-control admin-input" name="address" id="gym-address" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập địa chỉ.')) ?>"></div>
+                    <div class="col-md-6" data-field><label class="form-label"><?= gf_h(gf_t('Khu vực *')) ?></label><select class="form-select admin-input" name="district_id" id="gym-district" required data-required-msg="<?= gf_h(gf_t('Vui lòng chọn khu vực.')) ?>"><?php foreach ($districts as $d): ?><option value="<?= (int)$d['id'] ?>"><?= gf_h($d['name']) ?></option><?php endforeach; ?></select></div>
+                    <div class="col-md-6"><label class="form-label"><?= gf_h(gf_t('Giá từ')) ?></label><input class="form-control admin-input" type="number" min="0" name="price_min" id="gym-min" value="200000"></div>
+                    <div class="col-md-6"><label class="form-label"><?= gf_h(gf_t('Giá đến')) ?></label><input class="form-control admin-input" type="number" min="0" name="price_max" id="gym-max" value="800000"></div>
                     <div class="col-md-6">
-                        <label class="form-label">Giờ mở cửa</label>
-                        <input class="form-control admin-input" name="opening_hours" id="gym-hours" maxlength="120" placeholder="VD: 06:00–22:00 hoặc 24/7">
-                        <div class="form-text">Ghi rõ giờ; dùng <code>24/7</code> nếu mở cả ngày (lọc tìm kiếm nhận dạng chuỗi này).</div>
+                        <label class="form-label"><?= gf_h(gf_t('Giờ mở cửa')) ?></label>
+                        <input class="form-control admin-input" name="opening_hours" id="gym-hours" maxlength="120" placeholder="<?= gf_h(gf_t('VD: 06:00–22:00 hoặc 24/7')) ?>">
+                        <div class="form-text"><?= gf_h(gf_t('Ghi rõ giờ; dùng')) ?> <code>24/7</code> <?= gf_h(gf_t('nếu mở cả ngày (lọc tìm kiếm nhận dạng chuỗi này).')) ?></div>
                     </div>
                     <div class="col-md-6 d-flex align-items-end">
                         <div class="form-check mb-2">
                             <input type="hidden" name="is_featured" value="0">
                             <input class="form-check-input" type="checkbox" name="is_featured" value="1" id="gym-featured">
-                            <label class="form-check-label fw-semibold" for="gym-featured">Nổi bật trên trang chủ</label>
+                            <label class="form-check-label fw-semibold" for="gym-featured"><?= gf_h(gf_t('Nổi bật trên trang chủ')) ?></label>
                         </div>
                     </div>
-                    <div class="col-12"><label class="form-label">Mô tả</label><textarea class="form-control admin-input" name="description" id="gym-description" rows="3"></textarea></div>
-                    <div class="col-md-6"><label class="form-label fw-semibold">Danh mục</label><div><?php foreach ($categories as $c): ?><label class="form-check"><input class="form-check-input gym-category" type="checkbox" name="category_ids[]" value="<?= (int)$c['id'] ?>"><span class="form-check-label"><?= gf_h($c['name']) ?></span></label><?php endforeach; ?></div></div>
-                    <div class="col-md-6"><label class="form-label fw-semibold">Tiện ích</label><div><?php foreach ($amenities as $a): ?><label class="form-check"><input class="form-check-input gym-amenity" type="checkbox" name="amenity_ids[]" value="<?= (int)$a['id'] ?>"><span class="form-check-label"><?= gf_h($a['name']) ?></span></label><?php endforeach; ?></div></div>
+                    <div class="col-12"><label class="form-label"><?= gf_h(gf_t('Mô tả')) ?></label><textarea class="form-control admin-input" name="description" id="gym-description" rows="3"></textarea></div>
+                    <div class="col-md-6"><label class="form-label fw-semibold"><?= gf_h(gf_t('Danh mục')) ?></label><div><?php foreach ($categories as $c): ?><label class="form-check"><input class="form-check-input gym-category" type="checkbox" name="category_ids[]" value="<?= (int)$c['id'] ?>"><span class="form-check-label"><?= gf_h($c['name']) ?></span></label><?php endforeach; ?></div></div>
+                    <div class="col-md-6"><label class="form-label fw-semibold"><?= gf_h(gf_t('Tiện ích')) ?></label><div><?php foreach ($amenities as $a): ?><label class="form-check"><input class="form-check-input gym-amenity" type="checkbox" name="amenity_ids[]" value="<?= (int)$a['id'] ?>"><span class="form-check-label"><?= gf_h($a['name']) ?></span></label><?php endforeach; ?></div></div>
 
                     <!-- UPLOAD COVER SECTION -->
                     <div class="col-12 pt-3 border-top">
-                        <label class="form-label fw-bold d-block mb-2">Ảnh bìa phòng tập</label>
+                        <label class="form-label fw-bold d-block mb-2"><?= gf_h(gf_t('Ảnh bìa phòng tập')) ?></label>
                         <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
                             <img id="gym-cover-preview" src="<?= gf_h(gf_cover_image(null, 1)) ?>" class="rounded-3 shadow-sm object-fit-cover" style="width:110px;height:80px;flex:0 0 110px;" alt="Xem trước ảnh bìa">
                             <div class="flex-grow-1">
                                 <div class="d-flex flex-wrap gap-2 mb-2">
                                     <input type="file" id="gym-cover-file" name="cover_file" accept="image/jpeg,image/png,image/webp" class="d-none" onchange="previewGymCover(this)">
-                                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="document.getElementById('gym-cover-file').click()"><i class="fa-solid fa-camera me-1"></i>Chọn / Thay ảnh</button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-none" id="gym-cover-cancel-btn" onclick="cancelGymCover()"><i class="fa-solid fa-rotate-left me-1"></i>Hủy đổi</button>
-                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" id="gym-cover-remove-btn" onclick="removeGymCover()"><i class="fa-solid fa-trash me-1"></i>Xóa ảnh bìa</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="document.getElementById('gym-cover-file').click()"><i class="fa-solid fa-camera me-1"></i><?= gf_h(gf_t('Chọn / Thay ảnh')) ?></button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-none" id="gym-cover-cancel-btn" onclick="cancelGymCover()"><i class="fa-solid fa-rotate-left me-1"></i><?= gf_h(gf_t('Hủy đổi')) ?></button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" id="gym-cover-remove-btn" onclick="removeGymCover()"><i class="fa-solid fa-trash me-1"></i><?= gf_h(gf_t('Xóa ảnh bìa')) ?></button>
                                 </div>
-                                <div class="small text-secondary">Hỗ trợ JPG, PNG, WEBP tối đa 5 MB.</div>
+                                <div class="small text-secondary"><?= gf_h(gf_t('Hỗ trợ JPG, PNG, WEBP tối đa 5 MB.')) ?></div>
                             </div>
                         </div>
                     </div>
@@ -449,23 +449,23 @@ gf_admin_table_close([
                     <!-- UPLOAD GALLERY SECTION -->
                     <div class="col-12 pt-3 border-top">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="form-label fw-bold mb-0">Thư viện ảnh</label>
+                            <label class="form-label fw-bold mb-0"><?= gf_h(gf_t('Thư viện ảnh')) ?></label>
                             <div>
                                 <input type="file" id="gym-gallery-files" name="gallery_files[]" multiple accept="image/jpeg,image/png,image/webp" class="d-none" onchange="addGalleryFiles(this)">
-                                <button type="button" id="gym-gallery-add-btn" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="document.getElementById('gym-gallery-files').click()"><i class="fa-solid fa-plus me-1"></i>Thêm ảnh vào thư viện</button>
+                                <button type="button" id="gym-gallery-add-btn" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="document.getElementById('gym-gallery-files').click()"><i class="fa-solid fa-plus me-1"></i><?= gf_h(gf_t('Thêm ảnh vào thư viện')) ?></button>
                             </div>
                         </div>
                         <div id="gym-gallery-list" class="row g-2 pt-2">
                             <!-- Rendered dynamically via JavaScript -->
                         </div>
-                        <div id="gym-gallery-empty" class="text-center py-4 bg-light rounded-3 border text-secondary small">Chưa có ảnh trong thư viện. Bấm "Thêm ảnh vào thư viện" để chọn ít nhất 3 ảnh.</div>
-                        <div class="form-text mt-2">Nên có 3–5 ảnh (phòng tập nổi bật có thể 6); tối đa 8 ảnh. Mỗi ảnh JPG, PNG hoặc WEBP, tối đa 5 MB.</div>
-                        <div id="gym-gallery-count" class="small text-secondary mt-1" aria-live="polite">0/8 ảnh</div>
+                        <div id="gym-gallery-empty" class="text-center py-4 bg-light rounded-3 border text-secondary small"><?= gf_h(gf_t('Chưa có ảnh trong thư viện. Bấm "Thêm ảnh vào thư viện" để chọn ít nhất 3 ảnh.')) ?></div>
+                        <div class="form-text mt-2"><?= gf_h(gf_t('Nên có 3–5 ảnh (phòng tập nổi bật có thể 6); tối đa 8 ảnh. Mỗi ảnh JPG, PNG hoặc WEBP, tối đa 5 MB.')) ?></div>
+                        <div id="gym-gallery-count" class="small text-secondary mt-1" aria-live="polite"><?= gf_h(gf_t('0/8 ảnh')) ?></div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer border-top px-4 py-3 bg-white sticky-bottom">
-                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal"><?= gf_h(gf_t('Hủy')) ?></button>
                 <button type="submit" class="btn btn-primary rounded-pill px-4" id="gym-save">Lưu thông tin</button>
             </div>
         </form>
@@ -507,8 +507,8 @@ function gymModalCreate(){
     document.getElementById('gym-remove-cover').value='0';
     document.getElementById('gym-images-json').value='[]';
     document.getElementById('gym-error-alert').classList.add('d-none');
-    document.getElementById('gym-editor-title').textContent='Thêm phòng tập';
-    document.getElementById('gym-save').textContent='Thêm phòng tập';
+    document.getElementById('gym-editor-title').textContent=gfT('Thêm phòng tập');
+    document.getElementById('gym-save').textContent=gfT('Thêm phòng tập');
     document.getElementById('gym-save').disabled = false;
     
     originalCoverUrl = '';
@@ -678,15 +678,15 @@ function renderGallery() {
                 <div class="position-relative mb-2">
                     <img src="${displaySrc}" class="w-100 rounded-2 object-fit-cover" style="height:90px;" alt="">
                     <span class="position-absolute top-0 start-0 m-1 badge ${item.isNew ? 'bg-warning text-dark' : 'bg-success'} font-monospace" style="font-size:10px;">
-                        ${item.isNew ? 'Mới' : 'Đã lưu'} #${index + 1}
+                        ${item.isNew ? gfT('Mới') : gfT('Đã lưu')} #${index + 1}
                     </span>
-                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 p-0 rounded-circle d-flex align-items-center justify-content-center" style="width:22px;height:22px;" title="Xóa ảnh" onclick="removeGalleryItem(${index})">
+                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 p-0 rounded-circle d-flex align-items-center justify-content-center" style="width:22px;height:22px;" title="<?= gf_h(gf_t('Xóa ảnh')) ?>" onclick="removeGalleryItem(${index})">
                         <i class="fa-solid fa-xmark" style="font-size:11px;"></i>
                     </button>
                 </div>
-                <input class="form-control form-control-sm mb-2" placeholder="Chú thích..." value="${item.caption || ''}" onchange="galleryItems[${index}].caption = this.value">
+                <input class="form-control form-control-sm mb-2" placeholder="<?= gf_h(gf_t('Chú thích...')) ?>" value="${item.caption || ''}" onchange="galleryItems[${index}].caption = this.value">
                 <button type="button" class="btn btn-sm btn-outline-secondary w-100 mt-auto rounded-pill" style="font-size:11px;" onclick="makeGalleryCover(${index})">
-                    <i class="fa-solid fa-star me-1 text-warning"></i>Đặt làm ảnh bìa
+                    <i class="fa-solid fa-star me-1 text-warning"></i><?= gf_h(gf_t('Đặt làm ảnh bìa')) ?>
                 </button>
             </div>
         `;
@@ -752,7 +752,7 @@ async function handleGymFormSubmit(e) {
         return false;
     }
     if (galleryItems.length < 3 || galleryItems.length > 8) {
-        errAlert.textContent = 'Thư viện cần từ 3 đến 8 ảnh. Phòng tập nổi bật nên có 6 ảnh.';
+        errAlert.textContent = gfT('Thư viện cần từ 3 đến 8 ảnh. Phòng tập nổi bật nên có 6 ảnh.');
         errAlert.classList.remove('d-none');
         document.getElementById('gym-gallery-add-btn').focus();
         return false;
@@ -823,7 +823,7 @@ async function handleGymFormSubmit(e) {
         document.getElementById('gymForm').submit();
     } catch (err) {
         saveBtn.disabled = false;
-        saveBtn.textContent = document.getElementById('gym-id').value ? 'Lưu thông tin' : 'Thêm phòng tập';
+        saveBtn.textContent = document.getElementById('gym-id').value ? 'Lưu thông tin' : gfT('Thêm phòng tập');
         errAlert.textContent = err.message || 'Đã xảy ra lỗi khi lưu thông tin.';
         errAlert.classList.remove('d-none');
     }

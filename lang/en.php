@@ -50,6 +50,7 @@ return [
     '© 2026 GYMFINDER. Bảo lưu mọi quyền.' => '© 2026 GYMFINDER. All rights reserved.',
     'Điều khoản dịch vụ' => 'Terms of service',
     'Chính sách bảo mật' => 'Privacy policy',
+    'Hỏi đáp' => 'FAQ',
     'Cao cấp' => 'Premium',
     'Chưa có đánh giá' => 'No reviews yet',
     'đánh giá' => 'reviews',

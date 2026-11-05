@@ -23,21 +23,21 @@ $aiChips = [
     data-csrf-url="<?= gf_h(gf_url('api/auth/csrf')) ?>"
     data-csrf="<?= gf_h(gf_csrf_token()) ?>"
 >
-    <div class="gf-ai-panel" id="gfAiPanel" role="dialog" aria-label="Trợ lý AI GYMFINDER" aria-hidden="true">
+    <div class="gf-ai-panel" id="gfAiPanel" role="dialog" aria-label="<?= gf_h(gf_t('Trợ lý AI GYMFINDER')) ?>" aria-hidden="true">
         <div class="gf-ai-panel-head">
             <div class="gf-ai-panel-head-icon"><i class="fa-solid fa-robot"></i></div>
             <div>
-                <h2>Trợ lý GYMFINDER</h2>
-                <p>Gợi ý phòng tập &amp; HLV</p>
+                <h2><?= gf_h(gf_t('Trợ lý GYMFINDER')) ?></h2>
+                <p><?= gf_h('Gợi ý phòng tập & HLV') ?></p>
             </div>
-            <button type="button" class="gf-ai-panel-close" aria-label="Đóng chat"><i class="fa-solid fa-xmark"></i></button>
+            <button type="button" class="gf-ai-panel-close" aria-label="<?= gf_h(gf_t('Đóng chat')) ?>"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="gf-ai-messages" id="gfAiMessages">
-            <div class="gf-ai-bubble gf-ai-bubble--bot">Xin chào! Hỏi mình về phòng tập hoặc HLV tại TP.HCM nhé (quận, giá, Yoga…).</div>
+            <div class="gf-ai-bubble gf-ai-bubble--bot"><?= gf_h(gf_t('Xin chào! Hỏi mình về phòng tập hoặc HLV tại TP.HCM nhé (quận, giá, Yoga…).')) ?></div>
         </div>
         <div class="gf-ai-chips">
             <?php foreach ($aiChips as $chip): ?>
-                <button type="button" class="gf-ai-chip" data-chip="<?= gf_h($chip) ?>"><?= gf_h($chip) ?></button>
+                <button type="button" class="gf-ai-chip" data-chip="<?= gf_h(gf_t($chip)) ?>"><?= gf_h(gf_t($chip)) ?></button>
             <?php endforeach; ?>
         </div>
         <form class="gf-ai-form" autocomplete="off">
@@ -47,15 +47,15 @@ $aiChips = [
                 maxlength="500"
                 placeholder="<?= $aiWidgetEnabled ? 'Nhập câu hỏi…' : 'AI chưa cấu hình' ?>"
                 <?= $aiWidgetEnabled ? '' : 'disabled' ?>
-                aria-label="Câu hỏi cho trợ lý AI"
+                aria-label="<?= gf_h(gf_t('Câu hỏi cho trợ lý AI')) ?>"
             >
-            <button type="submit" class="gf-ai-send" aria-label="Gửi" <?= $aiWidgetEnabled ? '' : 'disabled' ?>>
+            <button type="submit" class="gf-ai-send" aria-label="<?= gf_h(gf_t('Gửi')) ?>" <?= $aiWidgetEnabled ? '' : 'disabled' ?>>
                 <i class="fa-solid fa-paper-plane"></i>
             </button>
         </form>
-        <a class="gf-ai-footer-link" href="<?= gf_h(gf_url('pages/ai/chat.php')) ?>">Mở trang chat đầy đủ</a>
+        <a class="gf-ai-footer-link" href="<?= gf_h(gf_url('pages/ai/chat.php')) ?>"><?= gf_h(gf_t('Mở trang chat đầy đủ')) ?></a>
     </div>
-    <button type="button" class="gf-ai-fab" aria-expanded="false" aria-controls="gfAiPanel" title="Trợ lý AI">
+    <button type="button" class="gf-ai-fab" aria-expanded="false" aria-controls="gfAiPanel" title="<?= gf_h(gf_t('Trợ lý AI')) ?>">
         <i class="fa-solid fa-robot" aria-hidden="true"></i>
     </button>
 </div>

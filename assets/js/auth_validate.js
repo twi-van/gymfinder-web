@@ -5,19 +5,19 @@
 (() => {
     function messageFor(input) {
         if (input.validity.valueMissing) {
-            return input.getAttribute('data-required-msg') || 'Vui lòng điền thông tin này.';
+            return input.getAttribute('data-required-msg') || gfT('Vui lòng điền thông tin này.');
         }
         if (input.validity.typeMismatch) {
-            return input.getAttribute('data-type-msg') || 'Giá trị không đúng định dạng.';
+            return input.getAttribute('data-type-msg') || gfT('Giá trị không đúng định dạng.');
         }
         if (input.validity.tooShort) {
             const min = input.getAttribute('minlength') || '';
             return input.getAttribute('data-minlength-msg') || `Tối thiểu ${min} ký tự.`;
         }
         if (input.validity.patternMismatch) {
-            return input.getAttribute('data-pattern-msg') || 'Giá trị không hợp lệ.';
+            return input.getAttribute('data-pattern-msg') || gfT('Giá trị không hợp lệ.');
         }
-        return 'Giá trị không hợp lệ.';
+        return gfT('Giá trị không hợp lệ.');
     }
 
     function fieldWrapFor(input) {
@@ -72,7 +72,7 @@
         });
         const agree = form.querySelector('input[name="agree"][required], input[name="agree"].js-required');
         if (agree && !agree.checked) {
-            showField(agree, agree.getAttribute('data-required-msg') || 'Bạn cần đồng ý điều khoản.');
+            showField(agree, agree.getAttribute('data-required-msg') || gfT('Bạn cần đồng ý điều khoản.'));
             if (!firstInvalid) firstInvalid = agree;
         }
         return firstInvalid;

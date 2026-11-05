@@ -1,9 +1,11 @@
 (function () {
     function hintText(mode, value) {
         if (mode === 'rate') {
+            if (window.GF_LANG === 'en') return value > 0 ? (value + (value === 1 ? ' star' : ' stars')) : 'Choose a rating';
             return value > 0 ? (value + ' sao') : 'Chọn số sao';
         }
-        return value > 0 ? ('Từ ' + value + '★ trở lên') : 'Mọi mức đánh giá';
+        if (window.GF_LANG === 'en') return value > 0 ? ('From ' + value + '★ up') : 'Any rating';
+        return value > 0 ? ('Từ ' + value + '★ trở lên') : gfT('Mọi mức đánh giá');
     }
 
     function paint(root, mode, value, hover) {

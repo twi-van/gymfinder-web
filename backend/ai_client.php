@@ -576,7 +576,7 @@ function gf_ai_is_site_faq_question(string $message): bool
 {
     $m = mb_strtolower(str_replace(['đ', 'Đ'], ['d', 'd'], $message));
     $keys = [
-        'dieu khoan', 'chinh sach', 'bao mat', 'privacy', 'terms',
+        'dieu khoan', 'chinh sach', 'bao mat', 'privacy', 'terms', 'hoi dap', 'faq',
         'ban du lieu', 'cookie', 'otp', 'quen mat khau', 'doi mat khau',
         'dat lich', 'thanh toan', 'ban do', 'google maps',
         'chat voi', 'nhan tin', 'dang ky the nao', 'cach dang ky',
@@ -600,6 +600,7 @@ function gf_ai_site_knowledge(): array
 {
     $termsUrl = function_exists('gf_url') ? gf_url('pages/legal/terms.php') : '/pages/legal/terms.php';
     $privacyUrl = function_exists('gf_url') ? gf_url('pages/legal/privacy.php') : '/pages/legal/privacy.php';
+    $faqUrl = function_exists('gf_url') ? gf_url('pages/legal/faq.php') : '/pages/legal/faq.php';
 
     return [
         'product' => 'GYMFINDER — website tra cứu & đánh giá phòng tập và HLV (PT) tại TP. Hồ Chí Minh (cập nhật 10/2026).',
@@ -635,6 +636,7 @@ function gf_ai_site_knowledge(): array
             'Gửi đánh giá: cần đăng nhập; đánh giá mới chờ Admin duyệt mới công khai.',
             'Quên mật khẩu: dùng luồng OTP email trên trang quên mật khẩu.',
             'Gym/PT tạm ẩn không hiện công khai (kể cả trong gợi ý AI).',
+            'Trang hỏi đáp: ' . $faqUrl,
         ],
     ];
 }
@@ -768,6 +770,9 @@ Bạn là trợ lý tìm phòng tập (gym) và huấn luyện viên cá nhân (
 {"reply":"GYMFINDER chỉ có dữ liệu TP.HCM, chưa hỗ trợ Đà Nẵng.","gym_ids":[],"trainer_ids":[]}
 {"reply":"Theo Chính sách bảo mật, GYMFINDER không bán dữ liệu cá nhân; mật khẩu được lưu dạng băm. Xem đầy đủ tại trang Chính sách bảo mật trên website.","gym_ids":[],"trainer_ids":[]}
 PROMPT;
+    if (function_exists('gf_lang') && gf_lang() === 'en') {
+        $system .= "\n\n## Language\nThe visitor is using the English interface. Write reply in clear natural English. Keep the JSON schema and keys. Do not translate gym or trainer names from the catalog. District names may be written as District 1, District 7, and so on.\n";
+    }
 
     $userPayload = json_encode([
         'prefilter' => [

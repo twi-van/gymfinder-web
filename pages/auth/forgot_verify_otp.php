@@ -61,9 +61,9 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                     <div class="auth-brand mb-5">
                         <?= gf_logo('login') ?>
                     </div>
-                    <div class="auth-badge"><i class="fa-solid fa-circle" style="font-size:6px"></i> XÁC THỰC • BẢO MẬT</div>
-                    <h1 class="auth-heading">Nhập <span class="text-primary">mã OTP</span><br>để tiếp tục</h1>
-                    <p class="auth-desc">Mã gồm 6 chữ số được gửi tới email gắn với tài khoản. Mã có hiệu lực trong 10 phút và chỉ dùng một lần.</p>
+                    <div class="auth-badge"><i class="fa-solid fa-circle" style="font-size:6px"></i> <?= gf_h(gf_t('XÁC THỰC • BẢO MẬT')) ?></div>
+                    <h1 class="auth-heading"><?= gf_h(gf_t('Nhập')) ?> <span class="text-primary"><?= gf_h(gf_t('mã OTP')) ?></span><br><?= gf_h(gf_t('để tiếp tục')) ?></h1>
+                    <p class="auth-desc"><?= gf_h(gf_t('Mã gồm 6 chữ số được gửi tới email gắn với tài khoản. Mã có hiệu lực trong 10 phút và chỉ dùng một lần.')) ?></p>
                 </div>
             </div>
             <div class="col-lg-5 ms-auto">
@@ -73,20 +73,20 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                         <span class="auth-step-sep"></span>
                         <span class="auth-step active">2. OTP</span>
                         <span class="auth-step-sep"></span>
-                        <span class="auth-step">3. Mật khẩu mới</span>
+                        <span class="auth-step"><?= gf_h(gf_t('3. Mật khẩu mới')) ?></span>
                     </div>
-                    <h2 class="auth-card-title">Xác thực OTP</h2>
+                    <h2 class="auth-card-title"><?= gf_h(gf_t('Xác thực OTP')) ?></h2>
                     <p class="auth-card-subtitle">
-                        Đã gửi mã tới tài khoản liên quan
+                        <?= gf_h(gf_t('Đã gửi mã tới tài khoản liên quan')) ?>
                         <?php if ($mask !== ''): ?>(<strong><?= gf_h($mask) ?></strong>)<?php endif; ?>.
                     </p>
                     <?php if ($resent): ?>
-                        <div class="alert alert-success small">Đã tạo mã OTP mới. Vui lòng kiểm tra và nhập lại.</div>
+                        <div class="alert alert-success small"><?= gf_h(gf_t('Đã tạo mã OTP mới. Vui lòng kiểm tra và nhập lại.')) ?></div>
                     <?php endif; ?>
                     <?php if ($demoOtp): ?>
                         <div class="alert alert-warning small mb-3">
                             <i class="fa-solid fa-flask me-1"></i>
-                            <strong>Chế độ UI / demo:</strong> chưa gửi email SMTP.
+                            <strong><?= gf_h(gf_t('Chế độ UI / demo:')) ?></strong> chưa gửi email SMTP.
                             Mã OTP tạm thời: <span class="fw-bold font-monospace fs-5"><?= gf_h((string) $demoOtp) ?></span>
                         </div>
                     <?php else: ?>
@@ -95,13 +95,13 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                             Nếu không thấy thư, vui lòng thử gửi lại sau ít phút.
                         </div>
                     <?php endif; ?>
-                    <?php if ($error): ?><div class="alert alert-danger"><?= gf_h($error) ?></div><?php endif; ?>
+                    <?php if ($error): ?><div class="alert alert-danger"><?= gf_h(gf_t((string) $error)) ?></div><?php endif; ?>
 
                     <form method="post" id="otpForm" class="js-auth-validate" novalidate autocomplete="one-time-code">
                         <?= gf_csrf_field() ?>
                         <input type="hidden" name="action" value="verify">
                         <div class="mb-2" data-auth-field id="otpFieldWrap">
-                            <label class="form-label">Mã OTP (6 chữ số)</label>
+                            <label class="form-label"><?= gf_h(gf_t('Mã OTP (6 chữ số)')) ?></label>
                             <div class="otp-boxes mb-2" id="otpBoxes">
                                 <?php for ($i = 0; $i < 6; $i++): ?>
                                     <input
@@ -116,11 +116,11 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                                     >
                                 <?php endfor; ?>
                             </div>
-                            <div class="auth-field-error" id="otpError" hidden>Vui lòng nhập đủ 6 số OTP.</div>
+                            <div class="auth-field-error" id="otpError" hidden><?= gf_h(gf_t('Vui lòng nhập đủ 6 số OTP.')) ?></div>
                         </div>
                         <input type="hidden" name="otp_full" id="otpFull" value="">
                         <button class="auth-btn-submit w-100 d-flex justify-content-center align-items-center gap-2 mt-4" type="submit">
-                            Xác nhận OTP <i class="fa-solid fa-arrow-right"></i>
+                            <?= gf_h(gf_t('Xác nhận OTP')) ?> <i class="fa-solid fa-arrow-right"></i>
                         </button>
                     </form>
 
@@ -128,12 +128,12 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                         <?= gf_csrf_field() ?>
                         <input type="hidden" name="action" value="resend">
                         <button type="submit" class="btn btn-link text-primary text-decoration-none fw-semibold w-100 p-0" style="font-size:14px">
-                            Gửi lại mã OTP
+                            <?= gf_h(gf_t('Gửi lại mã OTP')) ?>
                         </button>
                     </form>
 
                     <p class="text-center mt-4 mb-0" style="font-size:15px;color:#64748b">
-                        <a class="text-secondary text-decoration-none" href="<?= gf_h(gf_url('pages/auth/forgot_password.php')) ?>">← Đổi email</a>
+                        <a class="text-secondary text-decoration-none" href="<?= gf_h(gf_url('pages/auth/forgot_password.php')) ?>"><?= gf_h(gf_t('← Đổi email')) ?></a>
                     </p>
                 </div>
             </div>

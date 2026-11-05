@@ -94,12 +94,12 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
-        <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;">Hồ sơ cá nhân</h2>
-        <p class="text-secondary mb-0 small">Cập nhật thông tin tài khoản và bảo mật mật khẩu của quản trị viên</p>
+        <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;"><?= gf_h(gf_t('Hồ sơ cá nhân')) ?></h2>
+        <p class="text-secondary mb-0 small"><?= gf_h(gf_t('Cập nhật thông tin tài khoản và bảo mật mật khẩu của quản trị viên')) ?></p>
     </div>
     <div>
         <span class="badge bg-primary-light text-primary px-3 py-2 rounded-pill fw-semibold border border-primary-subtle">
-            <i class="fa-solid fa-user-shield me-1"></i> Quản trị viên hệ thống
+            <i class="fa-solid fa-user-shield me-1"></i> <?= gf_h(gf_t('Quản trị viên hệ thống')) ?>
         </span>
     </div>
 </div>
@@ -107,14 +107,14 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 <?php if ($msg): ?>
     <div class="alert alert-success d-flex align-items-center mb-4 rounded-3 shadow-sm border-0 bg-success-subtle text-success">
         <i class="fa-solid fa-circle-check fs-5 me-2"></i>
-        <div><?= gf_h($msg) ?></div>
+        <div><?= gf_h(gf_t((string) $msg)) ?></div>
     </div>
 <?php endif; ?>
 
 <?php if ($error): ?>
     <div class="alert alert-danger d-flex align-items-center mb-4 rounded-3 shadow-sm border-0 bg-danger-subtle text-danger">
         <i class="fa-solid fa-circle-exclamation fs-5 me-2"></i>
-        <div><?= gf_h($error) ?></div>
+        <div><?= gf_h(gf_t((string) $error)) ?></div>
     </div>
 <?php endif; ?>
 
@@ -136,19 +136,19 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
             
             <div class="text-start small">
                 <div class="d-flex justify-content-between py-1">
-                    <span class="text-secondary">Vai trò:</span>
-                    <span class="badge bg-primary text-white rounded-pill px-2 py-1">Quản trị viên</span>
+                    <span class="text-secondary"><?= gf_h(gf_t('Vai trò:')) ?></span>
+                    <span class="badge bg-primary text-white rounded-pill px-2 py-1"><?= gf_h(gf_t('Quản trị viên')) ?></span>
                 </div>
                 <div class="d-flex justify-content-between py-1">
-                    <span class="text-secondary">Trạng thái:</span>
-                    <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1">Hoạt động</span>
+                    <span class="text-secondary"><?= gf_h(gf_t('Trạng thái:')) ?></span>
+                    <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1"><?= gf_h(gf_t('Hoạt động')) ?></span>
                 </div>
                 <div class="d-flex justify-content-between py-1">
-                    <span class="text-secondary">ID tài khoản:</span>
+                    <span class="text-secondary"><?= gf_h(gf_t('ID tài khoản:')) ?></span>
                     <span class="fw-semibold text-dark">#<?= (int)$adminUser['id'] ?></span>
                 </div>
                 <div class="d-flex justify-content-between py-1">
-                    <span class="text-secondary">Ngày tham gia:</span>
+                    <span class="text-secondary"><?= gf_h(gf_t('Ngày tham gia:')) ?></span>
                     <span class="fw-semibold text-dark"><?= !empty($adminUser['created_at']) ? date('d/m/Y', strtotime($adminUser['created_at'])) : '—' ?></span>
                 </div>
             </div>
@@ -157,10 +157,10 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
         <div class="admin-card p-3 mt-3 bg-white">
             <div class="d-flex align-items-center gap-2 text-primary fw-semibold small mb-2">
                 <i class="fa-solid fa-shield-halved"></i>
-                <span>Quy tắc bảo mật</span>
+                <span><?= gf_h(gf_t('Quy tắc bảo mật')) ?></span>
             </div>
             <p class="text-secondary small mb-0" style="line-height: 1.5;">
-                Hệ thống chỉ cho phép cập nhật hồ sơ cá nhân của chính bạn. Không cho phép tự đổi vai trò hoặc cấp thêm quyền thông qua chức năng này.
+                <?= gf_h(gf_t('Hệ thống chỉ cho phép cập nhật hồ sơ cá nhân của chính bạn. Không cho phép tự đổi vai trò hoặc cấp thêm quyền thông qua chức năng này.')) ?>
             </p>
         </div>
     </div>
@@ -174,8 +174,8 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                     <i class="fa-solid fa-user-pen"></i>
                 </div>
                 <div>
-                    <h5 class="fw-bold text-dark mb-0">Thông tin cá nhân</h5>
-                    <div class="text-secondary small">Cập nhật họ tên, số điện thoại và ảnh đại diện quản trị viên</div>
+                    <h5 class="fw-bold text-dark mb-0"><?= gf_h(gf_t('Thông tin cá nhân')) ?></h5>
+                    <div class="text-secondary small"><?= gf_h(gf_t('Cập nhật họ tên, số điện thoại và ảnh đại diện quản trị viên')) ?></div>
                 </div>
             </div>
 
@@ -187,33 +187,33 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 
                 <div class="row g-3 mb-4">
                     <div class="col-12">
-                        <label class="form-label fw-semibold small text-secondary">Ảnh đại diện</label>
+                        <label class="form-label fw-semibold small text-secondary"><?= gf_h(gf_t('Ảnh đại diện')) ?></label>
                         <div class="d-flex flex-wrap align-items-center gap-2">
                             <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="document.getElementById('adminAvatarInput').click()">
-                                <i class="fa-solid fa-camera me-1"></i>Chọn ảnh mới
+                                <i class="fa-solid fa-camera me-1"></i><?= gf_h(gf_t('Chọn ảnh mới')) ?>
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-none" id="adminAvatarCancelBtn" onclick="cancelAdminAvatar()">
-                                <i class="fa-solid fa-rotate-left me-1"></i>Hủy
+                                <i class="fa-solid fa-rotate-left me-1"></i><?= gf_h(gf_t('Hủy')) ?>
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="removeAdminAvatar()">
-                                <i class="fa-solid fa-trash me-1"></i>Xóa ảnh đại diện
+                                <i class="fa-solid fa-trash me-1"></i><?= gf_h(gf_t('Xóa ảnh đại diện')) ?>
                             </button>
-                            <span class="small text-secondary ms-md-2">Hỗ trợ JPG, PNG, WEBP tối đa 5 MB.</span>
+                            <span class="small text-secondary ms-md-2"><?= gf_h(gf_t('Hỗ trợ JPG, PNG, WEBP tối đa 5 MB.')) ?></span>
                         </div>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold small" for="adminFullName">Họ và tên <span class="text-danger">*</span></label>
-                        <input type="text" id="adminFullName" name="full_name" class="form-control admin-input" value="<?= gf_h($adminUser['full_name']) ?>" required data-required-msg="Vui lòng nhập họ và tên." placeholder="Nhập họ và tên...">
+                        <label class="form-label fw-semibold small" for="adminFullName"><?= gf_h(gf_t('Họ và tên')) ?> <span class="text-danger">*</span></label>
+                        <input type="text" id="adminFullName" name="full_name" class="form-control admin-input" value="<?= gf_h($adminUser['full_name']) ?>" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập họ và tên.')) ?>" placeholder="<?= gf_h(gf_t('Nhập họ và tên...')) ?>">
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold small" for="adminPhone">Số điện thoại</label>
+                        <label class="form-label fw-semibold small" for="adminPhone"><?= gf_h(gf_t('Số điện thoại')) ?></label>
                         <input type="text" id="adminPhone" name="phone" class="form-control admin-input" value="<?= gf_h($adminUser['phone'] ?? '') ?>" placeholder="VD: 0912345678...">
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold small">Email (Cố định, không thể thay đổi)</label>
+                        <label class="form-label fw-semibold small"><?= gf_h(gf_t('Email (Cố định, không thể thay đổi)')) ?></label>
                         <div class="input-group">
                             <input type="email" class="form-control admin-input bg-light text-muted" value="<?= gf_h($adminUser['email']) ?>" disabled readonly>
                             <span class="input-group-text bg-light text-secondary border-start-0"><i class="fa-solid fa-lock"></i></span>
@@ -221,14 +221,14 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold small">Vai trò tài khoản (Không thể tự thay đổi)</label>
+                        <label class="form-label fw-semibold small"><?= gf_h(gf_t('Vai trò tài khoản (Không thể tự thay đổi)')) ?></label>
                         <input type="text" class="form-control admin-input bg-light text-muted" value="Quản trị viên (admin)" disabled readonly>
                     </div>
                 </div>
 
                 <div class="text-end">
                     <button type="submit" class="btn btn-primary px-4 rounded-3 fw-semibold">
-                        <i class="fa-solid fa-floppy-disk me-2"></i>Lưu thông tin hồ sơ
+                        <i class="fa-solid fa-floppy-disk me-2"></i><?= gf_h(gf_t('Lưu thông tin hồ sơ')) ?>
                     </button>
                 </div>
             </form>
@@ -241,8 +241,8 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                     <i class="fa-solid fa-key"></i>
                 </div>
                 <div>
-                    <h5 class="fw-bold text-dark mb-0">Đổi mật khẩu quản trị</h5>
-                    <div class="text-secondary small">Cần xác nhận mật khẩu hiện tại trước khi thiết lập mật khẩu mới</div>
+                    <h5 class="fw-bold text-dark mb-0"><?= gf_h(gf_t('Đổi mật khẩu quản trị')) ?></h5>
+                    <div class="text-secondary small"><?= gf_h(gf_t('Cần xác nhận mật khẩu hiện tại trước khi thiết lập mật khẩu mới')) ?></div>
                 </div>
             </div>
 
@@ -252,9 +252,9 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold small" for="adminCurPass">Mật khẩu hiện tại <span class="text-danger">*</span></label>
+                        <label class="form-label fw-semibold small" for="adminCurPass"><?= gf_h(gf_t('Mật khẩu hiện tại')) ?> <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <input type="password" id="adminCurPass" name="current_password" class="form-control admin-input" required data-required-msg="Vui lòng nhập mật khẩu hiện tại." placeholder="Mật khẩu đang dùng...">
+                            <input type="password" id="adminCurPass" name="current_password" class="form-control admin-input" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập mật khẩu hiện tại.')) ?>" placeholder="<?= gf_h(gf_t('Mật khẩu đang dùng...')) ?>">
                             <button class="btn btn-light border border-start-0" type="button" onclick="togglePassVisibility('adminCurPass', this)">
                                 <i class="fa-regular fa-eye"></i>
                             </button>
@@ -262,9 +262,9 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                     </div>
 
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold small" for="adminNewPass">Mật khẩu mới <span class="text-danger">*</span></label>
+                        <label class="form-label fw-semibold small" for="adminNewPass"><?= gf_h(gf_t('Mật khẩu mới')) ?> <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <input type="password" id="adminNewPass" name="new_password" class="form-control admin-input" minlength="8" required data-required-msg="Vui lòng nhập mật khẩu mới." data-minlength-msg="Mật khẩu tối thiểu 8 ký tự." placeholder="Tối thiểu 8 ký tự...">
+                            <input type="password" id="adminNewPass" name="new_password" class="form-control admin-input" minlength="8" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập mật khẩu mới.')) ?>" data-minlength-msg="<?= gf_h(gf_t('Mật khẩu tối thiểu 8 ký tự.')) ?>" placeholder="<?= gf_h(gf_t('Tối thiểu 8 ký tự...')) ?>">
                             <button class="btn btn-light border border-start-0" type="button" onclick="togglePassVisibility('adminNewPass', this)">
                                 <i class="fa-regular fa-eye"></i>
                             </button>
@@ -272,9 +272,9 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                     </div>
 
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold small" for="adminConfirmPass">Xác nhận mật khẩu mới <span class="text-danger">*</span></label>
+                        <label class="form-label fw-semibold small" for="adminConfirmPass"><?= gf_h(gf_t('Xác nhận mật khẩu mới')) ?> <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <input type="password" id="adminConfirmPass" name="confirm_password" class="form-control admin-input" minlength="8" required data-required-msg="Vui lòng xác nhận mật khẩu." data-minlength-msg="Mật khẩu tối thiểu 8 ký tự." placeholder="Nhập lại mật khẩu mới...">
+                            <input type="password" id="adminConfirmPass" name="confirm_password" class="form-control admin-input" minlength="8" required data-required-msg="<?= gf_h(gf_t('Vui lòng xác nhận mật khẩu.')) ?>" data-minlength-msg="<?= gf_h(gf_t('Mật khẩu tối thiểu 8 ký tự.')) ?>" placeholder="<?= gf_h(gf_t('Nhập lại mật khẩu mới...')) ?>">
                             <button class="btn btn-light border border-start-0" type="button" onclick="togglePassVisibility('adminConfirmPass', this)">
                                 <i class="fa-regular fa-eye"></i>
                             </button>
@@ -284,10 +284,10 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
                     <div class="small text-secondary">
-                        <i class="fa-solid fa-circle-info me-1 text-primary"></i> Mật khẩu an toàn phải từ 8 đến 72 ký tự và không được trùng với mật khẩu cũ.
+                        <i class="fa-solid fa-circle-info me-1 text-primary"></i> <?= gf_h(gf_t('Mật khẩu an toàn phải từ 8 đến 72 ký tự và không được trùng với mật khẩu cũ.')) ?>
                     </div>
                     <button type="submit" class="btn btn-primary px-4 rounded-3 fw-semibold">
-                        <i class="fa-solid fa-lock me-2"></i>Cập nhật mật khẩu
+                        <i class="fa-solid fa-lock me-2"></i><?= gf_h(gf_t('Cập nhật mật khẩu')) ?>
                     </button>
                 </div>
             </form>

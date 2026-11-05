@@ -23,7 +23,7 @@ function gf_admin_nav(string $key, string $href, string $icon, string $label, st
 ?>
 <div class="d-flex admin-shell">
 <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
-<aside class="sidebar d-flex flex-column" id="sidebar" aria-label="Menu quản trị">
+<aside class="sidebar d-flex flex-column" id="sidebar" aria-label="<?= gf_h(gf_t('Menu quản trị')) ?>">
     <div class="p-4 border-bottom d-flex align-items-center justify-content-between gap-2">
         <?= gf_logo('admin', $adminDashboardUrl, 'admin-brand') ?>
         <button type="button" class="btn btn-light border d-lg-none shadow-sm admin-sidebar-close" id="sidebarClose" aria-label="<?= gf_h(gf_t('Đóng menu')) ?>">
@@ -55,7 +55,7 @@ function gf_admin_nav(string $key, string $href, string $icon, string $label, st
 </aside>
 <main class="main-content flex-grow-1 p-4 p-md-5 bg-light" style="min-width:0;">
     <div class="admin-mobile-bar d-lg-none mb-3">
-        <button type="button" class="admin-mobile-toggle" id="sidebarOpen" aria-controls="sidebar" aria-expanded="false" aria-label="Mở menu">
+        <button type="button" class="admin-mobile-toggle" id="sidebarOpen" aria-controls="sidebar" aria-expanded="false" aria-label="<?= gf_h(gf_t('Mở menu')) ?>">
             <i class="fa-solid fa-bars"></i>
         </button>
         <?= gf_logo('admin', $adminDashboardUrl, 'admin-brand admin-brand--bar') ?>

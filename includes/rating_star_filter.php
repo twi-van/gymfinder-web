@@ -42,7 +42,7 @@ if ($ratingFilterMode === 'rate') {
                 type="button"
                 class="gf-star-filter-btn<?= $star <= $ratingSelected ? ' is-active' : '' ?>"
                 data-value="<?= $star ?>"
-                aria-label="<?= $ratingFilterMode === 'rate' ? ($star . ' sao') : ('Từ ' . $star . ' sao trở lên') ?>"
+                aria-label="<?= gf_h($ratingFilterMode === 'rate' ? ($star . ' sao') : ('Từ ' . $star . ' sao trở lên')) ?>"
                 aria-pressed="<?= $star === $ratingSelected ? 'true' : 'false' ?>"
             ><i class="fa-solid fa-star" aria-hidden="true"></i></button>
         <?php endfor; ?>
@@ -50,7 +50,7 @@ if ($ratingFilterMode === 'rate') {
     <div class="gf-star-filter-meta">
         <span class="gf-star-filter-hint"><?= gf_h($ratingHint) ?></span>
         <?php if ($ratingFilterMode === 'filter'): ?>
-            <button type="button" class="gf-star-filter-clear<?= $ratingSelected > 0 ? '' : ' d-none' ?>">Bỏ chọn</button>
+            <button type="button" class="gf-star-filter-clear<?= $ratingSelected > 0 ? '' : ' d-none' ?>"><?= gf_h(gf_t('Bỏ chọn')) ?></button>
         <?php endif; ?>
     </div>
 </div>

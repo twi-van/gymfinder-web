@@ -35,7 +35,7 @@ if (!function_exists('gf_admin_table_open')) {
         $columns = $config['columns'] ?? [];
         ?>
         <div class="admin-card admin-table-card shadow-sm border mb-4">
-            <div class="table-responsive admin-table-responsive admin-drag-scroll" tabindex="0" role="region" aria-label="Bảng dữ liệu — vuốt ngang để xem thêm">
+            <div class="table-responsive admin-table-responsive admin-drag-scroll" tabindex="0" role="region" aria-label="<?= gf_h(gf_t('Bảng dữ liệu — vuốt ngang để xem thêm')) ?>">
                 <table <?= $tableId ? 'id="' . $tableId . '"' : '' ?> class="table admin-table admin-common-table <?= $extraClass ?> mb-0" style="--admin-table-min: <?= $minWidth ?>; min-width: <?= $minWidth ?>;">
                     <?php if (!empty($columns)): ?>
                         <colgroup>
@@ -56,7 +56,7 @@ if (!function_exists('gf_admin_table_open')) {
                                     $customClass = htmlspecialchars($col['th_class'] ?? $col['class'] ?? '', ENT_QUOTES, 'UTF-8');
                                     $finalClass = trim($alignClass . ' ' . $customClass);
                                 ?>
-                                    <th <?= $finalClass ? 'class="' . $finalClass . '"' : '' ?>><?= $col['label'] ?? '' ?></th>
+                                    <th <?= $finalClass ? 'class="' . $finalClass . '"' : '' ?>><?= gf_h(gf_t((string) ($col['label'] ?? ''))) ?></th>
                                 <?php endforeach; ?>
                             </tr>
                         </thead>
@@ -81,7 +81,7 @@ if (!function_exists('gf_admin_table_close')) {
     function gf_admin_table_close(array $options = []): void
     {
         $isEmpty = !empty($options['empty']);
-        $emptyMsg = htmlspecialchars($options['empty_message'] ?? 'Không tìm thấy dữ liệu phù hợp.', ENT_QUOTES, 'UTF-8');
+        $emptyMsg = gf_h(gf_t((string) ($options['empty_message'] ?? 'Không tìm thấy dữ liệu phù hợp.')));
         $colspan = (int) ($options['colspan'] ?? 8);
         $footerHtml = $options['footer_html'] ?? null;
 
@@ -148,14 +148,14 @@ if (!function_exists('gf_render_admin_pagination')) {
         ob_start();
         ?>
         <span class="small text-secondary">
-            Hiển thị <?= $from ?>–<?= $to ?> trên tổng <?= $total ?> bản ghi
+            <?= gf_lang() === 'en' ? 'Showing ' . $from . '–' . $to . ' of ' . $total : 'Hiển thị ' . $from . '–' . $to . ' trên tổng ' . $total . ' bản ghi' ?>
         </span>
         <div class="d-flex align-items-center gap-1">
             <?php
             $prevParams = array_merge($cleanParams, ['page' => max(1, $currentPage - 1)]);
             $nextParams = array_merge($cleanParams, ['page' => min($totalPages, $currentPage + 1)]);
             ?>
-            <a class="admin-pagination-btn <?= $currentPage <= 1 ? 'disabled' : '' ?>" href="?<?= htmlspecialchars(http_build_query($prevParams), ENT_QUOTES, 'UTF-8') ?>" title="Trang trước">
+            <a class="admin-pagination-btn <?= $currentPage <= 1 ? 'disabled' : '' ?>" href="?<?= htmlspecialchars(http_build_query($prevParams), ENT_QUOTES, 'UTF-8') ?>" title="<?= gf_h(gf_t('Trang trước')) ?>">
                 <i class="fa-solid fa-chevron-left" style="font-size: 11px;"></i>
             </a>
             <?php for ($p = 1; $p <= $totalPages; $p++): ?>
@@ -167,7 +167,7 @@ if (!function_exists('gf_render_admin_pagination')) {
                     <span class="text-muted px-1">...</span>
                 <?php endif; ?>
             <?php endfor; ?>
-            <a class="admin-pagination-btn <?= $currentPage >= $totalPages ? 'disabled' : '' ?>" href="?<?= htmlspecialchars(http_build_query($nextParams), ENT_QUOTES, 'UTF-8') ?>" title="Trang sau">
+            <a class="admin-pagination-btn <?= $currentPage >= $totalPages ? 'disabled' : '' ?>" href="?<?= htmlspecialchars(http_build_query($nextParams), ENT_QUOTES, 'UTF-8') ?>" title="<?= gf_h(gf_t('Trang sau')) ?>">
                 <i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i>
             </a>
         </div>

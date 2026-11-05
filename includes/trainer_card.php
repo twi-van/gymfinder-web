@@ -31,6 +31,7 @@ $heart = $isFav ? '<i class="fa-solid fa-heart text-danger"></i>' : '<i class="f
             if ($cardSpecNames === [] && !empty($trainer['specialty_name'])) {
                 $cardSpecNames = [(string) $trainer['specialty_name']];
             }
+            $cardSpecNames = array_map(static fn ($n) => gf_t((string) $n), $cardSpecNames);
             if (count($cardSpecNames) > 1) {
                 $cardSpecLabel = $cardSpecNames[0] . ' +' . (count($cardSpecNames) - 1);
             } else {
@@ -59,20 +60,20 @@ $heart = $isFav ? '<i class="fa-solid fa-heart text-danger"></i>' : '<i class="f
             <div class="d-flex align-items-center justify-content-center gap-2 small text-secondary w-100 px-1">
                 <div class="trainer-card-exp text-nowrap flex-shrink-0"><i class="fa-solid fa-briefcase opacity-75 me-1"></i><?= (int)$trainer['years_experience'] ?>&nbsp;<?= gf_h(gf_lang() === 'en' ? 'yrs' : 'năm') ?></div>
                 <?php if ($cardGymLabel !== ''): ?>
-                <div class="trainer-card-place text-truncate min-w-0"><i class="fa-solid fa-location-dot opacity-75 me-1"></i><?= gf_h($cardGymLabel) ?></div>
+                <div class="trainer-card-place text-truncate min-w-0"><i class="fa-solid fa-location-dot opacity-75 me-1"></i><?= gf_h(gf_t($cardGymLabel)) ?></div>
                 <?php endif; ?>
             </div>
         </div>
-        <p class="text-secondary small text-center mb-4 flex-grow-1" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;"><?= gf_h($trainer['bio'] ?? '') ?></p>
+        <p class="text-secondary small text-center mb-4 flex-grow-1" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;"><?= gf_h(gf_t((string) ($trainer['bio'] ?? ''))) ?></p>
         <div class="d-flex gap-2 mt-auto position-relative" style="z-index:2;">
-            <a href="<?= gf_h($href) ?>" class="btn btn-outline-secondary flex-grow-1 py-2 fw-semibold" style="font-size:14px;border-radius:8px;">Xem hồ sơ</a>
+            <a href="<?= gf_h($href) ?>" class="btn btn-outline-secondary flex-grow-1 py-2 fw-semibold" style="font-size:14px;border-radius:8px;"><?= gf_h(gf_t('Xem hồ sơ')) ?></a>
             <?php
             $trainerAvatar = !empty($trainer['avatar']) ? $trainer['avatar'] : gf_avatar($trainer['avatar_url'] ?? null, (int)($trainer['id'] ?? 0), $trainer['full_name'] ?? '');
             $trainerSubtitle = ($cardSpecLabel !== '' ? $cardSpecLabel : ($trainer['specialty_name'] ?? '')) . (!empty($trainer['district_name']) ? ' • ' . $trainer['district_name'] : '');
             ?>
             <button type="button" class="btn btn-primary flex-grow-1 py-2 fw-semibold btn-global-contact"
                 data-type="trainer"
-                data-type-label="Huấn luyện viên cá nhân"
+                data-type-label="<?= gf_h(gf_t('Huấn luyện viên cá nhân')) ?>"
                 data-name="<?= gf_h($trainer['full_name'] ?? '') ?>"
                 data-avatar="<?= gf_h($trainerAvatar) ?>"
                 data-subtitle="<?= gf_h($trainerSubtitle) ?>"

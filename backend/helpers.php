@@ -23,19 +23,30 @@ function gf_url(string $path = ''): string
 
 function gf_h(?string $s): string
 {
-    return htmlspecialchars((string) $s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $text = (string) $s;
+    if (function_exists('gf_t')) {
+        $text = gf_t($text);
+    }
+    return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
 function gf_format_price(?int $min, ?int $max): string
 {
     if (!$min && !$max) {
-        return 'Liên hệ';
+        return function_exists('gf_t') ? gf_t('Liên hệ') : 'Liên hệ';
     }
-    $fmt = static fn (int $n) => number_format($n, 0, ',', '.') . 'đ';
+    $en = function_exists('gf_lang') && gf_lang() === 'en';
+    $fmt = static function (int $n) use ($en): string {
+        if ($en) {
+            return number_format($n, 0, '.', ',') . ' VND';
+        }
+        return number_format($n, 0, ',', '.') . 'đ';
+    };
+    $per = $en ? '/month' : '/tháng';
     if ($min && $max && $min !== $max) {
-        return $fmt($min) . ' - ' . $fmt($max) . '/tháng';
+        return $fmt($min) . ' - ' . $fmt($max) . $per;
     }
-    return $fmt((int) ($min ?: $max)) . '/tháng';
+    return $fmt((int) ($min ?: $max)) . $per;
 }
 
 function gf_json(array $payload, int $status = 200): void

@@ -65,27 +65,27 @@
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'gf-ai-chat-top-link border-0 bg-transparent p-0';
-        btn.title = 'Xóa hội thoại đang mở';
+        btn.title = gfT('Xóa hội thoại đang mở');
         btn.setAttribute('data-ai-clear', '1');
-        btn.innerHTML = '<i class="fa-solid fa-trash-can me-1"></i>Xóa';
+        btn.innerHTML = '<i class="fa-solid fa-trash-can me-1"></i>' + gfT('Xóa');
         btn.addEventListener('click', clearHistory);
         headerActions.appendChild(btn);
     }
 
     function setHeaderSearchLink() {
         if (!headerActions) return;
-        headerActions.innerHTML = `<a class="gf-ai-chat-top-link" href="${esc(searchGymUrl)}">Tìm kiếm</a>`;
+        headerActions.innerHTML = `<a class="gf-ai-chat-top-link" href="${esc(searchGymUrl)}">${gfT('Tìm kiếm')}</a>`;
     }
 
     function welcomeHtml() {
         const persistHint = canPersist
-            ? ' Phiên chat được lưu khi bạn đã đăng nhập.'
+            ? (' ' + gfT('Phiên chat được lưu khi bạn đã đăng nhập.'))
             : '';
         return (
             '<div class="gf-ai-msg-avatar"><i class="fa-solid fa-robot"></i></div>' +
             '<div class="gf-ai-msg-col">' +
-            '<div class="gf-ai-msg-name">Trợ lý</div>' +
-            '<div class="gf-ai-msg-bubble">Xin chào! Mình gợi ý <strong>phòng tập</strong> và <strong>HLV</strong> trong hệ thống GYMFINDER (TP.HCM). Hỏi theo quận, giá, Yoga… hoặc chọn gợi ý bên dưới.' +
+            '<div class="gf-ai-msg-name">' + gfT('Trợ lý') + '</div>' +
+            '<div class="gf-ai-msg-bubble">' + gfT('Xin chào! Mình gợi ý phòng tập và HLV trong hệ thống GYMFINDER (TP.HCM). Hỏi theo quận, giá, Yoga… hoặc chọn gợi ý bên dưới.') +
             persistHint +
             '</div></div>'
         );
@@ -111,7 +111,7 @@
         wrap.innerHTML =
             '<div class="gf-ai-msg-avatar"><i class="fa-solid fa-user"></i></div>' +
             '<div class="gf-ai-msg-col">' +
-            '<div class="gf-ai-msg-name">Bạn</div>' +
+            '<div class="gf-ai-msg-name">' + gfT('Bạn') + '</div>' +
             '<div class="gf-ai-msg-bubble"></div>' +
             '</div>';
         wrap.querySelector('.gf-ai-msg-bubble').textContent = text;
@@ -148,7 +148,7 @@
             title: t.full_name || '',
             subtitle: [
                 districts.slice(0, 2).join(', '),
-                `${Number(t.years_experience || 0)} năm KN`,
+                `${Number(t.years_experience || 0)} ${gfT('năm KN')}`,
             ].filter(Boolean).join(' · '),
             meta: `${specs.slice(0, 2).join(' · ')} · ★ ${Number(t.avg_rating || 0).toFixed(1)}`,
             image: t.avatar_url || t.image || '',
@@ -183,7 +183,7 @@
 
         const name = document.createElement('div');
         name.className = 'gf-ai-msg-name';
-        name.textContent = 'Trợ lý';
+        name.textContent = gfT('Trợ lý');
         col.appendChild(name);
 
         const bubble = document.createElement('div');
@@ -195,8 +195,8 @@
             const links = document.createElement('div');
             links.className = 'd-flex flex-wrap gap-2';
             links.innerHTML =
-                `<a class="btn btn-sm btn-outline-secondary rounded-pill" href="${esc(searchGymUrl)}">Tìm phòng tập</a>` +
-                `<a class="btn btn-sm btn-outline-secondary rounded-pill" href="${esc(searchPtUrl)}">Tìm HLV</a>`;
+                `<a class="btn btn-sm btn-outline-secondary rounded-pill" href="${esc(searchGymUrl)}">${gfT('Tìm phòng tập')}</a>` +
+                `<a class="btn btn-sm btn-outline-secondary rounded-pill" href="${esc(searchPtUrl)}">${gfT('Tìm HLV')}</a>`;
             col.appendChild(links);
         }
 
@@ -214,7 +214,7 @@
         if (!isError && suggestRefine && !(gyms || []).length && !(trainers || []).length) {
             const hint = document.createElement('p');
             hint.className = 'small text-secondary mb-0 px-1';
-            hint.textContent = 'Chưa gắn gym/HLV cụ thể — thử hỏi rõ quận / giá / chuyên môn hơn.';
+            hint.textContent = gfT('Chưa gắn gym/HLV cụ thể — thử hỏi rõ quận / giá / chuyên môn hơn.');
             col.appendChild(hint);
         }
 
@@ -233,8 +233,8 @@
         el.innerHTML =
             '<div class="gf-ai-msg-avatar"><i class="fa-solid fa-robot"></i></div>' +
             '<div class="gf-ai-msg-col">' +
-            '<div class="gf-ai-msg-name">Trợ lý</div>' +
-            '<div class="gf-ai-msg-bubble"><i class="fa-solid fa-spinner fa-spin me-1"></i>Đang suy nghĩ…</div>' +
+            '<div class="gf-ai-msg-name">' + gfT('Trợ lý') + '</div>' +
+            '<div class="gf-ai-msg-bubble"><i class="fa-solid fa-spinner fa-spin me-1"></i>' + gfT('Đang suy nghĩ…') + '</div>' +
             '</div>';
         thread.appendChild(el);
         scrollBottom();
@@ -290,7 +290,7 @@
         const items = Array.isArray(sessions) ? sessions : [];
         if (!items.length) {
             sessionsList.innerHTML =
-                '<li class="gf-ai-sessions-empty" id="aiSessionsEmpty">Chưa có phiên lưu. Hỏi AI để tạo phiên đầu.</li>';
+                '<li class="gf-ai-sessions-empty" id="aiSessionsEmpty">' + gfT('Chưa có phiên lưu. Hỏi AI để tạo phiên đầu.') + '</li>';
             return;
         }
         sessionsList.innerHTML = items
@@ -300,10 +300,10 @@
                 return (
                     `<li>` +
                     `<button type="button" class="gf-ai-session-item${active}" data-session-id="${id}" title="${esc(s.title || '')}">` +
-                    `<span class="gf-ai-session-title">${esc(s.title || 'Hội thoại mới')}</span>` +
-                    `<span class="gf-ai-session-meta">${Number(s.turn_count || 0)} lượt</span>` +
+                    `<span class="gf-ai-session-title">${esc(s.title || gfT('Hội thoại mới'))}</span>` +
+                    `<span class="gf-ai-session-meta">${Number(s.turn_count || 0)} ${gfT('lượt')}</span>` +
                     `</button>` +
-                    `<button type="button" class="gf-ai-session-del" data-session-delete="${id}" title="Xóa phiên" aria-label="Xóa phiên">` +
+                    `<button type="button" class="gf-ai-session-del" data-session-delete="${id}" title="${gfT('Xóa phiên')}" aria-label="${gfT('Xóa phiên')}">` +
                     `<i class="fa-solid fa-trash-can"></i></button>` +
                     `</li>`
                 );
@@ -342,7 +342,7 @@
             const json = await res.json().catch(() => ({}));
             if (!res.ok) {
                 if (typeof window.gfToast === 'function') {
-                    window.gfToast(json?.error?.message || 'Không mở được phiên.', 'danger');
+                    window.gfToast(json?.error?.message || gfT('Không mở được phiên.'), 'danger');
                 }
                 return;
             }
@@ -350,7 +350,7 @@
             renderTurns(json?.data?.turns || []);
         } catch (_) {
             if (typeof window.gfToast === 'function') {
-                window.gfToast('Lỗi mạng khi mở phiên.', 'danger');
+                window.gfToast(gfT('Lỗi mạng khi mở phiên.'), 'danger');
             }
         } finally {
             setBusy(false);
@@ -369,7 +369,7 @@
             btn.classList.remove('is-active');
         });
         if (typeof window.gfToast === 'function') {
-            window.gfToast('Phiên mới — hỏi AI để bắt đầu lưu.', 'info');
+            window.gfToast(gfT('Phiên mới — hỏi AI để bắt đầu lưu.'), 'info');
         }
     }
 
@@ -378,13 +378,13 @@
         if (!sid || !canPersist) return;
         const ok = typeof window.gfConfirm === 'function'
             ? await window.gfConfirm({
-                title: 'Xóa phiên chat',
-                message: 'Xóa phiên này? Không thể hoàn tác.',
-                confirmLabel: 'Xóa phiên',
-                cancelLabel: 'Hủy',
+                title: gfT('Xóa phiên chat'),
+                message: gfT('Xóa phiên này? Không thể hoàn tác.'),
+                confirmLabel: gfT('Xóa phiên'),
+                cancelLabel: gfT('Hủy'),
                 danger: true,
             })
-            : window.confirm('Xóa phiên này?');
+            : window.confirm(gfT('Xóa phiên này? Không thể hoàn tác.'));
         if (!ok) return;
 
         setBusy(true);
@@ -400,7 +400,7 @@
             });
             if (!res.ok) {
                 if (typeof window.gfToast === 'function') {
-                    window.gfToast('Không xóa được phiên.', 'danger');
+                    window.gfToast(gfT('Không xóa được phiên.'), 'danger');
                 }
                 return;
             }
@@ -410,11 +410,11 @@
             }
             await refreshSessionsList(sessionId || 0);
             if (typeof window.gfToast === 'function') {
-                window.gfToast('Đã xóa phiên.', 'success');
+                window.gfToast(gfT('Đã xóa phiên.'), 'success');
             }
         } catch (_) {
             if (typeof window.gfToast === 'function') {
-                window.gfToast('Lỗi mạng khi xóa phiên.', 'danger');
+                window.gfToast(gfT('Lỗi mạng khi xóa phiên.'), 'danger');
             }
         } finally {
             setBusy(false);
@@ -470,13 +470,13 @@
 
             if (!res.ok || json?.error) {
                 const msg =
-                    json?.error?.message || json?.message || 'Không gọi được trợ lý AI. Thử lại sau.';
+                    json?.error?.message || json?.message || gfT('Không gọi được trợ lý AI. Thử lại sau.');
                 appendBot({ reply: msg, gyms: [], trainers: [], suggestRefine: false, isError: true });
                 return;
             }
 
             appendBot({
-                reply: data.reply || 'Đây là một số gợi ý.',
+                reply: data.reply || gfT('Đây là một số gợi ý.'),
                 gyms: data.gyms || [],
                 trainers: data.trainers || [],
                 suggestRefine: !!data.suggest_refine,
@@ -485,7 +485,7 @@
         } catch (_) {
             loading.remove();
             appendBot({
-                reply: 'Lỗi mạng. Kiểm tra kết nối và thử lại.',
+                reply: gfT('Lỗi mạng. Kiểm tra kết nối và thử lại.'),
                 gyms: [],
                 trainers: [],
                 suggestRefine: false,
@@ -500,15 +500,15 @@
     async function clearHistory() {
         const ok = typeof window.gfConfirm === 'function'
             ? await window.gfConfirm({
-                title: canPersist ? 'Xóa phiên đang mở' : 'Xóa hội thoại',
+                title: canPersist ? gfT('Xóa phiên đang mở') : gfT('Xóa hội thoại'),
                 message: canPersist
-                    ? 'Xóa phiên chat hiện tại khỏi danh sách đã lưu?'
-                    : 'Xóa toàn bộ tin nhắn với Trợ lý AI? Bạn sẽ bắt đầu lại từ đầu.',
-                confirmLabel: 'Xóa',
-                cancelLabel: 'Hủy',
+                    ? gfT('Xóa phiên chat hiện tại khỏi danh sách đã lưu?')
+                    : gfT('Xóa toàn bộ tin nhắn với Trợ lý AI? Bạn sẽ bắt đầu lại từ đầu.'),
+                confirmLabel: gfT('Xóa'),
+                cancelLabel: gfT('Hủy'),
                 danger: true,
             })
-            : window.confirm('Xóa hội thoại?');
+            : window.confirm(gfT('Xóa toàn bộ tin nhắn với Trợ lý AI? Bạn sẽ bắt đầu lại từ đầu.'));
         if (!ok) return;
 
         setBusy(true);
@@ -530,7 +530,7 @@
             });
             if (!res.ok) {
                 if (typeof window.gfToast === 'function') {
-                    window.gfToast('Không xóa được hội thoại. Thử lại.', 'danger');
+                    window.gfToast(gfT('Không xóa được hội thoại. Thử lại.'), 'danger');
                 }
                 return;
             }
@@ -541,11 +541,11 @@
                 await refreshSessionsList(0);
             }
             if (typeof window.gfToast === 'function') {
-                window.gfToast(clearedId ? 'Đã xóa phiên.' : 'Đã xóa hội thoại.', 'success');
+                window.gfToast(clearedId ? gfT('Đã xóa phiên.') : gfT('Đã xóa hội thoại.'), 'success');
             }
         } catch (_) {
             if (typeof window.gfToast === 'function') {
-                window.gfToast('Lỗi mạng khi xóa hội thoại.', 'danger');
+                window.gfToast(gfT('Lỗi mạng khi xóa hội thoại.'), 'danger');
             }
         } finally {
             setBusy(false);

@@ -7,7 +7,7 @@ if (!$gym) {
     $pageTitle = 'Không tìm thấy phòng tập';
     require dirname(__DIR__, 2) . '/includes/layout_head.php';
     require dirname(__DIR__, 2) . '/includes/header.php';
-    echo '<div class="container py-5"><h2>Không tìm thấy phòng tập</h2></div>';
+    echo '<div class="container py-5"><h2>' . gf_h(gf_t('Không tìm thấy phòng tập')) . '</h2></div>';
     require dirname(__DIR__, 2) . '/includes/footer.php';
     exit;
 }
@@ -88,8 +88,8 @@ require dirname(__DIR__, 2) . '/includes/header.php';
 ?>
 <div class="container py-4">
     <nav aria-label="breadcrumb" class="mb-4"><ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="<?= gf_h(gf_url('index.php')) ?>" class="text-secondary text-decoration-none"><i class="fa-solid fa-house me-1"></i>Trang chủ</a></li>
-        <li class="breadcrumb-item"><a href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>" class="text-secondary text-decoration-none">Phòng tập</a></li>
+        <li class="breadcrumb-item"><a href="<?= gf_h(gf_url('index.php')) ?>" class="text-secondary text-decoration-none"><i class="fa-solid fa-house me-1"></i><?= gf_h(gf_t('Trang chủ')) ?></a></li>
+        <li class="breadcrumb-item"><a href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>" class="text-secondary text-decoration-none"><?= gf_h(gf_t('Phòng tập')) ?></a></li>
         <li class="breadcrumb-item active text-dark fw-semibold"><?= gf_h($gym['name']) ?></li>
     </ol></nav>
     <div class="row g-3 mb-4">
@@ -110,58 +110,58 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 <div class="d-flex justify-content-between">
                     <div>
                         <?php foreach ($gym['categories'] as $c): ?>
-                            <span class="badge bg-primary-light text-primary mb-2"><?= gf_h($c['name']) ?></span>
+                            <span class="badge bg-primary-light text-primary mb-2"><?= gf_h(gf_t((string) $c['name'])) ?></span>
                         <?php endforeach; ?>
                         <h1 class="fw-bold"><?= gf_h($gym['name']) ?></h1>
-                        <div class="mb-2"><i class="fa-solid fa-star text-warning"></i> <strong><?= gf_h((string)$gym['avg_rating']) ?></strong> (<?= (int)$gym['review_count'] ?> đánh giá)</div>
-                        <div class="text-secondary"><i class="fa-solid fa-location-dot text-primary me-2"></i><?= gf_h($gym['address']) ?></div>
+                        <div class="mb-2"><i class="fa-solid fa-star text-warning"></i> <strong><?= gf_h((string)$gym['avg_rating']) ?></strong> (<?= gf_h(gf_t((int)$gym['review_count'] . ' đánh giá')) ?>)</div>
+                        <div class="text-secondary"><i class="fa-solid fa-location-dot text-primary me-2"></i><?= gf_h(gf_t((string) $gym['address'])) ?></div>
                     </div>
                     <?php if ($canFavorite): ?>
                     <form method="post" action="<?= gf_h(gf_url('pages/user/favorite_toggle.php')) ?>" class="js-favorite-toggle" data-api-url="<?= gf_h(gf_url('api/favorites')) ?>" data-login-url="<?= gf_h(gf_url('pages/auth/login.php')) ?>" data-favorited="<?= $isFav ? '1' : '0' ?>">
                         <?= gf_csrf_field() ?>
                         <input type="hidden" name="target_type" value="gym"><input type="hidden" name="target_id" value="<?= $id ?>">
                         <input type="hidden" name="redirect" value="<?= gf_h($_SERVER['REQUEST_URI']) ?>">
-                        <button class="btn btn-light border rounded-circle" type="submit" style="width:48px;height:48px;" aria-label="Yêu thích phòng tập" aria-pressed="<?= $isFav ? 'true' : 'false' ?>"><i class="fa-<?= $isFav?'solid text-danger':'regular' ?> fa-heart"></i></button>
+                        <button class="btn btn-light border rounded-circle" type="submit" style="width:48px;height:48px;" aria-label="<?= gf_h(gf_t('Yêu thích phòng tập')) ?>" aria-pressed="<?= $isFav ? 'true' : 'false' ?>"><i class="fa-<?= $isFav?'solid text-danger':'regular' ?> fa-heart"></i></button>
                     </form>
                     <?php endif; ?>
                 </div>
                 <div class="bg-light p-3 rounded-3 mt-4 d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="small text-secondary">Khoảng giá tham khảo</div>
+                        <div class="small text-secondary"><?= gf_h(gf_t('Khoảng giá tham khảo')) ?></div>
                         <div class="fw-bold fs-5"><?= gf_h($gym['price_label']) ?></div>
                     </div>
                     <button type="button" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold btn-global-contact"
                         data-type="gym"
-                        data-type-label="Phòng tập thể hình"
+                        data-type-label="<?= gf_h(gf_t('Phòng tập thể hình')) ?>"
                         data-name="<?= gf_h($gym['name']) ?>"
                         data-avatar="<?= gf_h($gym['cover']) ?>"
-                        data-subtitle="<?= gf_h($gym['address'] ?? ($gym['district_name'] ?? '')) ?>"
+                        data-subtitle="<?= gf_h(gf_t((string) ($gym['address'] ?? ($gym['district_name'] ?? '')))) ?>"
                         data-phone="<?= gf_h($gym['phone'] ?? '') ?>">
-                        <i class="fa-solid fa-phone me-2"></i>Liên hệ
+                        <i class="fa-solid fa-phone me-2"></i><?= gf_h(gf_t('Liên hệ')) ?>
                     </button>
                 </div>
             </div>
             <div class="bg-white rounded-4 p-4 shadow-sm mb-4">
-                <h3 class="fw-bold">Giới thiệu</h3>
-                <p class="text-secondary mb-0"><?= gf_h($gym['description']) ?></p>
+                <h3 class="fw-bold"><?= gf_h(gf_t('Giới thiệu')) ?></h3>
+                <p class="text-secondary mb-0"><?= gf_h(gf_t((string) ($gym['description'] ?? ''))) ?></p>
             </div>
             <div class="bg-white rounded-4 p-4 shadow-sm mb-4">
-                <h3 class="fw-bold">Huấn luyện viên tại phòng tập</h3>
+                <h3 class="fw-bold"><?= gf_h(gf_t('Huấn luyện viên tại phòng tập')) ?></h3>
                 <div class="row g-3">
                     <?php foreach ($gymTrainers as $trainer): $isFav = $user && gf_is_fav((int)$user['id'], 'trainer', (int)$trainer['id']); require dirname(__DIR__, 2) . '/includes/trainer_card.php'; endforeach; ?>
-                    <?php if (!$gymTrainers): ?><p class="text-secondary">Chưa có HLV công khai.</p><?php endif; ?>
+                    <?php if (!$gymTrainers): ?><p class="text-secondary"><?= gf_h(gf_t('Chưa có HLV công khai.')) ?></p><?php endif; ?>
                 </div>
             </div>
             <div class="bg-white rounded-4 p-4 shadow-sm mb-4" id="reviewsSection">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 class="fw-bold mb-0">Đánh giá từ hội viên</h3>
-                    <span class="text-secondary small">(<?= $totalReviews ?> đánh giá đã công khai)</span>
+                    <h3 class="fw-bold mb-0"><?= gf_h(gf_t('Đánh giá từ hội viên')) ?></h3>
+                    <span class="text-secondary small">(<?= gf_h($totalReviews . ' đánh giá đã công khai') ?>)</span>
                 </div>
 
                 <?php if ($msg): ?>
                     <div class="alert alert-<?= $msgType ?> d-flex align-items-center mb-3 rounded-3 shadow-sm">
                         <i class="fa-solid <?= $msgType === 'success' ? 'fa-circle-check' : ($msgType === 'danger' ? 'fa-circle-exclamation' : 'fa-circle-info') ?> fs-5 me-2"></i>
-                        <div><?= gf_h($msg) ?></div>
+                        <div><?= gf_h(gf_t((string) $msg)) ?></div>
                     </div>
                 <?php endif; ?>
 
@@ -170,38 +170,38 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                     <div class="card border border-primary-subtle bg-light rounded-3 p-3 mb-4">
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
                             <div class="d-flex align-items-center gap-2">
-                                <span class="badge bg-primary text-white rounded-pill px-3 py-1">Đánh giá của bạn</span>
-                                <span class="text-warning fs-6"><?= str_repeat('★', (int)$myReview['rating']) ?> (<?= (int)$myReview['rating'] ?> sao)</span>
+                                <span class="badge bg-primary text-white rounded-pill px-3 py-1"><?= gf_h(gf_t('Đánh giá của bạn')) ?></span>
+                                <span class="text-warning fs-6"><?= str_repeat('★', (int)$myReview['rating']) ?> (<?= gf_h(gf_t((int)$myReview['rating'] . ' sao')) ?>)</span>
                             </div>
                             <div>
                                 <?php if ($myReview['status'] === 'approved'): ?>
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1"><i class="fa-solid fa-circle-check me-1"></i>Đã công khai</span>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1"><i class="fa-solid fa-circle-check me-1"></i><?= gf_h(gf_t('Đã công khai')) ?></span>
                                 <?php elseif ($myReview['status'] === 'pending'): ?>
-                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-2 py-1"><i class="fa-solid fa-clock me-1"></i>Chờ duyệt</span>
+                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-2 py-1"><i class="fa-solid fa-clock me-1"></i><?= gf_h(gf_t('Chờ duyệt')) ?></span>
                                 <?php elseif ($myReview['status'] === 'rejected'): ?>
-                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1"><i class="fa-solid fa-circle-xmark me-1"></i>Bị từ chối</span>
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1"><i class="fa-solid fa-circle-xmark me-1"></i><?= gf_h(gf_t('Bị từ chối')) ?></span>
                                 <?php endif; ?>
                             </div>
                         </div>
                         <p class="text-dark mb-2" style="white-space: pre-line;"><?= gf_h($myReview['comment']) ?></p>
                         <?php if ($myReview['status'] === 'rejected' && !empty($myReview['reject_reason'])): ?>
                             <div class="small text-danger bg-danger-subtle p-2 rounded-2 mb-2">
-                                <i class="fa-solid fa-triangle-exclamation me-1"></i><strong>Lý do từ chối:</strong> <?= gf_h($myReview['reject_reason']) ?>
+                                <i class="fa-solid fa-triangle-exclamation me-1"></i><strong><?= gf_h(gf_t('Lý do từ chối:')) ?></strong> <?= gf_h($myReview['reject_reason']) ?>
                             </div>
                         <?php endif; ?>
                         <div class="d-flex gap-2 justify-content-end pt-2 border-top">
                             <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#editGymReviewModal">
-                                <i class="fa-solid fa-pen-to-square me-1"></i>Sửa đánh giá
+                                <i class="fa-solid fa-pen-to-square me-1"></i><?= gf_h(gf_t('Sửa đánh giá')) ?>
                             </button>
                             <form method="post" class="d-inline js-confirm-submit"
-                                data-confirm-title="Xóa đánh giá"
-                                data-confirm-message="Bạn có chắc chắn muốn xóa đánh giá của mình không? Thao tác này không thể hoàn tác."
-                                data-confirm-label="Xóa đánh giá"
+                                data-confirm-title="<?= gf_h(gf_t('Xóa đánh giá')) ?>"
+                                data-confirm-message="<?= gf_h(gf_t('Bạn có chắc chắn muốn xóa đánh giá của mình không? Thao tác này không thể hoàn tác.')) ?>"
+                                data-confirm-label="<?= gf_h(gf_t('Xóa đánh giá')) ?>"
                                 data-confirm-danger="1">
                                 <?= gf_csrf_field() ?>
                                 <input type="hidden" name="action" value="delete_review">
                                 <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                                    <i class="fa-solid fa-trash me-1"></i>Xóa
+                                    <i class="fa-solid fa-trash me-1"></i><?= gf_h(gf_t('Xóa')) ?>
                                 </button>
                             </form>
                         </div>
@@ -215,12 +215,12 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                                     <?= gf_csrf_field() ?>
                                     <input type="hidden" name="action" value="edit_review">
                                     <div class="modal-header border-0 pb-0">
-                                        <h5 class="modal-title fw-bold">Chỉnh sửa đánh giá của bạn</h5>
+                                        <h5 class="modal-title fw-bold"><?= gf_h(gf_t('Chỉnh sửa đánh giá của bạn')) ?></h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body py-3">
                                         <div class="mb-3">
-                                            <label class="form-label fw-semibold small">Mức độ hài lòng</label>
+                                            <label class="form-label fw-semibold small"><?= gf_h(gf_t('Mức độ hài lòng')) ?></label>
                                             <?php
                                             $ratingFilterName = 'rating';
                                             $ratingFilterValue = (string) (int) $myReview['rating'];
@@ -230,16 +230,16 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                                             ?>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label fw-semibold small">Nhận xét chi tiết</label>
-                                            <textarea name="comment" class="form-control rounded-3" rows="4" required data-required-msg="Vui lòng nhập nội dung đánh giá." placeholder="Chia sẻ trải nghiệm của bạn..."><?= gf_h($myReview['comment']) ?></textarea>
+                                            <label class="form-label fw-semibold small"><?= gf_h(gf_t('Nhận xét chi tiết')) ?></label>
+                                            <textarea name="comment" class="form-control rounded-3" rows="4" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập nội dung đánh giá.')) ?>" placeholder="<?= gf_h(gf_t('Chia sẻ trải nghiệm của bạn...')) ?>"><?= gf_h($myReview['comment']) ?></textarea>
                                         </div>
                                         <div class="small text-secondary">
-                                            <i class="fa-solid fa-circle-info me-1 text-primary"></i>Lưu ý: Sau khi sửa, đánh giá sẽ được gửi để quản trị viên duyệt lại trước khi tiếp tục hiển thị công khai.
+                                            <i class="fa-solid fa-circle-info me-1 text-primary"></i><?= gf_h(gf_t('Lưu ý: Sau khi sửa, đánh giá sẽ được gửi để quản trị viên duyệt lại trước khi tiếp tục hiển thị công khai.')) ?>
                                         </div>
                                     </div>
                                     <div class="modal-footer border-0 pt-0">
-                                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
-                                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold">Lưu thay đổi</button>
+                                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal"><?= gf_h(gf_t('Hủy')) ?></button>
+                                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold"><?= gf_h(gf_t('Lưu thay đổi')) ?></button>
                                     </div>
                                 </form>
                             </div>
@@ -256,14 +256,14 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                         <p class="text-secondary mb-0 mt-1"><?= gf_h($r['comment']) ?></p>
                     </div>
                 <?php endforeach; ?>
-                <?php if (!$pagedReviews): ?><p class="text-secondary py-2">Chưa có đánh giá nào được công khai.</p><?php endif; ?>
+                <?php if (!$pagedReviews): ?><p class="text-secondary py-2"><?= gf_h(gf_t('Chưa có đánh giá nào được công khai.')) ?></p><?php endif; ?>
                 <?= gf_render_user_pagination($reviewPage, $reviewLimit, $totalReviews, array_diff_key($_GET, ['r_page' => '']), 'r_page') ?>
                 
                 <?php if ($canReview && !$myReview): ?>
                     <form method="post" class="mt-4 pt-3 border-top js-form-validate" novalidate>
                         <?= gf_csrf_field() ?>
                         <input type="hidden" name="action" value="create_review">
-                        <label class="form-label fw-semibold">Viết đánh giá</label>
+                        <label class="form-label fw-semibold"><?= gf_h(gf_t('Viết đánh giá')) ?></label>
                         <div class="mb-2">
                             <?php
                             $ratingFilterName = 'rating';
@@ -274,18 +274,18 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                             ?>
                         </div>
                         <div data-field class="mb-2">
-                        <textarea name="comment" class="form-control" rows="3" required data-required-msg="Vui lòng nhập nội dung đánh giá." placeholder="Chia sẻ trải nghiệm..."></textarea>
+                        <textarea name="comment" class="form-control" rows="3" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập nội dung đánh giá.')) ?>" placeholder="<?= gf_h(gf_t('Chia sẻ trải nghiệm...')) ?>"></textarea>
                         </div>
-                        <button class="btn btn-primary rounded-pill px-4">Gửi đánh giá</button>
+                        <button class="btn btn-primary rounded-pill px-4"><?= gf_h(gf_t('Gửi đánh giá')) ?></button>
                     </form>
                 <?php elseif ($isAdminUser): ?>
                     <div class="mt-4 pt-3 border-top text-center text-secondary small">
-                        <i class="fa-solid fa-shield-halved me-1 text-primary"></i>Admin duyệt đánh giá tại khu vực quản trị — không gửi review hội viên tại đây.
+                        <i class="fa-solid fa-shield-halved me-1 text-primary"></i><?= gf_h(gf_t('Admin duyệt đánh giá tại khu vực quản trị — không gửi review hội viên tại đây.')) ?>
                     </div>
                 <?php elseif (!$user): ?>
                     <div class="mt-4 pt-3 border-top text-center">
                         <a class="btn btn-outline-primary rounded-pill px-4" href="<?= gf_h(gf_url('pages/auth/login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']))) ?>">
-                            <i class="fa-regular fa-comment-dots me-2"></i>Đăng nhập để đánh giá
+                            <i class="fa-regular fa-comment-dots me-2"></i><?= gf_h(gf_t('Đăng nhập để đánh giá')) ?>
                         </a>
                     </div>
                 <?php endif; ?>
@@ -293,19 +293,19 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         </div>
         <div class="col-lg-4">
             <div class="bg-white rounded-4 p-4 shadow-sm">
-                <h3 class="fw-bold mb-3">Thông tin phòng tập</h3>
-                <p class="d-flex justify-content-between"><span class="text-secondary">Giờ hoạt động</span><strong><?= gf_h($gym['opening_hours']) ?></strong></p>
-                <p class="d-flex justify-content-between"><span class="text-secondary">Khu vực</span><strong><?= gf_h($gym['district_name']) ?></strong></p>
-                <h5 class="fw-bold mt-4">Tiện ích</h5>
+                <h3 class="fw-bold mb-3"><?= gf_h(gf_t('Thông tin phòng tập')) ?></h3>
+                <p class="d-flex justify-content-between"><span class="text-secondary"><?= gf_h(gf_t('Giờ hoạt động')) ?></span><strong><?= gf_h(gf_t((string) ($gym['opening_hours'] ?? ''))) ?></strong></p>
+                <p class="d-flex justify-content-between"><span class="text-secondary"><?= gf_h(gf_t('Khu vực')) ?></span><strong><?= gf_h(gf_place_name((string) ($gym['district_name'] ?? ''))) ?></strong></p>
+                <h5 class="fw-bold mt-4"><?= gf_h(gf_t('Tiện ích')) ?></h5>
                 <ul class="list-unstyled">
                     <?php foreach ($gym['amenities'] as $a): ?>
-                        <li class="mb-2"><i class="fa-solid <?= gf_h($a['icon'] ?: 'fa-check') ?> text-primary me-2"></i><?= gf_h($a['name']) ?></li>
+                        <li class="mb-2"><i class="fa-solid <?= gf_h($a['icon'] ?: 'fa-check') ?> text-primary me-2"></i><?= gf_h(gf_t((string) $a['name'])) ?></li>
                     <?php endforeach; ?>
                 </ul>
             </div>
         </div>
     </div>
-    <h3 class="fw-bold mt-5 mb-3">Có thể bạn cũng quan tâm</h3>
+    <h3 class="fw-bold mt-5 mb-3"><?= gf_h(gf_t('Có thể bạn cũng quan tâm')) ?></h3>
     <div class="row g-4">
         <?php foreach ($related as $gym): $isFav = $user && gf_is_fav((int)$user['id'], 'gym', (int)$gym['id']); require dirname(__DIR__, 2) . '/includes/gym_card.php'; endforeach; ?>
     </div>

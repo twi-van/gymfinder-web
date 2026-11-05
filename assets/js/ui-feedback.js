@@ -41,7 +41,7 @@
         el.innerHTML = `
             <i class="fa-solid ${icons[kind]} flex-shrink-0"></i>
             <div class="gf-toast-text"></div>
-            <button type="button" class="btn-close btn-close-sm" aria-label="Đóng"></button>
+            <button type="button" class="btn-close btn-close-sm" aria-label=gfT("Đóng")></button>
         `;
         el.querySelector('.gf-toast-text').textContent = text;
 
@@ -87,7 +87,7 @@
                 const ok = document.getElementById('gfConfirmOk');
                 if (ok) {
                     ok.disabled = false;
-                    ok.innerHTML = ok.dataset.defaultLabel || 'Xác nhận';
+                    ok.innerHTML = ok.dataset.defaultLabel || gfT('Xác nhận');
                 }
             });
         }
@@ -102,7 +102,7 @@
         const options = opts || {};
         const modalApi = getConfirmModal();
         if (!modalApi) {
-            return Promise.resolve(window.confirm(options.message || 'Bạn có chắc chắn?'));
+            return Promise.resolve(window.confirm(options.message || gfT('Bạn có chắc chắn?')));
         }
 
         const titleEl = document.getElementById('gfConfirmTitle');
@@ -112,18 +112,18 @@
 
         if (titleEl) {
             titleEl.innerHTML = options.danger
-                ? `<i class="fa-solid fa-triangle-exclamation me-2"></i>${escapeHtml(options.title || 'Xác nhận')}`
-                : escapeHtml(options.title || 'Xác nhận');
+                ? `<i class="fa-solid fa-triangle-exclamation me-2"></i>${escapeHtml(options.title || gfT('Xác nhận'))}`
+                : escapeHtml(options.title || gfT('Xác nhận'));
             titleEl.classList.toggle('text-danger', !!options.danger);
         }
         if (bodyEl) {
-            bodyEl.textContent = options.message || 'Bạn có chắc chắn muốn thực hiện thao tác này?';
+            bodyEl.textContent = options.message || gfT('Bạn có chắc chắn muốn thực hiện thao tác này?');
         }
         if (cancelBtn) {
-            cancelBtn.textContent = options.cancelLabel || 'Hủy';
+            cancelBtn.textContent = options.cancelLabel || gfT('Hủy');
         }
         if (okBtn) {
-            const label = options.confirmLabel || 'Xác nhận';
+            const label = options.confirmLabel || gfT('Xác nhận');
             okBtn.dataset.defaultLabel = label;
             okBtn.textContent = label;
             okBtn.className = options.danger
@@ -168,10 +168,10 @@
                 }
                 event.preventDefault();
                 const ok = await window.gfConfirm({
-                    title: form.dataset.confirmTitle || 'Xác nhận',
-                    message: form.dataset.confirmMessage || 'Bạn có chắc chắn muốn thực hiện thao tác này?',
-                    confirmLabel: form.dataset.confirmLabel || 'Xác nhận',
-                    cancelLabel: form.dataset.confirmCancel || 'Hủy',
+                    title: form.dataset.confirmTitle || gfT('Xác nhận'),
+                    message: form.dataset.confirmMessage || gfT('Bạn có chắc chắn muốn thực hiện thao tác này?'),
+                    confirmLabel: form.dataset.confirmLabel || gfT('Xác nhận'),
+                    cancelLabel: form.dataset.confirmCancel || gfT('Hủy'),
                     danger: form.dataset.confirmDanger === '1',
                 });
                 if (!ok) return;

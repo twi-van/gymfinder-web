@@ -44,7 +44,9 @@ function gf_i18n_en(): array
     if ($dict === null) {
         $file = dirname(__DIR__) . '/lang/en.php';
         $loaded = is_file($file) ? require $file : [];
-        $dict = is_array($loaded) ? $loaded : [];
+        $extraFile = dirname(__DIR__) . '/lang/en_pages.php';
+        $extra = is_file($extraFile) ? require $extraFile : [];
+        $dict = array_merge(is_array($loaded) ? $loaded : [], is_array($extra) ? $extra : []);
     }
     return $dict;
 }
@@ -57,7 +59,85 @@ function gf_t(string $vi, ?string $en = null): string
     if ($en !== null && $en !== '') {
         return $en;
     }
-    return gf_i18n_en()[$vi] ?? $vi;
+    $mapped = gf_i18n_en()[$vi] ?? null;
+    if ($mapped !== null && $mapped !== '') {
+        return $mapped;
+    }
+    return gf_i18n_pattern($vi);
+}
+
+function gf_i18n_pattern(string $text): string
+{
+    if (preg_match('/^Phòng tập (.+) tại (.+) có khu tập luyện tiện nghi, nhiều mức giá, đánh giá hội viên và HLV hỗ trợ\.$/u', $text, $m)) {
+        return $m[1] . ' in ' . gf_place_name($m[2]) . ' has a well-equipped training floor, several price levels, member reviews, and trainer support.';
+    }
+    if (preg_match('/^Phòng tập (.+) tại (.+) phục vụ dữ liệu demo GYMFINDER với mức giá, đặc điểm và tiện ích đa dạng\.$/u', $text, $m)) {
+        return $m[1] . ' in ' . gf_place_name($m[2]) . ' is listed on GYMFINDER with a range of prices, features, and amenities.';
+    }
+    if (preg_match('/^(\d+) sao$/u', $text, $m)) {
+        return $m[1] . ((int) $m[1] === 1 ? ' star' : ' stars');
+    }
+    if (preg_match('/^Từ (\d+)★ trở lên$/u', $text, $m) || preg_match('/^Từ (\d+) sao trở lên$/u', $text, $m)) {
+        return 'From ' . $m[1] . '★ up';
+    }
+    if (preg_match('/^(\d+)★ trở lên$/u', $text, $m)) {
+        return $m[1] . '★ and up';
+    }
+    if (preg_match('/^Từ ([\d\.]+)đ$/u', $text, $m)) {
+        return 'From ' . str_replace('.', ',', $m[1]) . ' VND';
+    }
+    if (preg_match('/^Đến ([\d\.]+)đ$/u', $text, $m)) {
+        return 'Up to ' . str_replace('.', ',', $m[1]) . ' VND';
+    }
+    if (preg_match('/^(\d+) năm kinh nghiệm$/u', $text, $m)) {
+        return $m[1] . ((int) $m[1] === 1 ? ' year of experience' : ' years of experience');
+    }
+    if (preg_match('/^(\d+) năm KN$/u', $text, $m)) {
+        return $m[1] . ' yrs exp.';
+    }
+    if (preg_match('/^(\d+) năm$/u', $text, $m)) {
+        return $m[1] . ((int) $m[1] === 1 ? ' year' : ' years');
+    }
+    if (preg_match('/^(\d+) đánh giá đã công khai$/u', $text, $m)) {
+        return $m[1] . ' public reviews';
+    }
+    if (preg_match('/^(\d+) đánh giá$/u', $text, $m)) {
+        return $m[1] . ((int) $m[1] === 1 ? ' review' : ' reviews');
+    }
+    if (preg_match('/^(\d+) đã công khai$/u', $text, $m)) {
+        return $m[1] . ' public';
+    }
+    if (preg_match('/^(\d+) lượt$/u', $text, $m)) {
+        return $m[1] . ((int) $m[1] === 1 ? ' turn' : ' turns');
+    }
+    if (preg_match('/^(\d+) phòng tập được tìm thấy$/u', $text, $m)) {
+        return $m[1] . ' gyms found';
+    }
+    if (preg_match('/^(.+) \+(\d+) phòng tập$/u', $text, $m)) {
+        $n = (int) $m[2];
+        return $m[1] . ' +' . $n . ($n === 1 ? ' gym' : ' gyms');
+    }
+    if (preg_match('/^(\d+) phòng tập$/u', $text, $m)) {
+        return $m[1] . ((int) $m[1] === 1 ? ' gym' : ' gyms');
+    }
+    if (preg_match('/^(\d+) huấn luyện viên$/u', $text, $m)) {
+        return $m[1] . ' trainers';
+    }
+    if (preg_match('/^Ảnh phòng tập (.+)$/u', $text, $m)) {
+        return 'Photo of ' . $m[1];
+    }
+    if (preg_match('/^OTP chữ số (\d+)$/u', $text, $m)) {
+        return 'OTP digit ' . $m[1];
+    }
+    if (preg_match('/Quận\s+\d+|TP\.\s*Hồ Chí Minh|TP\.HCM|TPHCM|Thành phố Hồ Chí Minh/u', $text)) {
+        $out = preg_replace_callback('/Quận\s+(\d+)/u', static fn (array $m): string => 'District ' . $m[1], $text) ?? $text;
+        return str_replace(
+            ['Thành phố Hồ Chí Minh', 'TP. Hồ Chí Minh', 'TP.HCM', 'TPHCM'],
+            'Ho Chi Minh City',
+            $out
+        );
+    }
+    return $text;
 }
 
 function gf_place_name(string $name): string

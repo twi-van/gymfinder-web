@@ -34,29 +34,29 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                     <div class="auth-brand mb-5">
                         <?= gf_logo('login') ?>
                     </div>
-                    <div class="auth-badge"><i class="fa-solid fa-circle" style="font-size:6px"></i> KHÁM PHÁ • KẾT NỐI • TẬP LUYỆN</div>
-                    <h1 class="auth-heading">Lấy lại <span class="text-primary">quyền truy cập</span><br>tài khoản của bạn</h1>
-                    <p class="auth-desc">Nhập email đã đăng ký để nhận mã OTP 6 số và đặt lại mật khẩu.</p>
+                    <div class="auth-badge"><i class="fa-solid fa-circle" style="font-size:6px"></i> <?= gf_h(gf_t('KHÁM PHÁ • KẾT NỐI • TẬP LUYỆN')) ?></div>
+                    <h1 class="auth-heading"><?= gf_h(gf_t('Lấy lại')) ?> <span class="text-primary"><?= gf_h(gf_t('quyền truy cập')) ?></span><br><?= gf_h(gf_t('tài khoản của bạn')) ?></h1>
+                    <p class="auth-desc"><?= gf_h(gf_t('Nhập email đã đăng ký để nhận mã OTP 6 số và đặt lại mật khẩu.')) ?></p>
                     <div class="auth-features">
                         <div class="auth-feature">
                             <div class="auth-feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
                             <div>
-                                <div class="auth-feature-title">Bảo mật bằng OTP</div>
-                                <p class="auth-feature-desc">Mã 6 số có hiệu lực trong 10 phút</p>
+                                <div class="auth-feature-title"><?= gf_h(gf_t('Bảo mật bằng OTP')) ?></div>
+                                <p class="auth-feature-desc"><?= gf_h(gf_t('Mã 6 số có hiệu lực trong 10 phút')) ?></p>
                             </div>
                         </div>
                         <div class="auth-feature">
                             <div class="auth-feature-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
                             <div>
-                                <div class="auth-feature-title">Xác nhận qua email</div>
-                                <p class="auth-feature-desc">Chỉ người nhận được mã mới đặt lại được mật khẩu</p>
+                                <div class="auth-feature-title"><?= gf_h(gf_t('Xác nhận qua email')) ?></div>
+                                <p class="auth-feature-desc"><?= gf_h(gf_t('Chỉ người nhận được mã mới đặt lại được mật khẩu')) ?></p>
                             </div>
                         </div>
                         <div class="auth-feature">
                             <div class="auth-feature-icon"><i class="fa-solid fa-key"></i></div>
                             <div>
-                                <div class="auth-feature-title">Đặt mật khẩu mới</div>
-                                <p class="auth-feature-desc">Sau khi xác thực OTP, tạo mật khẩu mới ngay trên website</p>
+                                <div class="auth-feature-title"><?= gf_h(gf_t('Đặt mật khẩu mới')) ?></div>
+                                <p class="auth-feature-desc"><?= gf_h(gf_t('Sau khi xác thực OTP, tạo mật khẩu mới ngay trên website')) ?></p>
                             </div>
                         </div>
                     </div>
@@ -69,12 +69,12 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                         <span class="auth-step-sep"></span>
                         <span class="auth-step">2. OTP</span>
                         <span class="auth-step-sep"></span>
-                        <span class="auth-step">3. Mật khẩu mới</span>
+                        <span class="auth-step"><?= gf_h(gf_t('3. Mật khẩu mới')) ?></span>
                     </div>
-                    <h2 class="auth-card-title">Quên mật khẩu</h2>
-                    <p class="auth-card-subtitle">Nhập email đã dùng khi đăng ký. Hệ thống gửi mã OTP qua email (không hỗ trợ OTP SMS).</p>
+                    <h2 class="auth-card-title"><?= gf_h(gf_t('Quên mật khẩu')) ?></h2>
+                    <p class="auth-card-subtitle"><?= gf_h(gf_t('Nhập email đã dùng khi đăng ký. Hệ thống gửi mã OTP qua email (không hỗ trợ OTP SMS).')) ?></p>
                     <?php if ($flowNotice): ?><div class="alert alert-warning"><?= gf_h($flowNotice) ?></div><?php endif; ?>
-                    <?php if ($error): ?><div class="alert alert-danger"><?= gf_h($error) ?></div><?php endif; ?>
+                    <?php if ($error): ?><div class="alert alert-danger"><?= gf_h(gf_t((string) $error)) ?></div><?php endif; ?>
                     <form method="post" id="forgotPasswordForm" class="js-auth-validate" novalidate>
                         <?= gf_csrf_field() ?>
                         <div class="mb-4" data-auth-field>
@@ -87,8 +87,8 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                                     type="email"
                                     name="login"
                                     required
-                                    data-required-msg="Vui lòng nhập email."
-                                    data-type-msg="Email không hợp lệ."
+                                    data-required-msg="<?= gf_h(gf_t('Vui lòng nhập email.')) ?>"
+                                    data-type-msg="<?= gf_h(gf_t('Email không hợp lệ.')) ?>"
                                     autocomplete="email"
                                     placeholder="you@email.com"
                                     value="<?= gf_h($loginValue) ?>"
@@ -96,12 +96,12 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                             </div>
                         </div>
                         <button class="auth-btn-submit w-100 d-flex justify-content-center align-items-center gap-2" type="submit">
-                            Gửi mã OTP <i class="fa-solid fa-arrow-right"></i>
+                            <?= gf_h(gf_t('Gửi mã OTP')) ?> <i class="fa-solid fa-arrow-right"></i>
                         </button>
                     </form>
                     <p class="text-center mt-5 mb-0" style="font-size:15px;color:#64748b">
-                        Nhớ mật khẩu?
-                        <a class="text-primary text-decoration-none fw-bold" href="<?= gf_h(gf_url('pages/auth/login.php')) ?>">Đăng nhập ngay</a>
+                        <?= gf_h(gf_t('Nhớ mật khẩu?')) ?>
+                        <a class="text-primary text-decoration-none fw-bold" href="<?= gf_h(gf_url('pages/auth/login.php')) ?>"><?= gf_h(gf_t('Đăng nhập ngay')) ?></a>
                     </p>
                 </div>
             </div>

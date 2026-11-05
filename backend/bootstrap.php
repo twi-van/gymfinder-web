@@ -53,9 +53,10 @@ try {
     http_response_code(503);
     header('Content-Type: text/html; charset=utf-8');
     $safe = htmlspecialchars($e->getMessage(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    echo '<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><title>GYMFINDER</title></head><body>';
-    echo '<h1>Chưa kết nối được database</h1>';
-    echo '<p>Kiểm tra Variables <code>GF_DB_*</code> trên Railway (Reference MySQL) và đã import schema/seed chưa.</p>';
+    $lang = function_exists('gf_lang') && gf_lang() === 'en' ? 'en' : 'vi';
+    echo '<!DOCTYPE html><html lang="' . $lang . '"><head><meta charset="utf-8"><title>GYMFINDER</title></head><body>';
+    echo '<h1>' . gf_h(gf_t('Chưa kết nối được database')) . '</h1>';
+    echo '<p>' . gf_h(gf_t('Kiểm tra Variables GF_DB_* trên Railway (Reference MySQL) và đã import schema/seed chưa.')) . '</p>';
     echo '<pre style="white-space:pre-wrap">' . $safe . '</pre>';
     echo '</body></html>';
     exit;

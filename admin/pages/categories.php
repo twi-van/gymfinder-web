@@ -253,11 +253,11 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 ?>
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
-        <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;">Danh mục</h2>
-        <p class="text-secondary mb-0 small">Quản lý loại phòng tập, chuyên môn huấn luyện viên, tiện ích và khu vực</p>
+        <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;"><?= gf_h(gf_t('Danh mục')) ?></h2>
+        <p class="text-secondary mb-0 small"><?= gf_h(gf_t('Quản lý loại phòng tập, chuyên môn huấn luyện viên, tiện ích và khu vực')) ?></p>
     </div>
     <button class="btn btn-primary px-3 rounded-3" data-bs-toggle="modal" data-bs-target="#catalogCreate">
-        <i class="fa-solid fa-plus me-2"></i>Thêm <?= gf_h($tabs[$tab]['label']) ?>
+        <i class="fa-solid fa-plus me-2"></i><?= gf_h(gf_t('Thêm')) ?> <?= gf_h($tabs[$tab]['label']) ?>
     </button>
 </div>
 
@@ -272,9 +272,9 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
     <?php endforeach; ?>
 </ul>
 
-<?php if (!empty($_GET['created'])): ?><div class="alert alert-success"><i class="fa-solid fa-circle-check me-2"></i>Đã thêm thành công.</div><?php endif; ?>
-<?php if (!empty($_GET['updated'])): ?><div class="alert alert-success"><i class="fa-solid fa-circle-check me-2"></i>Đã cập nhật thành công.</div><?php endif; ?>
-<?php if (!empty($_GET['deleted'])): ?><div class="alert alert-success"><i class="fa-solid fa-circle-check me-2"></i>Đã xóa thành công.</div><?php endif; ?>
+<?php if (!empty($_GET['created'])): ?><div class="alert alert-success"><i class="fa-solid fa-circle-check me-2"></i><?= gf_h(gf_t('Đã thêm thành công.')) ?></div><?php endif; ?>
+<?php if (!empty($_GET['updated'])): ?><div class="alert alert-success"><i class="fa-solid fa-circle-check me-2"></i><?= gf_h(gf_t('Đã cập nhật thành công.')) ?></div><?php endif; ?>
+<?php if (!empty($_GET['deleted'])): ?><div class="alert alert-success"><i class="fa-solid fa-circle-check me-2"></i><?= gf_h(gf_t('Đã xóa thành công.')) ?></div><?php endif; ?>
 <?php if ($err): ?><div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation me-2"></i><?= gf_h($err) ?></div><?php endif; ?>
 
 <div class="modal fade" id="catalogCreate" tabindex="-1">
@@ -284,24 +284,24 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                 <?= gf_csrf_field() ?>
                 <input type="hidden" name="action" value="save">
                 <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold">Thêm <?= gf_h($tabs[$tab]['label']) ?></h5>
+                    <h5 class="modal-title fw-bold"><?= gf_h(gf_t('Thêm')) ?> <?= gf_h($tabs[$tab]['label']) ?></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <label class="form-label">Tên *</label>
-                    <input class="form-control admin-input mb-3" name="name" required maxlength="100" data-required-msg="Vui lòng nhập tên danh mục." placeholder="Nhập tên">
+                    <label class="form-label"><?= gf_h(gf_t('Tên *')) ?></label>
+                    <input class="form-control admin-input mb-3" name="name" required maxlength="100" data-required-msg="<?= gf_h(gf_t('Vui lòng nhập tên danh mục.')) ?>" placeholder="Nhập tên">
                     <?php if ($tab === 'categories'): ?>
-                        <label class="form-label">Mô tả</label>
+                        <label class="form-label"><?= gf_h(gf_t('Mô tả')) ?></label>
                         <textarea class="form-control admin-input" name="description" rows="3"></textarea>
                     <?php elseif ($tab === 'amenities'): ?>
-                        <label class="form-label">Icon (tuỳ chọn)</label>
-                        <input class="form-control admin-input" name="icon" maxlength="80" placeholder="ví dụ: fa-wifi">
-                        <div class="form-text">Mã biểu tượng Font Awesome, ví dụ <code>fa-wifi</code>.</div>
+                        <label class="form-label"><?= gf_h(gf_t('Icon (tuỳ chọn)')) ?></label>
+                        <input class="form-control admin-input" name="icon" maxlength="80" placeholder="<?= gf_h(gf_t('ví dụ: fa-wifi')) ?>">
+                        <div class="form-text"><?= gf_h(gf_t('Mã biểu tượng Font Awesome, ví dụ')) ?> <code>fa-wifi</code>.</div>
                     <?php endif; ?>
                 </div>
                 <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
-                    <button class="btn btn-primary">Thêm</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><?= gf_h(gf_t('Hủy')) ?></button>
+                    <button class="btn btn-primary"><?= gf_h(gf_t('Thêm')) ?></button>
                 </div>
             </form>
         </div>
@@ -337,10 +337,10 @@ gf_admin_table_open([
     <td class="text-center text-muted fw-semibold"><?= (int)$r['id'] ?></td>
     <td><span class="admin-cell-title"><?= gf_h($r['name']) ?></span></td>
     <td><span class="text-secondary"><?= gf_h($r['description'] ?? '—') ?></span></td>
-    <td class="text-center text-secondary"><?= (int)($usage[(int)$r['id']] ?? 0) ?> phòng</td>
+    <td class="text-center text-secondary"><?= (int)($usage[(int)$r['id']] ?? 0) ?> <?= gf_h(gf_t('phòng')) ?></td>
     <td class="text-center"><span class="admin-badge <?= $r['is_active'] ? 'badge-success' : 'badge-neutral' ?>"><?= $r['is_active'] ? 'Hoạt động' : 'Tạm ẩn' ?></span></td>
     <td class="text-end pe-3 text-nowrap admin-actions-cell">
-        <button type="button" class="btn btn-action btn-action-edit" data-bs-toggle="modal" data-bs-target="#catalogEdit<?= (int)$r['id'] ?>" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+        <button type="button" class="btn btn-action btn-action-edit" data-bs-toggle="modal" data-bs-target="#catalogEdit<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Chỉnh sửa')) ?>"><i class="fa-solid fa-pen"></i></button>
         <form method="post" class="d-inline">
             <?= gf_csrf_field() ?>
             <input type="hidden" name="action" value="toggle">
@@ -357,9 +357,9 @@ gf_admin_table_open([
             : 'Xóa vĩnh viễn loại phòng tập này? Thao tác không hoàn tác.';
         ?>
         <form method="post" class="d-inline js-confirm-submit"
-              data-confirm-title="Xóa loại phòng tập?"
+              data-confirm-title="<?= gf_h(gf_t('Xóa loại phòng tập?')) ?>"
               data-confirm-message="<?= gf_h($confirmMsg) ?>"
-              data-confirm-label="Xóa"
+              data-confirm-label="<?= gf_h(gf_t('Xóa')) ?>"
               data-confirm-danger="1">
             <?= gf_csrf_field() ?>
             <input type="hidden" name="action" value="delete">
@@ -407,16 +407,16 @@ $colspan = count($columns);
     <?php endif; ?>
     <td class="text-center text-secondary"><?= (int)($usage[(int)$r['id']] ?? 0) ?></td>
     <td class="text-end pe-3 text-nowrap">
-        <button type="button" class="btn btn-action btn-action-edit" data-bs-toggle="modal" data-bs-target="#catalogEdit<?= (int)$r['id'] ?>" title="Sửa"><i class="fa-solid fa-pen"></i></button>
+        <button type="button" class="btn btn-action btn-action-edit" data-bs-toggle="modal" data-bs-target="#catalogEdit<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Sửa')) ?>"><i class="fa-solid fa-pen"></i></button>
         <form method="post" class="d-inline js-confirm-submit"
-              data-confirm-title="Xóa mục này?"
-              data-confirm-message="Thao tác không hoàn tác được nếu không còn liên kết."
-              data-confirm-label="Xóa"
+              data-confirm-title="<?= gf_h(gf_t('Xóa mục này?')) ?>"
+              data-confirm-message="<?= gf_h(gf_t('Thao tác không hoàn tác được nếu không còn liên kết.')) ?>"
+              data-confirm-label="<?= gf_h(gf_t('Xóa')) ?>"
               data-confirm-danger="1">
             <?= gf_csrf_field() ?>
             <input type="hidden" name="action" value="delete">
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
-            <button type="submit" class="btn btn-action btn-action-delete" title="Xóa" <?= !empty($usage[(int)$r['id']]) ? 'disabled' : '' ?>><i class="fa-solid fa-trash"></i></button>
+            <button type="submit" class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t('Xóa')) ?>" <?= !empty($usage[(int)$r['id']]) ? 'disabled' : '' ?>><i class="fa-solid fa-trash"></i></button>
         </form>
     </td>
 </tr>
@@ -440,30 +440,30 @@ gf_admin_table_close([
                 <input type="hidden" name="action" value="save">
                 <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
                 <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold">Sửa <?= gf_h($tabs[$tab]['label']) ?></h5>
+                    <h5 class="modal-title fw-bold"><?= gf_h(gf_t('Sửa')) ?> <?= gf_h($tabs[$tab]['label']) ?></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <label class="form-label">Tên *</label>
-                    <input class="form-control admin-input mb-3" name="name" value="<?= gf_h($r['name']) ?>" required maxlength="100" data-required-msg="Vui lòng nhập tên danh mục.">
+                    <label class="form-label"><?= gf_h(gf_t('Tên *')) ?></label>
+                    <input class="form-control admin-input mb-3" name="name" value="<?= gf_h($r['name']) ?>" required maxlength="100" data-required-msg="<?= gf_h(gf_t('Vui lòng nhập tên danh mục.')) ?>">
                     <?php if ($tab === 'categories'): ?>
-                        <label class="form-label">Mô tả</label>
+                        <label class="form-label"><?= gf_h(gf_t('Mô tả')) ?></label>
                         <textarea class="form-control admin-input mb-3" name="description" rows="3"><?= gf_h($r['description'] ?? '') ?></textarea>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="is_active" id="category-active-<?= (int)$r['id'] ?>" value="1" <?= !empty($r['is_active']) ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="category-active-<?= (int)$r['id'] ?>">Đang hoạt động</label>
+                            <label class="form-check-label" for="category-active-<?= (int)$r['id'] ?>"><?= gf_h(gf_t('Đang hoạt động')) ?></label>
                         </div>
                     <?php elseif ($tab === 'amenities'): ?>
-                        <label class="form-label">Icon (tuỳ chọn)</label>
+                        <label class="form-label"><?= gf_h(gf_t('Icon (tuỳ chọn)')) ?></label>
                         <input class="form-control admin-input" name="icon" value="<?= gf_h($r['icon'] ?? '') ?>" maxlength="80" placeholder="vd: fa-wifi">
-                        <div class="form-text mt-2">Mã đường dẫn: <code><?= gf_h($r['slug'] ?? '') ?></code></div>
+                        <div class="form-text mt-2"><?= gf_h(gf_t('Mã đường dẫn:')) ?> <code><?= gf_h($r['slug'] ?? '') ?></code></div>
                     <?php else: ?>
-                        <div class="form-text">Mã đường dẫn: <code><?= gf_h($r['slug'] ?? '') ?></code> (giữ nguyên khi đổi tên).</div>
+                        <div class="form-text"><?= gf_h(gf_t('Mã đường dẫn:')) ?> <code><?= gf_h($r['slug'] ?? '') ?></code> <?= gf_h(gf_t('(giữ nguyên khi đổi tên).')) ?></div>
                     <?php endif; ?>
                 </div>
                 <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
-                    <button class="btn btn-primary">Lưu</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><?= gf_h(gf_t('Hủy')) ?></button>
+                    <button class="btn btn-primary"><?= gf_h(gf_t('Lưu')) ?></button>
                 </div>
             </form>
         </div>

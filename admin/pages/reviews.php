@@ -52,11 +52,11 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
 require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 ?>
 <div class="mb-4">
-    <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;">Quản lý đánh giá</h2>
-    <p class="text-secondary mb-0 small">Duyệt, từ chối hoặc xóa đánh giá của người dùng về phòng tập và huấn luyện viên</p>
+    <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;"><?= gf_h(gf_t('Quản lý đánh giá')) ?></h2>
+    <p class="text-secondary mb-0 small"><?= gf_h(gf_t('Duyệt, từ chối hoặc xóa đánh giá của người dùng về phòng tập và huấn luyện viên')) ?></p>
 </div>
-<?php if (!empty($_GET['deleted'])): ?><div class="alert alert-success">Đã xóa đánh giá.</div><?php endif; ?>
-<form method="get" class="admin-card p-3 mb-4"><div class="row g-3"><div class="col-md-7"><input class="form-control admin-input" name="q" value="<?= gf_h($reviewSearch) ?>" placeholder="⌕  Tìm kiếm nội dung đánh giá..."></div><div class="col-md-3"><select name="status" class="form-select admin-input"><option value="">Tất cả trạng thái</option><?php foreach(['pending'=>'Chờ duyệt','approved'=>'Đã duyệt','rejected'=>'Từ chối'] as $sv=>$sl): ?><option value="<?= $sv ?>" <?= $reviewStatus===$sv?'selected':'' ?>><?= $sl ?></option><?php endforeach; ?></select></div><div class="col-md-2"><button class="btn btn-light border w-100">Lọc</button></div></div></form>
+<?php if (!empty($_GET['deleted'])): ?><div class="alert alert-success"><?= gf_h(gf_t('Đã xóa đánh giá.')) ?></div><?php endif; ?>
+<form method="get" class="admin-card p-3 mb-4"><div class="row g-3"><div class="col-md-7"><input class="form-control admin-input" name="q" value="<?= gf_h($reviewSearch) ?>" placeholder="<?= gf_h(gf_t('⌕  Tìm kiếm nội dung đánh giá...')) ?>"></div><div class="col-md-3"><select name="status" class="form-select admin-input"><option value=""><?= gf_h(gf_t('Tất cả trạng thái')) ?></option><?php foreach(['pending'=>'Chờ duyệt','approved'=>'Đã duyệt','rejected'=>'Từ chối'] as $sv=>$sl): ?><option value="<?= $sv ?>" <?= $reviewStatus===$sv?'selected':'' ?>><?= gf_h($sl) ?></option><?php endforeach; ?></select></div><div class="col-md-2"><button class="btn btn-light border w-100"><?= gf_h(gf_t('Lọc')) ?></button></div></div></form>
 <?php
 gf_admin_table_open([
     'id'        => 'reviewsTable',
@@ -97,18 +97,18 @@ gf_admin_table_open([
     <td class="text-end pe-3 text-nowrap">
         <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#reviewModal<?= (int)$r['id'] ?>" title="Xem"><i class="fa-solid fa-eye"></i></button>
         <?php if ($r['status']==='pending'): ?>
-        <form method="post" class="d-inline"><?= gf_csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><input type="hidden" name="action" value="approve"><button class="btn btn-action btn-outline-success" title="Duyệt"><i class="fa-solid fa-check"></i></button></form>
-        <button type="button" class="btn btn-action btn-action-delete" data-bs-toggle="modal" data-bs-target="#rejectModal<?= (int)$r['id'] ?>" title="Từ chối"><i class="fa-solid fa-xmark"></i></button>
+        <form method="post" class="d-inline"><?= gf_csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><input type="hidden" name="action" value="approve"><button class="btn btn-action btn-outline-success" title="<?= gf_h(gf_t('Duyệt')) ?>"><i class="fa-solid fa-check"></i></button></form>
+        <button type="button" class="btn btn-action btn-action-delete" data-bs-toggle="modal" data-bs-target="#rejectModal<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Từ chối')) ?>"><i class="fa-solid fa-xmark"></i></button>
         <?php else: ?>
         <form method="post" class="d-inline js-confirm-submit"
-            data-confirm-title="Xóa đánh giá"
-            data-confirm-message="Bạn có chắc chắn muốn xóa đánh giá này? Thao tác có thể ảnh hưởng điểm trung bình nếu đánh giá đang được duyệt."
-            data-confirm-label="Xóa đánh giá"
+            data-confirm-title="<?= gf_h(gf_t('Xóa đánh giá')) ?>"
+            data-confirm-message="<?= gf_h(gf_t('Bạn có chắc chắn muốn xóa đánh giá này? Thao tác có thể ảnh hưởng điểm trung bình nếu đánh giá đang được duyệt.')) ?>"
+            data-confirm-label="<?= gf_h(gf_t('Xóa đánh giá')) ?>"
             data-confirm-danger="1">
             <?= gf_csrf_field() ?>
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
             <input type="hidden" name="action" value="delete">
-            <button class="btn btn-action btn-action-delete" title="Xóa đánh giá"><i class="fa-solid fa-trash"></i></button>
+            <button class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t('Xóa đánh giá')) ?>"><i class="fa-solid fa-trash"></i></button>
         </form>
         <?php endif; ?>
     </td>
@@ -129,7 +129,7 @@ gf_admin_table_close([
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
             <div class="modal-header border-bottom-0 pb-0">
-                <h5 class="modal-title fw-bold">Nội dung đánh giá</h5>
+                <h5 class="modal-title fw-bold"><?= gf_h(gf_t('Nội dung đánh giá')) ?></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -147,15 +147,15 @@ gf_admin_table_close([
                 </div>
                 <?php if ($r['status'] === 'rejected' && !empty($r['reject_reason'])): ?>
                     <div class="mt-3 p-3 bg-danger-subtle text-danger rounded-3 small">
-                        <i class="fa-solid fa-circle-exclamation me-1"></i><strong>Lý do từ chối:</strong> <?= gf_h($r['reject_reason']) ?>
+                        <i class="fa-solid fa-circle-exclamation me-1"></i><strong><?= gf_h(gf_t('Lý do từ chối:')) ?></strong> <?= gf_h($r['reject_reason']) ?>
                     </div>
                 <?php endif; ?>
                 <div class="mt-2 text-end text-muted small">
-                    Ngày gửi: <?= gf_h(date('d/m/Y H:i', strtotime($r['created_at']))) ?>
+                    <?= gf_h(gf_t('Ngày gửi:')) ?> <?= gf_h(date('d/m/Y H:i', strtotime($r['created_at']))) ?>
                 </div>
             </div>
             <div class="modal-footer border-top-0 pt-0">
-                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal"><?= gf_h(gf_t('Đóng')) ?></button>
             </div>
         </div>
     </div>
@@ -171,17 +171,17 @@ gf_admin_table_close([
                 <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
                 <input type="hidden" name="action" value="reject">
                 <div class="modal-header border-bottom-0 pb-0">
-                    <h5 class="modal-title fw-bold text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Từ chối đánh giá</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    <h5 class="modal-title fw-bold text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i><?= gf_h(gf_t('Từ chối đánh giá')) ?></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= gf_h(gf_t('Đóng')) ?>"></button>
                 </div>
                 <div class="modal-body py-3">
                     <div class="bg-light p-3 rounded-3 mb-3 small">
                         <div class="d-flex justify-content-between mb-1">
-                            <span class="text-secondary">Người đánh giá:</span>
+                            <span class="text-secondary"><?= gf_h(gf_t('Người đánh giá:')) ?></span>
                             <span class="fw-semibold text-dark"><?= gf_h($r['full_name']) ?></span>
                         </div>
                         <div class="d-flex justify-content-between mb-1">
-                            <span class="text-secondary">Đối tượng:</span>
+                            <span class="text-secondary"><?= gf_h(gf_t('Đối tượng:')) ?></span>
                             <span class="fw-semibold text-dark"><?= gf_h($r['gym_name'] ?: ($r['trainer_name'] ? 'Huấn luyện viên: ' . $r['trainer_name'] : '—')) ?></span>
                         </div>
                         <div class="mt-2 text-muted fst-italic border-top pt-2">
@@ -189,17 +189,17 @@ gf_admin_table_close([
                         </div>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label fw-semibold small" for="rejectReasonInput<?= (int)$r['id'] ?>">Lý do từ chối <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="reason" id="rejectReasonInput<?= (int)$r['id'] ?>" rows="3" required data-required-msg="Vui lòng nhập lý do từ chối." placeholder="Nhập lý do từ chối đánh giá (bắt buộc, không được để trống)..." maxlength="255"></textarea>
+                        <label class="form-label fw-semibold small" for="rejectReasonInput<?= (int)$r['id'] ?>"><?= gf_h(gf_t('Lý do từ chối')) ?> <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="reason" id="rejectReasonInput<?= (int)$r['id'] ?>" rows="3" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập lý do từ chối.')) ?>" placeholder="<?= gf_h(gf_t('Nhập lý do từ chối đánh giá (bắt buộc, không được để trống)...')) ?>" maxlength="255"></textarea>
                         <div class="invalid-feedback d-block reject-reason-error d-none"></div>
                         <div class="form-text small text-secondary">
-                            Lý do là trường bắt buộc (1–255 ký tự). Không được để trống hoặc chỉ chứa khoảng trắng.
+                            <?= gf_h(gf_t('Lý do là trường bắt buộc (1–255 ký tự). Không được để trống hoặc chỉ chứa khoảng trắng.')) ?>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
-                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-semibold">Xác nhận từ chối</button>
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal"><?= gf_h(gf_t('Hủy')) ?></button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-semibold"><?= gf_h(gf_t('Xác nhận từ chối')) ?></button>
                 </div>
             </form>
         </div>
@@ -236,7 +236,7 @@ function validateRejectForm(form) {
         return false;
     }
     if (reason.length > 255) {
-        showError('Lý do từ chối không được vượt quá 255 ký tự.');
+        showError(gfT('Lý do từ chối không được vượt quá 255 ký tự.'));
         return false;
     }
     const submitBtn = form.querySelector('button[type="submit"]');

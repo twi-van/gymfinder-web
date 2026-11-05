@@ -280,9 +280,9 @@ require dirname(__DIR__, 2) . '/includes/header.php';
 <main class="flex-grow-1">
     <div class="container text-center py-5 mt-5">
         <div class="mb-4"><span class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm" style="width:100px;height:100px"><i class="fa-solid fa-user text-secondary" style="font-size:40px;color:#cbd5e1!important"></i></span></div>
-        <h2 class="fw-bold mb-3">Đăng nhập để xem hồ sơ</h2>
-        <p class="text-secondary mx-auto mb-4" style="max-width:500px">Vui lòng đăng nhập để xem và cập nhật thông tin cá nhân, ảnh đại diện và mật khẩu.</p>
-        <a href="<?= gf_h(gf_url('pages/auth/login.php?redirect=' . urlencode(gf_url('pages/user/profile.php')))) ?>" class="btn btn-primary rounded-pill px-5 py-2 fw-semibold">Đăng nhập / Đăng ký</a>
+        <h2 class="fw-bold mb-3"><?= gf_h(gf_t('Đăng nhập để xem hồ sơ')) ?></h2>
+        <p class="text-secondary mx-auto mb-4" style="max-width:500px"><?= gf_h(gf_t('Vui lòng đăng nhập để xem và cập nhật thông tin cá nhân, ảnh đại diện và mật khẩu.')) ?></p>
+        <a href="<?= gf_h(gf_url('pages/auth/login.php?redirect=' . urlencode(gf_url('pages/user/profile.php')))) ?>" class="btn btn-primary rounded-pill px-5 py-2 fw-semibold"><?= gf_h(gf_t('Đăng nhập / Đăng ký')) ?></a>
     </div>
 </main>
 <?php else: ?>
@@ -290,14 +290,14 @@ require dirname(__DIR__, 2) . '/includes/header.php';
     <?php if ($msg): ?>
         <div class="alert alert-success d-flex align-items-center mb-4 rounded-3 shadow-sm">
             <i class="fa-solid fa-circle-check fs-5 me-2"></i>
-            <div><?= gf_h($msg) ?></div>
+            <div><?= gf_h(gf_t((string) $msg)) ?></div>
         </div>
     <?php endif; ?>
 
     <?php if ($error): ?>
         <div class="alert alert-danger d-flex align-items-center mb-4 rounded-3 shadow-sm">
             <i class="fa-solid fa-circle-exclamation fs-5 me-2"></i>
-            <div><?= gf_h($error) ?></div>
+            <div><?= gf_h(gf_t((string) $error)) ?></div>
         </div>
     <?php endif; ?>
 
@@ -308,12 +308,12 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         <div class="profile-hero">
             <div class="profile-avatar-wrap">
                 <img id="profileAvatar" src="<?= gf_h(gf_avatar($user['avatar_url'] ?? null, !empty($user['avatar_url']) ? (int)$user['id'] : 0, $user['full_name'])) ?>" class="profile-avatar" alt="Avatar">
-                <button class="avatar-camera edit-only-element" type="button" aria-label="Chọn ảnh đại diện" onclick="document.getElementById('avatarFile').click()"><i class="fa-solid fa-camera"></i></button>
+                <button class="avatar-camera edit-only-element" type="button" aria-label="<?= gf_h(gf_t('Chọn ảnh đại diện')) ?>" onclick="document.getElementById('avatarFile').click()"><i class="fa-solid fa-camera"></i></button>
             </div>
             <div>
                 <h2 class="fw-bold mb-1" style="font-size: 24px; color: #0f172a;"><?= gf_h($user['full_name']) ?></h2>
                 <div class="text-secondary mb-2" style="font-size: 15px;"><?= gf_h($user['email']) ?></div>
-                <button type="button" class="btn-remove-avatar edit-only-element" onclick="removeProfileAvatar()"><i class="fa-solid fa-trash-can me-1"></i>Xóa ảnh đại diện</button>
+                <button type="button" class="btn-remove-avatar edit-only-element" onclick="removeProfileAvatar()"><i class="fa-solid fa-trash-can me-1"></i><?= gf_h(gf_t('Xóa ảnh đại diện')) ?></button>
             </div>
         </div>
 
@@ -322,32 +322,32 @@ require dirname(__DIR__, 2) . '/includes/header.php';
             <div class="profile-panel-header">
                 <div class="profile-icon-badge"><i class="fa-regular fa-user"></i></div>
                 <div>
-                    <h3 class="fw-bold fs-5 mb-0 text-dark">Thông tin cá nhân</h3>
-                    <div class="text-secondary small">Chi tiết họ tên, số điện thoại và email liên hệ của bạn</div>
+                    <h3 class="fw-bold fs-5 mb-0 text-dark"><?= gf_h(gf_t('Thông tin cá nhân')) ?></h3>
+                    <div class="text-secondary small"><?= gf_h(gf_t('Chi tiết họ tên, số điện thoại và email liên hệ của bạn')) ?></div>
                 </div>
             </div>
 
             <div class="row g-4 mb-4">
                 <div class="col-md-6">
-                    <div class="profile-label">Họ và tên</div>
+                    <div class="profile-label"><?= gf_h(gf_t('Họ và tên')) ?></div>
                     <div class="profile-value"><?= gf_h($user['full_name']) ?></div>
                 </div>
                 <div class="col-md-6">
-                    <div class="profile-label">Số điện thoại</div>
+                    <div class="profile-label"><?= gf_h(gf_t('Số điện thoại')) ?></div>
                     <div class="profile-value"><?= gf_h($user['phone'] ?: 'Chưa cập nhật') ?></div>
                 </div>
                 <div class="col-md-12">
-                    <div class="profile-label">Email (Không thể thay đổi)</div>
+                    <div class="profile-label"><?= gf_h(gf_t('Email (Không thể thay đổi)')) ?></div>
                     <div class="profile-value d-flex align-items-center gap-2">
                         <span><?= gf_h($user['email']) ?></span>
-                        <span class="badge bg-secondary-subtle text-secondary fw-normal" style="font-size: 12px;"><i class="fa-solid fa-lock me-1"></i>Cố định</span>
+                        <span class="badge bg-secondary-subtle text-secondary fw-normal" style="font-size: 12px;"><i class="fa-solid fa-lock me-1"></i><?= gf_h(gf_t('Cố định')) ?></span>
                     </div>
                 </div>
             </div>
 
             <div class="text-end pt-2">
                 <button type="button" class="btn btn-outline-primary rounded-pill px-4 fw-semibold" onclick="document.getElementById('profilePage').classList.add('editing')">
-                    <i class="fa-solid fa-pen me-2"></i>Chỉnh sửa thông tin
+                    <i class="fa-solid fa-pen me-2"></i><?= gf_h(gf_t('Chỉnh sửa thông tin')) ?>
                 </button>
             </div>
         </div>
@@ -361,32 +361,32 @@ require dirname(__DIR__, 2) . '/includes/header.php';
             <div class="profile-panel-header">
                 <div class="profile-icon-badge"><i class="fa-solid fa-user-pen"></i></div>
                 <div>
-                    <h3 class="fw-bold fs-5 mb-0 text-dark">Chỉnh sửa thông tin cá nhân</h3>
-                    <div class="text-secondary small">Cập nhật họ tên và số điện thoại của tài khoản</div>
+                    <h3 class="fw-bold fs-5 mb-0 text-dark"><?= gf_h(gf_t('Chỉnh sửa thông tin cá nhân')) ?></h3>
+                    <div class="text-secondary small"><?= gf_h(gf_t('Cập nhật họ tên và số điện thoại của tài khoản')) ?></div>
                 </div>
             </div>
 
             <div class="row g-4 mb-4">
                 <div class="col-md-6">
-                    <label class="form-label profile-label" for="profileName">Họ và tên <span class="text-danger">*</span></label>
-                    <input id="profileName" class="form-control profile-edit-input" name="full_name" value="<?= gf_h($user['full_name']) ?>" required data-required-msg="Vui lòng nhập họ và tên." placeholder="Nhập họ và tên...">
+                    <label class="form-label profile-label" for="profileName"><?= gf_h(gf_t('Họ và tên')) ?> <span class="text-danger">*</span></label>
+                    <input id="profileName" class="form-control profile-edit-input" name="full_name" value="<?= gf_h($user['full_name']) ?>" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập họ và tên.')) ?>" placeholder="<?= gf_h(gf_t('Nhập họ và tên...')) ?>">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label profile-label" for="profilePhone">Số điện thoại</label>
-                    <input id="profilePhone" class="form-control profile-edit-input" name="phone" value="<?= gf_h($user['phone'] ?? '') ?>" placeholder="Nhập số điện thoại...">
+                    <label class="form-label profile-label" for="profilePhone"><?= gf_h(gf_t('Số điện thoại')) ?></label>
+                    <input id="profilePhone" class="form-control profile-edit-input" name="phone" value="<?= gf_h($user['phone'] ?? '') ?>" placeholder="<?= gf_h(gf_t('Nhập số điện thoại...')) ?>">
                 </div>
                 <div class="col-md-12">
-                    <label class="form-label profile-label">Email (Không thể thay đổi)</label>
+                    <label class="form-label profile-label"><?= gf_h(gf_t('Email (Không thể thay đổi)')) ?></label>
                     <input class="form-control profile-edit-input bg-light text-muted" value="<?= gf_h($user['email']) ?>" disabled readonly>
                 </div>
             </div>
 
             <div class="d-flex gap-3 pt-2">
                 <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold">
-                    <i class="fa-solid fa-check me-2"></i>Lưu thay đổi
+                    <i class="fa-solid fa-check me-2"></i><?= gf_h(gf_t('Lưu thay đổi')) ?>
                 </button>
                 <button type="button" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold" onclick="cancelProfileEdit()">
-                    Hủy
+                    <?= gf_h(gf_t('Hủy')) ?>
                 </button>
             </div>
         </form>
@@ -399,8 +399,8 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         <div class="profile-panel-header">
             <div class="profile-icon-badge"><i class="fa-solid fa-shield-halved"></i></div>
             <div>
-                <h3 class="fw-bold fs-5 mb-0 text-dark">Bảo mật tài khoản</h3>
-                <div class="text-secondary small">Thay đổi mật khẩu đăng nhập định kỳ để tăng cường an toàn thông tin</div>
+                <h3 class="fw-bold fs-5 mb-0 text-dark"><?= gf_h(gf_t('Bảo mật tài khoản')) ?></h3>
+                <div class="text-secondary small"><?= gf_h(gf_t('Thay đổi mật khẩu đăng nhập định kỳ để tăng cường an toàn thông tin')) ?></div>
             </div>
         </div>
 
@@ -411,30 +411,30 @@ require dirname(__DIR__, 2) . '/includes/header.php';
             <input type="hidden" name="action" value="change_password">
             <div class="row g-4 mb-4">
                 <div class="col-12 col-md-4">
-                    <label class="form-label profile-label" for="currentPassword">Mật khẩu hiện tại <span class="text-danger">*</span></label>
+                    <label class="form-label profile-label" for="currentPassword"><?= gf_h(gf_t('Mật khẩu hiện tại')) ?> <span class="text-danger">*</span></label>
                     <div class="input-group input-password-wrap">
-                        <input type="password" id="currentPassword" name="current_password" class="form-control profile-edit-input" placeholder="Nhập mật khẩu hiện tại..." required data-required-msg="Vui lòng nhập mật khẩu hiện tại." autocomplete="current-password">
-                        <button class="btn btn-toggle-password" type="button" aria-label="Hiện hoặc ẩn mật khẩu" onclick="togglePasswordVisibility('currentPassword', this)">
+                        <input type="password" id="currentPassword" name="current_password" class="form-control profile-edit-input" placeholder="<?= gf_h(gf_t('Nhập mật khẩu hiện tại...')) ?>" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập mật khẩu hiện tại.')) ?>" autocomplete="current-password">
+                        <button class="btn btn-toggle-password" type="button" aria-label="<?= gf_h(gf_t('Hiện hoặc ẩn mật khẩu')) ?>" onclick="togglePasswordVisibility('currentPassword', this)">
                             <i class="fa-regular fa-eye"></i>
                         </button>
                     </div>
                 </div>
 
                 <div class="col-12 col-md-4">
-                    <label class="form-label profile-label" for="newPassword">Mật khẩu mới <span class="text-danger">*</span></label>
+                    <label class="form-label profile-label" for="newPassword"><?= gf_h(gf_t('Mật khẩu mới')) ?> <span class="text-danger">*</span></label>
                     <div class="input-group input-password-wrap">
-                        <input type="password" id="newPassword" name="new_password" class="form-control profile-edit-input" placeholder="Tối thiểu 8 ký tự..." minlength="8" required data-required-msg="Vui lòng nhập mật khẩu mới." data-minlength-msg="Mật khẩu tối thiểu 8 ký tự." autocomplete="new-password">
-                        <button class="btn btn-toggle-password" type="button" aria-label="Hiện hoặc ẩn mật khẩu" onclick="togglePasswordVisibility('newPassword', this)">
+                        <input type="password" id="newPassword" name="new_password" class="form-control profile-edit-input" placeholder="<?= gf_h(gf_t('Tối thiểu 8 ký tự...')) ?>" minlength="8" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập mật khẩu mới.')) ?>" data-minlength-msg="<?= gf_h(gf_t('Mật khẩu tối thiểu 8 ký tự.')) ?>" autocomplete="new-password">
+                        <button class="btn btn-toggle-password" type="button" aria-label="<?= gf_h(gf_t('Hiện hoặc ẩn mật khẩu')) ?>" onclick="togglePasswordVisibility('newPassword', this)">
                             <i class="fa-regular fa-eye"></i>
                         </button>
                     </div>
                 </div>
 
                 <div class="col-12 col-md-4">
-                    <label class="form-label profile-label" for="confirmPassword">Xác nhận mật khẩu mới <span class="text-danger">*</span></label>
+                    <label class="form-label profile-label" for="confirmPassword"><?= gf_h(gf_t('Xác nhận mật khẩu mới')) ?> <span class="text-danger">*</span></label>
                     <div class="input-group input-password-wrap">
-                        <input type="password" id="confirmPassword" name="confirm_password" class="form-control profile-edit-input" placeholder="Nhập lại mật khẩu mới..." minlength="8" required data-required-msg="Vui lòng xác nhận mật khẩu mới." data-minlength-msg="Mật khẩu tối thiểu 8 ký tự." autocomplete="new-password">
-                        <button class="btn btn-toggle-password" type="button" aria-label="Hiện hoặc ẩn mật khẩu" onclick="togglePasswordVisibility('confirmPassword', this)">
+                        <input type="password" id="confirmPassword" name="confirm_password" class="form-control profile-edit-input" placeholder="<?= gf_h(gf_t('Nhập lại mật khẩu mới...')) ?>" minlength="8" required data-required-msg="<?= gf_h(gf_t('Vui lòng xác nhận mật khẩu mới.')) ?>" data-minlength-msg="<?= gf_h(gf_t('Mật khẩu tối thiểu 8 ký tự.')) ?>" autocomplete="new-password">
+                        <button class="btn btn-toggle-password" type="button" aria-label="<?= gf_h(gf_t('Hiện hoặc ẩn mật khẩu')) ?>" onclick="togglePasswordVisibility('confirmPassword', this)">
                             <i class="fa-regular fa-eye"></i>
                         </button>
                     </div>
@@ -443,14 +443,14 @@ require dirname(__DIR__, 2) . '/includes/header.php';
 
             <div class="d-flex align-items-center justify-content-between pt-2 flex-wrap gap-3">
                 <div class="small text-secondary">
-                    <i class="fa-solid fa-circle-info me-1"></i>Mật khẩu mới cần từ 8 đến 72 ký tự và khác mật khẩu hiện tại.
+                    <i class="fa-solid fa-circle-info me-1"></i><?= gf_h(gf_t('Mật khẩu mới cần từ 8 đến 72 ký tự và khác mật khẩu hiện tại.')) ?>
                 </div>
                 <div class="d-flex gap-2">
                     <button type="reset" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold" onclick="resetPasswordForm()">
-                        Làm lại
+                        <?= gf_h(gf_t('Làm lại')) ?>
                     </button>
                     <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold">
-                        <i class="fa-solid fa-key me-2"></i>Đổi mật khẩu
+                        <i class="fa-solid fa-key me-2"></i><?= gf_h(gf_t('Đổi mật khẩu')) ?>
                     </button>
                 </div>
             </div>
@@ -462,13 +462,13 @@ require dirname(__DIR__, 2) . '/includes/header.php';
     <!-- ========================================================================= -->
     <div class="profile-panel profile-account text-center">
         <div class="profile-icon-badge mx-auto mb-3" style="background:#fee2e2; color:#ef4444;"><i class="fa-solid fa-arrow-right-from-bracket"></i></div>
-        <h3 class="fw-bold fs-5 mb-1 text-dark">Tài khoản</h3>
-        <p class="text-secondary small mb-4">Kết thúc phiên đăng nhập của bạn trên thiết bị này</p>
+        <h3 class="fw-bold fs-5 mb-1 text-dark"><?= gf_h(gf_t('Tài khoản')) ?></h3>
+        <p class="text-secondary small mb-4"><?= gf_h(gf_t('Kết thúc phiên đăng nhập của bạn trên thiết bị này')) ?></p>
         <div>
             <form method="post" action="<?= gf_h(gf_url('pages/auth/logout.php')) ?>">
                 <?= gf_csrf_field() ?>
                 <button class="btn btn-logout" type="submit">
-                    <i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Đăng xuất
+                    <i class="fa-solid fa-arrow-right-from-bracket me-2"></i><?= gf_h(gf_t('Đăng xuất')) ?>
                 </button>
             </form>
         </div>
@@ -491,12 +491,12 @@ function previewProfileAvatar(input) {
     if (!input.files || !input.files[0]) return;
     const file = input.files[0];
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-        typeof window.gfToast === 'function' ? window.gfToast('File không hợp lệ. Vui lòng chọn ảnh định dạng JPG, PNG hoặc WEBP.', 'warning') : null;
+        typeof window.gfToast === 'function' ? window.gfToast(gfT('File không hợp lệ. Vui lòng chọn ảnh định dạng JPG, PNG hoặc WEBP.'), 'warning') : null;
         input.value = '';
         return;
     }
     if (file.size > 5 * 1024 * 1024) {
-        typeof window.gfToast === 'function' ? window.gfToast('Dung lượng file vượt quá giới hạn 5 MB. Vui lòng chọn ảnh nhỏ hơn.', 'warning') : null;
+        typeof window.gfToast === 'function' ? window.gfToast(gfT('Dung lượng file vượt quá giới hạn 5 MB. Vui lòng chọn ảnh nhỏ hơn.'), 'warning') : null;
         input.value = '';
         return;
     }
@@ -535,11 +535,11 @@ function togglePasswordVisibility(inputId, btn) {
     if (input.type === 'password') {
         input.type = 'text';
         icon.className = 'fa-regular fa-eye-slash';
-        btn.setAttribute('title', 'Ẩn mật khẩu');
+        btn.setAttribute('title', gfT('Ẩn mật khẩu'));
     } else {
         input.type = 'password';
         icon.className = 'fa-regular fa-eye';
-        btn.setAttribute('title', 'Hiện mật khẩu');
+        btn.setAttribute('title', gfT('Hiện mật khẩu'));
     }
 }
 
@@ -565,19 +565,19 @@ async function handlePasswordSubmit(e) {
     const cp = document.getElementById('confirmPassword').value;
 
     if (!cur) {
-        showPasswordAlert('danger', 'Vui lòng nhập mật khẩu hiện tại.');
+        showPasswordAlert('danger', gfT('Vui lòng nhập mật khẩu hiện tại.'));
         return;
     }
     if (np.length < 8) {
-        showPasswordAlert('warning', 'Mật khẩu mới phải có tối thiểu 8 ký tự.');
+        showPasswordAlert('warning', gfT('Mật khẩu mới phải có tối thiểu 8 ký tự.'));
         return;
     }
     if (np === cur) {
-        showPasswordAlert('warning', 'Mật khẩu mới phải khác mật khẩu hiện tại.');
+        showPasswordAlert('warning', gfT('Mật khẩu mới phải khác mật khẩu hiện tại.'));
         return;
     }
     if (np !== cp) {
-        showPasswordAlert('danger', 'Xác nhận mật khẩu mới không trùng khớp với mật khẩu mới.');
+        showPasswordAlert('danger', gfT('Xác nhận mật khẩu mới không trùng khớp với mật khẩu mới.'));
         return;
     }
 
@@ -604,7 +604,7 @@ async function handlePasswordSubmit(e) {
             resetPasswordForm();
         } else {
             const data = await res.json().catch(() => null);
-            const errMsg = data?.error?.message || data?.error || 'Không thể đổi mật khẩu. Vui lòng kiểm tra lại mật khẩu hiện tại.';
+            const errMsg = data?.error?.message || data?.error || gfT('Không thể đổi mật khẩu. Vui lòng kiểm tra lại mật khẩu hiện tại.');
             showPasswordAlert('danger', '<i class="fa-solid fa-circle-exclamation me-2"></i>' + errMsg);
         }
     } catch (err) {

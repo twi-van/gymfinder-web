@@ -14,15 +14,15 @@ $GLOBALS['gf_ui_feedback_rendered'] = true;
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
             <div class="modal-header border-bottom-0 pb-0">
-                <h5 class="modal-title fw-bold" id="gfConfirmTitle">Xác nhận</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" data-gf-confirm-cancel aria-label="Đóng"></button>
+                <h5 class="modal-title fw-bold" id="gfConfirmTitle"><?= gf_h(gf_t('Xác nhận')) ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" data-gf-confirm-cancel aria-label="<?= gf_h(gf_t('Đóng')) ?>"></button>
             </div>
             <div class="modal-body py-3">
-                <p class="mb-0" id="gfConfirmMessage">Bạn có chắc chắn muốn thực hiện thao tác này?</p>
+                <p class="mb-0" id="gfConfirmMessage"><?= gf_h(gf_t('Bạn có chắc chắn muốn thực hiện thao tác này?')) ?></p>
             </div>
             <div class="modal-footer border-top-0 pt-0">
-                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" data-gf-confirm-cancel id="gfConfirmCancel">Hủy</button>
-                <button type="button" class="btn btn-danger rounded-pill px-4 fw-semibold" id="gfConfirmOk">Xác nhận</button>
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" data-gf-confirm-cancel id="gfConfirmCancel"><?= gf_h(gf_t('Hủy')) ?></button>
+                <button type="button" class="btn btn-danger rounded-pill px-4 fw-semibold" id="gfConfirmOk"><?= gf_h(gf_t('Xác nhận')) ?></button>
             </div>
         </div>
     </div>

@@ -38,10 +38,10 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
 require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 ?>
 <div class="mb-4">
-    <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;">Quản lý người dùng</h2>
-    <p class="text-secondary mb-0 small">Theo dõi tài khoản, vai trò và khóa/mở khóa người dùng trên hệ thống</p>
+    <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;"><?= gf_h(gf_t('Quản lý người dùng')) ?></h2>
+    <p class="text-secondary mb-0 small"><?= gf_h(gf_t('Theo dõi tài khoản, vai trò và khóa/mở khóa người dùng trên hệ thống')) ?></p>
 </div>
-<form method="get" class="admin-card p-3 mb-4"><div class="row g-3"><div class="col-md-5"><input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q']??'') ?>" placeholder="⌕  Tìm theo tên, email, số điện thoại..."></div><div class="col-md-3"><select class="form-select admin-input" name="role"><option value="">Tất cả vai trò</option><option value="admin"<?= (($_GET['role']??'')==='admin')?' selected':'' ?>>Quản trị viên</option><option value="user"<?= (($_GET['role']??'')==='user')?' selected':'' ?>>Người dùng</option></select></div><div class="col-md-2"><select class="form-select admin-input" name="status"><option value="">Trạng thái</option><option value="active"<?= (($_GET['status']??'')==='active')?' selected':'' ?>>Hoạt động</option><option value="locked"<?= (($_GET['status']??'')==='locked')?' selected':'' ?>>Bị khóa</option></select></div><div class="col-md-2"><button class="btn btn-light border w-100">Lọc</button></div></div></form>
+<form method="get" class="admin-card p-3 mb-4"><div class="row g-3"><div class="col-md-5"><input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q']??'') ?>" placeholder="<?= gf_h(gf_t('⌕  Tìm theo tên, email, số điện thoại...')) ?>"></div><div class="col-md-3"><select class="form-select admin-input" name="role"><option value=""><?= gf_h(gf_t('Tất cả vai trò')) ?></option><option value="admin"<?= (($_GET['role']??'')==='admin')?' selected':'' ?>><?= gf_h(gf_t('Quản trị viên')) ?></option><option value="user"<?= (($_GET['role']??'')==='user')?' selected':'' ?>><?= gf_h(gf_t('Người dùng')) ?></option></select></div><div class="col-md-2"><select class="form-select admin-input" name="status"><option value="">Trạng thái</option><option value="active"<?= (($_GET['status']??'')==='active')?' selected':'' ?>><?= gf_h(gf_t('Hoạt động')) ?></option><option value="locked"<?= (($_GET['status']??'')==='locked')?' selected':'' ?>><?= gf_h(gf_t('Bị khóa')) ?></option></select></div><div class="col-md-2"><button class="btn btn-light border w-100"><?= gf_h(gf_t('Lọc')) ?></button></div></div></form>
 <?php
 gf_admin_table_open([
     'id'        => 'usersTable',
@@ -81,7 +81,7 @@ gf_admin_table_open([
             <input type="hidden" name="status" value="<?= $r['status']==='active'?'locked':'active' ?>">
             <button class="btn btn-action <?= $r['status']==='active'?'btn-action-delete':'btn-action-edit' ?>" title="<?= $r['status']==='active'?'Khóa':'Mở khóa' ?>"><i class="fa-solid <?= $r['status']==='active'?'fa-lock':'fa-lock-open' ?>"></i></button>
         </form>
-        <?php else: ?><button class="btn btn-action btn-action-delete" disabled title="Không thể khóa tài khoản quản trị viên"><i class="fa-solid fa-lock"></i></button>
+        <?php else: ?><button class="btn btn-action btn-action-delete" disabled title="<?= gf_h(gf_t('Không thể khóa tài khoản quản trị viên')) ?>"><i class="fa-solid fa-lock"></i></button>
         <?php endif; ?>
     </td>
 </tr>
@@ -101,20 +101,20 @@ gf_admin_table_close([
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
             <div class="modal-header border-bottom-0 pb-0">
-                <h5 class="modal-title fw-bold">Thông tin người dùng</h5>
+                <h5 class="modal-title fw-bold"><?= gf_h(gf_t('Thông tin người dùng')) ?></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="bg-light p-3 rounded-3 small">
-                    <p class="mb-2"><strong>Họ tên:</strong> <?= gf_h($r['full_name']) ?></p>
-                    <p class="mb-2"><strong>Email đăng nhập:</strong> <?= gf_h($r['email']) ?></p>
-                    <p class="mb-2"><strong>Số điện thoại:</strong> <?= gf_h($r['phone']??'—') ?></p>
-                    <p class="mb-2"><strong>Vai trò:</strong> <span class="admin-badge <?= $r['role']==='admin'?'badge-warning':'badge-neutral' ?>"><?= gf_h(gf_role_label($r['role']??'')) ?></span></p>
-                    <p class="mb-0"><strong>Trạng thái:</strong> <span class="admin-badge <?= $r['status']==='active'?'badge-success':'badge-danger' ?>"><?= $r['status']==='active'?'Hoạt động':'Bị khóa' ?></span></p>
+                    <p class="mb-2"><strong><?= gf_h(gf_t('Họ tên:')) ?></strong> <?= gf_h($r['full_name']) ?></p>
+                    <p class="mb-2"><strong><?= gf_h(gf_t('Email đăng nhập:')) ?></strong> <?= gf_h($r['email']) ?></p>
+                    <p class="mb-2"><strong><?= gf_h(gf_t('Số điện thoại:')) ?></strong> <?= gf_h($r['phone']??'—') ?></p>
+                    <p class="mb-2"><strong><?= gf_h(gf_t('Vai trò:')) ?></strong> <span class="admin-badge <?= $r['role']==='admin'?'badge-warning':'badge-neutral' ?>"><?= gf_h(gf_role_label($r['role']??'')) ?></span></p>
+                    <p class="mb-0"><strong><?= gf_h(gf_t('Trạng thái:')) ?></strong> <span class="admin-badge <?= $r['status']==='active'?'badge-success':'badge-danger' ?>"><?= $r['status']==='active'?'Hoạt động':'Bị khóa' ?></span></p>
                 </div>
             </div>
             <div class="modal-footer border-top-0 pt-0">
-                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal"><?= gf_h(gf_t('Đóng')) ?></button>
             </div>
         </div>
     </div>
