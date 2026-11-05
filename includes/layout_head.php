@@ -19,7 +19,8 @@ $styleVersion = (string) @filemtime(dirname(__DIR__) . '/assets/css/style.css');
     <link rel="stylesheet" href="<?= gf_h(gf_url('assets/css/style.css')) ?>?v=<?= gf_h($styleVersion) ?>">
     <link rel="stylesheet" href="<?= gf_h(gf_url('assets/css/components.css')) ?>">
     <?php foreach ($extraCss as $href): ?>
-        <link rel="stylesheet" href="<?= gf_h(gf_url($href)) ?>">
+        <?php $extraCssFile = dirname(__DIR__) . '/' . ltrim($href, '/'); ?>
+        <link rel="stylesheet" href="<?= gf_h(gf_url($href)) ?>?v=<?= gf_h((string) (@filemtime($extraCssFile) ?: $styleVersion)) ?>">
     <?php endforeach; ?>
     <script>
     window.GF_LANG = <?= json_encode(gf_lang()) ?>;

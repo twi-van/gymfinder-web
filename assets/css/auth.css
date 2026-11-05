@@ -39,24 +39,39 @@ body.auth-page {
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 2rem 1.5rem;
 }
 
-.auth-lang-switch {
-    position: absolute;
-    top: 1.25rem;
-    left: 1.25rem;
-    z-index: 2;
+/* Bỏ lề container lồng bên trong để logo và tiêu đề thẳng với mép trang. */
+.auth-wrapper > .container {
+    max-width: none;
+    width: 100%;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 /* Left Content */
 .auth-left {
-    padding-right: 4rem;
+    padding-right: 2rem;
 }
 
 .auth-brand {
     display: flex;
-    margin-bottom: 2.5rem;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    min-width: 0;
+}
+
+.auth-brand .brand-logo,
+.auth-brand .logo {
+    min-width: 0;
+}
+
+.auth-brand .gf-lang-switch {
+    flex: 0 0 auto;
 }
 
 .auth-badge {
@@ -389,7 +404,7 @@ body.auth-page {
 @media (max-width: 991.98px) {
     .auth-left {
         padding-right: 0;
-        margin-bottom: 3rem;
+        margin-bottom: 2rem;
     }
     .auth-wrapper {
         padding: 2rem 1rem;

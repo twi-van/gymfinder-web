@@ -26,13 +26,13 @@ $extraCss = ['assets/css/auth.css'];
 require dirname(__DIR__, 2) . '/includes/layout_head.php';
 ?>
 <div class="auth-wrapper">
-    <div class="auth-lang-switch"><?= gf_lang_switch_html() ?></div>
     <div class="container">
-        <div class="row align-items-center">
+        <div class="row align-items-start">
             <div class="col-lg-6 mb-5 mb-lg-0">
-                <div class="auth-left pe-lg-4">
-                    <div class="auth-brand mb-5">
+                <div class="auth-left">
+                    <div class="auth-brand mb-4">
                         <?= gf_logo('login') ?>
+                        <?= gf_lang_switch_html() ?>
                     </div>
                     <div class="auth-badge"><i class="fa-solid fa-circle" style="font-size:6px"></i> <?= gf_h(gf_t('KHÁM PHÁ • KẾT NỐI • TẬP LUYỆN')) ?></div>
                     <h1 class="auth-heading"><?= gf_h(gf_t('Lấy lại')) ?> <span class="text-primary"><?= gf_h(gf_t('quyền truy cập')) ?></span><br><?= gf_h(gf_t('tài khoản của bạn')) ?></h1>
