@@ -26,6 +26,14 @@
     let hasTurns = root.dataset.hasHistory === '1';
     let sessionId = Number(root.dataset.sessionId || 0) || 0;
 
+    function gfPlace(name) {
+        const text = String(name || '');
+        if (window.GF_LANG !== 'en') return text;
+        return text
+            .replace(/Quận\s+(\d+)/g, 'District $1')
+            .replace(/Thành phố Hồ Chí Minh|TP\.\s*Hồ Chí Minh|TP\.HCM|TPHCM/g, 'Ho Chi Minh City');
+    }
+
     function esc(s) {
         return String(s ?? '')
             .replace(/&/g, '&amp;')
@@ -124,16 +132,21 @@
         const cats = Array.isArray(g.categories) ? g.categories : [];
         const priceMin = Number(g.price_min || 0);
         const priceMax = Number(g.price_max || 0);
+        const en = window.GF_LANG === 'en';
+        const money = (n) => en
+            ? `${Number(n).toLocaleString('en-US')} VND`
+            : `${Number(n).toLocaleString('vi-VN')}₫`;
         let price = '';
         if (priceMin || priceMax) {
             price = priceMin === priceMax
-                ? `${priceMin.toLocaleString('vi-VN')}₫`
-                : `${priceMin.toLocaleString('vi-VN')}₫ – ${priceMax.toLocaleString('vi-VN')}₫`;
+                ? `${money(priceMin)}${en ? '/month' : ''}`
+                : `${money(priceMin)} – ${money(priceMax)}${en ? '/month' : ''}`;
         }
+        const catLabel = cats.slice(0, 2).map((name) => gfT(String(name))).join(', ');
         return {
             id: g.id,
             title: g.name || '',
-            subtitle: [g.district, cats.slice(0, 2).join(', ')].filter(Boolean).join(' · '),
+            subtitle: [gfPlace(g.district || ''), catLabel].filter(Boolean).join(' · '),
             meta: `${price}${price ? ' · ' : ''}★ ${Number(g.avg_rating || 0).toFixed(1)}`,
             image: g.cover_image_url || g.image || '',
         };
@@ -147,10 +160,10 @@
             id: t.id,
             title: t.full_name || '',
             subtitle: [
-                districts.slice(0, 2).join(', '),
+                districts.slice(0, 2).map((name) => gfPlace(String(name))).join(', '),
                 `${Number(t.years_experience || 0)} ${gfT('năm KN')}`,
             ].filter(Boolean).join(' · '),
-            meta: `${specs.slice(0, 2).join(' · ')} · ★ ${Number(t.avg_rating || 0).toFixed(1)}`,
+            meta: `${specs.slice(0, 2).map((name) => gfT(String(name))).join(' · ')} · ★ ${Number(t.avg_rating || 0).toFixed(1)}`,
             image: t.avatar_url || t.image || '',
             is_avatar: true,
         };

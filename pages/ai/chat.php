@@ -182,7 +182,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                                         <p class="gf-ai-result-card-title"><?= gf_h((string) ($g['name'] ?? '')) ?></p>
                                         <p class="gf-ai-result-card-sub">
                                             <i class="fa-solid fa-location-dot me-1"></i><?= gf_h((string) ($g['district'] ?? '')) ?>
-                                            <?php if ($cats !== []): ?> · <?= gf_h(implode(', ', array_slice($cats, 0, 2))) ?><?php endif; ?>
+                                            <?php if ($cats !== []): ?> · <?= gf_h(implode(', ', array_map(static fn ($name) => gf_t((string) $name), array_slice($cats, 0, 2)))) ?><?php endif; ?>
                                         </p>
                                         <p class="gf-ai-result-card-meta">
                                             <?= gf_h($price) ?>
@@ -215,7 +215,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                                             <?= (int) ($t['years_experience'] ?? 0) ?> <?= gf_h(gf_t('năm KN')) ?>
                                         </p>
                                         <p class="gf-ai-result-card-meta">
-                                            <?= gf_h(implode(' · ', array_slice($specs, 0, 2))) ?>
+                                            <?= gf_h(implode(' · ', array_map(static fn ($name) => gf_t((string) $name), array_slice($specs, 0, 2)))) ?>
                                             · <i class="fa-solid fa-star text-warning"></i> <?= number_format((float) ($t['avg_rating'] ?? 0), 1) ?>
                                         </p>
                                     </div>
@@ -249,7 +249,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                         name="message"
                         rows="1"
                         maxlength="500"
-                        placeholder="<?= $aiReady ? 'Nhập câu hỏi về gym hoặc HLV…' : 'AI chưa cấu hình' ?>"
+                        placeholder="<?= gf_h($aiReady ? 'Nhập câu hỏi về gym hoặc HLV…' : 'AI chưa cấu hình') ?>"
                         <?= $aiReady ? '' : 'disabled' ?>
                     ></textarea>
                     <button type="submit" class="gf-ai-chat-send" <?= $aiReady ? '' : 'disabled' ?> aria-label="<?= gf_h(gf_t('Gửi')) ?>">

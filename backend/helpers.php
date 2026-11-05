@@ -21,6 +21,40 @@ function gf_url(string $path = ''): string
     return $prefix . ltrim($path, '/');
 }
 
+/** Origin công khai (https://host), có tính proxy Railway. */
+function gf_request_origin(): string
+{
+    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+    $host = (string) ($_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? 'localhost');
+    $host = trim(explode(',', $host)[0]);
+    if (!preg_match('/^[A-Za-z0-9.-]+(?::\d+)?$/', $host)) {
+        $host = 'localhost';
+    }
+    return ($https ? 'https' : 'http') . '://' . $host;
+}
+
+/** URL tuyệt đối của một path trong app, dùng cho redirect OAuth. */
+function gf_absolute_url(string $path): string
+{
+    $script = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+    $dir = trim(dirname($script), '/');
+    $root = str_replace('\\', '/', (string) ($GLOBALS['GF_ROOT'] ?? ''));
+    $file = str_replace('\\', '/', (string) (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') ?: ''));
+    $rel = '';
+    if ($root !== '' && $file !== '' && str_starts_with($file, $root)) {
+        $rel = trim(str_replace($root, '', dirname($file)), '/');
+    }
+    $depth = $rel === '' ? 0 : substr_count($rel, '/') + 1;
+    $parts = ($dir === '' || $dir === '.') ? [] : explode('/', $dir);
+    if ($depth > 0 && count($parts) >= $depth) {
+        $parts = array_slice($parts, 0, -$depth);
+    }
+    $base = implode('/', $parts);
+    $prefix = $base === '' ? '' : '/' . $base;
+    return gf_request_origin() . $prefix . '/' . ltrim($path, '/');
+}
+
 function gf_h(?string $s): string
 {
     $text = (string) $s;

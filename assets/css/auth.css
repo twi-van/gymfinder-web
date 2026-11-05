@@ -42,6 +42,13 @@ body.auth-page {
     padding: 2rem;
 }
 
+.auth-lang-switch {
+    position: absolute;
+    top: 1.25rem;
+    left: 1.25rem;
+    z-index: 2;
+}
+
 /* Left Content */
 .auth-left {
     padding-right: 4rem;
@@ -247,10 +254,43 @@ body.auth-page {
     transform: translateY(-1px);
 }
 
+.auth-btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    background: #fff;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 13px 14px;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: border-color 0.2s, background-color 0.2s, transform 0.2s;
+}
+
+.auth-btn-google:hover {
+    color: #0f172a;
+    border-color: var(--primary-color);
+    background: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+.auth-google-mark {
+    flex: 0 0 auto;
+    display: block;
+}
+
 .auth-divider {
     display: flex;
     align-items: center;
     margin: 32px 0;
+}
+
+.auth-divider--tight {
+    margin: 18px 0 22px;
 }
 
 .auth-divider hr {

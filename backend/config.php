@@ -43,6 +43,22 @@ $aiValue = static function (string $envName, string $key, mixed $default = '') u
     return $value !== false && $value !== '' ? $value : ($aiLocal[$key] ?? $default);
 };
 
+$googleLocal = [];
+$googleLocalFile = __DIR__ . DIRECTORY_SEPARATOR . 'google.local.php';
+if (is_file($googleLocalFile)) {
+    $loadedGoogle = require $googleLocalFile;
+    if (is_array($loadedGoogle)) {
+        $googleLocal = $loadedGoogle;
+    }
+}
+$googleValue = static function (string $envName, string $key) use ($googleLocal): string {
+    $value = getenv($envName);
+    if ($value !== false && $value !== '') {
+        return (string) $value;
+    }
+    return (string) ($googleLocal[$key] ?? '');
+};
+
 return [
     'driver' => getenv('GF_DB_DRIVER') ?: 'mysql',
     'sqlite_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'gymfinder.sqlite',
@@ -71,5 +87,9 @@ return [
         'model' => (string) $aiValue('GF_AI_MODEL', 'model', 'qwen/qwen3.8-27b'),
         'base_url' => (string) $aiValue('GF_AI_BASE_URL', 'base_url'),
         'enabled' => filter_var($aiValue('GF_AI_ENABLED', 'enabled', true), FILTER_VALIDATE_BOOL),
+    ],
+    'google' => [
+        'client_id' => $googleValue('GF_GOOGLE_CLIENT_ID', 'client_id'),
+        'client_secret' => $googleValue('GF_GOOGLE_CLIENT_SECRET', 'client_secret'),
     ],
 ];

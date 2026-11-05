@@ -3,29 +3,19 @@ require_once dirname(__DIR__, 2) . '/backend/bootstrap.php';
 $error = '';
 if (isset($_GET['error']) && $_GET['error'] === 'locked') {
     $error = 'Tài khoản đã bị khóa.';
+} elseif (isset($_GET['error'])) {
+    $error = gf_google_oauth_error_message((string) $_GET['error']);
+}
+$googleHref = gf_url('pages/auth/google_start.php?from=login');
+if (!empty($_GET['redirect'])) {
+    $googleHref .= '&redirect=' . rawurlencode((string) $_GET['redirect']);
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $remember = !empty($_POST['remember']);
     $res = gf_login(trim((string)($_POST['login'] ?? '')), (string)($_POST['password'] ?? ''), $remember);
     if ($res['ok']) {
         $to = trim((string)($_GET['redirect'] ?? $_POST['redirect'] ?? ''));
-        // Only allow same-site redirects; a crafted redirect must not send users off-site.
-        if ($to !== '' && (str_starts_with($to, '//') || str_contains($to, '\\') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $to))) {
-            $to = '';
-        }
-        if (($res['user']['role'] ?? '') === 'admin') {
-            // Admin vào portal; chỉ giữ redirect nếu đã trỏ vào /admin/.
-            $adminHome = gf_url('admin/pages/dashboard.php');
-            $isAdminPath = $to !== '' && (
-                str_contains($to, '/admin/')
-                || str_starts_with($to, 'admin/')
-                || str_starts_with(ltrim($to, '/'), 'admin/')
-            );
-            $to = $isAdminPath ? $to : $adminHome;
-        } elseif ($to === '') {
-            $to = gf_url('index.php');
-        }
-        gf_redirect($to);
+        gf_redirect(gf_post_login_path($res['user'], $to));
     }
     $error = $res['error'];
 }
@@ -35,7 +25,7 @@ $extraCss = ['assets/css/auth.css'];
 require dirname(__DIR__, 2) . '/includes/layout_head.php';
 ?>
 <div class="auth-wrapper">
-    <div class="position-absolute top-0 end-0 p-3" style="z-index:2;"><?= gf_lang_switch_html() ?></div>
+    <div class="auth-lang-switch"><?= gf_lang_switch_html() ?></div>
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6 mb-5 mb-lg-0">
@@ -59,6 +49,8 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                     <p class="auth-card-subtitle"><?= gf_h(gf_t('Chào mừng bạn quay trở lại! Vui lòng đăng nhập để tiếp tục.')) ?></p>
                     <?php if (!empty($_GET['registered'])): ?><div class="alert alert-success"><?= gf_h(gf_t('Đăng ký thành công. Vui lòng đăng nhập.')) ?></div><?php endif; ?>
                     <?php if ($error): ?><div class="alert alert-danger"><?= gf_h(gf_t((string) $error)) ?></div><?php endif; ?>
+                    <?= gf_google_button($googleHref, 'Đăng nhập bằng Google') ?>
+                    <div class="auth-divider auth-divider--tight"><hr><span><?= gf_h(gf_t('HOẶC DÙNG EMAIL')) ?></span><hr></div>
                     <form method="post" id="loginForm" class="js-auth-validate" novalidate>
                         <?= gf_csrf_field() ?>
                         <input type="hidden" name="redirect" value="<?= gf_h($_GET['redirect'] ?? '') ?>">

@@ -1,0 +1,14 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * Copy thành backend/google.local.php (file này không được commit).
+ * Hoặc đặt GF_GOOGLE_CLIENT_ID / GF_GOOGLE_CLIENT_SECRET trên Railway.
+ *
+ * Authorized redirect URI trong Google Cloud Console phải trùng:
+ *   https://gymfinder-wed.up.railway.app/pages/auth/google_callback.php
+ */
+return [
+    'client_id' => '',
+    'client_secret' => '',
+];

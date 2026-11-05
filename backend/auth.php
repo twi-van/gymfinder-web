@@ -99,13 +99,38 @@ function gf_login(string $login, string $password, bool $remember = false): arra
     if ($user['status'] === 'locked') {
         return ['ok' => false, 'error' => 'Tài khoản đã bị khóa.', 'code' => 'ACCOUNT_LOCKED'];
     }
+    gf_establish_session($user, $remember);
+    return ['ok' => true, 'user' => $user];
+}
+
+/** Mở phiên sau khi mật khẩu hoặc Google đã được xác thực. */
+function gf_establish_session(array $user, bool $remember = false): void
+{
     if (!headers_sent()) {
         session_regenerate_id(true);
     }
     $_SESSION['user_id'] = (int) $user['id'];
     gf_apply_remember_cookie($remember);
     gf_pdo()->prepare('UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?')->execute([(int) $user['id']]);
-    return ['ok' => true, 'user' => $user];
+}
+
+/** Chỉ giữ redirect cùng site. Admin luôn về cổng quản trị trừ khi đích đã nằm trong /admin/. */
+function gf_post_login_path(array $user, string $to): string
+{
+    $to = trim($to);
+    if ($to !== '' && (str_starts_with($to, '//') || str_contains($to, '\\') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $to))) {
+        $to = '';
+    }
+    if (($user['role'] ?? '') === 'admin') {
+        $adminHome = gf_url('admin/pages/dashboard.php');
+        $isAdminPath = $to !== '' && (
+            str_contains($to, '/admin/')
+            || str_starts_with($to, 'admin/')
+            || str_starts_with(ltrim($to, '/'), 'admin/')
+        );
+        return $isAdminPath ? $to : $adminHome;
+    }
+    return $to !== '' ? $to : gf_url('index.php');
 }
 
 /**
