@@ -287,8 +287,34 @@ body {
     font-weight: 600;
 }
 
+/* Lang switch sits right of Log in / Sign up, same row and height. */
+.navbar .navbar-user-actions {
+    flex-wrap: nowrap;
+}
+.navbar .navbar-user-actions > .btn,
+.navbar .navbar-user-actions .gf-lang-switch {
+    height: 40px;
+    flex: 0 0 auto;
+}
+.navbar .navbar-user-actions > .btn {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+.navbar .navbar-user-actions .gf-lang-switch a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-width: 2.5rem;
+    padding: 0 0.75rem;
+    font-size: 13px;
+}
+
 /* Keep the admin shortcut and account menu aligned on desktop headers. */
-@media (min-width: 1200px) {
+@media (min-width: 992px) {
     .navbar .navbar-user-actions {
         flex-wrap: nowrap !important;
         flex: 0 0 auto;

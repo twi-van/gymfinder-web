@@ -25,7 +25,6 @@ $isAdmin = ($user && ($user['role'] ?? '') === 'admin');
                 <?php endif; ?>
             </ul>
             <div class="d-flex flex-wrap align-items-center gap-2 mt-3 mt-lg-0 navbar-user-actions">
-                <?= gf_lang_switch_html() ?>
                 <?php if ($user): ?>
                     <?php if ($isAdmin): ?>
                         <a href="<?= gf_h(gf_url('admin/pages/dashboard.php')) ?>" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold navbar-admin-shortcut" style="font-size: 13px;">
@@ -64,6 +63,7 @@ $isAdmin = ($user && ($user['role'] ?? '') === 'admin');
                     <a href="<?= gf_h(gf_url('pages/auth/login.php')) ?>" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-semibold" style="font-size: 14px;"><?= gf_h(gf_t('Đăng nhập')) ?></a>
                     <a href="<?= gf_h(gf_url('pages/auth/register.php')) ?>" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold" style="font-size: 14px;"><?= gf_h(gf_t('Đăng ký')) ?></a>
                 <?php endif; ?>
+                <?= gf_lang_switch_html() ?>
             </div>
         </div>
     </div>

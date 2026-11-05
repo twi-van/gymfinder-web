@@ -796,7 +796,7 @@ PROMPT;
     $chat = gf_ai_chat([
         ['role' => 'system', 'content' => $system],
         ['role' => 'user', 'content' => (string) $userPayload],
-    ], 1400);
+    ], 700);
 
     if (!$chat['ok']) {
         $rawErr = (string) ($chat['error'] ?? 'Không gọi được AI.');
