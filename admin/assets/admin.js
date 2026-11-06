@@ -53,8 +53,59 @@
         }, true);
     }
 
+    function initSidebarCollapse() {
+        var sidebar = document.getElementById('sidebar');
+        var btn = document.getElementById('sidebarCollapse');
+        if (!sidebar || !btn) return;
+
+        var desktop = window.matchMedia('(min-width: 992px)');
+        var storageKey = 'gfAdminSidebarCollapsed';
+
+        function storedCollapsed() {
+            try {
+                return localStorage.getItem(storageKey) === '1';
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function sync() {
+            var collapsed = desktop.matches && storedCollapsed();
+            document.documentElement.classList.toggle('admin-sidebar-collapsed', collapsed);
+            btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+            var label = collapsed ? btn.dataset.labelExpand : btn.dataset.labelCollapse;
+            if (label) {
+                btn.setAttribute('aria-label', label);
+                btn.title = label;
+            }
+            sidebar.querySelectorAll('a.nav-link[data-label]').forEach(function (link) {
+                if (collapsed) link.title = link.dataset.label;
+                else link.removeAttribute('title');
+            });
+        }
+
+        sync();
+        btn.addEventListener('click', function () {
+            if (!desktop.matches) return;
+            try {
+                localStorage.setItem(storageKey, storedCollapsed() ? '0' : '1');
+            } catch (e) {}
+            sync();
+        });
+
+        function onDesktopChange() {
+            sync();
+        }
+        if (typeof desktop.addEventListener === 'function') {
+            desktop.addEventListener('change', onDesktopChange);
+        } else if (typeof desktop.addListener === 'function') {
+            desktop.addListener(onDesktopChange);
+        }
+    }
+
     ready(function () {
         document.querySelectorAll('.admin-drag-scroll').forEach(initAdminDragScroll);
+        initSidebarCollapse();
 
         var sidebar = document.getElementById('sidebar');
         var overlay = document.getElementById('sidebarOverlay');

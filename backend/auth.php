@@ -7,7 +7,7 @@ function gf_current_user(): ?array
     if (!$id) {
         return null;
     }
-    $st = gf_pdo()->prepare('SELECT id, full_name, email, phone, avatar_url, role, status, created_at, updated_at FROM users WHERE id = ?');
+    $st = gf_pdo()->prepare('SELECT id, full_name, email, phone, avatar_url, role, status, must_change_password, temp_password_expires_at, created_at, updated_at FROM users WHERE id = ?');
     $st->execute([(int) $id]);
     $user = $st->fetch() ?: null;
     return $user ?: null;
@@ -44,7 +44,70 @@ function gf_require_admin(): array
         echo gf_h(gf_t('Bạn không có quyền truy cập khu vực quản trị.'));
         exit;
     }
+    if (gf_user_must_change_password($user) && !gf_is_force_password_request()) {
+        gf_redirect(gf_url('admin/pages/force_password.php'));
+    }
     return $user;
+}
+
+function gf_user_must_change_password(array $user): bool
+{
+    return (int) ($user['must_change_password'] ?? 0) === 1;
+}
+
+function gf_is_force_password_request(): bool
+{
+    $script = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+    $path = str_replace('\\', '/', (string) (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/'));
+    return str_contains($script, '/admin/pages/force_password.php')
+        || str_contains($path, '/admin/pages/force_password.php');
+}
+
+function gf_is_logout_request(): bool
+{
+    $script = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+    $path = str_replace('\\', '/', (string) (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/'));
+    return str_ends_with($script, '/pages/auth/logout.php')
+        || str_ends_with($script, '/auth/logout.php')
+        || str_ends_with($path, '/pages/auth/logout.php')
+        || str_ends_with($path, '/auth/logout.php');
+}
+
+/** Temporary admin password is stored in UTC on SQLite and in PHP local time on MySQL. */
+function gf_temp_password_expired(array $user): bool
+{
+    if (!gf_user_must_change_password($user)) {
+        return false;
+    }
+    $raw = trim((string) ($user['temp_password_expires_at'] ?? ''));
+    if ($raw === '') {
+        return true;
+    }
+    $driver = gf_pdo()->getAttribute(PDO::ATTR_DRIVER_NAME);
+    if ($driver === 'sqlite' && !str_ends_with(strtoupper($raw), 'UTC')) {
+        $raw .= ' UTC';
+    }
+    $expiresAt = strtotime($raw);
+    return $expiresAt === false || $expiresAt < time();
+}
+
+function gf_temp_password_expiry_value(int $timestamp): string
+{
+    $driver = gf_pdo()->getAttribute(PDO::ATTR_DRIVER_NAME);
+    return $driver === 'sqlite'
+        ? gmdate('Y-m-d H:i:s', $timestamp)
+        : date('Y-m-d H:i:s', $timestamp);
+}
+
+function gf_temporary_password(): string
+{
+    $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+    $max = strlen($alphabet) - 1;
+    $password = '';
+    for ($i = 0; $i < 10; $i++) {
+        $password .= $alphabet[random_int(0, $max)];
+    }
+    return $password;
 }
 
 /**
@@ -58,6 +121,13 @@ function gf_enforce_admin_portal_only(): void
         return;
     }
     if (($user['status'] ?? '') === 'locked') {
+        return;
+    }
+
+    if (gf_user_must_change_password($user)) {
+        if (!gf_is_force_password_request() && !gf_is_logout_request()) {
+            gf_redirect(gf_url('admin/pages/force_password.php'));
+        }
         return;
     }
 
@@ -81,23 +151,32 @@ function gf_enforce_admin_portal_only(): void
 function gf_login(string $login, string $password, bool $remember = false): array
 {
     $raw = trim($login);
+    $user = false;
     if (filter_var($raw, FILTER_VALIDATE_EMAIL)) {
         $st = gf_pdo()->prepare('SELECT * FROM users WHERE email = ? LIMIT 1');
         $st->execute([strtolower($raw)]);
+        $user = $st->fetch();
     } else {
         $phone = preg_replace('/[\s().-]+/', '', $raw);
-        if ($raw === '' || !is_string($phone) || !preg_match('/^\+?[0-9]{9,14}$/D', $phone)) {
-            return ['ok' => false, 'error' => 'Email/số điện thoại hoặc mật khẩu không đúng.', 'code' => 'INVALID_CREDENTIALS'];
+        if (is_string($phone) && preg_match('/^\+?[0-9]{9,14}$/D', $phone)) {
+            $st = gf_pdo()->prepare('SELECT * FROM users WHERE phone = ? LIMIT 1');
+            $st->execute([$phone]);
+            $user = $st->fetch();
+        } elseif ($raw !== '') {
+            $st = gf_pdo()->prepare('SELECT * FROM users WHERE full_name = ?');
+            $st->execute([$raw]);
+            $rows = $st->fetchAll();
+            $user = count($rows) === 1 ? $rows[0] : false;
         }
-        $st = gf_pdo()->prepare('SELECT * FROM users WHERE phone = ? LIMIT 1');
-        $st->execute([$phone]);
     }
-    $user = $st->fetch();
     if (!$user || !password_verify($password, $user['password_hash'])) {
         return ['ok' => false, 'error' => 'Email/số điện thoại hoặc mật khẩu không đúng.', 'code' => 'INVALID_CREDENTIALS'];
     }
     if ($user['status'] === 'locked') {
         return ['ok' => false, 'error' => 'Tài khoản đã bị khóa.', 'code' => 'ACCOUNT_LOCKED'];
+    }
+    if (gf_temp_password_expired($user)) {
+        return ['ok' => false, 'error' => 'Mật khẩu tạm đã hết hạn. Nhờ quản trị viên gửi lại mật khẩu mới.', 'code' => 'TEMP_PASSWORD_EXPIRED'];
     }
     gf_establish_session($user, $remember);
     return ['ok' => true, 'user' => $user];
@@ -117,6 +196,9 @@ function gf_establish_session(array $user, bool $remember = false): void
 /** Chỉ giữ redirect cùng site. Admin luôn về cổng quản trị trừ khi đích đã nằm trong /admin/. */
 function gf_post_login_path(array $user, string $to): string
 {
+    if (gf_user_must_change_password($user)) {
+        return gf_url('admin/pages/force_password.php');
+    }
     $to = trim($to);
     if ($to !== '' && (str_starts_with($to, '//') || str_contains($to, '\\') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $to))) {
         $to = '';
@@ -249,6 +331,29 @@ function gf_change_password(int $userId, string $current, string $new): array
     return ['ok' => true];
 }
 
+/** Replace the system temporary password and open the admin account. */
+function gf_complete_forced_password(int $userId, string $new, string $confirm): array
+{
+    if ($new !== $confirm) {
+        return ['ok' => false, 'error' => 'Xác nhận mật khẩu mới không trùng khớp.'];
+    }
+    if (!gf_password_ok($new)) {
+        return ['ok' => false, 'error' => 'Mật khẩu mới phải từ 8 đến 72 byte UTF-8.'];
+    }
+    $st = gf_pdo()->prepare('SELECT password_hash, must_change_password FROM users WHERE id=?');
+    $st->execute([$userId]);
+    $row = $st->fetch();
+    if (!$row || (int) ($row['must_change_password'] ?? 0) !== 1) {
+        return ['ok' => false, 'error' => 'Tài khoản không còn cần đổi mật khẩu tạm.'];
+    }
+    if (password_verify($new, (string) $row['password_hash'])) {
+        return ['ok' => false, 'error' => 'Không được dùng mật khẩu do hệ thống cấp. Hãy đặt mật khẩu khác.'];
+    }
+    gf_pdo()->prepare('UPDATE users SET password_hash=?, must_change_password=0, temp_password_expires_at=NULL WHERE id=?')
+        ->execute([password_hash($new, PASSWORD_BCRYPT), $userId]);
+    return ['ok' => true];
+}
+
 /**
  * Quên mật khẩu bằng OTP email (6 số).
  * OTP lưu bảng password_reset_otps; session chỉ giữ id yêu cầu + trạng thái UI.
@@ -321,7 +426,7 @@ function gf_password_reset_begin(string $login): array
     $st->execute([$login]);
     $user = $st->fetch() ?: null;
     $mask = gf_password_reset_mask_login($login);
-    $expiresTs = time() + 600;
+    $expiresTs = time() + 300;
     $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     $resetId = null;
     $demoOtp = null;

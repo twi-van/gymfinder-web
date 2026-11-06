@@ -42,7 +42,7 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                             <div class="auth-feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
                             <div>
                                 <div class="auth-feature-title"><?= gf_h(gf_t('Bảo mật bằng OTP')) ?></div>
-                                <p class="auth-feature-desc"><?= gf_h(gf_t('Mã 6 số có hiệu lực trong 10 phút')) ?></p>
+                                <p class="auth-feature-desc"><?= gf_h(gf_t('Mã 6 số có hiệu lực trong 5 phút')) ?></p>
                             </div>
                         </div>
                         <div class="auth-feature">

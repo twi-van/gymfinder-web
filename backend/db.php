@@ -38,12 +38,17 @@ function gf_db_init(array $config): void
         }
         gf_db_ensure_sqlite_user_schema($pdo);
         gf_db_ensure_trainer_link_restrict($pdo);
+        gf_db_ensure_catalog_delete_restrict($pdo);
         gf_db_ensure_trainer_experience_range($pdo);
     }
     gf_db_backfill_trainer_links($pdo);
     gf_db_ensure_demo_gym_gallery($pdo);
     gf_db_ensure_demo_trainer_avatars($pdo);
+    if (($config['driver'] ?? 'mysql') === 'mysql') {
+        gf_db_ensure_catalog_delete_restrict($pdo);
+    }
     gf_db_ensure_password_reset_otps($pdo);
+    gf_db_ensure_admin_invite_columns($pdo);
     gf_db_ensure_ai_chat_sessions($pdo);
     gf_db_ensure_category_labels_vi($pdo);
     gf_db_ensure_premium_exclusive($pdo);
@@ -449,6 +454,107 @@ function gf_db_ensure_trainer_link_restrict(PDO $pdo): void
     }
 }
 
+/**
+ * Loại phòng tập và tiện ích chỉ xóa được khi không còn phòng tập gắn.
+ * Xóa phòng tập vẫn gỡ liên kết của phòng đó.
+ */
+function gf_db_ensure_catalog_delete_restrict(PDO $pdo): void
+{
+    $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+    if ($driver === 'sqlite') {
+        gf_db_ensure_sqlite_catalog_delete_restrict($pdo);
+        return;
+    }
+    if ($driver !== 'mysql') {
+        return;
+    }
+    $links = [
+        ['gym_categories', 'category_id', 'categories', 'fk_gc_category'],
+        ['gym_amenities', 'amenity_id', 'amenities', 'fk_ga_amenity'],
+    ];
+    foreach ($links as [$table, $column, $referenced, $constraint]) {
+        try {
+            $st = $pdo->prepare(
+                'SELECT rc.CONSTRAINT_NAME, rc.DELETE_RULE
+                 FROM information_schema.REFERENTIAL_CONSTRAINTS rc
+                 JOIN information_schema.KEY_COLUMN_USAGE k
+                   ON k.CONSTRAINT_SCHEMA = rc.CONSTRAINT_SCHEMA
+                  AND k.CONSTRAINT_NAME = rc.CONSTRAINT_NAME
+                  AND k.TABLE_NAME = rc.TABLE_NAME
+                 WHERE rc.CONSTRAINT_SCHEMA = DATABASE()
+                   AND rc.TABLE_NAME = ?
+                   AND k.COLUMN_NAME = ?
+                   AND k.REFERENCED_TABLE_NAME = ?'
+            );
+            $st->execute([$table, $column, $referenced]);
+            $row = $st->fetch(PDO::FETCH_ASSOC);
+            if (!$row || strtoupper((string) $row['DELETE_RULE']) !== 'CASCADE') {
+                continue;
+            }
+            $name = (string) ($row['CONSTRAINT_NAME'] ?: $constraint);
+            $pdo->exec('ALTER TABLE `' . $table . '` DROP FOREIGN KEY `' . str_replace('`', '', $name) . '`');
+            $pdo->exec(
+                'ALTER TABLE `' . $table . '` ADD CONSTRAINT `' . str_replace('`', '', $constraint) . '` FOREIGN KEY (`' . $column . '`) REFERENCES `' . $referenced . '` (`id`) ON DELETE RESTRICT'
+            );
+        } catch (Throwable $e) {
+            error_log('GYMFINDER catalog delete restrict failed: ' . $e->getMessage());
+        }
+    }
+}
+
+function gf_db_ensure_sqlite_catalog_delete_restrict(PDO $pdo): void
+{
+    $needs = static function (string $table, string $column) use ($pdo): bool {
+        $exists = $pdo->prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?");
+        $exists->execute([$table]);
+        $tableExists = (bool) $exists->fetchColumn();
+        $exists->closeCursor();
+        if (!$tableExists) {
+            return false;
+        }
+        foreach ($pdo->query('PRAGMA foreign_key_list(' . $table . ')')->fetchAll() as $foreignKey) {
+            if ((string) $foreignKey['from'] === $column && strtoupper((string) $foreignKey['on_delete']) === 'CASCADE') {
+                return true;
+            }
+        }
+        return false;
+    };
+    if (!$needs('gym_categories', 'category_id') && !$needs('gym_amenities', 'amenity_id')) {
+        return;
+    }
+
+    $pdo->exec('PRAGMA busy_timeout = 5000');
+    $pdo->exec('PRAGMA foreign_keys = OFF');
+    $transactionStarted = false;
+    try {
+        $pdo->exec('BEGIN IMMEDIATE');
+        $transactionStarted = true;
+        if ($needs('gym_categories', 'category_id')) {
+            $pdo->exec('CREATE TABLE gym_categories_restrict (gym_id INTEGER NOT NULL, category_id INTEGER NOT NULL, PRIMARY KEY (gym_id, category_id), FOREIGN KEY (gym_id) REFERENCES gyms(id) ON DELETE CASCADE, FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT)');
+            $pdo->exec('INSERT INTO gym_categories_restrict (gym_id, category_id) SELECT gym_id, category_id FROM gym_categories');
+            $pdo->exec('DROP TABLE gym_categories');
+            $pdo->exec('ALTER TABLE gym_categories_restrict RENAME TO gym_categories');
+            $pdo->exec('CREATE INDEX IF NOT EXISTS idx_gc_category ON gym_categories(category_id)');
+        }
+        if ($needs('gym_amenities', 'amenity_id')) {
+            $pdo->exec('CREATE TABLE gym_amenities_restrict (gym_id INTEGER NOT NULL, amenity_id INTEGER NOT NULL, PRIMARY KEY (gym_id, amenity_id), FOREIGN KEY (gym_id) REFERENCES gyms(id) ON DELETE CASCADE, FOREIGN KEY (amenity_id) REFERENCES amenities(id) ON DELETE RESTRICT)');
+            $pdo->exec('INSERT INTO gym_amenities_restrict (gym_id, amenity_id) SELECT gym_id, amenity_id FROM gym_amenities');
+            $pdo->exec('DROP TABLE gym_amenities');
+            $pdo->exec('ALTER TABLE gym_amenities_restrict RENAME TO gym_amenities');
+            $pdo->exec('CREATE INDEX IF NOT EXISTS idx_ga_amenity ON gym_amenities(amenity_id)');
+        }
+        $pdo->exec('COMMIT');
+        $transactionStarted = false;
+    } catch (Throwable $e) {
+        if ($transactionStarted) {
+            $pdo->exec('ROLLBACK');
+        }
+        error_log('GYMFINDER catalog delete restrict failed: ' . $e->getMessage());
+    } finally {
+        $pdo->exec('PRAGMA foreign_keys = ON');
+    }
+}
+
 /** Bổ sung bảng OTP quên mật khẩu cho CSDL đã tạo trước đó. */
 function gf_db_ensure_password_reset_otps(PDO $pdo): void
 {
@@ -504,6 +610,36 @@ function gf_db_ensure_password_reset_otps(PDO $pdo): void
     } catch (Throwable $e) {
         error_log('GYMFINDER password_reset_otps ensure failed: ' . $e->getMessage());
         throw $e;
+    }
+}
+
+/** Cột mật khẩu tạm cho quản trị viên được mời. Idempotent cho SQLite và MySQL đang chạy. */
+function gf_db_ensure_admin_invite_columns(PDO $pdo): void
+{
+    $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+    if ($driver === 'sqlite') {
+        $names = [];
+        foreach ($pdo->query('PRAGMA table_info(users)')->fetchAll(PDO::FETCH_ASSOC) as $col) {
+            $names[] = (string) ($col['name'] ?? '');
+        }
+        if (!in_array('must_change_password', $names, true)) {
+            $pdo->exec('ALTER TABLE users ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0');
+        }
+        if (!in_array('temp_password_expires_at', $names, true)) {
+            $pdo->exec('ALTER TABLE users ADD COLUMN temp_password_expires_at TEXT');
+        }
+        return;
+    }
+    $existing = [];
+    $st = $pdo->query('SHOW COLUMNS FROM users');
+    foreach ($st ? $st->fetchAll(PDO::FETCH_ASSOC) : [] as $col) {
+        $existing[] = (string) ($col['Field'] ?? '');
+    }
+    if (!in_array('must_change_password', $existing, true)) {
+        $pdo->exec('ALTER TABLE users ADD COLUMN must_change_password TINYINT(1) NOT NULL DEFAULT 0 AFTER status');
+    }
+    if (!in_array('temp_password_expires_at', $existing, true)) {
+        $pdo->exec('ALTER TABLE users ADD COLUMN temp_password_expires_at DATETIME NULL AFTER must_change_password');
     }
 }
 

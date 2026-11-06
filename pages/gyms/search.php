@@ -25,9 +25,9 @@ $filters = [
     'keyword' => trim((string) ($_GET['keyword'] ?? '')),
     'district_id' => $_GET['district_id'] ?? '',
     'rating' => $_GET['rating'] ?? '',
-    'category_ids' => is_array($_GET['category_ids'] ?? null) ? array_values(array_map('intval', $_GET['category_ids'])) : [],
+    'category_ids' => is_array($_GET['category_ids'] ?? null) ? array_values(array_filter(array_map('intval', $_GET['category_ids']))) : [],
     'amenity_options' => is_array($_GET['amenities'] ?? null) ? array_values(array_map('strval', $_GET['amenities'])) : [],
-    'amenity_ids' => [],
+    'amenity_ids' => is_array($_GET['amenity_ids'] ?? null) ? array_values(array_filter(array_map('intval', $_GET['amenity_ids']))) : [],
     'has_pt' => $_GET['has_pt'] ?? '',
     'open_247' => $_GET['open_247'] ?? '',
     'women' => $_GET['women'] ?? '',
@@ -40,11 +40,40 @@ $filters = [
     'page' => max(1, (int)($_GET['page'] ?? 1)),
     'limit' => 8,
 ];
-$amenityIdMap = ['sauna' => 4, 'steam' => 4, 'dry_steam' => 4, 'wet_steam' => 4, 'locker' => 5, 'parking' => 2, 'shower' => 1, 'ac' => 6, 'water' => 7];
-$filters['amenity_ids'] = array_values(array_unique(array_filter(array_map(
-    static fn ($option) => $amenityIdMap[$option] ?? 0,
-    $filters['amenity_options']
-))));
+$districts = gf_list_districts();
+$categories = gf_list_categories();
+$amenities = gf_list_amenities();
+$legacyAmenitySlugs = [
+    'sauna' => 'xong-hoi',
+    'steam' => 'xong-hoi',
+    'dry_steam' => 'xong-hoi',
+    'wet_steam' => 'xong-hoi',
+    'locker' => 'tu-khoa',
+    'parking' => 'bai-giu-xe',
+    'shower' => 'phong-tam',
+    'ac' => 'dieu-hoa',
+    'water' => 'nuoc-uong-mien-phi',
+];
+$amenityIdsBySlug = [];
+foreach ($amenities as $amenity) {
+    $amenityIdsBySlug[(string) $amenity['slug']] = (int) $amenity['id'];
+}
+foreach ($filters['amenity_options'] as $option) {
+    $slug = $legacyAmenitySlugs[$option] ?? $option;
+    if (isset($amenityIdsBySlug[$slug])) {
+        $filters['amenity_ids'][] = $amenityIdsBySlug[$slug];
+    }
+}
+$knownAmenityIds = array_map(static fn ($amenity) => (int) $amenity['id'], $amenities);
+$filters['amenity_ids'] = array_values(array_unique(array_filter(
+    $filters['amenity_ids'],
+    static fn ($id) => in_array((int) $id, $knownAmenityIds, true)
+)));
+$knownCategoryIds = array_map(static fn ($cat) => (int) $cat['id'], $categories);
+$filters['category_ids'] = array_values(array_filter(
+    $filters['category_ids'],
+    static fn ($id) => in_array((int) $id, $knownCategoryIds, true)
+));
 
 $gymPage = gf_search_gyms_paged($filters);
 // Tự động lùi về trang hợp lệ gần nhất nếu trang hiện tại bị rỗng
@@ -53,9 +82,6 @@ if ($filters['page'] > 1 && empty($gymPage['items']) && (int)$gymPage['total'] >
     $gymPage = gf_search_gyms_paged($filters);
 }
 $gyms = $gymPage['items'];
-$districts = gf_list_districts();
-$categories = gf_list_categories();
-$amenities = gf_list_amenities();
 
 // Xây dựng danh sách Active Filter Chips
 $activeChips = [];
@@ -153,44 +179,29 @@ if (!empty($filters['weight_loss'])) {
         'remove_url' => '?' . http_build_query($q),
     ];
 }
-if (!empty($filters['amenity_options'])) {
-    $amenityNames = [
-        'sauna' => 'Xông hơi',
-        'steam' => 'Xông hơi',
-        'dry_steam' => 'Xông hơi',
-        'wet_steam' => 'Xông hơi',
-        'locker' => 'Tủ khóa',
-        'parking' => 'Bãi đỗ xe',
-        'shower' => 'Phòng tắm',
-        'ac' => 'Điều hòa',
-        'water' => 'Nước uống miễn phí',
-    ];
-    foreach ($filters['amenity_options'] as $opt) {
+if (!empty($filters['amenity_ids'])) {
+    foreach ($amenities as $amenity) {
+        $amenityId = (int) $amenity['id'];
+        if (!in_array($amenityId, $filters['amenity_ids'], true)) {
+            continue;
+        }
         $q = $_GET;
-        $q['amenities'] = array_values(array_filter($filters['amenity_options'], static fn($o) => $o !== $opt));
-        if (empty($q['amenities'])) unset($q['amenities']);
-        unset($q['page']);
+        $q['amenity_ids'] = array_values(array_filter($filters['amenity_ids'], static fn ($id) => (int) $id !== $amenityId));
+        if (empty($q['amenity_ids'])) {
+            unset($q['amenity_ids']);
+        }
+        unset($q['amenities'], $q['page']);
         $activeChips[] = [
-            'label' => $amenityNames[$opt] ?? $opt,
+            'label' => (string) $amenity['name'],
             'remove_url' => '?' . http_build_query($q),
         ];
     }
 }
-$figmaFeatures = [
-    ['id' => 'feature_fitness', 'label' => 'Gym phổ thông', 'category_id' => 1],
-    ['id' => 'feature_premium', 'label' => 'Gym cao cấp', 'category_id' => 2],
+$featureFlags = [
     ['id' => 'feature_247', 'label' => 'Mở cửa 24/7', 'name' => 'open_247'],
     ['id' => 'feature_pt', 'label' => 'Có huấn luyện viên (PT)', 'name' => 'has_pt'],
     ['id' => 'feature_women', 'label' => 'Dành cho nữ', 'name' => 'women'],
     ['id' => 'feature_weight_loss', 'label' => 'Hỗ trợ giảm cân', 'name' => 'weight_loss'],
-];
-$figmaAmenities = [
-    ['id' => 'amenity_sauna', 'key' => 'sauna', 'label' => 'Xông hơi', 'amenity_id' => 4],
-    ['id' => 'amenity_locker', 'key' => 'locker', 'label' => 'Tủ khóa', 'amenity_id' => 5],
-    ['id' => 'amenity_parking', 'key' => 'parking', 'label' => 'Bãi đỗ xe', 'amenity_id' => 2],
-    ['id' => 'amenity_ac', 'key' => 'ac', 'label' => 'Điều hòa', 'amenity_id' => 6],
-    ['id' => 'amenity_shower', 'key' => 'shower', 'label' => 'Phòng tắm', 'amenity_id' => 1],
-    ['id' => 'amenity_water', 'key' => 'water', 'label' => 'Nước uống miễn phí', 'amenity_id' => 7],
 ];
 $user = gf_current_user();
 $favGymIds = $user ? array_map(static fn ($g) => (int) $g['id'], gf_user_favorites((int)$user['id'])['gyms']) : [];
@@ -260,32 +271,37 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                     require dirname(__DIR__, 2) . '/includes/rating_star_filter.php';
                     ?>
                 </div>
+                <?php if ($categories): ?>
+                <div class="filter-group">
+                    <div class="filter-group-title"><?= gf_h(gf_t('Loại phòng tập')) ?></div>
+                    <?php foreach ($categories as $cat): ?>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="category_ids[]" id="category_<?= (int) $cat['id'] ?>" value="<?= (int) $cat['id'] ?>" <?= in_array((int) $cat['id'], $filters['category_ids'], true) ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="category_<?= (int) $cat['id'] ?>"><?= gf_h(gf_t((string) $cat['name'])) ?></label>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
                 <div class="filter-group">
                     <div class="filter-group-title"><?= gf_h(gf_t('Đặc điểm phòng tập')) ?></div>
-                    <?php foreach ($figmaFeatures as $feature): ?>
+                    <?php foreach ($featureFlags as $feature): $field = $feature['name']; $checked = !empty($filters[$field]); ?>
                         <div class="form-check mb-2">
-                            <?php if (isset($feature['category_id'])): ?>
-                                <input class="form-check-input" type="checkbox" name="category_ids[]" id="<?= gf_h($feature['id']) ?>" value="<?= (int)$feature['category_id'] ?>" <?= in_array((int)$feature['category_id'], $filters['category_ids'], true)?'checked':'' ?>>
-                            <?php else: $field = $feature['name'] ?? ''; $checked = $field !== '' && !empty($filters[$field]); ?>
-                                <input class="form-check-input" type="checkbox" <?= $field !== '' ? 'name="' . gf_h($field) . '"' : '' ?> value="1" id="<?= gf_h($feature['id']) ?>" <?= $checked?'checked':'' ?> <?= !empty($feature['disabled']) || $field === ''?'disabled title="' . gf_h(gf_t('Cơ sở dữ liệu hiện chưa có trường dữ liệu cho lựa chọn này')) . '"':'' ?>>
-                            <?php endif; ?>
+                            <input class="form-check-input" type="checkbox" name="<?= gf_h($field) ?>" value="1" id="<?= gf_h($feature['id']) ?>" <?= $checked ? 'checked' : '' ?>>
                             <label class="form-check-label" for="<?= gf_h($feature['id']) ?>"><?= gf_h(gf_t((string) $feature['label'])) ?></label>
                         </div>
                     <?php endforeach; ?>
                 </div>
+                <?php if ($amenities): ?>
                 <div class="filter-group">
                     <div class="filter-group-title"><?= gf_h(gf_t('Tiện ích')) ?></div>
-                    <?php foreach ($figmaAmenities as $amenity): ?>
+                    <?php foreach ($amenities as $amenity): ?>
                         <div class="form-check mb-2">
-                            <?php if (isset($amenity['amenity_id'])): ?>
-                                <input class="form-check-input" type="checkbox" name="amenities[]" id="<?= gf_h($amenity['id']) ?>" value="<?= gf_h($amenity['key']) ?>" <?= in_array($amenity['key'], $filters['amenity_options'], true)?'checked':'' ?>>
-                            <?php else: ?>
-                                <input class="form-check-input" type="checkbox" id="<?= gf_h($amenity['id']) ?>" disabled title="<?= gf_h(gf_t('Cơ sở dữ liệu hiện chưa có trường dữ liệu cho lựa chọn này')) ?>">
-                            <?php endif; ?>
-                            <label class="form-check-label" for="<?= gf_h($amenity['id']) ?>"><?= gf_h(gf_t((string) $amenity['label'])) ?></label>
+                            <input class="form-check-input" type="checkbox" name="amenity_ids[]" id="amenity_<?= (int) $amenity['id'] ?>" value="<?= (int) $amenity['id'] ?>" <?= in_array((int) $amenity['id'], $filters['amenity_ids'], true) ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="amenity_<?= (int) $amenity['id'] ?>"><?= gf_h(gf_t((string) $amenity['name'])) ?></label>
                         </div>
                     <?php endforeach; ?>
                 </div>
+                <?php endif; ?>
                 <button id="btnFilter" type="submit" class="btn btn-primary w-100 rounded-3 py-2 fw-semibold mb-2" style="font-size:14px"><?= gf_h(gf_t('Lọc kết quả')) ?></button>
                 <a href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>" class="btn btn-light w-100 rounded-3 py-2 text-secondary fw-semibold" style="font-size:14px"><?= gf_h(gf_t('Xóa bộ lọc')) ?></a>
             </form>

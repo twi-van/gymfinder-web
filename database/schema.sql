@@ -25,6 +25,8 @@ CREATE TABLE users (
   avatar_url    VARCHAR(255) NULL,
   role          ENUM('user','admin')    NOT NULL DEFAULT 'user',
   status        ENUM('active','locked') NOT NULL DEFAULT 'active',
+  must_change_password TINYINT(1) NOT NULL DEFAULT 0,
+  temp_password_expires_at DATETIME NULL,
   last_login_at DATETIME NULL,
   created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -188,7 +190,7 @@ CREATE TABLE gym_images (
   DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================================
--- 8. gym_categories  (N-N; cả hai ON DELETE CASCADE)
+-- 8. gym_categories  (xóa phòng thì gỡ liên kết; còn phòng gắn thì không xóa được loại)
 -- =====================================================================
 CREATE TABLE gym_categories (
   gym_id      INT UNSIGNED NOT NULL,
@@ -200,12 +202,12 @@ CREATE TABLE gym_categories (
   CONSTRAINT fk_gc_gym
     FOREIGN KEY (gym_id)      REFERENCES gyms(id)       ON DELETE CASCADE,
   CONSTRAINT fk_gc_category
-    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================================
--- 9. gym_amenities  (N-N; cả hai ON DELETE CASCADE)
+-- 9. gym_amenities  (xóa phòng thì gỡ liên kết; còn phòng gắn thì không xóa được tiện ích)
 -- =====================================================================
 CREATE TABLE gym_amenities (
   gym_id     INT UNSIGNED NOT NULL,
@@ -217,7 +219,7 @@ CREATE TABLE gym_amenities (
   CONSTRAINT fk_ga_gym
     FOREIGN KEY (gym_id)     REFERENCES gyms(id)      ON DELETE CASCADE,
   CONSTRAINT fk_ga_amenity
-    FOREIGN KEY (amenity_id) REFERENCES amenities(id) ON DELETE CASCADE
+    FOREIGN KEY (amenity_id) REFERENCES amenities(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

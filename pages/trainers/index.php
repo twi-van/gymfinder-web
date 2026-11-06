@@ -21,7 +21,7 @@ if ($filters['page'] > 1 && empty($trainerPage['items']) && (int)$trainerPage['t
 $trainers = $trainerPage['items'];
 $specialties = gf_list_specialties();
 $districts = gf_list_districts();
-$gymOptions = gf_search_gyms(['limit' => 100]);
+$gymOptions = gf_list_public_gyms();
 $user = gf_current_user();
 $pageTitle = gf_t('Huấn luyện viên - GYMFINDER');
 $bodyClass = 'bg-light';

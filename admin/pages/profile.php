@@ -81,8 +81,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = $res['error'] ?? 'Không thể đổi mật khẩu.';
             }
         }
+    } elseif ($action === 'delete_own_admin') {
+        $res = gf_admin_delete_own_account((int) ($_POST['id'] ?? 0), $adminUser);
+        if (!$res['ok']) {
+            $error = (string) ($res['error'] ?? 'Không thể xóa tài khoản.');
+        } else {
+            gf_logout();
+            gf_redirect(gf_url('pages/auth/login.php'));
+        }
     }
 }
+
+$adminCount = (int) gf_pdo()->query("SELECT COUNT(*) FROM users WHERE role = 'admin'")->fetchColumn();
+$canDeleteOwnAdmin = $adminCount > 1;
 
 $pageTitle = 'Hồ sơ cá nhân - Admin GYMFINDER';
 $extraCss = ['admin/assets/admin.css'];
@@ -291,6 +302,37 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                     </button>
                 </div>
             </form>
+        </div>
+
+        <div class="admin-card p-4 mt-4 border border-danger-subtle">
+            <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+                <div class="rounded-3 d-inline-flex align-items-center justify-content-center bg-danger-subtle text-danger" style="width: 42px; height: 42px; font-size: 18px;">
+                    <i class="fa-solid fa-user-lock"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold text-dark mb-0"><?= gf_h(gf_t('Xóa tài khoản quản trị')) ?></h5>
+                    <div class="text-secondary small"><?= gf_h(gf_t('Chỉ tài khoản quản trị đang đăng nhập được xóa chính mình. Tài khoản quản trị khác không bị khóa hay xóa từ đây.')) ?></div>
+                </div>
+            </div>
+            <?php if ($canDeleteOwnAdmin): ?>
+            <form method="post" class="js-confirm-submit"
+                data-confirm-title="<?= gf_h(gf_t('Xóa tài khoản quản trị')) ?>"
+                data-confirm-message="<?= gf_h(gf_t('Xóa tài khoản quản trị của chính bạn. Sau khi xóa, bạn không đăng nhập bằng tài khoản này được nữa.')) ?>"
+                data-confirm-label="<?= gf_h(gf_t('Xóa tài khoản')) ?>"
+                data-confirm-danger="1">
+                <?= gf_csrf_field() ?>
+                <input type="hidden" name="action" value="delete_own_admin">
+                <input type="hidden" name="id" value="<?= (int) $adminUser['id'] ?>">
+                <button type="submit" class="btn btn-outline-danger rounded-3 fw-semibold">
+                    <i class="fa-solid fa-trash me-2"></i><?= gf_h(gf_t('Xóa tài khoản của tôi')) ?>
+                </button>
+            </form>
+            <?php else: ?>
+            <button type="button" class="btn btn-outline-danger rounded-3 fw-semibold" disabled>
+                <i class="fa-solid fa-trash me-2"></i><?= gf_h(gf_t('Xóa tài khoản của tôi')) ?>
+            </button>
+            <div class="small text-secondary mt-2"><?= gf_h(gf_t('Không thể xóa quản trị viên cuối cùng.')) ?></div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

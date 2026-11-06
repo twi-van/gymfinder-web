@@ -3,6 +3,8 @@ require_once dirname(__DIR__, 2) . '/backend/bootstrap.php';
 $error = '';
 if (isset($_GET['error']) && $_GET['error'] === 'locked') {
     $error = 'Tài khoản đã bị khóa.';
+} elseif (isset($_GET['error']) && $_GET['error'] === 'temp_password') {
+    $error = 'Tài khoản quản trị mới phải đăng nhập bằng email và mật khẩu tạm trong thư. Không dùng Google cho đến khi đã đổi mật khẩu.';
 } elseif (isset($_GET['error'])) {
     $error = gf_google_oauth_error_message((string) $_GET['error']);
 }
@@ -50,13 +52,13 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                     <?php if (!empty($_GET['registered'])): ?><div class="alert alert-success"><?= gf_h(gf_t('Đăng ký thành công. Vui lòng đăng nhập.')) ?></div><?php endif; ?>
                     <?php if ($error): ?><div class="alert alert-danger"><?= gf_h(gf_t((string) $error)) ?></div><?php endif; ?>
                     <?= gf_google_button($googleHref, 'Đăng nhập bằng Google') ?>
-                    <div class="auth-divider auth-divider--tight"><hr><span><?= gf_h(gf_t('HOẶC DÙNG EMAIL')) ?></span><hr></div>
+                    <div class="auth-divider auth-divider--tight"><hr><span><?= gf_h(gf_t('HOẶC')) ?></span><hr></div>
                     <form method="post" id="loginForm" class="js-auth-validate" novalidate>
                         <?= gf_csrf_field() ?>
                         <input type="hidden" name="redirect" value="<?= gf_h($_GET['redirect'] ?? '') ?>">
                         <div class="mb-4" data-auth-field>
-                            <label class="form-label" for="username"><?= gf_h(gf_t('Email / Số điện thoại')) ?></label>
-                            <div class="auth-input-group"><i class="fa-regular fa-user auth-input-icon"></i><input id="username" class="form-control" type="text" name="login" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập email hoặc số điện thoại.')) ?>" autocomplete="username" placeholder="<?= gf_h(gf_t('Nhập email hoặc số điện thoại')) ?>" value="<?= gf_h($_POST['login'] ?? '') ?>"></div>
+                            <label class="form-label" for="username"><?= gf_h(gf_t('Email / Tên tài khoản / Số điện thoại')) ?></label>
+                            <div class="auth-input-group"><i class="fa-regular fa-user auth-input-icon"></i><input id="username" class="form-control" type="text" name="login" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập email hoặc số điện thoại.')) ?>" autocomplete="username" placeholder="<?= gf_h(gf_t('Nhập email, tên tài khoản hoặc số điện thoại')) ?>" value="<?= gf_h($_POST['login'] ?? '') ?>"></div>
                         </div>
                         <div class="mb-4" data-auth-field>
                             <label class="form-label" for="password"><?= gf_h(gf_t('Mật khẩu')) ?></label>

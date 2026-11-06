@@ -4,7 +4,7 @@ require_once dirname(__DIR__, 2) . '/backend/bootstrap.php';
 $state = gf_password_reset_state();
 if (!$state || (($state['expires'] ?? 0) < time())) {
     gf_password_reset_clear();
-    $_SESSION['pw_reset_notice'] = 'Phiên xác minh OTP đã hết hạn hoặc bị mất. Hãy yêu cầu mã mới và nhập mã trong cùng trình duyệt trong vòng 10 phút.';
+    $_SESSION['pw_reset_notice'] = 'Phiên xác minh OTP đã hết hạn hoặc bị mất. Hãy yêu cầu mã mới và nhập mã trong cùng trình duyệt trong vòng 5 phút.';
     gf_redirect(gf_url('pages/auth/forgot_password.php'));
 }
 
@@ -63,7 +63,7 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                     </div>
                     <div class="auth-badge"><i class="fa-solid fa-circle" style="font-size:6px"></i> <?= gf_h(gf_t('XÁC THỰC • BẢO MẬT')) ?></div>
                     <h1 class="auth-heading"><?= gf_h(gf_t('Nhập')) ?> <span class="text-primary"><?= gf_h(gf_t('mã OTP')) ?></span><br><?= gf_h(gf_t('để tiếp tục')) ?></h1>
-                    <p class="auth-desc"><?= gf_h(gf_t('Mã gồm 6 chữ số được gửi tới email gắn với tài khoản. Mã có hiệu lực trong 10 phút và chỉ dùng một lần.')) ?></p>
+                    <p class="auth-desc"><?= gf_h(gf_t('Mã gồm 6 chữ số được gửi tới email gắn với tài khoản. Mã có hiệu lực trong 5 phút và chỉ dùng một lần.')) ?></p>
                 </div>
             </div>
             <div class="col-lg-5 ms-auto">

@@ -8,7 +8,7 @@ gf_require_admin();
 
 $tabs = [
     'categories'  => ['label' => 'Loại phòng tập', 'icon' => 'fa-tags', 'table' => 'categories'],
-    'specialties' => ['label' => 'Chuyên môn huấn luyện viên', 'icon' => 'fa-person-running', 'table' => 'specialties'],
+    'specialties' => ['label' => 'Chuyên môn', 'icon' => 'fa-person-running', 'table' => 'specialties'],
     'amenities'   => ['label' => 'Tiện ích', 'icon' => 'fa-shower', 'table' => 'amenities'],
     'districts'   => ['label' => 'Khu vực', 'icon' => 'fa-map-location-dot', 'table' => 'districts'],
 ];
@@ -18,6 +18,12 @@ if (!isset($tabs[$tab])) {
 }
 $table = $tabs[$tab]['table'];
 $err = '';
+
+function gf_admin_catalog_used_message(string $vi, string $en, int $count): string
+{
+    $template = gf_lang() === 'en' ? $en : $vi;
+    return str_replace('%d', (string) $count, $template);
+}
 
 function gf_admin_catalog_redirect(string $tab, string $flag = ''): void
 {
@@ -187,6 +193,7 @@ $offset = ($page - 1) * $limit;
 $rows = [];
 $total = 0;
 $usage = [];
+$districtTrainerUsage = [];
 $paginationHtml = '';
 
 if ($tab === 'categories') {
@@ -225,7 +232,11 @@ if ($tab === 'categories') {
     $rows = $listSt->fetchAll();
 
     if ($table === 'specialties') {
-        $st = gf_pdo()->query('SELECT specialty_id AS rid, COUNT(*) AS total FROM trainers GROUP BY specialty_id');
+        $st = gf_pdo()->query('SELECT rid, COUNT(DISTINCT trainer_id) AS total FROM (
+            SELECT id AS trainer_id, specialty_id AS rid FROM trainers WHERE specialty_id IS NOT NULL
+            UNION
+            SELECT trainer_id, specialty_id AS rid FROM trainer_specialties
+        ) GROUP BY rid');
     } elseif ($table === 'amenities') {
         $st = gf_pdo()->query('SELECT amenity_id AS rid, COUNT(*) AS total FROM gym_amenities GROUP BY amenity_id');
     } else {
@@ -234,6 +245,12 @@ if ($tab === 'categories') {
     if ($st) {
         foreach ($st->fetchAll() as $u) {
             $usage[(int) $u['rid']] = (int) $u['total'];
+        }
+    }
+    if ($table === 'districts') {
+        $trainerUse = gf_pdo()->query('SELECT district_id AS rid, COUNT(*) AS total FROM trainers WHERE district_id IS NOT NULL GROUP BY district_id');
+        foreach ($trainerUse->fetchAll() as $u) {
+            $districtTrainerUsage[(int) $u['rid']] = (int) $u['total'];
         }
     }
 }
@@ -261,7 +278,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
     </button>
 </div>
 
-<ul class="nav nav-pills gap-2 mb-4 flex-wrap">
+<ul class="nav nav-pills admin-catalog-tabs mb-4">
     <?php foreach ($tabs as $key => $meta): ?>
         <li class="nav-item">
             <a class="nav-link rounded-pill px-3 <?= $key === $tab ? 'active' : 'bg-white border text-secondary' ?>"
@@ -352,20 +369,28 @@ gf_admin_table_open([
         </form>
         <?php
         $catUsed = (int) ($usage[(int) $r['id']] ?? 0);
-        $confirmMsg = $catUsed > 0
-            ? 'Loại này còn ' . $catUsed . ' phòng tập đang gắn. Hãy gỡ danh mục khỏi các phòng hoặc dùng Ẩn.'
-            : 'Xóa vĩnh viễn loại phòng tập này? Thao tác không hoàn tác.';
+        $blocked = $catUsed > 0
+            ? gf_admin_catalog_used_message(
+                'Không thể xóa: còn %d phòng tập đang gắn loại này. Hãy gỡ danh mục khỏi các phòng tập hoặc dùng Ẩn.',
+                'Cannot delete: %d gyms still use this type. Remove it from those gyms, or hide the type instead.',
+                $catUsed
+            )
+            : '';
         ?>
+        <?php if ($blocked !== ''): ?>
+            <button type="button" class="btn btn-action btn-action-delete is-blocked" title="<?= gf_h($blocked) ?>" data-delete-blocked="<?= gf_h($blocked) ?>"><i class="fa-solid fa-trash"></i></button>
+        <?php else: ?>
         <form method="post" class="d-inline js-confirm-submit"
               data-confirm-title="<?= gf_h(gf_t('Xóa loại phòng tập?')) ?>"
-              data-confirm-message="<?= gf_h($confirmMsg) ?>"
+              data-confirm-message="<?= gf_h(gf_t('Xóa vĩnh viễn loại phòng tập này? Thao tác không hoàn tác.')) ?>"
               data-confirm-label="<?= gf_h(gf_t('Xóa')) ?>"
               data-confirm-danger="1">
             <?= gf_csrf_field() ?>
             <input type="hidden" name="action" value="delete">
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
-            <button type="submit" class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t($catUsed > 0 ? 'Không xóa được khi còn phòng tập gắn' : 'Xóa')) ?>" <?= $catUsed > 0 ? 'disabled' : '' ?>><i class="fa-solid fa-trash"></i></button>
+            <button type="submit" class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t('Xóa')) ?>"><i class="fa-solid fa-trash"></i></button>
         </form>
+        <?php endif; ?>
     </td>
 </tr>
 <?php endforeach; ?>
@@ -379,20 +404,21 @@ gf_admin_table_close([
 ?>
 <?php else: ?>
 <?php
+$usageHeading = $tab === 'specialties' ? 'SỐ HLV' : 'SỐ PHÒNG TẬP';
+$usageUnit = $tab === 'specialties' ? 'HLV' : 'phòng';
 $columns = [
     ['label' => 'ID', 'width' => '60px', 'align' => 'center'],
-    ['label' => 'TÊN', 'width' => '260px'],
-    ['label' => 'MÃ ĐƯỜNG DẪN', 'width' => '220px'],
+    ['label' => 'TÊN', 'width' => '240px'],
+    ['label' => $usageHeading, 'width' => '160px', 'align' => 'center'],
 ];
 if ($tab === 'amenities') {
-    $columns[] = ['label' => 'BIỂU TƯỢNG', 'width' => '140px'];
+    $columns[] = ['label' => 'BIỂU TƯỢNG', 'width' => '150px'];
 }
-$columns[] = ['label' => 'ĐANG DÙNG', 'width' => '120px', 'align' => 'center'];
 $columns[] = ['label' => 'THAO TÁC', 'width' => '140px', 'align' => 'right', 'th_class' => 'text-end pe-3'];
 gf_admin_table_open([
     'id'        => 'catalogsTable',
     'class'     => 'admin-catalogs-table',
-    'min_width' => '900px',
+    'min_width' => '760px',
     'columns'   => $columns,
 ]);
 $colspan = count($columns);
@@ -401,23 +427,55 @@ $colspan = count($columns);
 <tr>
     <td class="text-center text-muted fw-semibold"><?= (int)$r['id'] ?></td>
     <td><span class="admin-cell-title"><?= gf_h($tab === 'districts' ? gf_place_name((string) $r['name']) : (string) $r['name']) ?></span></td>
-    <td><code class="small text-secondary"><?= gf_h($r['slug'] ?? '') ?></code></td>
+    <td class="text-center text-secondary text-nowrap"><?= (int)($usage[(int)$r['id']] ?? 0) ?> <?= gf_h(gf_t($usageUnit)) ?></td>
     <?php if ($tab === 'amenities'): ?>
         <td><span class="text-secondary small"><?= gf_h($r['icon'] ?? '—') ?></span></td>
     <?php endif; ?>
-    <td class="text-center text-secondary"><?= (int)($usage[(int)$r['id']] ?? 0) ?></td>
+    <?php
+    $usedCount = (int) ($usage[(int) $r['id']] ?? 0);
+    $blocked = '';
+    if ($tab === 'amenities' && $usedCount > 0) {
+        $blocked = gf_admin_catalog_used_message(
+            'Không thể xóa: còn %d phòng tập đang gắn tiện ích này.',
+            'Cannot delete: %d gyms still use this amenity.',
+            $usedCount
+        );
+    } elseif ($tab === 'districts' && $usedCount > 0) {
+        $blocked = gf_admin_catalog_used_message(
+            'Không thể xóa: còn %d phòng tập thuộc khu vực này.',
+            'Cannot delete: %d gyms are still in this area.',
+            $usedCount
+        );
+    } elseif ($tab === 'districts' && (int) ($districtTrainerUsage[(int) $r['id']] ?? 0) > 0) {
+        $blocked = gf_admin_catalog_used_message(
+            'Không thể xóa: còn %d huấn luyện viên gắn khu vực này.',
+            'Cannot delete: %d trainers are still linked to this area.',
+            (int) $districtTrainerUsage[(int) $r['id']]
+        );
+    } elseif ($tab === 'specialties' && $usedCount > 0) {
+        $blocked = gf_admin_catalog_used_message(
+            'Không thể xóa: còn %d huấn luyện viên đang dùng chuyên môn này.',
+            'Cannot delete: %d trainers still use this specialty.',
+            $usedCount
+        );
+    }
+    ?>
     <td class="text-end pe-3 text-nowrap">
         <button type="button" class="btn btn-action btn-action-edit" data-bs-toggle="modal" data-bs-target="#catalogEdit<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Sửa')) ?>"><i class="fa-solid fa-pen"></i></button>
+        <?php if ($blocked !== ''): ?>
+            <button type="button" class="btn btn-action btn-action-delete is-blocked" title="<?= gf_h($blocked) ?>" data-delete-blocked="<?= gf_h($blocked) ?>"><i class="fa-solid fa-trash"></i></button>
+        <?php else: ?>
         <form method="post" class="d-inline js-confirm-submit"
               data-confirm-title="<?= gf_h(gf_t('Xóa mục này?')) ?>"
-              data-confirm-message="<?= gf_h(gf_t('Thao tác không hoàn tác được nếu không còn liên kết.')) ?>"
+              data-confirm-message="<?= gf_h(gf_t('Xóa vĩnh viễn mục này? Thao tác không hoàn tác.')) ?>"
               data-confirm-label="<?= gf_h(gf_t('Xóa')) ?>"
               data-confirm-danger="1">
             <?= gf_csrf_field() ?>
             <input type="hidden" name="action" value="delete">
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
-            <button type="submit" class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t('Xóa')) ?>" <?= !empty($usage[(int)$r['id']]) ? 'disabled' : '' ?>><i class="fa-solid fa-trash"></i></button>
+            <button type="submit" class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t('Xóa')) ?>"><i class="fa-solid fa-trash"></i></button>
         </form>
+        <?php endif; ?>
     </td>
 </tr>
 <?php endforeach; ?>
@@ -456,9 +514,6 @@ gf_admin_table_close([
                     <?php elseif ($tab === 'amenities'): ?>
                         <label class="form-label"><?= gf_h(gf_t('Icon (tuỳ chọn)')) ?></label>
                         <input class="form-control admin-input" name="icon" value="<?= gf_h($r['icon'] ?? '') ?>" maxlength="80" placeholder="vd: fa-wifi">
-                        <div class="form-text mt-2"><?= gf_h(gf_t('Mã đường dẫn:')) ?> <code><?= gf_h($r['slug'] ?? '') ?></code></div>
-                    <?php else: ?>
-                        <div class="form-text"><?= gf_h(gf_t('Mã đường dẫn:')) ?> <code><?= gf_h($r['slug'] ?? '') ?></code> <?= gf_h(gf_t('(giữ nguyên khi đổi tên).')) ?></div>
                     <?php endif; ?>
                 </div>
                 <div class="modal-footer border-0">
@@ -472,5 +527,15 @@ gf_admin_table_close([
 <?php endforeach; ?>
 </main></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.querySelectorAll('[data-delete-blocked]').forEach((button) => {
+    button.addEventListener('click', () => {
+        const message = button.getAttribute('data-delete-blocked') || '';
+        if (typeof window.gfToast === 'function') {
+            window.gfToast(message, 'warning');
+        }
+    });
+});
+</script>
 <?php require dirname(__DIR__, 2) . '/includes/ui_feedback.php'; ?>
 </body></html>

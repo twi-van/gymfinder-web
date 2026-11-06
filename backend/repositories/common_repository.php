@@ -145,6 +145,15 @@ function gf_list_specialties(): array
 }
 
 /**
+ * Phòng tập đang công khai, dùng cho bộ lọc người dùng.
+ */
+function gf_list_public_gyms(): array
+{
+    $sql = 'SELECT g.id, g.name, g.district_id FROM gyms g WHERE ' . gf_gym_public_where() . ' ORDER BY g.name';
+    return gf_pdo()->query($sql)->fetchAll();
+}
+
+/**
  * Tính lại rating trung bình cho một gym hoặc trainer.
  * @param array{type: string, id: int} $target
  */

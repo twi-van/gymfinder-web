@@ -156,6 +156,9 @@ function gf_google_finish(string $code, string $state): void
         if (($result['error'] ?? '') === 'locked') {
             gf_redirect(gf_url('pages/auth/login.php?error=locked'));
         }
+        if (($result['error'] ?? '') === 'temp_password') {
+            gf_redirect(gf_url('pages/auth/login.php?error=temp_password'));
+        }
         gf_google_fail('google_failed', $from, $next);
     }
 
@@ -176,6 +179,9 @@ function gf_google_login_profile(string $email, string $name, ?string $avatar): 
         if (($user['status'] ?? '') === 'locked') {
             return ['ok' => false, 'error' => 'locked'];
         }
+        if (gf_user_must_change_password($user)) {
+            return ['ok' => false, 'error' => 'temp_password'];
+        }
         return ['ok' => true, 'user' => $user];
     }
 
@@ -194,6 +200,9 @@ function gf_google_login_profile(string $email, string $name, ?string $avatar): 
             $st->execute([$email]);
             $user = $st->fetch();
             if ($user && ($user['status'] ?? '') !== 'locked') {
+                if (gf_user_must_change_password($user)) {
+                    return ['ok' => false, 'error' => 'temp_password'];
+                }
                 return ['ok' => true, 'user' => $user];
             }
             return ['ok' => false, 'error' => $user ? 'locked' : 'google_failed'];

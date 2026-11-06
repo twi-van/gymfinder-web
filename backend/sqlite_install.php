@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS users (
   avatar_url TEXT,
   role TEXT NOT NULL DEFAULT 'user',
   status TEXT NOT NULL DEFAULT 'active',
+  must_change_password INTEGER NOT NULL DEFAULT 0,
+  temp_password_expires_at TEXT,
   last_login_at TEXT,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -95,14 +97,14 @@ CREATE TABLE IF NOT EXISTS gym_categories (
   category_id INTEGER NOT NULL,
   PRIMARY KEY (gym_id, category_id),
   FOREIGN KEY (gym_id) REFERENCES gyms(id) ON DELETE CASCADE,
-  FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+  FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT
 );
 CREATE TABLE IF NOT EXISTS gym_amenities (
   gym_id INTEGER NOT NULL,
   amenity_id INTEGER NOT NULL,
   PRIMARY KEY (gym_id, amenity_id),
   FOREIGN KEY (gym_id) REFERENCES gyms(id) ON DELETE CASCADE,
-  FOREIGN KEY (amenity_id) REFERENCES amenities(id) ON DELETE CASCADE
+  FOREIGN KEY (amenity_id) REFERENCES amenities(id) ON DELETE RESTRICT
 );
 CREATE TABLE IF NOT EXISTS trainers (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

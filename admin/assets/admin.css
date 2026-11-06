@@ -31,7 +31,7 @@ body {
     flex: 0 0 285px;
     background-color: #ffffff;
     border-right: 1px solid var(--border-color);
-    transition: left 0.3s ease, box-shadow 0.3s ease;
+    transition: width 0.22s ease, min-width 0.22s ease, flex-basis 0.22s ease, left 0.3s ease, box-shadow 0.3s ease;
     z-index: 1050;
 }
 .sidebar-overlay {
@@ -220,8 +220,69 @@ body {
     white-space: nowrap;
     transition: all 0.2s ease;
 }
+.sidebar .nav-link {
+    display: flex;
+    align-items: center;
+}
 .sidebar .nav-link i {
     flex: 0 0 20px;
+    text-align: center;
+}
+.admin-sidebar-collapse {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #0f172a;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 32px;
+    cursor: pointer;
+    line-height: 1;
+    font-size: 1.05rem;
+}
+.admin-sidebar-collapse:hover,
+.admin-sidebar-collapse:focus-visible {
+    background: var(--primary-light);
+    color: var(--primary-color);
+    outline: none;
+}
+@media (min-width: 992px) {
+    html.admin-sidebar-collapsed .sidebar {
+        width: 88px;
+        min-width: 88px;
+        flex-basis: 88px;
+    }
+    html.admin-sidebar-collapsed .sidebar .brand-logo-text,
+    html.admin-sidebar-collapsed .sidebar .admin-nav-label,
+    html.admin-sidebar-collapsed .sidebar .admin-user-meta {
+        display: none;
+    }
+    html.admin-sidebar-collapsed .sidebar-head {
+        flex-direction: column;
+        justify-content: center;
+        padding: 1rem 0.5rem !important;
+    }
+    html.admin-sidebar-collapsed .sidebar .nav-link {
+        justify-content: center;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+    html.admin-sidebar-collapsed .sidebar .nav-link i {
+        margin-right: 0 !important;
+    }
+    html.admin-sidebar-collapsed .admin-user-row {
+        flex-direction: column;
+    }
+    html.admin-sidebar-collapsed .admin-user-row > a {
+        flex-grow: 0;
+        justify-content: center;
+    }
+    html.admin-sidebar-collapsed .admin-user-row form {
+        margin: 0 !important;
+    }
 }
 .nav-link:hover {
     background-color: var(--light-bg);
@@ -484,6 +545,36 @@ body {
 .admin-reviews-table {
     --admin-table-min: 1150px;
 }
+.nav.admin-catalog-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+.admin-catalog-tabs .nav-item {
+    min-width: 0;
+}
+.admin-catalog-tabs .nav-link {
+    width: 100%;
+    height: 100%;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    text-align: center;
+    white-space: nowrap;
+    line-height: 1.25;
+    font-size: 14px;
+    padding: 0.5rem 0.65rem;
+}
+.admin-catalog-tabs .nav-link i {
+    flex: 0 0 auto;
+}
+@media (max-width: 767.98px) {
+    .nav.admin-catalog-tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
 .admin-categories-table {
     --admin-table-min: 960px;
 }
@@ -590,6 +681,13 @@ body {
 .btn-action-delete:hover {
     background: #ef4444;
     color: #ffffff;
+}
+.btn-action-delete.is-blocked {
+    opacity: 0.45;
+}
+.btn-action-delete.is-blocked:hover {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
 }
 .btn-action-toggle {
     color: #f59e0b;

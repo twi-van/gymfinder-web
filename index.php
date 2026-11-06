@@ -82,6 +82,11 @@ require __DIR__ . '/includes/header.php';
         <div class="row g-4">
             <?php foreach ($featuredGyms as $gym): $isFav = in_array((int)$gym['id'], $favGymIds, true); require __DIR__ . '/includes/gym_card.php'; endforeach; ?>
         </div>
+        <div class="text-center mt-5">
+            <a href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-semibold">
+                <?= gf_h(gf_t('Xem tất cả phòng tập')) ?> <i class="fa-solid fa-arrow-right ms-2"></i>
+            </a>
+        </div>
     </div>
 </section>
 

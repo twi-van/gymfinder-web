@@ -18,17 +18,29 @@ $adminBreadcrumbCurrent = $adminBreadcrumbMap[$adminActive] ?? gf_t('Tổng quan
 function gf_admin_nav(string $key, string $href, string $icon, string $label, string $active): void
 {
     $cls = $key === $active ? ' active bg-primary-light text-primary' : '';
-    echo '<li class="nav-item"><a class="nav-link rounded-3 px-3 py-2 mb-1' . $cls . '" href="' . gf_h(gf_url($href)) . '"><i class="fa-solid ' . $icon . ' me-3" style="width:20px;"></i>' . gf_h($label) . '</a></li>';
+    echo '<li class="nav-item"><a class="nav-link rounded-3 px-3 py-2 mb-1' . $cls . '" href="' . gf_h(gf_url($href)) . '" data-label="' . gf_h($label) . '"><i class="fa-solid ' . $icon . ' me-3" style="width:20px;"></i><span class="admin-nav-label">' . gf_h($label) . '</span></a></li>';
 }
 ?>
+<script>
+try {
+    if (window.matchMedia('(min-width: 992px)').matches && localStorage.getItem('gfAdminSidebarCollapsed') === '1') {
+        document.documentElement.classList.add('admin-sidebar-collapsed');
+    }
+} catch (e) {}
+</script>
 <div class="d-flex admin-shell">
 <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
 <aside class="sidebar d-flex flex-column" id="sidebar" aria-label="<?= gf_h(gf_t('Menu quản trị')) ?>">
-    <div class="p-4 border-bottom d-flex align-items-center justify-content-between gap-2">
+    <div class="sidebar-head p-4 border-bottom d-flex align-items-center justify-content-between gap-2">
         <?= gf_logo('admin', $adminDashboardUrl, 'admin-brand') ?>
-        <button type="button" class="btn btn-light border d-lg-none shadow-sm admin-sidebar-close" id="sidebarClose" aria-label="<?= gf_h(gf_t('Đóng menu')) ?>">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="admin-sidebar-collapse d-none d-lg-inline-flex" id="sidebarCollapse" aria-controls="sidebar" aria-expanded="true" aria-label="<?= gf_h(gf_t('Thu gọn menu')) ?>" title="<?= gf_h(gf_t('Thu gọn menu')) ?>" data-label-collapse="<?= gf_h(gf_t('Thu gọn menu')) ?>" data-label-expand="<?= gf_h(gf_t('Mở rộng menu')) ?>">
+                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-light border d-lg-none shadow-sm admin-sidebar-close" id="sidebarClose" aria-label="<?= gf_h(gf_t('Đóng menu')) ?>">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
     </div>
     <div class="p-3 flex-grow-1 overflow-auto">
         <ul class="nav flex-column gap-1">
@@ -44,10 +56,10 @@ function gf_admin_nav(string $key, string $href, string $icon, string $label, st
         </ul>
     </div>
     <div class="p-3 border-top mt-auto">
-        <div class="d-flex align-items-center gap-2">
+        <div class="admin-user-row d-flex align-items-center gap-2">
             <a href="<?= gf_h(gf_url('admin/pages/profile.php')) ?>" class="d-flex align-items-center gap-2 text-decoration-none min-w-0 flex-grow-1 text-dark" title="<?= gf_h(gf_t('Xem và sửa hồ sơ quản trị')) ?>">
                 <img src="<?= gf_h(gf_avatar($adminUser['avatar_url'] ?? null, !empty($adminUser['avatar_url']) ? (int) $adminUser['id'] : 0, $adminUser['full_name'])) ?>" class="rounded-circle shadow-sm" style="width:40px;height:40px;object-fit:cover;aspect-ratio:1/1;flex:0 0 40px;" alt="<?= gf_h($adminUser['full_name']) ?>" onerror="this.onerror=null;this.src='<?= gf_h(gf_avatar_fallback($adminUser['full_name'])) ?>';">
-                <div class="min-w-0 text-truncate"><div class="fw-bold small text-truncate"><?= gf_h($adminUser['full_name']) ?></div><div class="text-secondary" style="font-size:11.5px;"><?= gf_h(gf_t('Quản trị viên')) ?></div></div>
+                <div class="admin-user-meta min-w-0 text-truncate"><div class="fw-bold small text-truncate"><?= gf_h($adminUser['full_name']) ?></div><div class="text-secondary" style="font-size:11.5px;"><?= gf_h(gf_t('Quản trị viên')) ?></div></div>
             </a>
             <form method="post" action="<?= gf_h(gf_url('pages/auth/logout.php')) ?>" class="ms-auto"><?= gf_csrf_field() ?><button class="btn btn-action btn-action-view" title="<?= gf_h(gf_t('Đăng xuất')) ?>"><i class="fa-solid fa-arrow-right-from-bracket"></i></button></form>
         </div>

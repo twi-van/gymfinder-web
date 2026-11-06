@@ -37,7 +37,7 @@ $faqs = [
     ],
     [
         'q' => 'Quên mật khẩu thì làm thế nào?',
-        'a' => 'Chọn Quên mật khẩu, nhập email đã đăng ký và xác nhận mã OTP 6 số gửi qua email. Mã có hiệu lực 10 phút và chỉ dùng một lần. Hệ thống không gửi OTP qua SMS.',
+        'a' => 'Chọn Quên mật khẩu, nhập email đã đăng ký và xác nhận mã OTP 6 số gửi qua email. Mã có hiệu lực 5 phút và chỉ dùng một lần. Hệ thống không gửi OTP qua SMS.',
     ],
     [
         'q' => 'Trợ lý AI có nhớ cuộc trò chuyện không?',
