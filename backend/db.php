@@ -194,26 +194,48 @@ function gf_db_ensure_demo_gym_gallery(PDO $pdo): void
 function gf_db_ensure_demo_trainer_avatars(PDO $pdo): void
 {
     $femaleIds = [2, 4, 5, 7, 9, 12, 15, 18, 21, 23, 26, 29];
+    $legacyAvatars = [
+        'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1534258936925-c58bed479fcb?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1579758629938-03607ccdbaba?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1521804906057-1df8fdb718b7?auto=format&fit=crop&w=400&q=80',
+    ];
     $portraitOverrides = gf_demo_trainer_avatars();
     try {
+        $legacyPlaceholders = implode(',', array_fill(0, count($legacyAvatars), '?'));
         $update = $pdo->prepare(
             "UPDATE trainers SET avatar_url=? WHERE email=? AND (
                 avatar_url IS NULL
                 OR avatar_url = ''
+                OR avatar_url IN ($legacyPlaceholders)
                 OR avatar_url LIKE 'https://randomuser.me/api/portraits/men/%'
                 OR avatar_url LIKE 'https://randomuser.me/api/portraits/women/%'
-                OR avatar_url LIKE 'https://files.worldgymtaiwan.com/%'
-                OR avatar_url LIKE 'https://www.workband.com.tw/%'
-                OR avatar_url LIKE 'https://pure360-public.s3%'
-                OR avatar_url LIKE 'https://stringssg-assets.s3%'
-                OR avatar_url LIKE 'https://unrealpt.sg/%'
-                OR avatar_url LIKE 'https://www.stringssg.com/%'
             )"
         );
         foreach (range(1, 30) as $trainerId) {
             $gender = in_array($trainerId, $femaleIds, true) ? 'women' : 'men';
             $avatar = $portraitOverrides[$trainerId] ?? "https://randomuser.me/api/portraits/{$gender}/{$trainerId}.jpg";
-            $update->execute([$avatar, "trainer{$trainerId}@gymfinder.test"]);
+            $update->execute(array_merge([$avatar, "trainer{$trainerId}@gymfinder.test"], $legacyAvatars));
         }
     } catch (Throwable $e) {
         error_log('GYMFINDER demo trainer avatar update failed: ' . $e->getMessage());

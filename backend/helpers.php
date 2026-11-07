@@ -292,12 +292,27 @@ function gf_resolve_image_url(?string $url): ?string
         return null;
     }
 
-    // 1. URL bên ngoài hợp lệ (http / https)
+    // 1. Đường dẫn tĩnh thuộc assets/images/trainers hoặc URL gốc của HLV demo -> ưu tiên bản lưu cục bộ
+    foreach (gf_demo_trainer_avatars() as $tId => $demoUrl) {
+        if ($url === $demoUrl) {
+            $localRel = gf_demo_trainer_local_path($tId);
+            if ($localRel !== null) {
+                return gf_url($localRel);
+            }
+            return $demoUrl;
+        }
+    }
+    if (preg_match('#^/?assets/images/trainers/(trainer-(?:[1-9]|[12][0-9]|30)\.(?:webp|jpg|jpeg|png))$#i', $url, $tm)) {
+        $root = $GLOBALS['GF_ROOT'] ?? dirname(__DIR__);
+        $rel = 'assets/images/trainers/' . $tm[1];
+        if (is_file($root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $rel))) {
+            return gf_url($rel);
+        }
+    }
+
+    // 2. URL bên ngoài hợp lệ (http / https)
     if (preg_match('#^https?://#i', $url)) {
-        if (
-            str_contains($url, '1577221084712-45b0449d2d3f')
-            || str_contains($url, 'files.worldgymtaiwan.com')
-        ) {
+        if (str_contains($url, '1577221084712-45b0449d2d3f')) {
             return null;
         }
         return filter_var($url, FILTER_VALIDATE_URL) ? $url : null;
@@ -445,37 +460,53 @@ function gf_cover_image(?string $url, int $id = 0): string
 function gf_demo_trainer_avatars(): array
 {
     return [
-        1 => 'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=400&q=80',
+        1 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2502497.webp?update_time=2025-11-27+03%3A30%3A05.737',
         2 => 'https://images.squarespace-cdn.com/content/v1/62e39313a3615b384cc19035/52a6f1e4-8e7c-40a3-b0c6-14a8bb0c05a2/xiu%2Bting.jpg',
-        3 => 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=400&q=80',
-        4 => 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
+        3 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2300326.webp?update_time=2025-06-21+08%3A48%3A01.600',
+        4 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/700096.webp?update_time=2025-06-14+03%3A31%3A55.310',
         5 => 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
-        6 => 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80',
+        6 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2405184.webp?update_time=2025-06-14+03%3A31%3A55.120',
         7 => 'https://tsquaredlab.com/images/trainers/haz.webp',
-        8 => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+        8 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2101491.webp?update_time=2025-05-31+03%3A30%3A36.813',
         9 => 'https://static.wixstatic.com/media/3712cb_75431a0dff05471281ca426eefc1f808~mv2.jpg/v1/fill/w_980%2Ch_1307%2Cal_c%2Cq_85%2Cusm_0.66_1.00_0.01/3712cb_75431a0dff05471281ca426eefc1f808~mv2.jpg',
         10 => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-        11 => 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80',
-        12 => 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80',
-        13 => 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=400&q=80',
-        14 => 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=400&q=80',
+        11 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2103599.webp?update_time=2025-05-29+03%3A31%3A37.583',
+        12 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2405272.webp?update_time=2025-06-21+08%3A48%3A02.017',
+        13 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2002233.webp?update_time=2025-07-31+03%3A30%3A07.820',
+        14 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2502551.webp?update_time=2025-08-05+03%3A30%3A09.267',
         15 => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-        16 => 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=400&q=80',
-        17 => 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=400&q=80',
-        18 => 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80',
-        19 => 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=400&q=80',
-        20 => 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?auto=format&fit=crop&w=400&q=80',
+        16 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/790154.webp?update_time=2025-11-06+03%3A30%3A16.210',
+        17 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2500506.webp?update_time=2025-05-31+03%3A30%3A36.857',
+        18 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2402622.webp?update_time=2025-06-19+22%3A05%3A07.700',
+        19 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2504511.webp?update_time=2026-02-15+03%3A30%3A11.880',
+        20 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2302959.webp?update_time=2025-06-05+03%3A33%3A39.200',
         21 => 'https://images.squarespace-cdn.com/content/v1/588754e7bebafbcb2d477cbf/1759978920243-J0GHN0IZ0LQKLMY4Z3WN/RACH1.jpg',
-        22 => 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=400&q=80',
-        23 => 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80',
-        24 => 'https://images.unsplash.com/photo-1534258936925-c58bed479fcb?auto=format&fit=crop&w=400&q=80',
-        25 => 'https://images.unsplash.com/photo-1579758629938-03607ccdbaba?auto=format&fit=crop&w=400&q=80',
-        26 => 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=400&q=80',
+        22 => 'https://www.workband.com.tw/store_image/forcefitness/P1174540170056.webp',
+        23 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/370451.webp?update_time=2026-04-22+03%3A30%3A08.133',
+        24 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2500840.webp?update_time=2026-04-22+03%3A30%3A08.127',
+        25 => 'https://pure360-public.s3.ap-southeast-1.amazonaws.com/teacher_image_dev/1900.jpg?t=1663933548000',
+        26 => 'https://stringssg-assets.s3-ap-southeast-1.amazonaws.com/static/personal-trainer/generated/Christabelle.jpeg',
         27 => 'https://images.squarespace-cdn.com/content/v1/63d9d5adb0b1063f7fa463a2/40365611-db3b-4e8c-9566-f14d5d3e2e6f/copy_AF8E7F50-5222-492E-A210-BFB5553B71CF.JPEG',
-        28 => 'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=400&q=80',
+        28 => 'https://unrealpt.sg/cdn/shop/files/Hwa_Yang_Soh_Senior_Trainer.jpg?v=1726637029&width=2000',
         29 => 'https://images.squarespace-cdn.com/content/v1/66668442d380464892620714/97994512-76a2-433b-8e6c-dcc2dbc6d6e3/IMG_8221.jpg',
-        30 => 'https://images.unsplash.com/photo-1521804906057-1df8fdb718b7?auto=format&fit=crop&w=400&q=80',
+        30 => 'https://www.stringssg.com/_next/image?q=75&url=https%3A%2F%2Fstringssg-assets.s3.ap-southeast-1.amazonaws.com%2Fstatic%2Fpersonal-trainer%2Fgenerated%2FGerald.jpeg&w=1920',
     ];
+}
+
+function gf_demo_trainer_local_path(int $id): ?string
+{
+    if ($id < 1 || $id > 30) {
+        return null;
+    }
+    $root = $GLOBALS['GF_ROOT'] ?? dirname(__DIR__);
+    foreach (['webp', 'jpg', 'jpeg', 'png'] as $ext) {
+        $rel = "assets/images/trainers/trainer-{$id}.{$ext}";
+        $full = $root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $rel);
+        if (is_file($full)) {
+            return $rel;
+        }
+    }
+    return null;
 }
 
 function gf_avatar_fallback(string $name = 'User'): string
@@ -491,9 +522,15 @@ function gf_avatar(?string $url, int $id = 0, string $name = 'User'): string
         return $resolved;
     }
 
-    $stock = gf_demo_trainer_avatars();
-    if ($id > 0 && isset($stock[$id])) {
-        return $stock[$id];
+    if ($id > 0) {
+        $localRel = gf_demo_trainer_local_path($id);
+        if ($localRel !== null) {
+            return gf_url($localRel);
+        }
+        $stock = gf_demo_trainer_avatars();
+        if (isset($stock[$id])) {
+            return $stock[$id];
+        }
     }
     return gf_avatar_fallback($name);
 }
