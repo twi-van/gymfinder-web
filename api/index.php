@@ -779,8 +779,8 @@ if ($path === '/ai/recommend' && $method === 'POST') {
                 gf_format_price((int) ($g['price_min'] ?? 0), (int) ($g['price_max'] ?? 0))
                 . ' · ★ ' . number_format((float) ($g['avg_rating'] ?? 0), 1)
             ),
-            'image' => gf_cover_image($g['cover_image_url'] ?? null, $id),
-            'url' => gf_url('pages/gyms/detail.php?id=' . $id),
+            'image' => gf_browser_media_url(gf_cover_image($g['cover_image_url'] ?? null, $id)),
+            'url' => gf_absolute_url('pages/gyms/detail.php?id=' . $id),
         ];
     }
 
@@ -803,8 +803,10 @@ if ($path === '/ai/recommend' && $method === 'POST') {
                 implode(' · ', array_slice($specs, 0, 2))
                 . ' · ★ ' . number_format((float) ($t['avg_rating'] ?? 0), 1)
             ),
-            'image' => gf_avatar($t['avatar_url'] ?? null, $id, (string) ($t['full_name'] ?? 'HLV')),
-            'url' => gf_url('pages/trainers/detail.php?id=' . $id),
+            'image' => gf_browser_media_url(
+                gf_avatar($t['avatar_url'] ?? null, $id, (string) ($t['full_name'] ?? 'HLV'))
+            ),
+            'url' => gf_absolute_url('pages/trainers/detail.php?id=' . $id),
             'is_avatar' => true,
         ];
     }

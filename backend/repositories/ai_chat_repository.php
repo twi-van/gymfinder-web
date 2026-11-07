@@ -52,11 +52,15 @@ function gf_ai_session_get(int $userId, int $sessionId): ?array
     if (!$row) {
         return null;
     }
+    $turns = gf_ai_session_decode_turns($row['turns_json'] ?? '[]');
+    if (function_exists('gf_ai_hydrate_turns_media')) {
+        $turns = gf_ai_hydrate_turns_media($turns);
+    }
     return [
         'id' => (int) $row['id'],
         'user_id' => (int) $row['user_id'],
         'title' => (string) ($row['title'] ?? 'Hội thoại mới'),
-        'turns' => gf_ai_session_decode_turns($row['turns_json'] ?? '[]'),
+        'turns' => $turns,
         'created_at' => (string) ($row['created_at'] ?? ''),
         'updated_at' => (string) ($row['updated_at'] ?? ''),
     ];

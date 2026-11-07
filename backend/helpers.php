@@ -34,8 +34,8 @@ function gf_request_origin(): string
     return ($https ? 'https' : 'http') . '://' . $host;
 }
 
-/** URL tuyệt đối của một path trong app, dùng cho redirect OAuth. */
-function gf_absolute_url(string $path): string
+/** Base path app trên web (vd. '' hoặc '/GYMFINDER'), không phụ thuộc độ sâu script. */
+function gf_app_base_path(): string
 {
     $script = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
     $dir = trim(dirname($script), '/');
@@ -51,8 +51,30 @@ function gf_absolute_url(string $path): string
         $parts = array_slice($parts, 0, -$depth);
     }
     $base = implode('/', $parts);
-    $prefix = $base === '' ? '' : '/' . $base;
-    return gf_request_origin() . $prefix . '/' . ltrim($path, '/');
+    return $base === '' ? '' : '/' . $base;
+}
+
+/** URL tuyệt đối của một path trong app, dùng cho redirect OAuth. */
+function gf_absolute_url(string $path): string
+{
+    return gf_request_origin() . gf_app_base_path() . '/' . ltrim($path, '/');
+}
+
+/**
+ * URL media dùng được từ mọi trang (API → JS).
+ * Giữ nguyên http(s); chuyển path tương đối ../assets/... thành absolute.
+ */
+function gf_browser_media_url(string $url): string
+{
+    $url = trim($url);
+    if ($url === '') {
+        return '';
+    }
+    if (preg_match('#^(https?:)?//#i', $url) || str_starts_with($url, 'data:')) {
+        return $url;
+    }
+    $path = preg_replace('#^(\.\./)+#', '', $url) ?? $url;
+    return gf_absolute_url(ltrim($path, '/'));
 }
 
 function gf_h(?string $s): string

@@ -168,7 +168,7 @@
             title: g.name || '',
             subtitle: [gfPlace(g.district || ''), catLabel].filter(Boolean).join(' · '),
             meta: `${price}${price ? ' · ' : ''}★ ${Number(g.avg_rating || 0).toFixed(1)}`,
-            image: g.cover_image_url || g.image || '',
+            image: g.image || g.cover_image_url || '',
         };
     }
 
@@ -184,7 +184,7 @@
                 `${Number(t.years_experience || 0)} ${gfT('năm KN')}`,
             ].filter(Boolean).join(' · '),
             meta: `${specs.slice(0, 2).map((name) => gfT(String(name))).join(' · ')} · ★ ${Number(t.avg_rating || 0).toFixed(1)}`,
-            image: t.avatar_url || t.image || '',
+            image: t.image || t.avatar_url || '',
             is_avatar: true,
         };
     }

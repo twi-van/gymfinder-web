@@ -870,10 +870,74 @@ function gf_ai_pick_ids_from_catalog(mixed $ids, array $allowed, int $max): arra
 }
 
 /** @return list<array<string,mixed>> */
+/**
+ * Bổ sung URL ảnh tuyệt đối cho gym/HLV trong lịch sử (phiên cũ thiếu field image).
+ *
+ * @param array<string,mixed> $turn
+ * @return array<string,mixed>
+ */
+function gf_ai_hydrate_turn_media(array $turn): array
+{
+    if (!function_exists('gf_browser_media_url')) {
+        return $turn;
+    }
+    $gyms = is_array($turn['gyms'] ?? null) ? $turn['gyms'] : [];
+    foreach ($gyms as $i => $g) {
+        if (!is_array($g)) {
+            continue;
+        }
+        $gid = (int) ($g['id'] ?? 0);
+        if ($gid <= 0) {
+            continue;
+        }
+        if (empty($g['image'])) {
+            $cover = $g['cover_image_url'] ?? null;
+            $gyms[$i]['image'] = gf_browser_media_url(
+                gf_cover_image(is_string($cover) ? $cover : null, $gid)
+            );
+        } elseif (is_string($g['image']) && !preg_match('#^(https?:)?//#i', $g['image'])) {
+            $gyms[$i]['image'] = gf_browser_media_url($g['image']);
+        }
+    }
+    $turn['gyms'] = $gyms;
+
+    $trainers = is_array($turn['trainers'] ?? null) ? $turn['trainers'] : [];
+    foreach ($trainers as $i => $t) {
+        if (!is_array($t)) {
+            continue;
+        }
+        $tid = (int) ($t['id'] ?? 0);
+        if ($tid <= 0) {
+            continue;
+        }
+        $name = (string) ($t['full_name'] ?? 'HLV');
+        if (empty($t['image'])) {
+            $avatar = $t['avatar_url'] ?? null;
+            $trainers[$i]['image'] = gf_browser_media_url(
+                gf_avatar(is_string($avatar) ? $avatar : null, $tid, $name)
+            );
+        } elseif (is_string($t['image']) && !preg_match('#^(https?:)?//#i', $t['image'])) {
+            $trainers[$i]['image'] = gf_browser_media_url($t['image']);
+        }
+    }
+    $turn['trainers'] = $trainers;
+    return $turn;
+}
+
+/**
+ * @param list<array<string,mixed>> $turns
+ * @return list<array<string,mixed>>
+ */
+function gf_ai_hydrate_turns_media(array $turns): array
+{
+    return array_map('gf_ai_hydrate_turn_media', $turns);
+}
+
 function gf_ai_chat_history_get(): array
 {
     $history = $_SESSION['ai_chat_history'] ?? [];
-    return is_array($history) ? array_values($history) : [];
+    $list = is_array($history) ? array_values($history) : [];
+    return gf_ai_hydrate_turns_media($list);
 }
 
 function gf_ai_chat_history_clear(): void
@@ -904,28 +968,39 @@ function gf_ai_build_history_turn(
 ): array {
     $slimGyms = [];
     foreach ($gyms as $g) {
+        $gid = (int) ($g['id'] ?? 0);
+        $cover = $g['cover_image_url'] ?? null;
         $slimGyms[] = [
-            'id' => (int) ($g['id'] ?? 0),
+            'id' => $gid,
             'name' => (string) ($g['name'] ?? ''),
             'district' => (string) ($g['district'] ?? ''),
             'price_min' => (int) ($g['price_min'] ?? 0),
             'price_max' => (int) ($g['price_max'] ?? 0),
             'avg_rating' => (float) ($g['avg_rating'] ?? 0),
             'categories' => array_slice(is_array($g['categories'] ?? null) ? $g['categories'] : [], 0, 3),
-            'cover_image_url' => $g['cover_image_url'] ?? null,
+            'cover_image_url' => $cover,
+            'image' => function_exists('gf_browser_media_url')
+                ? gf_browser_media_url(gf_cover_image(is_string($cover) ? $cover : null, $gid))
+                : '',
         ];
     }
 
     $slimTrainers = [];
     foreach ($trainers as $t) {
+        $tid = (int) ($t['id'] ?? 0);
+        $name = (string) ($t['full_name'] ?? 'HLV');
+        $avatar = $t['avatar_url'] ?? null;
         $slimTrainers[] = [
-            'id' => (int) ($t['id'] ?? 0),
-            'full_name' => (string) ($t['full_name'] ?? ''),
+            'id' => $tid,
+            'full_name' => $name,
             'years_experience' => (int) ($t['years_experience'] ?? 0),
             'avg_rating' => (float) ($t['avg_rating'] ?? 0),
             'specialties' => array_slice(is_array($t['specialties'] ?? null) ? $t['specialties'] : [], 0, 3),
             'districts' => array_slice(is_array($t['districts'] ?? null) ? $t['districts'] : [], 0, 2),
-            'avatar_url' => $t['avatar_url'] ?? null,
+            'avatar_url' => $avatar,
+            'image' => function_exists('gf_browser_media_url')
+                ? gf_browser_media_url(gf_avatar(is_string($avatar) ? $avatar : null, $tid, $name))
+                : '',
         ];
     }
 
