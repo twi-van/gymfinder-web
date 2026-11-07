@@ -193,65 +193,27 @@ function gf_db_ensure_demo_gym_gallery(PDO $pdo): void
 /** Correct seeded trainer portraits to a distinct, gender-matched headshot per demo profile. */
 function gf_db_ensure_demo_trainer_avatars(PDO $pdo): void
 {
-    // The seed data has no trainer age field, so do not invent exact ages here.
-    // RandomUser portraits are used as adult-style profile headshots; trainer experience
-    // remains the only age-adjacent information in the current schema.
     $femaleIds = [2, 4, 5, 7, 9, 12, 15, 18, 21, 23, 26, 29];
-    $legacyAvatars = [
-        'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
-    ];
-    // Keep the three portraits explicitly requested by the user. Use professional
-    // trainer headshots for the remaining demo profiles, matching the seeded names.
-    $portraitOverrides = [
-        1 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2502497.webp?update_time=2025-11-27+03%3A30%3A05.737',
-        2 => 'https://images.squarespace-cdn.com/content/v1/62e39313a3615b384cc19035/52a6f1e4-8e7c-40a3-b0c6-14a8bb0c05a2/xiu%2Bting.jpg',
-        3 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2300326.webp?update_time=2025-06-21+08%3A48%3A01.600',
-        4 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/700096.webp?update_time=2025-06-14+03%3A31%3A55.310',
-        5 => 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
-        6 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2405184.webp?update_time=2025-06-14+03%3A31%3A55.120',
-        7 => 'https://tsquaredlab.com/images/trainers/haz.webp',
-        8 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2101491.webp?update_time=2025-05-31+03%3A30%3A36.813',
-        9 => 'https://static.wixstatic.com/media/3712cb_75431a0dff05471281ca426eefc1f808~mv2.jpg/v1/fill/w_980%2Ch_1307%2Cal_c%2Cq_85%2Cusm_0.66_1.00_0.01/3712cb_75431a0dff05471281ca426eefc1f808~mv2.jpg',
-        10 => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-        11 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2103599.webp?update_time=2025-05-29+03%3A31%3A37.583',
-        12 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2405272.webp?update_time=2025-06-21+08%3A48%3A02.017',
-        13 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2002233.webp?update_time=2025-07-31+03%3A30%3A07.820',
-        14 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2502551.webp?update_time=2025-08-05+03%3A30%3A09.267',
-        15 => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-        16 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/790154.webp?update_time=2025-11-06+03%3A30%3A16.210',
-        17 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2500506.webp?update_time=2025-05-31+03%3A30%3A36.857',
-        18 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2402622.webp?update_time=2025-06-19+22%3A05%3A07.700',
-        19 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2504511.webp?update_time=2026-02-15+03%3A30%3A11.880',
-        20 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2302959.webp?update_time=2025-06-05+03%3A33%3A39.200',
-        21 => 'https://images.squarespace-cdn.com/content/v1/588754e7bebafbcb2d477cbf/1759978920243-J0GHN0IZ0LQKLMY4Z3WN/RACH1.jpg',
-        22 => 'https://www.workband.com.tw/store_image/forcefitness/P1174540170056.webp',
-        23 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/370451.webp?update_time=2026-04-22+03%3A30%3A08.133',
-        24 => 'https://files.worldgymtaiwan.com/pt_coach/portrait/2500840.webp?update_time=2026-04-22+03%3A30%3A08.127',
-        25 => 'https://pure360-public.s3.ap-southeast-1.amazonaws.com/teacher_image_dev/1900.jpg?t=1663933548000',
-        26 => 'https://stringssg-assets.s3-ap-southeast-1.amazonaws.com/static/personal-trainer/generated/Christabelle.jpeg',
-        27 => 'https://images.squarespace-cdn.com/content/v1/63d9d5adb0b1063f7fa463a2/40365611-db3b-4e8c-9566-f14d5d3e2e6f/copy_AF8E7F50-5222-492E-A210-BFB5553B71CF.JPEG',
-        28 => 'https://unrealpt.sg/cdn/shop/files/Hwa_Yang_Soh_Senior_Trainer.jpg?v=1726637029&width=2000',
-        29 => 'https://images.squarespace-cdn.com/content/v1/66668442d380464892620714/97994512-76a2-433b-8e6c-dcc2dbc6d6e3/IMG_8221.jpg',
-        30 => 'https://www.stringssg.com/_next/image?q=75&url=https%3A%2F%2Fstringssg-assets.s3.ap-southeast-1.amazonaws.com%2Fstatic%2Fpersonal-trainer%2Fgenerated%2FGerald.jpeg&w=1920',
-    ];
+    $portraitOverrides = gf_demo_trainer_avatars();
     try {
-        $legacyPlaceholders = implode(',', array_fill(0, count($legacyAvatars), '?'));
         $update = $pdo->prepare(
             "UPDATE trainers SET avatar_url=? WHERE email=? AND (
-                avatar_url IN ($legacyPlaceholders)
+                avatar_url IS NULL
+                OR avatar_url = ''
                 OR avatar_url LIKE 'https://randomuser.me/api/portraits/men/%'
                 OR avatar_url LIKE 'https://randomuser.me/api/portraits/women/%'
+                OR avatar_url LIKE 'https://files.worldgymtaiwan.com/%'
+                OR avatar_url LIKE 'https://www.workband.com.tw/%'
+                OR avatar_url LIKE 'https://pure360-public.s3%'
+                OR avatar_url LIKE 'https://stringssg-assets.s3%'
+                OR avatar_url LIKE 'https://unrealpt.sg/%'
+                OR avatar_url LIKE 'https://www.stringssg.com/%'
             )"
         );
         foreach (range(1, 30) as $trainerId) {
             $gender = in_array($trainerId, $femaleIds, true) ? 'women' : 'men';
             $avatar = $portraitOverrides[$trainerId] ?? "https://randomuser.me/api/portraits/{$gender}/{$trainerId}.jpg";
-            $update->execute(array_merge([$avatar, "trainer{$trainerId}@gymfinder.test"], $legacyAvatars));
+            $update->execute([$avatar, "trainer{$trainerId}@gymfinder.test"]);
         }
     } catch (Throwable $e) {
         error_log('GYMFINDER demo trainer avatar update failed: ' . $e->getMessage());

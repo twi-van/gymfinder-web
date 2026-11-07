@@ -46,7 +46,7 @@ function gf_admin_nav(string $key, string $href, string $icon, string $label, st
     <div class="p-3 border-top mt-auto">
         <div class="d-flex align-items-center gap-2">
             <a href="<?= gf_h(gf_url('admin/pages/profile.php')) ?>" class="d-flex align-items-center gap-2 text-decoration-none min-w-0 flex-grow-1 text-dark" title="<?= gf_h(gf_t('Xem và sửa hồ sơ quản trị')) ?>">
-                <img src="<?= gf_h(gf_avatar($adminUser['avatar_url'] ?? null, !empty($adminUser['avatar_url']) ? (int) $adminUser['id'] : 0, $adminUser['full_name'])) ?>" class="rounded-circle shadow-sm" style="width:40px;height:40px;object-fit:cover;aspect-ratio:1/1;flex:0 0 40px;" alt="<?= gf_h($adminUser['full_name']) ?>">
+                <img src="<?= gf_h(gf_avatar($adminUser['avatar_url'] ?? null, !empty($adminUser['avatar_url']) ? (int) $adminUser['id'] : 0, $adminUser['full_name'])) ?>" class="rounded-circle shadow-sm" style="width:40px;height:40px;object-fit:cover;aspect-ratio:1/1;flex:0 0 40px;" alt="<?= gf_h($adminUser['full_name']) ?>" onerror="this.onerror=null;this.src='<?= gf_h(gf_avatar_fallback($adminUser['full_name'])) ?>';">
                 <div class="min-w-0 text-truncate"><div class="fw-bold small text-truncate"><?= gf_h($adminUser['full_name']) ?></div><div class="text-secondary" style="font-size:11.5px;"><?= gf_h(gf_t('Quản trị viên')) ?></div></div>
             </a>
             <form method="post" action="<?= gf_h(gf_url('pages/auth/logout.php')) ?>" class="ms-auto"><?= gf_csrf_field() ?><button class="btn btn-action btn-action-view" title="<?= gf_h(gf_t('Đăng xuất')) ?>"><i class="fa-solid fa-arrow-right-from-bracket"></i></button></form>

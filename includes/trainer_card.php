@@ -19,7 +19,7 @@ $heart = $isFav ? '<i class="fa-solid fa-heart text-danger"></i>' : '<i class="f
         </form>
         <?php endif; ?>
         <div class="d-flex flex-column align-items-center text-center mb-3">
-            <img src="<?= gf_h($trainer['avatar'] ?? '') ?>" alt="<?= gf_h($trainer['full_name']) ?>" class="rounded-circle object-fit-cover mb-3 shadow-sm" style="width:100px;height:100px;border:3px solid #f8fafc;" onerror="this.src='https://placehold.co/100x100?text=Trainer';">
+            <img src="<?= gf_h($trainer['avatar'] ?? '') ?>" alt="<?= gf_h($trainer['full_name']) ?>" class="rounded-circle object-fit-cover mb-3 shadow-sm" style="width:100px;height:100px;border:3px solid #f8fafc;" onerror="this.onerror=null;this.src='<?= gf_h(gf_avatar_fallback($trainer['full_name'] ?? 'Trainer')) ?>';">
             <h5 class="fw-bold mb-1">
                 <a href="<?= gf_h($href) ?>" class="text-decoration-none text-dark stretched-link"><?= gf_h($trainer['full_name']) ?></a>
             </h5>

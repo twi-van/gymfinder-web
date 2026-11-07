@@ -103,7 +103,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                     </form>
                     <?php endif; ?>
                     <div class="d-flex flex-column flex-md-row gap-4 align-items-center align-items-md-start mb-4">
-                        <img src="<?= gf_h($t['avatar']) ?>" alt="<?= gf_h($t['full_name']) ?>" class="rounded-circle object-fit-cover shadow" style="width:150px;height:150px;border:4px solid #fff" onerror="this.src='https://placehold.co/150x150?text=Trainer'">
+                        <img src="<?= gf_h($t['avatar']) ?>" alt="<?= gf_h($t['full_name']) ?>" class="rounded-circle object-fit-cover shadow" style="width:150px;height:150px;border:4px solid #fff" onerror="this.onerror=null;this.src='<?= gf_h(gf_avatar_fallback($t['full_name'] ?? 'Trainer')) ?>';">
                         <div class="text-center text-md-start">
                             <span class="badge bg-primary-light text-primary mb-2 rounded-pill px-3 py-1 fw-bold"><?= gf_h(gf_t('Huấn luyện viên cá nhân')) ?></span>
                             <h1 class="fw-bold mb-2" style="font-size:28px"><?= gf_h($t['full_name']) ?></h1>

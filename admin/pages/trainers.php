@@ -126,7 +126,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
         <div class="col-12">
             <label class="form-label fw-bold mb-2"><?= gf_h(gf_t('Ảnh đại diện huấn luyện viên')) ?></label>
             <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
-                <img id="trainerAvatarPreview" src="https://ui-avatars.com/api/?name=HLV&background=00c9b1&color=fff" class="rounded-circle shadow-sm object-fit-cover" style="width:72px;height:72px;flex:0 0 72px;" alt="<?= gf_h(gf_t('Xem trước ảnh đại diện')) ?>">
+                <img id="trainerAvatarPreview" src="https://ui-avatars.com/api/?name=HLV&background=00c9b1&color=fff" class="rounded-circle shadow-sm object-fit-cover" style="width:72px;height:72px;flex:0 0 72px;" alt="<?= gf_h(gf_t('Xem trước ảnh đại diện')) ?>" onerror="this.onerror=null;this.src=defaultTrainerPlaceholder;">
                 <div class="flex-grow-1">
                     <div class="d-flex flex-wrap gap-2 mb-2">
                         <input type="file" id="trainerAvatarFile" name="avatar_file" accept="image/jpeg,image/png,image/webp" class="d-none" onchange="previewTrainerAvatar(this)">
@@ -215,7 +215,7 @@ foreach ($rows as $r):
     <td class="text-center text-muted fw-semibold"><?= (int)$r['id'] ?></td>
     <td>
         <div class="d-flex align-items-center gap-3">
-            <img src="<?= gf_h(gf_avatar($r['avatar_url']??null,(int)$r['id'],$r['full_name'])) ?>" class="admin-avatar shadow-sm flex-shrink-0" alt="">
+            <img src="<?= gf_h(gf_avatar($r['avatar_url']??null,(int)$r['id'],$r['full_name'])) ?>" class="admin-avatar shadow-sm flex-shrink-0" alt="" onerror="this.onerror=null;this.src='<?= gf_h(gf_avatar_fallback($r['full_name'])) ?>';">
             <span class="admin-cell-title"><?= gf_h($r['full_name']) ?></span>
         </div>
     </td>
@@ -284,7 +284,7 @@ gf_admin_table_close([
             </div>
             <div class="modal-body">
                 <div class="d-flex align-items-center gap-3 mb-3">
-                    <img src="<?= gf_h(gf_avatar($r['avatar_url']??null,(int)$r['id'],$r['full_name'])) ?>" class="rounded-circle shadow-sm object-fit-cover" style="width:64px;height:64px;" alt="">
+                    <img src="<?= gf_h(gf_avatar($r['avatar_url']??null,(int)$r['id'],$r['full_name'])) ?>" class="rounded-circle shadow-sm object-fit-cover" style="width:64px;height:64px;" alt="" onerror="this.onerror=null;this.src='<?= gf_h(gf_avatar_fallback($r['full_name'])) ?>';">
                     <div>
                         <p class="fs-5 fw-bold mb-0"><?= gf_h($r['full_name']) ?></p>
                         <div class="d-flex flex-wrap gap-1 mt-1">
