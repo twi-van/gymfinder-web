@@ -68,10 +68,6 @@
         messages.appendChild(welcome);
     }
 
-    function removeWelcome() {
-        messages?.querySelectorAll('.gf-ai-welcome').forEach((n) => n.remove());
-    }
-
     function addBubble(text, role) {
         const el = document.createElement('div');
         el.className = 'gf-ai-bubble gf-ai-bubble--' + role;
@@ -168,9 +164,8 @@
 
     function renderTurns(turns) {
         if (!Array.isArray(turns) || turns.length === 0) return false;
+        // Giữ lời chào mở đầu, rồi append lịch sử bên dưới (Guest + User).
         clearMessagesKeepWelcome();
-        // Remove welcome if we have real history
-        messages.innerHTML = '';
         turns.forEach((turn) => {
             const userText = (turn?.user || '').trim();
             const botText = (turn?.bot || '').trim();
@@ -268,8 +263,6 @@
 
         busy = true;
         if (sendBtn) sendBtn.disabled = true;
-        // Câu hỏi đầu: ẩn lời chào mở đầu (Guest + User).
-        removeWelcome();
         addBubble(text, 'user');
         const loading = addBubble(gfT('Đang tìm…'), 'meta');
 

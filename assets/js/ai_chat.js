@@ -167,13 +167,7 @@
         scrollBottom();
     }
 
-    function removeWelcome() {
-        document.getElementById('aiChatWelcome')?.remove();
-    }
-
     function appendUser(text) {
-        // Câu hỏi đầu tiên: ẩn lời chào mở đầu (Guest + User).
-        removeWelcome();
         const wrap = document.createElement('div');
         wrap.className = 'gf-ai-msg gf-ai-msg--user';
         wrap.innerHTML =
@@ -315,12 +309,10 @@
     }
 
     function renderTurns(turns) {
-        thread.querySelectorAll('.gf-ai-msg').forEach((n) => n.remove());
         const list = Array.isArray(turns) ? turns : [];
-        if (!list.length) {
-            resetThreadToWelcome();
-            return;
-        }
+        // Luôn giữ lời chào mở đầu (Guest + User), kể cả khi đã có lịch sử hội thoại.
+        resetThreadToWelcome();
+        if (!list.length) return;
         list.forEach((turn) => {
             const userText = String(turn.user || '');
             if (userText) appendUser(userText);
