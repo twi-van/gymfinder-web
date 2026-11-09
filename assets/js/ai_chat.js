@@ -167,7 +167,13 @@
         scrollBottom();
     }
 
+    function removeWelcome() {
+        document.getElementById('aiChatWelcome')?.remove();
+    }
+
     function appendUser(text) {
+        // Câu hỏi đầu tiên: ẩn lời chào mở đầu (Guest + User).
+        removeWelcome();
         const wrap = document.createElement('div');
         wrap.className = 'gf-ai-msg gf-ai-msg--user';
         wrap.innerHTML =

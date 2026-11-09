@@ -57,15 +57,19 @@
         }
     }
 
+    const WELCOME_TEXT = 'Xin chào! Hỏi mình về phòng tập hoặc HLV tại TP.HCM nhé (quận, giá, Yoga…).';
+
     function clearMessagesKeepWelcome() {
         if (!messages) return;
         messages.innerHTML = '';
         const welcome = document.createElement('div');
-        welcome.className = 'gf-ai-bubble gf-ai-bubble--bot';
-        welcome.textContent = gfT(
-            'Xin chào! Hỏi mình về phòng tập hoặc HLV tại TP.HCM nhé (quận, giá, Yoga…).'
-        );
+        welcome.className = 'gf-ai-bubble gf-ai-bubble--bot gf-ai-welcome';
+        welcome.textContent = gfT(WELCOME_TEXT);
         messages.appendChild(welcome);
+    }
+
+    function removeWelcome() {
+        messages?.querySelectorAll('.gf-ai-welcome').forEach((n) => n.remove());
     }
 
     function addBubble(text, role) {
@@ -264,6 +268,8 @@
 
         busy = true;
         if (sendBtn) sendBtn.disabled = true;
+        // Câu hỏi đầu: ẩn lời chào mở đầu (Guest + User).
+        removeWelcome();
         addBubble(text, 'user');
         const loading = addBubble(gfT('Đang tìm…'), 'meta');
 

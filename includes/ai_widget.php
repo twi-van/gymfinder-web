@@ -49,7 +49,7 @@ $aiWidgetHistoryJson = $aiWidgetHistory === []
             <button type="button" class="gf-ai-panel-close" aria-label="<?= gf_h(gf_t('Đóng chat')) ?>"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="gf-ai-messages" id="gfAiMessages">
-            <div class="gf-ai-bubble gf-ai-bubble--bot"><?= gf_h(gf_t('Xin chào! Hỏi mình về phòng tập hoặc HLV tại TP.HCM nhé (quận, giá, Yoga…).')) ?></div>
+            <div class="gf-ai-bubble gf-ai-bubble--bot gf-ai-welcome"><?= gf_h(gf_t('Xin chào! Hỏi mình về phòng tập hoặc HLV tại TP.HCM nhé (quận, giá, Yoga…).')) ?></div>
         </div>
         <div class="gf-ai-chips">
             <?php foreach ($aiChips as $chip): ?>
