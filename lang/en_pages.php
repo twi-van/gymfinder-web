@@ -151,6 +151,8 @@ return [
     'AI chưa cấu hình' => 'AI is not configured',
     'Đã đăng nhập · tối đa 30 lượt/phiên · lưu tới 20 phiên' => 'Signed in · up to 30 turns per chat · 20 chats saved',
     'Guest: lịch sử tạm trong phiên trình duyệt · Đăng nhập để lưu lâu dài' => 'Guest: history lasts for this browser session · Log in to keep it',
+    'Guest: lịch sử tạm trong tab hiện tại (widget và trang chat dùng chung); đóng tab sẽ mất.' => 'Guest: history is temporary in this tab (shared by the widget and chat page); closing the tab clears it.',
+    'để lưu nhiều phiên và mở lại sau.' => 'to keep multiple chats and reopen them later.',
     'Gym Quận 7 giá dưới 500 nghìn' => 'Gyms in District 7 under 500,000 VND',
     'HLV Yoga rating cao' => 'Highly rated yoga trainers',
     'PT giảm cân cho người mới' => 'Weight-loss PT for beginners',

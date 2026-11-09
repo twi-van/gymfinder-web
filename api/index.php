@@ -700,7 +700,14 @@ if (preg_match('#^/ai/sessions/(\d+)$#', $path, $m) && $method === 'GET') {
     if ($session === null) {
         gf_api_error('NOT_FOUND', 'Không tìm thấy phiên chat.', 404);
     }
+    // Đồng bộ widget ↔ trang chat trong cùng phiên trình duyệt.
+    $rawTurns = is_array($session['turns'] ?? null) ? $session['turns'] : [];
+    gf_ai_chat_history_set($rawTurns);
     gf_json(['data' => $session]);
+}
+
+if ($path === '/ai/history' && $method === 'GET') {
+    gf_json(['data' => ['turns' => gf_ai_chat_history_get()]]);
 }
 
 if (preg_match('#^/ai/sessions/(\d+)$#', $path, $m) && $method === 'DELETE') {
@@ -715,12 +722,19 @@ if (preg_match('#^/ai/sessions/(\d+)$#', $path, $m) && $method === 'DELETE') {
 if ($path === '/ai/history' && $method === 'DELETE') {
     $user = gf_api_user();
     $sessionId = (int) ($body['session_id'] ?? $_GET['session_id'] ?? 0);
+    $deleted = false;
     if ($user && $sessionId > 0) {
         $deleted = gf_ai_session_delete((int) $user['id'], $sessionId);
-        gf_json(['data' => ['cleared' => true, 'deleted_session' => $deleted, 'session_id' => $sessionId]]);
     }
+    // Luôn xóa lịch sử phiên PHP để widget và trang chat cùng trống.
     gf_ai_chat_history_clear();
-    gf_json(['data' => ['cleared' => true]]);
+    gf_json([
+        'data' => [
+            'cleared' => true,
+            'deleted_session' => $deleted,
+            'session_id' => $sessionId > 0 ? $sessionId : null,
+        ],
+    ]);
 }
 
 if ($path === '/ai/recommend' && $method === 'POST') {
@@ -729,34 +743,40 @@ if ($path === '/ai/recommend' && $method === 'POST') {
     if ($message === '') {
         gf_api_error('VALIDATION_ERROR', 'Vui lòng nhập câu hỏi.', 422, ['message' => 'Bắt buộc.']);
     }
-    $saveHistory = !empty($body['save_history']);
     $sessionId = (int) ($body['session_id'] ?? 0);
     $user = gf_api_user();
-    // Chỉ trang chat (persist_session / session_id) mới ghi DB; widget giữ session PHP.
-    $persistDb = $user && ($sessionId > 0 || !empty($body['persist_session']));
+    // Trang chat user ghi DB; mọi nguồn (widget/guest/user) luôn mirror PHP session.
+    $persistDb = $user
+        && ($user['role'] ?? '') === 'user'
+        && ($sessionId > 0 || !empty($body['persist_session']));
 
     $res = gf_ai_recommend_gyms($message);
     if (empty($res['ok'])) {
         $errMsg = (string) ($res['error'] ?? 'Không gọi được AI.');
         $outSessionId = null;
+        gf_ai_chat_history_append($message, $errMsg, [], [], true);
         if ($persistDb && $user) {
             if ($sessionId <= 0) {
                 $created = gf_ai_session_create((int) $user['id'], $message);
                 $sessionId = (int) $created['id'];
             }
-            $saved = gf_ai_session_append_turn(
+            $saved = gf_ai_session_replace_turns(
                 (int) $user['id'],
                 $sessionId,
-                $message,
-                $errMsg,
-                [],
-                [],
-                true,
-                false
+                gf_ai_chat_history_get_raw(),
+                $message
             );
+            if ($saved === null) {
+                $created = gf_ai_session_create((int) $user['id'], $message);
+                $sessionId = (int) $created['id'];
+                $saved = gf_ai_session_replace_turns(
+                    (int) $user['id'],
+                    $sessionId,
+                    gf_ai_chat_history_get_raw(),
+                    $message
+                );
+            }
             $outSessionId = $saved['id'] ?? $sessionId;
-        } elseif ($saveHistory) {
-            gf_ai_chat_history_append($message, $errMsg, [], [], true);
         }
         gf_api_error('AI_ERROR', $errMsg, 503, $outSessionId ? ['session_id' => $outSessionId] : []);
     }
@@ -813,47 +833,40 @@ if ($path === '/ai/recommend' && $method === 'POST') {
 
     $suggestRefine = !empty($res['suggest_refine']);
     $outSessionId = null;
+
+    // Mirror chung cho widget ↔ /ai/chat trong cùng phiên trình duyệt.
+    gf_ai_chat_history_append(
+        $message,
+        (string) ($res['reply'] ?? ''),
+        is_array($res['gyms'] ?? null) ? $res['gyms'] : [],
+        is_array($res['trainers'] ?? null) ? $res['trainers'] : [],
+        false,
+        30,
+        $suggestRefine
+    );
+
     if ($persistDb && $user) {
         if ($sessionId <= 0) {
             $created = gf_ai_session_create((int) $user['id'], $message);
             $sessionId = (int) $created['id'];
         }
-        $saved = gf_ai_session_append_turn(
+        $saved = gf_ai_session_replace_turns(
             (int) $user['id'],
             $sessionId,
-            $message,
-            (string) ($res['reply'] ?? ''),
-            is_array($res['gyms'] ?? null) ? $res['gyms'] : [],
-            is_array($res['trainers'] ?? null) ? $res['trainers'] : [],
-            false,
-            $suggestRefine
+            gf_ai_chat_history_get_raw(),
+            $message
         );
         if ($saved === null) {
-            // session_id sai / không thuộc user → tạo phiên mới
             $created = gf_ai_session_create((int) $user['id'], $message);
             $sessionId = (int) $created['id'];
-            $saved = gf_ai_session_append_turn(
+            $saved = gf_ai_session_replace_turns(
                 (int) $user['id'],
                 $sessionId,
-                $message,
-                (string) ($res['reply'] ?? ''),
-                is_array($res['gyms'] ?? null) ? $res['gyms'] : [],
-                is_array($res['trainers'] ?? null) ? $res['trainers'] : [],
-                false,
-                $suggestRefine
+                gf_ai_chat_history_get_raw(),
+                $message
             );
         }
         $outSessionId = $saved['id'] ?? $sessionId;
-    } elseif ($saveHistory) {
-        gf_ai_chat_history_append(
-            $message,
-            (string) ($res['reply'] ?? ''),
-            is_array($res['gyms'] ?? null) ? $res['gyms'] : [],
-            is_array($res['trainers'] ?? null) ? $res['trainers'] : [],
-            false,
-            30,
-            $suggestRefine
-        );
     }
 
     gf_json([

@@ -13,15 +13,31 @@ $aiChips = [
     'HLV Yoga rating cao',
     'PT giảm cân cho người mới',
 ];
+$aiWidgetUser = function_exists('gf_current_user') ? gf_current_user() : null;
+$aiWidgetCanPersist = $aiWidgetUser
+    && ($aiWidgetUser['role'] ?? '') === 'user'
+    && ($aiWidgetUser['status'] ?? '') === 'active';
+// User: SSR lịch sử PHP session. Guest: để JS lấy từ sessionStorage (theo tab).
+$aiWidgetHistory = ($aiWidgetCanPersist && function_exists('gf_ai_chat_history_get'))
+    ? gf_ai_chat_history_get()
+    : [];
+$aiWidgetHistoryJson = $aiWidgetHistory === []
+    ? ''
+    : (string) json_encode($aiWidgetHistory, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS);
 ?>
 <link rel="stylesheet" href="<?= gf_h(gf_url('assets/css/ai_widget.css')) ?>?v=<?= gf_h($aiWidgetCssVer) ?>">
 <div
     id="gfAiWidget"
     class="gf-ai-widget"
     data-enabled="<?= $aiWidgetEnabled ? '1' : '0' ?>"
+    data-can-persist="<?= $aiWidgetCanPersist ? '1' : '0' ?>"
     data-api-url="<?= gf_h(gf_url('api/ai/recommend')) ?>"
+    data-history-url="<?= gf_h(gf_url('api/ai/history')) ?>"
     data-csrf-url="<?= gf_h(gf_url('api/auth/csrf')) ?>"
     data-csrf="<?= gf_h(gf_csrf_token()) ?>"
+    data-gym-detail-url="<?= gf_h(gf_url('pages/gyms/detail.php')) ?>"
+    data-trainer-detail-url="<?= gf_h(gf_url('pages/trainers/detail.php')) ?>"
+    <?php if ($aiWidgetHistoryJson !== ''): ?>data-history-json="<?= gf_h($aiWidgetHistoryJson) ?>"<?php endif; ?>
 >
     <div class="gf-ai-panel" id="gfAiPanel" role="dialog" aria-label="<?= gf_h(gf_t('Trợ lý AI GYMFINDER')) ?>" aria-hidden="true">
         <div class="gf-ai-panel-head">

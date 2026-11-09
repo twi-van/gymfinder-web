@@ -136,6 +136,52 @@ function gf_ai_session_append_turn(
     ];
 }
 
+/**
+ * Ghi đè toàn bộ lượt của phiên (đồng bộ từ lịch sử PHP session / widget).
+ *
+ * @param list<array<string,mixed>> $turns
+ * @return array{id:int,title:string,turns:list<array<string,mixed>>}|null
+ */
+function gf_ai_session_replace_turns(int $userId, int $sessionId, array $turns, ?string $title = null): ?array
+{
+    $session = gf_ai_session_get($userId, $sessionId);
+    if ($session === null) {
+        return null;
+    }
+    if (count($turns) > GF_AI_SESSION_MAX_TURNS) {
+        $turns = array_slice(array_values($turns), -GF_AI_SESSION_MAX_TURNS);
+    } else {
+        $turns = array_values($turns);
+    }
+    $nextTitle = $title !== null && trim($title) !== ''
+        ? gf_ai_session_normalize_title($title)
+        : (string) ($session['title'] ?? 'Hội thoại mới');
+    if ($nextTitle === 'Hội thoại mới' || $nextTitle === '') {
+        foreach ($turns as $turn) {
+            $userText = trim((string) ($turn['user'] ?? ''));
+            if ($userText !== '') {
+                $nextTitle = gf_ai_session_normalize_title($userText);
+                break;
+            }
+        }
+    }
+    $json = json_encode($turns, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($json === false) {
+        $json = '[]';
+    }
+    $st = gf_pdo()->prepare(
+        'UPDATE ai_chat_sessions
+         SET title = ?, turns_json = ?, updated_at = CURRENT_TIMESTAMP
+         WHERE id = ? AND user_id = ?'
+    );
+    $st->execute([$nextTitle, $json, $sessionId, $userId]);
+    return [
+        'id' => $sessionId,
+        'title' => $nextTitle,
+        'turns' => $turns,
+    ];
+}
+
 function gf_ai_session_clear_turns(int $userId, int $sessionId): bool
 {
     $st = gf_pdo()->prepare(

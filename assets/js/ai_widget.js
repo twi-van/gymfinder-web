@@ -4,7 +4,12 @@
 
     const apiUrl = root.dataset.apiUrl || '';
     const csrfUrl = root.dataset.csrfUrl || '';
+    const historyUrl = root.dataset.historyUrl || '';
     const enabled = root.dataset.enabled === '1';
+    const canPersist = root.dataset.canPersist === '1';
+    const gymDetailBase = root.dataset.gymDetailUrl || '';
+    const trainerDetailBase = root.dataset.trainerDetailUrl || '';
+    const GUEST_HISTORY_KEY = 'gf_ai_guest_turns';
 
     const fab = root.querySelector('.gf-ai-fab');
     const panel = root.querySelector('.gf-ai-panel');
@@ -16,6 +21,32 @@
 
     let csrf = root.dataset.csrf || '';
     let busy = false;
+    let seeded = false;
+
+    function readGuestTurns() {
+        try {
+            const raw = sessionStorage.getItem(GUEST_HISTORY_KEY);
+            if (!raw) return [];
+            const turns = JSON.parse(raw);
+            return Array.isArray(turns) ? turns : [];
+        } catch (_) {
+            return [];
+        }
+    }
+
+    function writeGuestTurns(turns) {
+        try {
+            sessionStorage.setItem(GUEST_HISTORY_KEY, JSON.stringify(Array.isArray(turns) ? turns : []));
+        } catch (_) {
+            /* quota / private mode */
+        }
+    }
+
+    function appendGuestTurn(turn) {
+        const turns = readGuestTurns();
+        turns.push(turn);
+        writeGuestTurns(turns.slice(-30));
+    }
 
     function setOpen(open) {
         panel.classList.toggle('is-open', open);
@@ -24,6 +55,17 @@
         if (open) {
             input?.focus();
         }
+    }
+
+    function clearMessagesKeepWelcome() {
+        if (!messages) return;
+        messages.innerHTML = '';
+        const welcome = document.createElement('div');
+        welcome.className = 'gf-ai-bubble gf-ai-bubble--bot';
+        welcome.textContent = gfT(
+            'Xin chào! Hỏi mình về phòng tập hoặc HLV tại TP.HCM nhé (quận, giá, Yoga…).'
+        );
+        messages.appendChild(welcome);
     }
 
     function addBubble(text, role) {
@@ -35,18 +77,70 @@
         return el;
     }
 
+    function detailUrl(kind, id) {
+        const n = Number(id) || 0;
+        if (n <= 0) return '#';
+        if (kind === 'trainer') {
+            if (trainerDetailBase) {
+                return trainerDetailBase.includes('?')
+                    ? `${trainerDetailBase}&id=${n}`
+                    : `${trainerDetailBase}?id=${n}`;
+            }
+            return `/pages/trainers/detail.php?id=${n}`;
+        }
+        if (gymDetailBase) {
+            return gymDetailBase.includes('?')
+                ? `${gymDetailBase}&id=${n}`
+                : `${gymDetailBase}?id=${n}`;
+        }
+        return `/pages/gyms/detail.php?id=${n}`;
+    }
+
+    function mapGymCard(g) {
+        if (g && g.title) return g;
+        const cats = Array.isArray(g?.categories) ? g.categories : [];
+        return {
+            id: g?.id,
+            title: g?.name || g?.title || '',
+            subtitle: [g?.district || '', cats.slice(0, 2).join(', ')].filter(Boolean).join(' · '),
+            image: g?.image || '',
+            url: g?.url || detailUrl('gym', g?.id),
+        };
+    }
+
+    function mapTrainerCard(t) {
+        if (t && t.title) return t;
+        const specs = Array.isArray(t?.specialties) ? t.specialties : [];
+        const districts = Array.isArray(t?.districts) ? t.districts : [];
+        return {
+            id: t?.id,
+            title: t?.full_name || t?.title || '',
+            subtitle: [
+                districts.slice(0, 2).join(', '),
+                t?.years_experience != null ? `${t.years_experience} năm KN` : '',
+                specs.slice(0, 2).join(' · '),
+            ]
+                .filter(Boolean)
+                .join(' · '),
+            image: t?.image || '',
+            url: t?.url || detailUrl('trainer', t?.id),
+            is_avatar: true,
+        };
+    }
+
     function addCards(items, kind) {
         if (!Array.isArray(items) || items.length === 0) return;
         const wrap = document.createElement('div');
         wrap.className = 'gf-ai-cards';
-        items.forEach((item) => {
+        items.forEach((raw) => {
+            const item = kind === 'trainer' ? mapTrainerCard(raw) : mapGymCard(raw);
             const a = document.createElement('a');
             a.className = 'gf-ai-card';
             a.href = item.url || '#';
             const img = document.createElement('img');
             img.src = item.image || '';
             img.alt = '';
-            if (kind === 'trainer') img.classList.add('is-avatar');
+            if (kind === 'trainer' || item.is_avatar) img.classList.add('is-avatar');
             const body = document.createElement('div');
             body.className = 'gf-ai-card-body';
             const title = document.createElement('p');
@@ -68,6 +162,22 @@
         messages.scrollTop = messages.scrollHeight;
     }
 
+    function renderTurns(turns) {
+        if (!Array.isArray(turns) || turns.length === 0) return false;
+        clearMessagesKeepWelcome();
+        // Remove welcome if we have real history
+        messages.innerHTML = '';
+        turns.forEach((turn) => {
+            const userText = (turn?.user || '').trim();
+            const botText = (turn?.bot || '').trim();
+            if (userText) addBubble(userText, 'user');
+            if (botText) addBubble(botText, turn?.is_error ? 'bot' : 'bot');
+            addCards(turn?.gyms || [], 'gym');
+            addCards(turn?.trainers || [], 'trainer');
+        });
+        return true;
+    }
+
     async function refreshCsrf() {
         if (!csrfUrl) return csrf;
         try {
@@ -80,9 +190,72 @@
         return csrf;
     }
 
+    async function clearServerHistorySoft() {
+        if (!historyUrl) return;
+        try {
+            await refreshCsrf();
+            await fetch(historyUrl, {
+                method: 'DELETE',
+                credentials: 'same-origin',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrf,
+                },
+                body: JSON.stringify({}),
+            });
+        } catch (_) {
+            /* ignore */
+        }
+    }
+
+    async function loadSharedHistory() {
+        if (seeded) return;
+        seeded = true;
+
+        // Guest: lịch sử theo tab (sessionStorage). Đóng tab là mất.
+        if (!canPersist) {
+            const localTurns = readGuestTurns();
+            if (localTurns.length) {
+                renderTurns(localTurns);
+                return;
+            }
+            // Tab mới / chưa chat: bỏ lịch sử PHPSESSID cũ (nếu còn).
+            await clearServerHistorySoft();
+            return;
+        }
+
+        // User: SSR / API PHP session (dùng chung widget ↔ trang chat).
+        const embedded = root.dataset.historyJson;
+        if (embedded) {
+            try {
+                const turns = JSON.parse(embedded);
+                if (renderTurns(turns)) return;
+            } catch (_) {
+                /* fall through */
+            }
+        }
+        if (!historyUrl) return;
+        try {
+            const res = await fetch(historyUrl, {
+                credentials: 'same-origin',
+                headers: { Accept: 'application/json' },
+            });
+            const json = await res.json().catch(() => ({}));
+            if (res.ok) {
+                renderTurns(json?.data?.turns || []);
+            }
+        } catch (_) {
+            /* ignore */
+        }
+    }
+
     async function ask(message) {
         if (!enabled) {
-            addBubble(gfT('AI chưa cấu hình trên máy này. Xem hướng dẫn trong GymFinder_HuongDanChay.md.'), 'bot');
+            addBubble(
+                gfT('AI chưa cấu hình trên máy này. Xem hướng dẫn trong GymFinder_HuongDanChay.md.'),
+                'bot'
+            );
             return;
         }
         if (busy) return;
@@ -104,25 +277,60 @@
                     Accept: 'application/json',
                     'X-CSRF-Token': csrf,
                 },
-                body: JSON.stringify({ message: text }),
+                // save_history giữ tương thích; API luôn mirror PHP session.
+                body: JSON.stringify({ message: text, save_history: true }),
             });
             const json = await res.json().catch(() => ({}));
             loading.remove();
             if (!res.ok || json?.error) {
-                const msg = json?.error?.message || json?.message || gfT('Không gọi được trợ lý AI. Thử lại sau.');
+                const msg =
+                    json?.error?.message ||
+                    json?.message ||
+                    gfT('Không gọi được trợ lý AI. Thử lại sau.');
                 addBubble(msg, 'bot');
+                if (!canPersist) {
+                    appendGuestTurn({
+                        user: text,
+                        bot: msg,
+                        is_error: true,
+                        gyms: [],
+                        trainers: [],
+                        suggest_refine: false,
+                        at: Date.now(),
+                    });
+                }
                 return;
             }
             const data = json.data || {};
-            addBubble(data.reply || gfT('Đây là một số gợi ý.'), 'bot');
+            const reply = data.reply || gfT('Đây là một số gợi ý.');
+            addBubble(reply, 'bot');
             addCards(data.gyms || [], 'gym');
             addCards(data.trainers || [], 'trainer');
-            if ((data.gyms || []).length === 0 && (data.trainers || []).length === 0) {
-                /* reply already explains */
+            if (!canPersist) {
+                appendGuestTurn({
+                    user: text,
+                    bot: reply,
+                    is_error: false,
+                    gyms: data.gyms || [],
+                    trainers: data.trainers || [],
+                    suggest_refine: !!data.suggest_refine,
+                    at: Date.now(),
+                });
             }
         } catch (err) {
             loading.remove();
             addBubble(gfT('Lỗi mạng. Kiểm tra kết nối và thử lại.'), 'bot');
+            if (!canPersist) {
+                appendGuestTurn({
+                    user: text,
+                    bot: gfT('Lỗi mạng. Kiểm tra kết nối và thử lại.'),
+                    is_error: true,
+                    gyms: [],
+                    trainers: [],
+                    suggest_refine: false,
+                    at: Date.now(),
+                });
+            }
         } finally {
             busy = false;
             if (sendBtn) sendBtn.disabled = false;
@@ -131,7 +339,9 @@
     }
 
     fab?.addEventListener('click', () => {
-        setOpen(!panel.classList.contains('is-open'));
+        const willOpen = !panel.classList.contains('is-open');
+        setOpen(willOpen);
+        if (willOpen) loadSharedHistory();
     });
     closeBtn?.addEventListener('click', () => setOpen(false));
 
@@ -147,7 +357,7 @@
             const chip = btn.getAttribute('data-chip') || '';
             if (input) input.value = '';
             setOpen(true);
-            ask(chip);
+            loadSharedHistory().finally(() => ask(chip));
         });
     });
 
@@ -156,4 +366,7 @@
             setOpen(false);
         }
     });
+
+    // Prefetch shared history so opening panel feels instant.
+    loadSharedHistory();
 })();

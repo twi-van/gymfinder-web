@@ -12,17 +12,21 @@ $currentUser = gf_current_user();
 $canPersist = $currentUser && ($currentUser['role'] ?? '') === 'user' && ($currentUser['status'] ?? '') === 'active';
 $sessions = [];
 $activeSessionId = 0;
+// User đăng nhập: lịch sử đang mở mirror PHP session (dùng chung widget).
+// Guest: không SSR lịch sử — JS khôi phục từ sessionStorage (mất khi đóng tab).
 $history = [];
 
 if ($canPersist) {
+    $history = gf_ai_chat_history_get();
     $sessions = gf_ai_sessions_list((int) $currentUser['id']);
-    if ($sessions !== []) {
+    if ($history === [] && $sessions !== []) {
         $activeSessionId = (int) $sessions[0]['id'];
         $loaded = gf_ai_session_get((int) $currentUser['id'], $activeSessionId);
         $history = is_array($loaded['turns'] ?? null) ? $loaded['turns'] : [];
+        if ($history !== []) {
+            gf_ai_chat_history_set($history);
+        }
     }
-} else {
-    $history = gf_ai_chat_history_get();
 }
 
 $aiReady = gf_ai_is_configured();
@@ -88,8 +92,10 @@ require dirname(__DIR__, 2) . '/includes/header.php';
             </aside>
         <?php else: ?>
             <div class="gf-ai-persist-cta alert alert-light border mb-2">
-                <i class="fa-solid fa-bookmark text-primary me-1"></i>
-                <strong><?= gf_h('Đăng nhập') ?></strong> <?= gf_h('để lưu nhiều phiên chat và mở lại sau.') ?>
+                <i class="fa-solid fa-clock text-primary me-1"></i>
+                <?= gf_h(gf_t('Guest: lịch sử tạm trong tab hiện tại (widget và trang chat dùng chung); đóng tab sẽ mất.')) ?>
+                <span class="mx-1">·</span>
+                <strong><?= gf_h(gf_t('Đăng nhập')) ?></strong> <?= gf_h(gf_t('để lưu nhiều phiên và mở lại sau.')) ?>
                 <a href="<?= gf_h($loginUrl) ?>" class="alert-link ms-1"><?= gf_h(gf_t('Đăng nhập')) ?></a>
             </div>
         <?php endif; ?>

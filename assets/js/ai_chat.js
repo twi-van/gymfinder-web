@@ -25,6 +25,40 @@
     let busy = false;
     let hasTurns = root.dataset.hasHistory === '1';
     let sessionId = Number(root.dataset.sessionId || 0) || 0;
+    const GUEST_HISTORY_KEY = 'gf_ai_guest_turns';
+
+    function readGuestTurns() {
+        try {
+            const raw = sessionStorage.getItem(GUEST_HISTORY_KEY);
+            if (!raw) return [];
+            const turns = JSON.parse(raw);
+            return Array.isArray(turns) ? turns : [];
+        } catch (_) {
+            return [];
+        }
+    }
+
+    function writeGuestTurns(turns) {
+        try {
+            sessionStorage.setItem(GUEST_HISTORY_KEY, JSON.stringify(Array.isArray(turns) ? turns : []));
+        } catch (_) {
+            /* ignore */
+        }
+    }
+
+    function appendGuestTurn(turn) {
+        const turns = readGuestTurns();
+        turns.push(turn);
+        writeGuestTurns(turns.slice(-30));
+    }
+
+    function clearGuestTurns() {
+        try {
+            sessionStorage.removeItem(GUEST_HISTORY_KEY);
+        } catch (_) {
+            /* ignore */
+        }
+    }
 
     function gfPlace(name) {
         const text = String(name || '');
@@ -391,10 +425,24 @@
     }
 
     async function startNewSession() {
+        // Xóa lịch sử đang mở (PHP + guest tab storage); không xóa các phiên DB đã lưu khác.
+        try {
+            await refreshCsrf();
+            await fetch(historyUrl, {
+                method: 'DELETE',
+                credentials: 'same-origin',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrf,
+                },
+                body: JSON.stringify({}),
+            });
+        } catch (_) {
+            /* ignore network; vẫn reset UI */
+        }
         if (!canPersist) {
-            resetThreadToWelcome();
-            sessionId = 0;
-            return;
+            clearGuestTurns();
         }
         markActiveSession(0);
         resetThreadToWelcome();
@@ -402,7 +450,10 @@
             btn.classList.remove('is-active');
         });
         if (typeof window.gfToast === 'function') {
-            window.gfToast(gfT('Phiên mới — hỏi AI để bắt đầu lưu.'), 'info');
+            window.gfToast(
+                canPersist ? gfT('Phiên mới — hỏi AI để bắt đầu lưu.') : gfT('Đã bắt đầu hội thoại mới.'),
+                'info'
+            );
         }
     }
 
@@ -474,7 +525,8 @@
             await refreshCsrf();
             const payload = {
                 message,
-                save_history: !canPersist,
+                // Luôn mirror PHP session để widget ↔ trang chat cùng lịch sử trong 1 phiên.
+                save_history: true,
             };
             if (canPersist) {
                 payload.persist_session = true;
@@ -505,16 +557,39 @@
                 const msg =
                     json?.error?.message || json?.message || gfT('Không gọi được trợ lý AI. Thử lại sau.');
                 appendBot({ reply: msg, gyms: [], trainers: [], suggestRefine: false, isError: true });
+                if (!canPersist) {
+                    appendGuestTurn({
+                        user: message,
+                        bot: msg,
+                        is_error: true,
+                        gyms: [],
+                        trainers: [],
+                        suggest_refine: false,
+                        at: Date.now(),
+                    });
+                }
                 return;
             }
 
+            const reply = data.reply || gfT('Đây là một số gợi ý.');
             appendBot({
-                reply: data.reply || gfT('Đây là một số gợi ý.'),
+                reply,
                 gyms: data.gyms || [],
                 trainers: data.trainers || [],
                 suggestRefine: !!data.suggest_refine,
                 isError: false,
             });
+            if (!canPersist) {
+                appendGuestTurn({
+                    user: message,
+                    bot: reply,
+                    is_error: false,
+                    gyms: data.gyms || [],
+                    trainers: data.trainers || [],
+                    suggest_refine: !!data.suggest_refine,
+                    at: Date.now(),
+                });
+            }
         } catch (_) {
             loading.remove();
             appendBot({
@@ -524,6 +599,17 @@
                 suggestRefine: false,
                 isError: true,
             });
+            if (!canPersist) {
+                appendGuestTurn({
+                    user: message,
+                    bot: gfT('Lỗi mạng. Kiểm tra kết nối và thử lại.'),
+                    is_error: true,
+                    gyms: [],
+                    trainers: [],
+                    suggest_refine: false,
+                    at: Date.now(),
+                });
+            }
         } finally {
             setBusy(false);
             input?.focus();
@@ -568,6 +654,9 @@
                 return;
             }
             const clearedId = sessionId;
+            if (!canPersist) {
+                clearGuestTurns();
+            }
             markActiveSession(0);
             resetThreadToWelcome();
             if (canPersist) {
@@ -628,6 +717,33 @@
             if (id && id !== sessionId) loadSession(id);
         }
     });
+
+    // Guest: khôi phục hội thoại trong tab (sessionStorage), dùng chung với widget.
+    if (!canPersist) {
+        const localTurns = readGuestTurns();
+        if (localTurns.length) {
+            renderTurns(localTurns);
+        } else {
+            // Tab mới: dọn PHPSESSID cũ nếu còn, UI giữ welcome SSR.
+            (async () => {
+                try {
+                    await refreshCsrf();
+                    await fetch(historyUrl, {
+                        method: 'DELETE',
+                        credentials: 'same-origin',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-Token': csrf,
+                        },
+                        body: JSON.stringify({}),
+                    });
+                } catch (_) {
+                    /* ignore */
+                }
+            })();
+        }
+    }
 
     scrollBottom();
 })();

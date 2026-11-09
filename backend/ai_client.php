@@ -933,11 +933,22 @@ function gf_ai_hydrate_turns_media(array $turns): array
     return array_map('gf_ai_hydrate_turn_media', $turns);
 }
 
-function gf_ai_chat_history_get(): array
+/** @return list<array<string,mixed>> */
+function gf_ai_chat_history_get_raw(): array
 {
     $history = $_SESSION['ai_chat_history'] ?? [];
-    $list = is_array($history) ? array_values($history) : [];
-    return gf_ai_hydrate_turns_media($list);
+    return is_array($history) ? array_values($history) : [];
+}
+
+function gf_ai_chat_history_get(): array
+{
+    return gf_ai_hydrate_turns_media(gf_ai_chat_history_get_raw());
+}
+
+/** @param list<array<string,mixed>> $turns */
+function gf_ai_chat_history_set(array $turns): void
+{
+    $_SESSION['ai_chat_history'] = array_values($turns);
 }
 
 function gf_ai_chat_history_clear(): void
@@ -1024,10 +1035,10 @@ function gf_ai_chat_history_append(
     int $maxTurns = 30,
     bool $suggestRefine = false
 ): void {
-    $history = gf_ai_chat_history_get();
+    $history = gf_ai_chat_history_get_raw();
     $history[] = gf_ai_build_history_turn($userText, $botText, $gyms, $trainers, $isError, $suggestRefine);
     if (count($history) > $maxTurns) {
         $history = array_slice($history, -$maxTurns);
     }
-    $_SESSION['ai_chat_history'] = $history;
+    gf_ai_chat_history_set($history);
 }
