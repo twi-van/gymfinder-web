@@ -115,13 +115,13 @@ gf_admin_table_open([
     <td class="text-center text-secondary text-nowrap"><?= gf_h(date('d/m/Y',strtotime($r['created_at']??'now'))) ?></td>
     <td class="text-center"><?php if (!empty($r['must_change_password'])): ?><span class="admin-badge badge-warning"><?= gf_h(gf_t('Chờ đổi mật khẩu')) ?></span><?php else: ?><span class="admin-badge <?= $r['status']==='active'?'badge-success':'badge-danger' ?>"><?= gf_h(gf_t($r['status']==='active'?'Hoạt động':'Bị khóa')) ?></span><?php endif; ?></td>
     <td class="text-end pe-3 text-nowrap">
-        <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#userModal<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Xem')) ?>"><i class="fa-solid fa-eye"></i></button>
+        <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#userModal<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Xem chi tiết')) ?>" aria-label="<?= gf_h(gf_t('Xem chi tiết')) ?>"><i class="fa-solid fa-eye"></i></button>
         <?php if (!empty($r['must_change_password'])): ?>
         <form method="post" class="d-inline">
             <?= gf_csrf_field() ?>
             <input type="hidden" name="action" value="resend_admin_password">
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
-            <button class="btn btn-action btn-action-edit" title="<?= gf_h(gf_t('Gửi lại mật khẩu tạm')) ?>"><i class="fa-solid fa-paper-plane"></i></button>
+            <button class="btn btn-action btn-action-edit" title="<?= gf_h(gf_t('Gửi lại mật khẩu tạm')) ?>" aria-label="<?= gf_h(gf_t('Gửi lại mật khẩu tạm')) ?>"><i class="fa-solid fa-paper-plane"></i></button>
         </form>
         <?php endif; ?>
         <?php if ($r['role'] !== 'admin'): ?>
@@ -133,7 +133,7 @@ gf_admin_table_open([
             <?= gf_csrf_field() ?>
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
             <input type="hidden" name="status" value="<?= $r['status']==='active'?'locked':'active' ?>">
-            <button class="btn btn-action <?= $r['status']==='active'?'btn-action-delete':'btn-action-edit' ?>" title="<?= gf_h(gf_t($r['status']==='active'?'Khóa':'Mở khóa')) ?>"><i class="fa-solid <?= $r['status']==='active'?'fa-lock':'fa-lock-open' ?>"></i></button>
+            <button class="btn btn-action <?= $r['status']==='active'?'btn-action-delete':'btn-action-edit' ?>" title="<?= gf_h(gf_t($r['status']==='active'?'Khóa tài khoản':'Mở khóa tài khoản')) ?>" aria-label="<?= gf_h(gf_t($r['status']==='active'?'Khóa tài khoản':'Mở khóa tài khoản')) ?>"><i class="fa-solid <?= $r['status']==='active'?'fa-lock':'fa-lock-open' ?>"></i></button>
         </form>
         <?php elseif ((int) $r['id'] === (int) $me['id']): ?>
         <form method="post" class="d-inline js-confirm-submit"
@@ -144,9 +144,9 @@ gf_admin_table_open([
             <?= gf_csrf_field() ?>
             <input type="hidden" name="action" value="delete_own_admin">
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
-            <button class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t('Xóa tài khoản của tôi')) ?>"><i class="fa-solid fa-trash"></i></button>
+            <button class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t('Xóa tài khoản của tôi')) ?>" aria-label="<?= gf_h(gf_t('Xóa tài khoản của tôi')) ?>"><i class="fa-solid fa-trash"></i></button>
         </form>
-        <?php else: ?><button class="btn btn-action btn-action-delete" disabled title="<?= gf_h(gf_t('Chỉ quản trị viên đó được xóa tài khoản của chính mình')) ?>"><i class="fa-solid fa-lock"></i></button>
+        <?php else: ?><button class="btn btn-action btn-action-delete" disabled title="<?= gf_h(gf_t('Chỉ quản trị viên đó được xóa tài khoản của chính mình')) ?>" aria-label="<?= gf_h(gf_t('Chỉ quản trị viên đó được xóa tài khoản của chính mình')) ?>"><i class="fa-solid fa-lock"></i></button>
         <?php endif; ?>
     </td>
 </tr>

@@ -1,8 +1,8 @@
 # GYMFINDER — Cấu trúc thư mục
 
-**Cập nhật:** 2026-10-19
+**Cập nhật:** 2026-11-10
 
-Nhìn theo **vai trò**, không cần nhớ từng file.
+Nhìn theo **vai trò**, không cần nhớ từng file. Cây đầy đủ có chú thích cũng nằm trong [`README.md`](../README.md).
 
 ---
 
@@ -10,60 +10,71 @@ Nhìn theo **vai trò**, không cần nhớ từng file.
 
 | Thư mục | Vai trò |
 | --- | --- |
-| `pages/` | Trang người dùng (Guest / User) |
+| `pages/` | Trang người dùng (Guest / User) + AI chat + legal |
 | `admin/` | Cổng quản trị |
 | `api/` | REST API entry |
-| `backend/` | Logic + DB (auth, repository, resource) |
-| `includes/` | Partial HTML dùng chung (header, card, layout) |
+| `backend/` | Logic + DB (auth, Google, AI, repository, resource) |
+| `includes/` | Partial HTML dùng chung (header, card, widget AI, layout) |
 | `assets/` | CSS / JS / ảnh tĩnh |
-| `database/` | Schema, seed, ERD |
+| `lang/` | Từ điển giao diện EN |
+| `database/` | Schema, seed, migrations |
+| `docker/` | Script khởi động Apache trên container |
 | `uploads/` | Ảnh upload runtime (gitignore) |
 | `docs/` | Tài liệu đồ án (không chạy app) |
 
-**Entry chạy app:** `index.php` · `router.php` · `.htaccess`
+**Entry chạy app:** `index.php` · `router.php` · `.htaccess` · `health.php` (deploy)
 
 ---
 
-## Cây thư mục
+## Cây thư mục (chi tiết)
 
 ```text
 GYMFINDER/
-├── index.php              # Trang chủ
-├── router.php             # Router PHP built-in server
-├── .htaccess              # Rewrite Apache
-├── README.md
+├── index.php                 # Trang chủ
+├── router.php                # Router PHP built-in server
+├── health.php                # Healthcheck deploy
 ├── favicon.ico
+├── README.md
+├── Dockerfile
+├── .htaccess
+├── .env.example
 │
-├── pages/                 # USER PORTAL
-│   ├── auth/              # login, register, quên MK (OTP)
-│   ├── gyms/              # tìm kiếm + chi tiết phòng tập
-│   ├── trainers/          # danh sách + chi tiết HLV
-│   ├── user/              # hồ sơ, yêu thích
-│   └── legal/             # điều khoản, chính sách
+├── pages/                    # USER PORTAL
+│   ├── auth/                 # login, register, OTP, Google OAuth, logout
+│   ├── gyms/                 # search + detail
+│   ├── trainers/             # index + detail
+│   ├── user/                 # profile, favorites, favorite_toggle
+│   ├── ai/                   # chat.php → /ai/chat
+│   └── legal/                # terms, privacy, faq
 │
-├── admin/                 # ADMIN PORTAL
-│   ├── pages/             # dashboard, gyms, trainers, …
-│   ├── assets/            # admin.css / admin.js
-│   └── components/        # helper bảng
+├── admin/                    # ADMIN PORTAL
+│   ├── pages/                # dashboard, gyms, trainers, catalogs,
+│   │                         # users, reviews, profile, force_password
+│   ├── assets/               # admin.css / admin.js
+│   └── components/           # table.php
 │
-├── api/                   # /api/* → index.php
+├── api/                      # /api/* → index.php
 │
-├── backend/               # TẦNG XỬ LÝ
-│   ├── bootstrap.php      # khởi tạo session, config, PDO
-│   ├── config.php · db.php · auth.php · helpers.php
-│   ├── sqlite_install.php # tạo DB + seed lần đầu (SQLite tuỳ chọn)
-│   ├── repositories/      # truy vấn SQL (PDO)
-│   └── resources/         # nghiệp vụ API & admin
+├── backend/
+│   ├── bootstrap.php         # session, config, PDO, CSRF, i18n, admin gate
+│   ├── config.php · env.php · db.php · auth.php · helpers.php
+│   ├── google_auth.php · mailer.php · i18n.php · ai_client.php
+│   ├── sqlite_install.php
+│   ├── *.local.php.example   # AI / Google / SMTP (file thật gitignore)
+│   ├── repositories/         # SQL PDO
+│   └── resources/            # nghiệp vụ API & admin
 │
-├── includes/              # partial UI dùng chung
-├── assets/                # css/ · js/ · images/
-├── database/              # schema.sql · seed.sql · ERD.png
-├── uploads/               # runtime (không commit)
+├── includes/                 # header, footer, cards, ai_widget, admin_layout…
+├── assets/                   # css/ · js/ · images/
+├── lang/                     # en.php · en_pages.php
+├── database/                 # schema.sql · seed.sql · migrations/ · deploy_infinityfree/
+├── docker/                   # apache-start.sh
+├── uploads/                  # runtime (không commit)
 │
-└── docs/                  # TÀI LIỆU (không phải mã chạy)
-    ├── PROJECT_STRUCTURE.md   # file này
-    ├── specs/                 # đặc tả, CSDL, mô tả, hướng dẫn chạy
-    └── qa/                    # test plan, cases, báo cáo, bugs
+└── docs/
+    ├── PROJECT_STRUCTURE.md
+    ├── specs/                # đặc tả, báo cáo, hướng dẫn, figures/
+    └── qa/                   # test plan / cases / smoke scripts
 ```
 
 ---
@@ -82,24 +93,9 @@ Trình duyệt
 ```text
 /api/*
     → api/index.php
-    → backend/resources/*
+    → backend/resources/*  (+ ai_client cho /api/ai/*)
     → JSON
 ```
-
----
-
-## `docs/` chi tiết
-
-| Đường dẫn | Nội dung |
-| --- | --- |
-| `docs/specs/GYMFINDER_dacta.docx` | Đặc tả yêu cầu |
-| `docs/specs/GYMFINDER_CSDL.docx` | Thiết kế CSDL |
-| `docs/specs/GymFinder_MoTaDuAn.docx` | Mô tả dự án |
-| `docs/specs/GymFinder_BaoCao_Khung.docx` | Khung báo cáo đồ án (điền dần) |
-| `docs/specs/GymFinder_HuongDanChay.md` | Hướng dẫn chạy |
-| `docs/specs/GymFinder_QuyDinh_Anh_Va_Form.md` | Quy định ảnh gym/PT + validate form (cho team) |
-| `docs/qa/` | Kế hoạch / case / báo cáo thực thi / bug |
-| `docs/PROJECT_STRUCTURE.md` | Cấu trúc thư mục |
 
 ---
 
@@ -109,5 +105,6 @@ Trình duyệt
 | --- | --- |
 | UI | PHP SSR, Bootstrap 5.3, CSS, JS, Font Awesome 6 |
 | Backend | PHP 8.0+ (không bắt buộc Composer) |
-| DB | **MySQL** (mặc định, XAMPP — `database/schema.sql` + `seed.sql`) / SQLite tuỳ chọn (`sqlite_install.php`) |
-| Bảo mật | PDO prepared statements, CSRF, password hash, phân quyền role |
+| DB | **MySQL** (mặc định, XAMPP) / SQLite tuỳ chọn |
+| AI | Groq (OpenAI-compatible), widget + `/ai/chat` |
+| Bảo mật | PDO prepared statements, CSRF, password hash, RBAC, OAuth PKCE |

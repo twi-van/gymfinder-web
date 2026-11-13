@@ -44,3 +44,8 @@ docs/specs/maudocx.docx
 
 backend/ai.local.php
 backend/google.local.php
+
+# Temp capture / audit scratch (do not commit)
+.tmp_*/
+.tmp_ch5_shot/
+.tmp_report_audit/

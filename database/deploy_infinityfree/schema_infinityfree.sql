@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS
-  ai_chat_sessions, password_reset_otps, favorites, reviews,
+  ai_chat_sessions, remember_tokens, password_reset_otps, favorites, reviews,
   gym_amenities, gym_categories, gym_images,
   gym_trainers, trainer_specialties,
   trainers, gyms,
@@ -430,7 +430,30 @@ CREATE TABLE password_reset_otps (
   DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================================
--- 14. ai_chat_sessions
+-- 14. remember_tokens
+-- «Ghi nhớ đăng nhập» thật: selector công khai + hash validator; cookie gf_remember
+-- Chỉ dùng cho role=user (30 ngày). Đổi MK / khóa user / logout thiết bị → thu hồi.
+-- =====================================================================
+CREATE TABLE remember_tokens (
+  id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id    INT UNSIGNED NOT NULL,
+  selector   VARCHAR(64)  NOT NULL,
+  token_hash VARCHAR(255) NOT NULL,
+  expires_at DATETIME NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_remember_selector (selector),
+  KEY idx_remember_user (user_id),
+  KEY idx_remember_expires (expires_at),
+
+  CONSTRAINT fk_remember_user
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================================
+-- 15. ai_chat_sessions
 -- Phiên chat AI theo user đã đăng nhập (turns JSON = lịch sử tối đa ~12 lượt)
 -- =====================================================================
 CREATE TABLE ai_chat_sessions (

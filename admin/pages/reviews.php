@@ -95,10 +95,10 @@ gf_admin_table_open([
     ?>
     <td class="text-center"><span class="admin-badge <?= gf_h($reviewStatusUi['class']) ?>"><?= gf_h($reviewStatusUi['label']) ?></span></td>
     <td class="text-end pe-3 text-nowrap">
-        <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#reviewModal<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Xem')) ?>"><i class="fa-solid fa-eye"></i></button>
+        <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#reviewModal<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Xem chi tiết')) ?>" aria-label="<?= gf_h(gf_t('Xem chi tiết')) ?>"><i class="fa-solid fa-eye"></i></button>
         <?php if ($r['status']==='pending'): ?>
-        <form method="post" class="d-inline"><?= gf_csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><input type="hidden" name="action" value="approve"><button class="btn btn-action btn-outline-success" title="<?= gf_h(gf_t('Duyệt')) ?>"><i class="fa-solid fa-check"></i></button></form>
-        <button type="button" class="btn btn-action btn-action-delete" data-bs-toggle="modal" data-bs-target="#rejectModal<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Từ chối')) ?>"><i class="fa-solid fa-xmark"></i></button>
+        <form method="post" class="d-inline"><?= gf_csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><input type="hidden" name="action" value="approve"><button class="btn btn-action btn-outline-success" title="<?= gf_h(gf_t('Duyệt đánh giá')) ?>" aria-label="<?= gf_h(gf_t('Duyệt đánh giá')) ?>"><i class="fa-solid fa-check"></i></button></form>
+        <button type="button" class="btn btn-action btn-action-delete" data-bs-toggle="modal" data-bs-target="#rejectModal<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Từ chối đánh giá')) ?>" aria-label="<?= gf_h(gf_t('Từ chối đánh giá')) ?>"><i class="fa-solid fa-xmark"></i></button>
         <?php else: ?>
         <form method="post" class="d-inline js-confirm-submit"
             data-confirm-title="<?= gf_h(gf_t('Xóa đánh giá')) ?>"
@@ -108,7 +108,7 @@ gf_admin_table_open([
             <?= gf_csrf_field() ?>
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
             <input type="hidden" name="action" value="delete">
-            <button class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t('Xóa đánh giá')) ?>"><i class="fa-solid fa-trash"></i></button>
+            <button class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t('Xóa đánh giá')) ?>" aria-label="<?= gf_h(gf_t('Xóa đánh giá')) ?>"><i class="fa-solid fa-trash"></i></button>
         </form>
         <?php endif; ?>
     </td>

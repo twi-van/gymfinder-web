@@ -1,6 +1,13 @@
 <?php
 declare(strict_types=1);
 
+/** Idle phiên làm việc (giây): User 60 phút, Admin 30 phút. */
+const GF_SESSION_IDLE_USER = 3600;
+const GF_SESSION_IDLE_ADMIN = 1800;
+/** Remember token User: 30 ngày. Admin không dùng remember dài hạn. */
+const GF_REMEMBER_DAYS_USER = 30;
+const GF_REMEMBER_COOKIE = 'gf_remember';
+
 function gf_current_user(): ?array
 {
     $id = $_SESSION['user_id'] ?? null;
@@ -189,7 +196,16 @@ function gf_establish_session(array $user, bool $remember = false): void
         session_regenerate_id(true);
     }
     $_SESSION['user_id'] = (int) $user['id'];
-    gf_apply_remember_cookie($remember);
+    $_SESSION['last_activity'] = time();
+    // Cookie PHPSESSID luôn là session cookie (đóng trình duyệt là hết).
+    // «Ghi nhớ» dùng remember token riêng — chỉ áp dụng cho role=user.
+    $allowRemember = $remember && (($user['role'] ?? '') === 'user');
+    if ($allowRemember) {
+        gf_remember_issue((int) $user['id']);
+    } else {
+        gf_remember_clear_cookie();
+    }
+    gf_refresh_session_cookie(false);
     gf_pdo()->prepare('UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?')->execute([(int) $user['id']]);
 }
 
@@ -215,18 +231,16 @@ function gf_post_login_path(array $user, string $to): string
     return $to !== '' ? $to : gf_url('index.php');
 }
 
-/**
- * Gia hạn cookie phiên khi bật "Ghi nhớ đăng nhập" (30 ngày), hoặc cookie phiên trình duyệt khi tắt.
- */
-function gf_apply_remember_cookie(bool $remember): void
+/** Ghi / làm mới cookie PHPSESSID (mặc định: hết khi đóng trình duyệt). */
+function gf_refresh_session_cookie(bool $rememberLegacyUnused = false): void
 {
-    if (headers_sent()) {
+    unset($rememberLegacyUnused);
+    if (headers_sent() || session_status() !== PHP_SESSION_ACTIVE) {
         return;
     }
     $params = session_get_cookie_params();
-    $lifetime = $remember ? 60 * 60 * 24 * 30 : 0;
     setcookie(session_name(), session_id(), [
-        'expires'  => $lifetime > 0 ? time() + $lifetime : 0,
+        'expires'  => 0,
         'path'     => $params['path'] ?: '/',
         'secure'   => !empty($params['secure']),
         'httponly' => true,
@@ -234,9 +248,220 @@ function gf_apply_remember_cookie(bool $remember): void
     ]);
 }
 
+/** @deprecated Giữ tên cũ để tương thích call site cũ — ủy quyền sang remember token. */
+function gf_apply_remember_cookie(bool $remember): void
+{
+    if ($remember && !empty($_SESSION['user_id'])) {
+        $st = gf_pdo()->prepare('SELECT role FROM users WHERE id=?');
+        $st->execute([(int) $_SESSION['user_id']]);
+        $role = (string) ($st->fetchColumn() ?: '');
+        if ($role === 'user') {
+            gf_remember_issue((int) $_SESSION['user_id']);
+            return;
+        }
+    }
+    gf_remember_clear_cookie();
+}
+
+function gf_cookie_secure_flag(): bool
+{
+    return !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+}
+
+function gf_remember_expiry_sql(int $timestamp): string
+{
+    $driver = gf_pdo()->getAttribute(PDO::ATTR_DRIVER_NAME);
+    return $driver === 'sqlite'
+        ? gmdate('Y-m-d H:i:s', $timestamp)
+        : date('Y-m-d H:i:s', $timestamp);
+}
+
+function gf_remember_clear_cookie(): void
+{
+    if (headers_sent()) {
+        return;
+    }
+    setcookie(GF_REMEMBER_COOKIE, '', [
+        'expires'  => time() - 3600,
+        'path'     => '/',
+        'secure'   => gf_cookie_secure_flag(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+/** Phát hành remember token mới cho User (selector:validator trong cookie HttpOnly). */
+function gf_remember_issue(int $userId): void
+{
+    gf_remember_revoke_cookie_token();
+    $selector = bin2hex(random_bytes(18));
+    $validator = bin2hex(random_bytes(32));
+    $expiresTs = time() + (GF_REMEMBER_DAYS_USER * 86400);
+    gf_pdo()->prepare(
+        'INSERT INTO remember_tokens (user_id, selector, token_hash, expires_at) VALUES (?,?,?,?)'
+    )->execute([
+        $userId,
+        $selector,
+        hash('sha256', $validator),
+        gf_remember_expiry_sql($expiresTs),
+    ]);
+    if (headers_sent()) {
+        return;
+    }
+    setcookie(GF_REMEMBER_COOKIE, $selector . ':' . $validator, [
+        'expires'  => $expiresTs,
+        'path'     => '/',
+        'secure'   => gf_cookie_secure_flag(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+/** Thu hồi token đang gắn với cookie hiện tại (không đụng token thiết bị khác). */
+function gf_remember_revoke_cookie_token(): void
+{
+    $raw = (string) ($_COOKIE[GF_REMEMBER_COOKIE] ?? '');
+    if ($raw === '' || !str_contains($raw, ':')) {
+        gf_remember_clear_cookie();
+        return;
+    }
+    [$selector] = explode(':', $raw, 2);
+    $selector = trim($selector);
+    if ($selector !== '') {
+        try {
+            gf_pdo()->prepare('DELETE FROM remember_tokens WHERE selector=?')->execute([$selector]);
+        } catch (Throwable $e) {
+            // Bảng có thể chưa sẵn trên môi trường lỗi — bỏ qua để logout vẫn chạy.
+        }
+    }
+    gf_remember_clear_cookie();
+}
+
+/** Thu hồi mọi remember token của một user (đổi MK / khóa tài khoản). */
+function gf_remember_revoke_all_for_user(int $userId): void
+{
+    try {
+        gf_pdo()->prepare('DELETE FROM remember_tokens WHERE user_id=?')->execute([$userId]);
+    } catch (Throwable $e) {
+        // ignore
+    }
+    if (!empty($_SESSION['user_id']) && (int) $_SESSION['user_id'] === $userId) {
+        gf_remember_clear_cookie();
+    }
+}
+
+/**
+ * Khi không còn $_SESSION['user_id'], thử khôi phục từ cookie remember (chỉ User active).
+ * Gọi một lần mỗi request sau khi DB sẵn sàng.
+ */
+function gf_bootstrap_remember_login(): void
+{
+    if (!empty($_SESSION['user_id'])) {
+        return;
+    }
+    $raw = (string) ($_COOKIE[GF_REMEMBER_COOKIE] ?? '');
+    if ($raw === '' || !str_contains($raw, ':')) {
+        return;
+    }
+    [$selector, $validator] = explode(':', $raw, 2);
+    $selector = trim($selector);
+    $validator = trim($validator);
+    if ($selector === '' || $validator === '' || strlen($validator) < 32) {
+        gf_remember_clear_cookie();
+        return;
+    }
+    try {
+        $st = gf_pdo()->prepare(
+            'SELECT rt.id, rt.user_id, rt.token_hash, rt.expires_at, u.role, u.status, u.must_change_password
+             FROM remember_tokens rt
+             INNER JOIN users u ON u.id = rt.user_id
+             WHERE rt.selector = ?
+             LIMIT 1'
+        );
+        $st->execute([$selector]);
+        $row = $st->fetch();
+    } catch (Throwable $e) {
+        return;
+    }
+    if (!$row) {
+        gf_remember_clear_cookie();
+        return;
+    }
+    $expiresRaw = (string) $row['expires_at'];
+    if (gf_pdo()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite' && !str_ends_with(strtoupper($expiresRaw), 'UTC')) {
+        $expiresRaw .= ' UTC';
+    }
+    $expiresAt = strtotime($expiresRaw);
+    $validHash = hash_equals((string) $row['token_hash'], hash('sha256', $validator));
+    $isUser = ($row['role'] ?? '') === 'user';
+    $isActive = ($row['status'] ?? '') === 'active';
+    if (!$validHash || $expiresAt === false || $expiresAt < time() || !$isUser || !$isActive) {
+        gf_pdo()->prepare('DELETE FROM remember_tokens WHERE id=?')->execute([(int) $row['id']]);
+        gf_remember_clear_cookie();
+        return;
+    }
+    // Xoay token (rotation) sau mỗi lần dùng lại.
+    gf_pdo()->prepare('DELETE FROM remember_tokens WHERE id=?')->execute([(int) $row['id']]);
+    $userSt = gf_pdo()->prepare('SELECT * FROM users WHERE id=?');
+    $userSt->execute([(int) $row['user_id']]);
+    $user = $userSt->fetch();
+    if (!$user) {
+        gf_remember_clear_cookie();
+        return;
+    }
+    if (!headers_sent()) {
+        session_regenerate_id(true);
+    }
+    $_SESSION['user_id'] = (int) $user['id'];
+    $_SESSION['last_activity'] = time();
+    gf_remember_issue((int) $user['id']);
+    gf_refresh_session_cookie(false);
+}
+
+/**
+ * Siết idle: User 60 phút / Admin 30 phút không hoạt động → xóa phiên
+ * (cookie remember User vẫn giữ để lần request sau có thể tự đăng nhập lại).
+ */
+function gf_session_enforce_idle(): void
+{
+    if (empty($_SESSION['user_id'])) {
+        return;
+    }
+    $last = (int) ($_SESSION['last_activity'] ?? 0);
+    if ($last <= 0) {
+        $_SESSION['last_activity'] = time();
+        return;
+    }
+    $role = null;
+    try {
+        $st = gf_pdo()->prepare('SELECT role FROM users WHERE id=?');
+        $st->execute([(int) $_SESSION['user_id']]);
+        $role = $st->fetchColumn();
+    } catch (Throwable $e) {
+        return;
+    }
+    $limit = ($role === 'admin') ? GF_SESSION_IDLE_ADMIN : GF_SESSION_IDLE_USER;
+    if ((time() - $last) <= $limit) {
+        return;
+    }
+    // Hết idle: hủy session hiện tại nhưng KHÔNG thu hồi remember token.
+    $_SESSION = [];
+    if (session_status() === PHP_SESSION_ACTIVE && !headers_sent()) {
+        session_regenerate_id(true);
+    }
+}
+
+function gf_session_mark_activity(): void
+{
+    if (!empty($_SESSION['user_id'])) {
+        $_SESSION['last_activity'] = time();
+    }
+}
+
 function gf_logout(): void
 {
-    // End the whole authenticated session, including CSRF and password-reset state.
+    // End auth session + revoke remember token của thiết bị hiện tại.
+    gf_remember_revoke_cookie_token();
     $_SESSION = [];
     if (!headers_sent()) {
         $params = session_get_cookie_params();
@@ -328,6 +553,7 @@ function gf_change_password(int $userId, string $current, string $new): array
         return ['ok' => false, 'error' => 'Mật khẩu mới phải khác mật khẩu hiện tại.'];
     }
     gf_pdo()->prepare('UPDATE users SET password_hash=? WHERE id=?')->execute([password_hash($new, PASSWORD_BCRYPT), $userId]);
+    gf_remember_revoke_all_for_user($userId);
     return ['ok' => true];
 }
 
@@ -351,6 +577,7 @@ function gf_complete_forced_password(int $userId, string $new, string $confirm):
     }
     gf_pdo()->prepare('UPDATE users SET password_hash=?, must_change_password=0, temp_password_expires_at=NULL WHERE id=?')
         ->execute([password_hash($new, PASSWORD_BCRYPT), $userId]);
+    gf_remember_revoke_all_for_user($userId);
     return ['ok' => true];
 }
 
@@ -595,6 +822,7 @@ function gf_password_reset_complete(string $password, string $confirm): array
         }
         throw $e;
     }
+    gf_remember_revoke_all_for_user($userId);
     gf_password_reset_clear();
     return ['ok' => true];
 }

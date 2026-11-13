@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
     ini_set('session.use_strict_mode', '1');
+    // Idle tối đa ~60 phút (User); Admin siết thêm trong auth.php (~30 phút).
+    ini_set('session.gc_maxlifetime', '3600');
     session_set_cookie_params([
         'lifetime' => 0,
         'path'     => '/',
@@ -63,6 +65,12 @@ try {
     exit;
 }
 gf_boot_web_root();
+
+// Idle session → (tuỳ chọn) khôi phục bằng remember token → đánh dấu hoạt động.
+// CSRF tạo sau bước này để không bị xóa khi hết idle.
+gf_session_enforce_idle();
+gf_bootstrap_remember_login();
+gf_session_mark_activity();
 gf_csrf_token();
 
 // Bảo vệ CSRF trên các POST request từ web (không phải API)

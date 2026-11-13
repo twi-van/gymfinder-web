@@ -245,16 +245,16 @@ foreach ($rows as $r):
     <td class="text-center admin-cell-rating text-nowrap"><i class="fa-solid fa-star"></i> <?= gf_h((string)($r['avg_rating']??0)) ?></td>
     <td class="text-center"><span class="admin-badge <?= $r['status']==='active'?'badge-success':'badge-neutral' ?>"><?= gf_h(gf_t($r['status']==='active'?'Hoạt động':'Tạm ẩn')) ?></span></td>
     <td class="text-end pe-3 text-nowrap">
-        <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#trainerView<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Xem chi tiết')) ?>"><i class="fa-solid fa-eye"></i></button>
-        <button type="button" class="btn btn-action btn-action-edit" title="<?= gf_h(gf_t('Chỉnh sửa')) ?>" data-bs-toggle="modal" data-bs-target="#trainerCreate" onclick="trainerModalEdit(this)" data-id="<?= (int)$r['id'] ?>" data-name="<?= gf_h($r['full_name']) ?>" data-specialty="<?= (int)($linkedSpecIds[0] ?? 0) ?>" data-specialties="<?= gf_h(implode(',', $linkedSpecIds)) ?>" data-gym="<?= (int)($linkedGymIds[0] ?? 0) ?>" data-gyms="<?= gf_h(implode(',', $linkedGymIds)) ?>" data-years="<?= (int)$r['years_experience'] ?>" data-phone="<?= gf_h($r['phone']??'') ?>" data-status="<?= gf_h($r['status']) ?>" data-featured="<?= (int)($r['is_featured'] ?? 0) ?>" data-bio="<?= gf_h($r['bio']??'') ?>" data-avatar="<?= gf_h($r['avatar_url']??'') ?>" data-avatar-display="<?= gf_h(gf_avatar($r['avatar_url']??null, (int)$r['id'], $r['full_name'])) ?>"><i class="fa-solid fa-pen"></i></button>
+        <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#trainerView<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Xem chi tiết')) ?>" aria-label="<?= gf_h(gf_t('Xem chi tiết')) ?>"><i class="fa-solid fa-eye"></i></button>
+        <button type="button" class="btn btn-action btn-action-edit" title="<?= gf_h(gf_t('Chỉnh sửa')) ?>" aria-label="<?= gf_h(gf_t('Chỉnh sửa')) ?>" data-bs-toggle="modal" data-bs-target="#trainerCreate" onclick="trainerModalEdit(this)" data-id="<?= (int)$r['id'] ?>" data-name="<?= gf_h($r['full_name']) ?>" data-specialty="<?= (int)($linkedSpecIds[0] ?? 0) ?>" data-specialties="<?= gf_h(implode(',', $linkedSpecIds)) ?>" data-gym="<?= (int)($linkedGymIds[0] ?? 0) ?>" data-gyms="<?= gf_h(implode(',', $linkedGymIds)) ?>" data-years="<?= (int)$r['years_experience'] ?>" data-phone="<?= gf_h($r['phone']??'') ?>" data-status="<?= gf_h($r['status']) ?>" data-featured="<?= (int)($r['is_featured'] ?? 0) ?>" data-bio="<?= gf_h($r['bio']??'') ?>" data-avatar="<?= gf_h($r['avatar_url']??'') ?>" data-avatar-display="<?= gf_h(gf_avatar($r['avatar_url']??null, (int)$r['id'], $r['full_name'])) ?>"><i class="fa-solid fa-pen"></i></button>
         <form method="post" class="d-inline" onsubmit="return handleTrainerStatusSubmit(this);">
             <?= gf_csrf_field() ?>
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
             <input type="hidden" name="status" value="<?= $r['status']==='active'?'hidden':'active' ?>">
             <?php if ($r['status'] === 'active'): ?>
-                <button type="submit" class="btn btn-action btn-action-toggle" title="<?= gf_h(gf_t('Tạm ẩn huấn luyện viên')) ?>"><i class="fa-solid fa-eye-slash"></i></button>
+                <button type="submit" class="btn btn-action btn-action-toggle" title="<?= gf_h(gf_t('Tạm ẩn huấn luyện viên')) ?>" aria-label="<?= gf_h(gf_t('Tạm ẩn huấn luyện viên')) ?>"><i class="fa-solid fa-eye-slash"></i></button>
             <?php else: ?>
-                <button type="submit" class="btn btn-action btn-action-activate" title="<?= gf_h(gf_t('Kích hoạt lại huấn luyện viên')) ?>"><i class="fa-solid fa-rotate-left"></i></button>
+                <button type="submit" class="btn btn-action btn-action-activate" title="<?= gf_h(gf_t('Kích hoạt lại huấn luyện viên')) ?>" aria-label="<?= gf_h(gf_t('Kích hoạt lại huấn luyện viên')) ?>"><i class="fa-solid fa-rotate-left"></i></button>
             <?php endif; ?>
         </form>
     </td>

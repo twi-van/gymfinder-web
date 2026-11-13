@@ -103,9 +103,34 @@
         }
     }
 
+    function initActionTooltips() {
+        function apply() {
+            if (!window.bootstrap || typeof bootstrap.Tooltip !== 'function') return false;
+            document.querySelectorAll('.btn-action[title], .btn-action[data-bs-original-title]').forEach(function (el) {
+                var tip = bootstrap.Tooltip.getOrCreateInstance(el, {
+                    container: 'body',
+                    placement: 'top',
+                    trigger: 'hover',
+                    delay: { show: 120, hide: 0 }
+                });
+                if (el.dataset.gfTipBound === '1') return;
+                el.dataset.gfTipBound = '1';
+                el.addEventListener('click', function () {
+                    tip.hide();
+                });
+            });
+            return true;
+        }
+        if (apply()) return;
+        // Bootstrap CDN thường nằm cuối trang; thử lại sau khi script đó kịp load
+        window.addEventListener('load', apply);
+        setTimeout(apply, 0);
+    }
+
     ready(function () {
         document.querySelectorAll('.admin-drag-scroll').forEach(initAdminDragScroll);
         initSidebarCollapse();
+        initActionTooltips();
 
         var sidebar = document.getElementById('sidebar');
         var overlay = document.getElementById('sidebarOverlay');

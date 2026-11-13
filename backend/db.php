@@ -48,6 +48,7 @@ function gf_db_init(array $config): void
         gf_db_ensure_catalog_delete_restrict($pdo);
     }
     gf_db_ensure_password_reset_otps($pdo);
+    gf_db_ensure_remember_tokens($pdo);
     gf_db_ensure_admin_invite_columns($pdo);
     gf_db_ensure_ai_chat_sessions($pdo);
     gf_db_ensure_category_labels_vi($pdo);
@@ -609,6 +610,60 @@ function gf_db_ensure_password_reset_otps(PDO $pdo): void
         throw $e;
     } catch (Throwable $e) {
         error_log('GYMFINDER password_reset_otps ensure failed: ' . $e->getMessage());
+        throw $e;
+    }
+}
+
+/** Bảng remember token («Ghi nhớ đăng nhập» thật). Idempotent cho SQLite và MySQL. */
+function gf_db_ensure_remember_tokens(PDO $pdo): void
+{
+    $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+    if ($driver === 'sqlite') {
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS remember_tokens (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              user_id INTEGER NOT NULL,
+              selector TEXT NOT NULL UNIQUE,
+              token_hash TEXT NOT NULL,
+              expires_at TEXT NOT NULL,
+              created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )'
+        );
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_remember_user ON remember_tokens(user_id)');
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_remember_expires ON remember_tokens(expires_at)');
+        return;
+    }
+    try {
+        $st = $pdo->query("SHOW TABLES LIKE 'remember_tokens'");
+        if ($st && $st->fetch()) {
+            return;
+        }
+        $users = $pdo->query("SHOW TABLES LIKE 'users'");
+        if (!$users || !$users->fetch()) {
+            throw new RuntimeException(
+                'Chưa có bảng users — import database/schema.sql (hoặc schema_infinityfree.sql) rồi seed.'
+            );
+        }
+        $pdo->exec(
+            "CREATE TABLE remember_tokens (
+              id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+              user_id INT UNSIGNED NOT NULL,
+              selector VARCHAR(64) NOT NULL,
+              token_hash VARCHAR(255) NOT NULL,
+              expires_at DATETIME NOT NULL,
+              created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              PRIMARY KEY (id),
+              UNIQUE KEY uq_remember_selector (selector),
+              KEY idx_remember_user (user_id),
+              KEY idx_remember_expires (expires_at),
+              CONSTRAINT fk_remember_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+        );
+    } catch (RuntimeException $e) {
+        throw $e;
+    } catch (Throwable $e) {
+        error_log('GYMFINDER remember_tokens ensure failed: ' . $e->getMessage());
         throw $e;
     }
 }

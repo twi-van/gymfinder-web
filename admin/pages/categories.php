@@ -34,6 +34,41 @@ function gf_admin_catalog_redirect(string $tab, string $flag = ''): void
     gf_redirect(gf_url($url));
 }
 
+/** Gán icon Font Awesome theo tên/slug tiện ích; không khớp thì dùng fa-check. */
+function gf_admin_amenity_default_icon(string $name, string $slug = ''): string
+{
+    $hay = mb_strtolower(trim($name . ' ' . $slug), 'UTF-8');
+    $map = [
+        'wifi' => 'fa-wifi',
+        'wi-fi' => 'fa-wifi',
+        'phòng tắm' => 'fa-shower',
+        'phong-tam' => 'fa-shower',
+        'shower' => 'fa-shower',
+        'bãi giữ xe' => 'fa-square-parking',
+        'giữ xe' => 'fa-square-parking',
+        'bãi xe' => 'fa-square-parking',
+        'parking' => 'fa-square-parking',
+        'xông hơi' => 'fa-hot-tub-person',
+        'xong-hoi' => 'fa-hot-tub-person',
+        'sauna' => 'fa-hot-tub-person',
+        'tủ khóa' => 'fa-lock',
+        'tu-khoa' => 'fa-lock',
+        'locker' => 'fa-lock',
+        'điều hòa' => 'fa-snowflake',
+        'dieu-hoa' => 'fa-snowflake',
+        'snowflake' => 'fa-snowflake',
+        'nước uống' => 'fa-bottle-water',
+        'nuoc-uong' => 'fa-bottle-water',
+        'water' => 'fa-bottle-water',
+    ];
+    foreach ($map as $needle => $icon) {
+        if ($needle !== '' && mb_strpos($hay, $needle) !== false) {
+            return $icon;
+        }
+    }
+    return 'fa-check';
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     gf_require_csrf();
     $action = (string) ($_POST['action'] ?? 'save');
@@ -95,7 +130,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } else {
         $name = trim((string) ($_POST['name'] ?? ''));
-        $icon = trim((string) ($_POST['icon'] ?? ''));
         try {
             if ($action === 'delete' && $id > 0) {
                 if ($table === 'specialties') {
@@ -148,11 +182,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if ($id > 0) {
-                if ($table === 'amenities') {
-                    gf_pdo()->prepare('UPDATE amenities SET name=?, icon=? WHERE id=?')->execute([$name, $icon !== '' ? $icon : null, $id]);
-                } else {
-                    gf_pdo()->prepare("UPDATE {$table} SET name=? WHERE id=?")->execute([$name, $id]);
-                }
+                // Amenities: chỉ đổi tên; icon giữ nguyên (không nhập tay trong form).
+                gf_pdo()->prepare("UPDATE {$table} SET name=? WHERE id=?")->execute([$name, $id]);
                 gf_admin_catalog_redirect($tab, 'updated');
             }
 
@@ -175,7 +206,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             if ($table === 'amenities') {
-                gf_pdo()->prepare('INSERT INTO amenities (name, slug, icon) VALUES (?,?,?)')->execute([$name, $slug, $icon !== '' ? $icon : null]);
+                gf_pdo()->prepare('INSERT INTO amenities (name, slug, icon) VALUES (?,?,?)')
+                    ->execute([$name, $slug, gf_admin_amenity_default_icon($name, $slug)]);
             } else {
                 gf_pdo()->prepare("INSERT INTO {$table} (name, slug) VALUES (?,?)")->execute([$name, $slug]);
             }
@@ -236,7 +268,7 @@ if ($tab === 'categories') {
             SELECT id AS trainer_id, specialty_id AS rid FROM trainers WHERE specialty_id IS NOT NULL
             UNION
             SELECT trainer_id, specialty_id AS rid FROM trainer_specialties
-        ) GROUP BY rid');
+        ) AS specialty_usage GROUP BY rid');
     } elseif ($table === 'amenities') {
         $st = gf_pdo()->query('SELECT amenity_id AS rid, COUNT(*) AS total FROM gym_amenities GROUP BY amenity_id');
     } else {
@@ -310,10 +342,6 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                     <?php if ($tab === 'categories'): ?>
                         <label class="form-label"><?= gf_h(gf_t('Mô tả')) ?></label>
                         <textarea class="form-control admin-input" name="description" rows="3"></textarea>
-                    <?php elseif ($tab === 'amenities'): ?>
-                        <label class="form-label"><?= gf_h(gf_t('Icon (tuỳ chọn)')) ?></label>
-                        <input class="form-control admin-input" name="icon" maxlength="80" placeholder="<?= gf_h(gf_t('ví dụ: fa-wifi')) ?>">
-                        <div class="form-text"><?= gf_h(gf_t('Mã biểu tượng Font Awesome, ví dụ')) ?> <code>fa-wifi</code>.</div>
                     <?php endif; ?>
                 </div>
                 <div class="modal-footer border-0">
@@ -357,13 +385,13 @@ gf_admin_table_open([
     <td class="text-center text-secondary"><?= (int)($usage[(int)$r['id']] ?? 0) ?> <?= gf_h(gf_t('phòng')) ?></td>
     <td class="text-center"><span class="admin-badge <?= $r['is_active'] ? 'badge-success' : 'badge-neutral' ?>"><?= gf_h(gf_t($r['is_active'] ? 'Hoạt động' : 'Tạm ẩn')) ?></span></td>
     <td class="text-end pe-3 text-nowrap admin-actions-cell">
-        <button type="button" class="btn btn-action btn-action-edit" data-bs-toggle="modal" data-bs-target="#catalogEdit<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Chỉnh sửa')) ?>"><i class="fa-solid fa-pen"></i></button>
+        <button type="button" class="btn btn-action btn-action-edit" data-bs-toggle="modal" data-bs-target="#catalogEdit<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Chỉnh sửa')) ?>" aria-label="<?= gf_h(gf_t('Chỉnh sửa')) ?>"><i class="fa-solid fa-pen"></i></button>
         <form method="post" class="d-inline">
             <?= gf_csrf_field() ?>
             <input type="hidden" name="action" value="toggle">
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
             <input type="hidden" name="is_active" value="<?= $r['is_active'] ? '0' : '1' ?>">
-            <button class="btn btn-action <?= $r['is_active'] ? 'btn-action-delete' : 'btn-action-edit' ?>" title="<?= gf_h(gf_t($r['is_active'] ? 'Ẩn' : 'Hiện')) ?>">
+            <button class="btn btn-action <?= $r['is_active'] ? 'btn-action-delete' : 'btn-action-edit' ?>" title="<?= gf_h(gf_t($r['is_active'] ? 'Ẩn danh mục' : 'Hiện danh mục')) ?>" aria-label="<?= gf_h(gf_t($r['is_active'] ? 'Ẩn danh mục' : 'Hiện danh mục')) ?>">
                 <i class="fa-solid <?= $r['is_active'] ? 'fa-eye-slash' : 'fa-eye' ?>"></i>
             </button>
         </form>
@@ -378,7 +406,7 @@ gf_admin_table_open([
             : '';
         ?>
         <?php if ($blocked !== ''): ?>
-            <button type="button" class="btn btn-action btn-action-delete is-blocked" title="<?= gf_h($blocked) ?>" data-delete-blocked="<?= gf_h($blocked) ?>"><i class="fa-solid fa-trash"></i></button>
+            <button type="button" class="btn btn-action btn-action-delete is-blocked" title="<?= gf_h($blocked) ?>" aria-label="<?= gf_h($blocked) ?>" data-delete-blocked="<?= gf_h($blocked) ?>"><i class="fa-solid fa-trash"></i></button>
         <?php else: ?>
         <form method="post" class="d-inline js-confirm-submit"
               data-confirm-title="<?= gf_h(gf_t('Xóa loại phòng tập?')) ?>"
@@ -388,7 +416,7 @@ gf_admin_table_open([
             <?= gf_csrf_field() ?>
             <input type="hidden" name="action" value="delete">
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
-            <button type="submit" class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t('Xóa')) ?>"><i class="fa-solid fa-trash"></i></button>
+            <button type="submit" class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t('Xóa danh mục')) ?>" aria-label="<?= gf_h(gf_t('Xóa danh mục')) ?>"><i class="fa-solid fa-trash"></i></button>
         </form>
         <?php endif; ?>
     </td>
@@ -405,16 +433,13 @@ gf_admin_table_close([
 <?php else: ?>
 <?php
 $usageHeading = $tab === 'specialties' ? 'SỐ HLV' : 'SỐ PHÒNG TẬP';
-$usageUnit = $tab === 'specialties' ? 'HLV' : 'phòng';
+$usageUnit = $tab === 'specialties' ? '' : 'phòng';
 $columns = [
     ['label' => 'ID', 'width' => '60px', 'align' => 'center'],
     ['label' => 'TÊN', 'width' => '240px'],
     ['label' => $usageHeading, 'width' => '160px', 'align' => 'center'],
+    ['label' => 'THAO TÁC', 'width' => '140px', 'align' => 'right', 'th_class' => 'text-end pe-3'],
 ];
-if ($tab === 'amenities') {
-    $columns[] = ['label' => 'BIỂU TƯỢNG', 'width' => '150px'];
-}
-$columns[] = ['label' => 'THAO TÁC', 'width' => '140px', 'align' => 'right', 'th_class' => 'text-end pe-3'];
 gf_admin_table_open([
     'id'        => 'catalogsTable',
     'class'     => 'admin-catalogs-table',
@@ -427,10 +452,7 @@ $colspan = count($columns);
 <tr>
     <td class="text-center text-muted fw-semibold"><?= (int)$r['id'] ?></td>
     <td><span class="admin-cell-title"><?= gf_h($tab === 'districts' ? gf_place_name((string) $r['name']) : (string) $r['name']) ?></span></td>
-    <td class="text-center text-secondary text-nowrap"><?= (int)($usage[(int)$r['id']] ?? 0) ?> <?= gf_h(gf_t($usageUnit)) ?></td>
-    <?php if ($tab === 'amenities'): ?>
-        <td><span class="text-secondary small"><?= gf_h($r['icon'] ?? '—') ?></span></td>
-    <?php endif; ?>
+    <td class="text-center text-secondary text-nowrap"><?= (int)($usage[(int)$r['id']] ?? 0) ?><?= $usageUnit !== '' ? ' ' . gf_h(gf_t($usageUnit)) : '' ?></td>
     <?php
     $usedCount = (int) ($usage[(int) $r['id']] ?? 0);
     $blocked = '';
@@ -461,9 +483,9 @@ $colspan = count($columns);
     }
     ?>
     <td class="text-end pe-3 text-nowrap">
-        <button type="button" class="btn btn-action btn-action-edit" data-bs-toggle="modal" data-bs-target="#catalogEdit<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Sửa')) ?>"><i class="fa-solid fa-pen"></i></button>
+        <button type="button" class="btn btn-action btn-action-edit" data-bs-toggle="modal" data-bs-target="#catalogEdit<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Chỉnh sửa')) ?>" aria-label="<?= gf_h(gf_t('Chỉnh sửa')) ?>"><i class="fa-solid fa-pen"></i></button>
         <?php if ($blocked !== ''): ?>
-            <button type="button" class="btn btn-action btn-action-delete is-blocked" title="<?= gf_h($blocked) ?>" data-delete-blocked="<?= gf_h($blocked) ?>"><i class="fa-solid fa-trash"></i></button>
+            <button type="button" class="btn btn-action btn-action-delete is-blocked" title="<?= gf_h($blocked) ?>" aria-label="<?= gf_h($blocked) ?>" data-delete-blocked="<?= gf_h($blocked) ?>"><i class="fa-solid fa-trash"></i></button>
         <?php else: ?>
         <form method="post" class="d-inline js-confirm-submit"
               data-confirm-title="<?= gf_h(gf_t('Xóa mục này?')) ?>"
@@ -473,7 +495,7 @@ $colspan = count($columns);
             <?= gf_csrf_field() ?>
             <input type="hidden" name="action" value="delete">
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
-            <button type="submit" class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t('Xóa')) ?>"><i class="fa-solid fa-trash"></i></button>
+            <button type="submit" class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t('Xóa danh mục')) ?>" aria-label="<?= gf_h(gf_t('Xóa danh mục')) ?>"><i class="fa-solid fa-trash"></i></button>
         </form>
         <?php endif; ?>
     </td>
@@ -511,9 +533,6 @@ gf_admin_table_close([
                             <input class="form-check-input" type="checkbox" name="is_active" id="category-active-<?= (int)$r['id'] ?>" value="1" <?= !empty($r['is_active']) ? 'checked' : '' ?>>
                             <label class="form-check-label" for="category-active-<?= (int)$r['id'] ?>"><?= gf_h(gf_t('Đang hoạt động')) ?></label>
                         </div>
-                    <?php elseif ($tab === 'amenities'): ?>
-                        <label class="form-label"><?= gf_h(gf_t('Icon (tuỳ chọn)')) ?></label>
-                        <input class="form-control admin-input" name="icon" value="<?= gf_h($r['icon'] ?? '') ?>" maxlength="80" placeholder="vd: fa-wifi">
                     <?php endif; ?>
                 </div>
                 <div class="modal-footer border-0">

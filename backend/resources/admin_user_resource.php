@@ -108,6 +108,9 @@ function gf_admin_patch_user(int $id, array $d, array $admin): array
     gf_require_known_body($d, ['status'], ['id', 'full_name', 'email', 'phone', 'avatar_url', 'role', 'last_login_at', 'created_at']);
     if (!isset($d['status']) || !in_array($d['status'], ['active', 'locked'], true)) { gf_api_error('VALIDATION_ERROR', 'status chỉ active|locked.', 422, ['status' => 'active|locked']); }
     gf_pdo()->prepare('UPDATE users SET status=? WHERE id=?')->execute([(string) $d['status'], $id]);
+    if ($d['status'] === 'locked') {
+        gf_remember_revoke_all_for_user($id);
+    }
     return gf_admin_user_payload($id);
 }
 
