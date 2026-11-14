@@ -20,6 +20,15 @@ function gf_admin_gym_payload(int $id): ?array
     $st->execute([$id]);
     $amIds = array_map('intval', $st->fetchAll(\PDO::FETCH_COLUMN));
 
+    $featIds = [];
+    try {
+        $st = gf_pdo()->prepare('SELECT feature_id FROM gym_features WHERE gym_id=?');
+        $st->execute([$id]);
+        $featIds = array_map('intval', $st->fetchAll(\PDO::FETCH_COLUMN));
+    } catch (Throwable $e) {
+        $featIds = [];
+    }
+
     $images = [];
     foreach ($g['images'] ?? [] as $img) {
         $images[] = [
@@ -49,6 +58,7 @@ function gf_admin_gym_payload(int $id): ?array
         'status'          => $g['status'],
         'category_ids'    => $catIds,
         'amenity_ids'     => $amIds,
+        'feature_ids'     => $featIds,
         'images'          => $images,
         'avg_rating'      => gf_num1($g['avg_rating']),
         'review_count'    => (int) $g['review_count'],
@@ -122,10 +132,23 @@ function gf_validate_gym_fields(array $d, array $merged, ?array $existing = null
         $details['cover_image_url'] = 'Mỗi phòng tập cần có một ảnh bìa.';
     }
     $coverUrl = trim((string) ($merged['cover_image_url'] ?? ''));
-    $coverChanged = array_key_exists('cover_image_url', $d)
-        && $coverUrl !== trim((string) ($existing['cover_image_url'] ?? ''));
+    $existingCover = trim((string) ($existing['cover_image_url'] ?? ''));
+    $coverChanged = array_key_exists('cover_image_url', $d) && $coverUrl !== $existingCover;
+    // Ảnh mới phải từ /uploads/. URL seed/legacy (Unsplash…) được giữ khi không đổi,
+    // hoặc khi chọn lại ảnh đã có trong thư viện của chính phòng tập đó.
     if ($coverUrl !== '' && $coverChanged && !gf_uploads_url_ok($coverUrl)) {
-        $details['cover_image_url'] = 'Chỉ nhận ảnh mới từ đường dẫn /uploads/...';
+        $knownOk = false;
+        if ($existing) {
+            $gymId = (int) ($existing['id'] ?? 0);
+            if ($gymId > 0) {
+                $st = gf_pdo()->prepare('SELECT 1 FROM gym_images WHERE gym_id=? AND image_url=? LIMIT 1');
+                $st->execute([$gymId, $coverUrl]);
+                $knownOk = (bool) $st->fetchColumn();
+            }
+        }
+        if (!$knownOk) {
+            $details['cover_image_url'] = 'Chỉ nhận ảnh mới từ đường dẫn /uploads/...';
+        }
     }
 
     return $details;
@@ -137,7 +160,7 @@ function gf_validate_gym_fields(array $d, array $merged, ?array $existing = null
  */
 function gf_admin_save_gym(array $d, ?int $id): array
 {
-    $allowed = ['name','description','address','district_id','latitude','longitude','phone','email','website','price_min','price_max','opening_hours','cover_image_url','is_featured','status','category_ids','amenity_ids','images'];
+    $allowed = ['name','description','address','district_id','latitude','longitude','phone','email','website','price_min','price_max','opening_hours','cover_image_url','is_featured','status','category_ids','amenity_ids','feature_ids','images'];
     gf_require_known_body($d, $allowed, ['id','slug','avg_rating','review_count','created_at','updated_at']);
 
     $pdo = gf_pdo();
@@ -251,6 +274,7 @@ function gf_admin_save_gym(array $d, ?int $id): array
         $newId = (int) $pdo->lastInsertId();
         if (!isset($d['category_ids'])) { $d['category_ids'] = []; }
         if (!isset($d['amenity_ids']))  { $d['amenity_ids']  = []; }
+        if (!isset($d['feature_ids']))  { $d['feature_ids']  = []; }
         if (!isset($d['images']))       { $d['images']       = []; }
         gf_sync_gym_relations($newId, $d, $cover);
         $pdo->commit();

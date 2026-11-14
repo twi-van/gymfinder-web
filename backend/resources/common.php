@@ -195,6 +195,10 @@ function gf_public_gym_detail(array $g, ?array $user): array
     foreach ($g['amenities'] ?? [] as $a) {
         $ams[] = ['id' => (int) $a['id'], 'name' => $a['name'], 'slug' => $a['slug'], 'icon' => $a['icon'] ?? null];
     }
+    $feats = [];
+    foreach ($g['features'] ?? [] as $f) {
+        $feats[] = ['id' => (int) $f['id'], 'name' => $f['name'], 'slug' => $f['slug']];
+    }
     $images = [];
     foreach ($g['images'] ?? [] as $img) {
         $images[] = [
@@ -226,6 +230,7 @@ function gf_public_gym_detail(array $g, ?array $user): array
         'district'        => ['id' => (int) $g['district_id'], 'name' => $g['district_name'], 'slug' => $g['district_slug']],
         'categories'      => $cats,
         'amenities'       => $ams,
+        'features'        => $feats,
         'images'          => $images,
         'trainers'        => gf_gym_active_trainers($id),
         'reviews'         => gf_preview_reviews('gym', $id),
@@ -347,12 +352,6 @@ function gf_validate_gym_search_params(array $get, bool $throw = true): array
         else { $params['district_id'] = (int) $dist; }
     }
 
-    $hasPt = $get['has_pt'] ?? null;
-    if ($hasPt !== null && $hasPt !== '') {
-        if ($hasPt !== '0' && $hasPt !== '1' && $hasPt !== 0 && $hasPt !== 1) { $details['has_pt'] = 'has_pt chỉ nhận 0 hoặc 1.'; }
-        else { $params['has_pt'] = (int) $hasPt; }
-    }
-
     $feat = $get['featured'] ?? null;
     if ($feat !== null && $feat !== '') {
         if ($feat !== '0' && $feat !== '1' && $feat !== 0 && $feat !== 1) { $details['featured'] = 'featured chỉ nhận 0 hoặc 1.'; }
@@ -389,14 +388,58 @@ function gf_validate_gym_search_params(array $get, bool $throw = true): array
         $params['amenity_ids'] = $parsedAms;
     }
 
-    foreach (['open_247', 'women', 'weight_loss'] as $flag) {
+    $featIds = $get['feature_ids'] ?? $get['feature_id'] ?? null;
+    $parsedFeats = [];
+    if ($featIds !== null && (is_array($featIds) ? !empty($featIds) : trim((string) $featIds) !== '')) {
+        $parsedFeats = is_array($featIds)
+            ? array_map(static function ($id): int {
+                if (!gf_integer_like($id) || (int) $id < 1) {
+                    gf_api_error('VALIDATION_ERROR', 'Dữ liệu không hợp lệ.', 422, ['feature_ids' => 'Danh sách ID không hợp lệ.']);
+                }
+                return (int) $id;
+            }, $featIds)
+            : gf_csv_ids((string) $featIds, 'feature_ids');
+        $parsedFeats = array_values(array_unique($parsedFeats));
+        gf_assert_ids_exist($parsedFeats, 'features', 'feature_ids');
+    }
+
+    // Legacy flags → catalog feature_ids (đồng bộ với trang search).
+    $legacyFeatureMap = [
+        'open_247' => 'open-247',
+        'has_pt' => 'has-pt',
+        'weight_loss' => 'ho-tro-giam-can',
+    ];
+    $featureIdBySlug = [];
+    foreach (gf_list_features() as $featureRow) {
+        $featureIdBySlug[(string) $featureRow['slug']] = (int) $featureRow['id'];
+    }
+    foreach ($legacyFeatureMap as $flag => $slug) {
         $value = $get[$flag] ?? null;
-        if ($value !== null && $value !== '') {
-            if ($value !== '0' && $value !== '1' && $value !== 0 && $value !== 1) {
-                $details[$flag] = "{$flag} chỉ nhận 0 hoặc 1.";
-            } else {
-                $params[$flag] = (int) $value;
-            }
+        if ($value === null || $value === '') {
+            continue;
+        }
+        if ($value !== '0' && $value !== '1' && $value !== 0 && $value !== 1) {
+            $details[$flag] = "{$flag} chỉ nhận 0 hoặc 1.";
+            continue;
+        }
+        $flagVal = (int) $value;
+        if ($flagVal === 1 && isset($featureIdBySlug[$slug])) {
+            $parsedFeats[] = $featureIdBySlug[$slug];
+            continue;
+        }
+        // Catalog chưa có slug, hoặc lọc phủ định (0) → heuristic cũ.
+        $params[$flag] = $flagVal;
+    }
+    if ($parsedFeats) {
+        $params['feature_ids'] = array_values(array_unique($parsedFeats));
+    }
+
+    $women = $get['women'] ?? null;
+    if ($women !== null && $women !== '') {
+        if ($women !== '0' && $women !== '1' && $women !== 0 && $women !== 1) {
+            $details['women'] = 'women chỉ nhận 0 hoặc 1.';
+        } else {
+            $params['women'] = (int) $women;
         }
     }
 

@@ -10,8 +10,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['action'
     }
     $status = $_POST['action'] === 'reject' ? 'rejected' : 'approved';
     $body = ['status' => $status];
-    if ($status === 'rejected') { $body['reject_reason'] = trim((string)($_POST['reason'] ?? 'Không phù hợp')); }
-    gf_admin_moderate_review((int)$_POST['id'], $body, $me);
+    if ($status === 'rejected') {
+        // Không fallback lý do mặc định — bắt buộc nhập (khớp REV-007 / API).
+        $body['reject_reason'] = trim((string) ($_POST['reason'] ?? ''));
+    }
+    gf_admin_moderate_review((int) $_POST['id'], $body, $me);
     gf_redirect(gf_url('admin/pages/reviews.php'));
 }
 $reviewPage = max(1, (int)($_GET['page'] ?? 1));
@@ -56,7 +59,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
     <p class="text-secondary mb-0 small"><?= gf_h(gf_t('Duyệt, từ chối hoặc xóa đánh giá của người dùng về phòng tập và huấn luyện viên')) ?></p>
 </div>
 <?php if (!empty($_GET['deleted'])): ?><div class="alert alert-success"><?= gf_h(gf_t('Đã xóa đánh giá.')) ?></div><?php endif; ?>
-<form method="get" class="admin-card p-3 mb-4"><div class="row g-3"><div class="col-md-7"><input class="form-control admin-input" name="q" value="<?= gf_h($reviewSearch) ?>" placeholder="<?= gf_h(gf_t('⌕  Tìm kiếm nội dung đánh giá...')) ?>"></div><div class="col-md-3"><select name="status" class="form-select admin-input"><option value=""><?= gf_h(gf_t('Tất cả trạng thái')) ?></option><?php foreach(['pending'=>'Chờ duyệt','approved'=>'Đã duyệt','rejected'=>'Từ chối'] as $sv=>$sl): ?><option value="<?= $sv ?>" <?= $reviewStatus===$sv?'selected':'' ?>><?= gf_h($sl) ?></option><?php endforeach; ?></select></div><div class="col-md-2"><button class="btn btn-light border w-100"><?= gf_h(gf_t('Lọc')) ?></button></div></div></form>
+<form method="get" class="admin-card p-3 mb-4"><div class="row g-3 align-items-center"><div class="col-md-7"><input class="form-control admin-input" name="q" value="<?= gf_h($reviewSearch) ?>" placeholder="<?= gf_h(gf_t('⌕  Tìm kiếm nội dung đánh giá...')) ?>" style="height:42px;"></div><div class="col-md-3"><select name="status" class="form-select admin-input" style="height:42px;"><option value=""><?= gf_h(gf_t('Tất cả trạng thái')) ?></option><?php foreach(['pending'=>'Chờ duyệt','approved'=>'Đã duyệt','rejected'=>'Từ chối'] as $sv=>$sl): ?><option value="<?= $sv ?>" <?= $reviewStatus===$sv?'selected':'' ?>><?= gf_h($sl) ?></option><?php endforeach; ?></select></div><div class="col-md-2"><button type="submit" class="btn btn-filter w-100 d-inline-flex align-items-center justify-content-center gap-2 fw-medium" style="height:42px;"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><?= gf_h(gf_t('Tra cứu')) ?></button></div></div></form>
 <?php
 gf_admin_table_open([
     'id'        => 'reviewsTable',
@@ -99,10 +102,12 @@ gf_admin_table_open([
         <?php if ($r['status']==='pending'): ?>
         <form method="post" class="d-inline"><?= gf_csrf_field() ?><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><input type="hidden" name="action" value="approve"><button class="btn btn-action btn-outline-success" title="<?= gf_h(gf_t('Duyệt đánh giá')) ?>" aria-label="<?= gf_h(gf_t('Duyệt đánh giá')) ?>"><i class="fa-solid fa-check"></i></button></form>
         <button type="button" class="btn btn-action btn-action-delete" data-bs-toggle="modal" data-bs-target="#rejectModal<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Từ chối đánh giá')) ?>" aria-label="<?= gf_h(gf_t('Từ chối đánh giá')) ?>"><i class="fa-solid fa-xmark"></i></button>
-        <?php else: ?>
+        <?php endif; ?>
         <form method="post" class="d-inline js-confirm-submit"
             data-confirm-title="<?= gf_h(gf_t('Xóa đánh giá')) ?>"
-            data-confirm-message="<?= gf_h(gf_t('Bạn có chắc chắn muốn xóa đánh giá này? Thao tác có thể ảnh hưởng điểm trung bình nếu đánh giá đang được duyệt.')) ?>"
+            data-confirm-message="<?= gf_h(gf_t($r['status'] === 'pending'
+                ? 'Xóa vĩnh viễn đánh giá đang chờ duyệt này? Banner Tổng quan sẽ giảm số chờ kiểm duyệt.'
+                : 'Bạn có chắc chắn muốn xóa đánh giá này? Thao tác có thể ảnh hưởng điểm trung bình nếu đánh giá đang được duyệt.')) ?>"
             data-confirm-label="<?= gf_h(gf_t('Xóa đánh giá')) ?>"
             data-confirm-danger="1">
             <?= gf_csrf_field() ?>
@@ -110,7 +115,6 @@ gf_admin_table_open([
             <input type="hidden" name="action" value="delete">
             <button class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t('Xóa đánh giá')) ?>" aria-label="<?= gf_h(gf_t('Xóa đánh giá')) ?>"><i class="fa-solid fa-trash"></i></button>
         </form>
-        <?php endif; ?>
     </td>
 </tr>
 <?php endforeach; ?>
@@ -221,7 +225,8 @@ function validateRejectForm(form) {
         if (errorEl) {
             errorEl.textContent = message;
             errorEl.classList.remove('d-none');
-        } else if (typeof window.gfToast === 'function') {
+        }
+        if (typeof window.gfToast === 'function') {
             window.gfToast(message, 'warning');
         }
         textarea.focus();

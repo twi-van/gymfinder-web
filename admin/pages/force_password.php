@@ -76,7 +76,7 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="<?= gf_h(gf_url('assets/js/auth_validate.js')) ?>?v=<?= gf_h((string) @filemtime(dirname(__DIR__, 2) . '/assets/js/auth_validate.js')) ?>"></script>
+<?php require dirname(__DIR__, 2) . '/includes/ui_feedback.php'; ?>
 <script>
 document.querySelectorAll('.auth-toggle-password').forEach((b) => b.addEventListener('click', () => {
     const i = b.parentElement.querySelector('input');

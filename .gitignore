@@ -49,3 +49,12 @@ backend/google.local.php
 .tmp_*/
 .tmp_ch5_shot/
 .tmp_report_audit/
+
+# Local Chrome capture profiles for screenshots (do not commit)
+docs/specs/figures/ch5/_chrome_*/
+
+# Cursor IDE
+.cursor/
+
+# Word backup copies
+docs/specs/*.bak_*

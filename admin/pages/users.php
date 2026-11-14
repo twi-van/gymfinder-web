@@ -71,23 +71,23 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 <div class="admin-card p-3 mb-4">
     <h3 class="fw-bold mb-1" style="font-size:18px;"><?= gf_h(gf_t('Thêm quản trị viên')) ?></h3>
     <p class="text-secondary small mb-3"><?= gf_h(gf_t('Nhập tên tài khoản và email. Thư gửi đúng tên tài khoản đã nhập, cùng mật khẩu tạm có hiệu lực 5 phút. Lần đăng nhập đầu bắt buộc đổi mật khẩu và không được giữ mật khẩu do hệ thống cấp.')) ?></p>
-    <form method="post" class="row g-3 align-items-end">
+    <form method="post" class="row g-3 align-items-end js-form-validate" novalidate>
         <?= gf_csrf_field() ?>
         <input type="hidden" name="action" value="invite_admin">
-        <div class="col-md-4">
+        <div class="col-md-4" data-field>
             <label class="form-label small fw-semibold" for="admin-invite-name"><?= gf_h(gf_t('Tên tài khoản')) ?></label>
-            <input id="admin-invite-name" class="form-control admin-input" name="full_name" maxlength="100" required placeholder="<?= gf_h(gf_t('Tên tài khoản quản trị viên mới')) ?>">
+            <input id="admin-invite-name" class="form-control admin-input" name="full_name" maxlength="100" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập tên tài khoản quản trị viên.')) ?>" placeholder="<?= gf_h(gf_t('Tên tài khoản quản trị viên mới')) ?>">
         </div>
-        <div class="col-md-5">
+        <div class="col-md-5" data-field>
             <label class="form-label small fw-semibold" for="admin-invite-email"><?= gf_h(gf_t('Email')) ?></label>
-            <input id="admin-invite-email" class="form-control admin-input" type="email" name="email" maxlength="255" required placeholder="name@gmail.com">
+            <input id="admin-invite-email" class="form-control admin-input" type="email" name="email" maxlength="255" required data-required-msg="<?= gf_h(gf_t('Vui lòng nhập email quản trị viên.')) ?>" data-type-msg="<?= gf_h(gf_t('Email không đúng định dạng.')) ?>" placeholder="name@gmail.com">
         </div>
         <div class="col-md-3">
             <button class="btn btn-primary w-100" type="submit"><?= gf_h(gf_t('Gửi tài khoản')) ?></button>
         </div>
     </form>
 </div>
-<form method="get" class="admin-card p-3 mb-4"><div class="row g-3"><div class="col-md-5"><input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q']??'') ?>" placeholder="<?= gf_h(gf_t('⌕  Tìm theo tên, email, số điện thoại...')) ?>"></div><div class="col-md-3"><select class="form-select admin-input" name="role"><option value=""><?= gf_h(gf_t('Tất cả vai trò')) ?></option><option value="admin"<?= (($_GET['role']??'')==='admin')?' selected':'' ?>><?= gf_h(gf_t('Quản trị viên')) ?></option><option value="user"<?= (($_GET['role']??'')==='user')?' selected':'' ?>><?= gf_h(gf_t('Người dùng')) ?></option></select></div><div class="col-md-2"><select class="form-select admin-input" name="status"><option value=""><?= gf_h(gf_t('Trạng thái')) ?></option><option value="active"<?= (($_GET['status']??'')==='active')?' selected':'' ?>><?= gf_h(gf_t('Hoạt động')) ?></option><option value="locked"<?= (($_GET['status']??'')==='locked')?' selected':'' ?>><?= gf_h(gf_t('Bị khóa')) ?></option></select></div><div class="col-md-2"><button class="btn btn-light border w-100"><?= gf_h(gf_t('Lọc')) ?></button></div></div></form>
+<form method="get" class="admin-card p-3 mb-4"><div class="row g-3 align-items-center"><div class="col-md-5"><input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q']??'') ?>" placeholder="<?= gf_h(gf_t('⌕  Tìm theo tên, email, số điện thoại...')) ?>" style="height:42px;"></div><div class="col-md-3"><select class="form-select admin-input" name="role" style="height:42px;"><option value=""><?= gf_h(gf_t('Tất cả vai trò')) ?></option><option value="admin"<?= (($_GET['role']??'')==='admin')?' selected':'' ?>><?= gf_h(gf_t('Quản trị viên')) ?></option><option value="user"<?= (($_GET['role']??'')==='user')?' selected':'' ?>><?= gf_h(gf_t('Người dùng')) ?></option></select></div><div class="col-md-2"><select class="form-select admin-input" name="status" style="height:42px;"><option value=""><?= gf_h(gf_t('Trạng thái')) ?></option><option value="active"<?= (($_GET['status']??'')==='active')?' selected':'' ?>><?= gf_h(gf_t('Hoạt động')) ?></option><option value="locked"<?= (($_GET['status']??'')==='locked')?' selected':'' ?>><?= gf_h(gf_t('Bị khóa')) ?></option></select></div><div class="col-md-2"><button type="submit" class="btn btn-filter w-100 d-inline-flex align-items-center justify-content-center gap-2 fw-medium" style="height:42px;"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><?= gf_h(gf_t('Tra cứu')) ?></button></div></div></form>
 <?php
 gf_admin_table_open([
     'id'        => 'usersTable',

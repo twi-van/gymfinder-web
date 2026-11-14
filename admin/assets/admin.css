@@ -616,7 +616,7 @@ body {
     white-space: nowrap;
 }
 
-/* Category Badges */
+/* Category / specialty badges — một tông dịu, tránh nhiều màu rối mắt */
 .admin-cat-badge {
     display: inline-block;
     padding: 3px 8px;
@@ -625,12 +625,19 @@ body {
     border-radius: 6px;
     line-height: 1.3;
     white-space: nowrap;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
 }
-.cat-badge-fitness { background: rgba(16, 185, 129, 0.12); color: #10b981; }
-.cat-badge-premium { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
-.cat-badge-yoga { background: rgba(168, 85, 247, 0.12); color: #a855f7; }
-.cat-badge-crossfit { background: rgba(249, 115, 22, 0.12); color: #f97316; }
-.cat-badge-default { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+.cat-badge-fitness,
+.cat-badge-premium,
+.cat-badge-yoga,
+.cat-badge-crossfit,
+.cat-badge-default {
+    background: var(--primary-light);
+    color: #0f766e;
+    border-color: rgba(0, 201, 177, 0.22);
+}
 
 .admin-avatar {
     display: block;
@@ -643,7 +650,7 @@ body {
     border-radius: 50%;
 }
 
-/* Buttons */
+/* Buttons — nền đậm vừa, icon rõ; tránh nền quá nhạt nhìn như bị phủ bạc */
 .btn-action {
     width: 34px;
     height: 34px;
@@ -652,74 +659,93 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 8px;
-    font-size: 13.5px;
+    font-size: 14px;
+    font-weight: 600;
     transition: all 0.2s ease;
     border: 1px solid transparent;
+    box-shadow: none;
 }
 .btn-action-view {
-    color: #64748b;
-    background: #f1f5f9;
-    border-color: #e2e8f0;
-}
-.btn-action-view:hover {
+    color: #475569;
     background: #e2e8f0;
-    color: #1e293b;
     border-color: #cbd5e1;
 }
+.btn-action-view:hover {
+    background: #cbd5e1;
+    color: #0f172a;
+    border-color: #94a3b8;
+}
 .btn-action-edit {
-    color: var(--primary-color, #00c9b1);
-    background: rgba(0, 201, 177, 0.12);
+    color: #0f766e;
+    background: #ccfbf1;
+    border-color: #99f6e4;
 }
 .btn-action-edit:hover {
     background: var(--primary-color, #00c9b1);
     color: #ffffff;
+    border-color: var(--primary-color, #00c9b1);
 }
 .btn-action-delete {
-    color: #ef4444;
-    background: rgba(239, 68, 68, 0.12);
+    color: #b91c1c;
+    background: #fee2e2;
+    border-color: #fecaca;
 }
 .btn-action-delete:hover {
     background: #ef4444;
     color: #ffffff;
+    border-color: #ef4444;
 }
-.btn-action-delete.is-blocked {
-    opacity: 0.45;
+/* Không dùng opacity thấp (nhìn bạc) — chuyển xám để báo không xóa được */
+.btn-action-delete.is-blocked,
+.btn-action-delete:disabled {
+    color: #94a3b8;
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    opacity: 1;
+    cursor: not-allowed;
 }
-.btn-action-delete.is-blocked:hover {
-    background: rgba(239, 68, 68, 0.12);
-    color: #ef4444;
+.btn-action-delete.is-blocked:hover,
+.btn-action-delete:disabled:hover {
+    color: #94a3b8;
+    background: #f1f5f9;
+    border-color: #e2e8f0;
 }
 .btn-action-toggle {
-    color: #f59e0b;
-    background: rgba(245, 158, 11, 0.12);
+    color: #b45309;
+    background: #fef3c7;
+    border-color: #fde68a;
 }
 .btn-action-toggle:hover {
     background: #f59e0b;
     color: #ffffff;
+    border-color: #f59e0b;
 }
 .btn-action-activate {
-    color: #10b981;
-    background: rgba(16, 185, 129, 0.12);
+    color: #047857;
+    background: #d1fae5;
+    border-color: #a7f3d0;
 }
 .btn-action-activate:hover {
     background: #10b981;
     color: #ffffff;
+    border-color: #10b981;
 }
 
-/* Filter Bar */
+/* Filter / Tra cứu — màu primary theme */
 .btn-filter {
-    background: #f1f5f9;
-    color: #334155;
-    border: 1px solid #cbd5e1;
+    background: var(--primary-color, #00c9b1);
+    color: #ffffff;
+    border: 1px solid var(--primary-color, #00c9b1);
     border-radius: 8px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     transition: all 0.2s ease;
 }
-.btn-filter:hover {
-    background: #e2e8f0;
-    color: #1e293b;
-    border-color: #94a3b8;
+.btn-filter:hover,
+.btn-filter:focus {
+    background: var(--primary-hover, #00b39d);
+    color: #ffffff;
+    border-color: var(--primary-hover, #00b39d);
 }
 
 /* Pagination Buttons */
@@ -791,26 +817,6 @@ body {
 .badge-warning:not(.admin-badge) { background: rgba(245, 158, 11, 0.1); color: var(--warning-color); }
 .badge-danger:not(.admin-badge) { background: rgba(239, 68, 68, 0.1); color: var(--danger-color); }
 .badge-neutral:not(.admin-badge) { background: var(--light-bg); color: var(--secondary-color); border: 1px solid var(--border-color); }
-
-/* Trainer Specialty Badges */
-.admin-spec-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 3px 9px;
-    font-size: 11.5px;
-    font-weight: 600;
-    border-radius: 6px;
-    line-height: 1.35;
-    white-space: nowrap;
-    background: #f1f5f9;
-    color: #475569;
-    border: 1px solid #e2e8f0;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-.admin-spec-badge:hover {
-    background: #e2e8f0;
-    color: #1e293b;
-}
 
 /* Filters & Inputs */
 .admin-input {

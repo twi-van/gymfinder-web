@@ -175,7 +175,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
     </div>
     <div class="d-flex justify-content-end gap-2 mt-4"><button type="button" class="btn btn-light" data-bs-dismiss="modal"><?= gf_h(gf_t('Hủy')) ?></button><button type="submit" class="btn btn-primary" id="trainerSubmit"><?= gf_h(gf_t('Lưu thông tin')) ?></button></div>
 </form></div></div></div></div>
-<form method="get" class="admin-card p-3 mb-4"><div class="row g-3"><div class="col-md-5"><input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q']??'') ?>" placeholder="<?= gf_h(gf_t('⌕  Tìm kiếm huấn luyện viên...')) ?>"></div><div class="col-md-3"><select class="form-select admin-input" name="specialty_id"><option value=""><?= gf_h(gf_t('Tất cả chuyên môn')) ?></option><?php foreach($specs as $s): ?><option value="<?= (int)$s['id'] ?>" <?= (string)($_GET['specialty_id']??'')===(string)$s['id']?'selected':'' ?>><?= gf_h($s['name']) ?></option><?php endforeach; ?></select></div><div class="col-md-2"><select class="form-select admin-input" name="status"><option value="" <?= empty($_GET['status'])?'selected':'' ?>><?= gf_h(gf_t('Trạng thái')) ?></option><option value="active" <?= ($_GET['status']??'')==='active'?'selected':'' ?>><?= gf_h(gf_t('Hoạt động')) ?></option><option value="hidden" <?= ($_GET['status']??'')==='hidden'?'selected':'' ?>><?= gf_h(gf_t('Tạm ẩn')) ?></option></select></div><div class="col-md-2"><button class="btn btn-light border w-100"><?= gf_h(gf_t('Lọc')) ?></button></div></div></form>
+<form method="get" class="admin-card p-3 mb-4"><div class="row g-3 align-items-center"><div class="col-md-5"><input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q']??'') ?>" placeholder="<?= gf_h(gf_t('⌕  Tìm kiếm huấn luyện viên...')) ?>" style="height:42px;"></div><div class="col-md-3"><select class="form-select admin-input" name="specialty_id" style="height:42px;"><option value=""><?= gf_h(gf_t('Tất cả chuyên môn')) ?></option><?php foreach($specs as $s): ?><option value="<?= (int)$s['id'] ?>" <?= (string)($_GET['specialty_id']??'')===(string)$s['id']?'selected':'' ?>><?= gf_h($s['name']) ?></option><?php endforeach; ?></select></div><div class="col-md-2"><select class="form-select admin-input" name="status" style="height:42px;"><option value="" <?= empty($_GET['status'])?'selected':'' ?>><?= gf_h(gf_t('Trạng thái')) ?></option><option value="active" <?= ($_GET['status']??'')==='active'?'selected':'' ?>><?= gf_h(gf_t('Hoạt động')) ?></option><option value="hidden" <?= ($_GET['status']??'')==='hidden'?'selected':'' ?>><?= gf_h(gf_t('Tạm ẩn')) ?></option></select></div><div class="col-md-2"><button type="submit" class="btn btn-filter w-100 d-inline-flex align-items-center justify-content-center gap-2 fw-medium" style="height:42px;"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><?= gf_h(gf_t('Tra cứu')) ?></button></div></div></form>
 <?php
 $trainerPaginationHtml = gf_render_admin_pagination(
     $trainerPage,
@@ -225,7 +225,7 @@ foreach ($rows as $r):
                 <span class="text-muted small">—</span>
             <?php else: ?>
                 <?php foreach ($specNames as $specItem): ?>
-                    <span class="admin-spec-badge"><?= gf_h($specItem) ?></span>
+                    <span class="admin-cat-badge <?= gf_admin_cat_badge((string) $specItem) ?>"><?= gf_h($specItem) ?></span>
                 <?php endforeach; ?>
             <?php endif; ?>
         </div>
@@ -292,7 +292,7 @@ gf_admin_table_close([
                                 <span class="text-muted small"><?= gf_h(gf_t('Chưa thiết lập chuyên môn')) ?></span>
                             <?php else: ?>
                                 <?php foreach ($specNames as $specItem): ?>
-                                    <span class="admin-spec-badge"><?= gf_h($specItem) ?></span>
+                                    <span class="admin-cat-badge <?= gf_admin_cat_badge((string) $specItem) ?>"><?= gf_h($specItem) ?></span>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </div>
@@ -469,13 +469,17 @@ async function handleTrainerFormSubmit(e) {
     errAlert.textContent = '';
 
     if (getSelectedTrainerSpecialtyIds().length === 0) {
-        errAlert.textContent = gfT('Vui lòng chọn ít nhất một chuyên môn.');
+        const msg = gfT('Vui lòng chọn ít nhất một chuyên môn.');
+        errAlert.textContent = msg;
         errAlert.classList.remove('d-none');
+        if (typeof window.gfToast === 'function') window.gfToast(msg, 'warning');
         return false;
     }
     if (getSelectedTrainerGymIds().length === 0) {
-        errAlert.textContent = gfT('Vui lòng chọn ít nhất một phòng tập liên kết.');
+        const msg = gfT('Vui lòng chọn ít nhất một phòng tập liên kết.');
+        errAlert.textContent = msg;
         errAlert.classList.remove('d-none');
+        if (typeof window.gfToast === 'function') window.gfToast(msg, 'warning');
         return false;
     }
 

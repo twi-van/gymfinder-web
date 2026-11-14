@@ -103,7 +103,23 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                     </form>
                     <?php endif; ?>
                     <div class="d-flex flex-column flex-md-row gap-4 align-items-center align-items-md-start mb-4">
-                        <img src="<?= gf_h($t['avatar']) ?>" alt="<?= gf_h($t['full_name']) ?>" class="rounded-circle object-fit-cover shadow" style="width:150px;height:150px;border:4px solid #fff" onerror="this.onerror=null;this.src='<?= gf_h(gf_avatar_fallback($t['full_name'] ?? 'Trainer')) ?>';">
+                        <?php
+                        $trainerAvatarUrl = (string) ($t['avatar'] ?? '');
+                        $trainerAvatarEsc = htmlspecialchars($trainerAvatarUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                        $trainerAvatarFallback = htmlspecialchars(gf_avatar_fallback($t['full_name'] ?? 'Trainer'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                        ?>
+                        <button type="button"
+                                class="gf-avatar-zoom-btn"
+                                id="trainerAvatarOpen"
+                                data-full-src="<?= $trainerAvatarEsc ?>"
+                                aria-label="<?= gf_h(gf_t('Xem ảnh lớn')) ?>">
+                            <img id="trainerAvatarImage"
+                                 src="<?= $trainerAvatarEsc ?>"
+                                 alt="<?= gf_h($t['full_name']) ?>"
+                                 class="rounded-circle object-fit-cover shadow"
+                                 style="width:150px;height:150px;border:4px solid #fff"
+                                 onerror="if(!this.dataset.failed){this.dataset.failed='1';this.src='<?= $trainerAvatarFallback ?>';}">
+                        </button>
                         <div class="text-center text-md-start">
                             <span class="badge bg-primary-light text-primary mb-2 rounded-pill px-3 py-1 fw-bold"><?= gf_h(gf_t('Huấn luyện viên cá nhân')) ?></span>
                             <h1 class="fw-bold mb-2" style="font-size:28px"><?= gf_h($t['full_name']) ?></h1>
@@ -309,5 +325,52 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         </div>
     </div>
 </main>
+
+<div class="modal fade" id="trainerAvatarLightbox" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-transparent border-0 shadow-none align-items-center">
+            <div class="d-flex justify-content-end w-100 mb-2" style="max-width:min(90vw,640px)">
+                <button type="button" class="btn btn-light btn-sm rounded-circle" data-bs-dismiss="modal" aria-label="<?= gf_h(gf_t('Đóng')) ?>">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <img id="trainerLightboxImage" src="" alt="" class="gf-avatar-lightbox-img shadow">
+        </div>
+    </div>
+</div>
+
 <script src="<?= gf_h(gf_url('assets/js/rating-filter.js')) ?>" defer></script>
+<script>
+(function () {
+    const openBtn = document.getElementById('trainerAvatarOpen');
+    const avatarImg = document.getElementById('trainerAvatarImage');
+    const lightboxEl = document.getElementById('trainerAvatarLightbox');
+    const lightboxImg = document.getElementById('trainerLightboxImage');
+    if (!openBtn || !lightboxEl || !lightboxImg) return;
+
+    function getModal() {
+        if (!window.bootstrap || typeof bootstrap.Modal !== 'function') return null;
+        return bootstrap.Modal.getOrCreateInstance(lightboxEl);
+    }
+
+    openBtn.addEventListener('click', () => {
+        const src = openBtn.getAttribute('data-full-src')
+            || (avatarImg && (avatarImg.currentSrc || avatarImg.getAttribute('src')))
+            || '';
+        if (!src) return;
+        lightboxImg.src = src;
+        lightboxImg.alt = (avatarImg && avatarImg.alt) || '';
+        const show = () => {
+            const modal = getModal();
+            if (modal) modal.show();
+        };
+        if (window.bootstrap && typeof bootstrap.Modal === 'function') {
+            show();
+        } else {
+            window.addEventListener('load', show, { once: true });
+            setTimeout(show, 0);
+        }
+    });
+})();
+</script>
 <?php require dirname(__DIR__, 2) . '/includes/footer.php'; ?>

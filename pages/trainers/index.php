@@ -34,7 +34,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
             <svg class="position-absolute w-100 bottom-0 start-0 translate-middle-y text-primary opacity-50" style="height:10px" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="4" fill="transparent" /></svg>
         </span> <?= gf_h(gf_t('TẠI CÁC PHÒNG TẬP')) ?></h1>
         <p class="text-secondary mb-5" style="font-size:16px"><?= gf_h(gf_t('Khám phá các huấn luyện viên giàu kinh nghiệm đang làm việc tại các hệ thống phòng tập để giúp bạn đạt hiệu quả tập luyện tốt nhất.')) ?></p>
-        <form method="get" class="bg-white rounded-4 p-4 shadow-sm mx-auto border gf-filter-panel" style="max-width:1100px;">
+        <form method="get" class="bg-white rounded-4 p-4 shadow-sm mx-auto border gf-filter-panel js-filter-empty-toast" style="max-width:1100px;">
             <?php if ($filters['sort'] !== ''): ?><input type="hidden" name="sort" value="<?= gf_h($filters['sort']) ?>"><?php endif; ?>
             <div class="d-flex align-items-center bg-light rounded-pill px-3 py-2 mb-4 border">
                 <i class="fa-solid fa-magnifying-glass text-secondary mx-2"></i>

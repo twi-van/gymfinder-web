@@ -4,6 +4,33 @@
 
 ---
 
+## Vòng Admin UI ↔ BE/DB (2026-11-14)
+
+**Công cụ:** `php docs/qa/_full_site_smoke.php` + `php docs/qa/_admin_ui_probe.php`  
+**Môi trường:** `php -S localhost:8000 router.php` · MySQL (XAMPP)
+
+| ID | Status | Actual |
+| --- | --- | --- |
+| ADM-001 | **Pass** | 4 thẻ thống kê từ `gf_admin_stats()` + breakdown hội viên/quản trị |
+| ADM-002 | **Pass** | Link dashboard trong chrome admin |
+| ADM-004 | **Pass** | `gyms.php` 200 + filter UI |
+| ADM-005 / 006 | **Pass** | POST ẩn/hiện gym → DB `hidden`/`active`; public 404 khi ẩn |
+| ADM-007 | **Pass** | `gf_admin_save_gym` thiếu/empty name → 422 |
+| ADM-008 / 009 | **Pass** | Trainers list; POST ẩn HLV → DB |
+| ADM-010 / INVITE | **Pass** | Khóa UI + thêm quản trị |
+| ADM-011 | **Pass** | Tabs catalogs; specialty đang dùng → `is-blocked` |
+| ADM-012 / REV-007 | **Pass** | Moderaton UI; reject trống bị chặn (không fallback lý do) |
+| ADM-013 / 014 | **Pass** | Profile; không “Xóa cứng” gym/PT |
+| ADM-015 | **Pass** | Đã gỡ đồng hồ “Cập nhật”; số liệu DB mỗi lần tải |
+| INT-001 | **Pass** | Ẩn gym giữ `gym_trainers` |
+| Full smoke | **Pass** | 79 Pass · 0 Fail · 1 Blocked (SMTP OTP) · 2 Skip |
+
+**Polish đã chạm trước/trong vòng:** toast Tra cứu trống; badge chuyên môn đồng bộ; nút action rõ màu; placeholder ảnh bìa; reject không default “Không phù hợp”.
+
+**Tóm tắt:** Admin UI nối BE/DB hoàn chỉnh theo ADM-* đã chạy; không Fail mới.
+
+---
+
 ## Vòng AI Chat (2026-10-26)
 
 **Công cụ:** `php docs/qa/_ai_smoke.php`  

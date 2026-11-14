@@ -18,7 +18,7 @@ function gf_gym_public_where(string $alias = 'g'): string
  */
 function gf_exists_id(string $table, int $id): bool
 {
-    if (!in_array($table, ['districts', 'categories', 'amenities', 'specialties', 'gyms', 'trainers', 'users'], true)) {
+    if (!in_array($table, ['districts', 'categories', 'amenities', 'features', 'specialties', 'gyms', 'trainers', 'users'], true)) {
         return false;
     }
     $st = gf_pdo()->prepare("SELECT 1 FROM {$table} WHERE id=?");
@@ -134,6 +134,18 @@ function gf_list_categories(bool $activeOnly = true): array
 function gf_list_amenities(): array
 {
     return gf_pdo()->query('SELECT * FROM amenities ORDER BY name')->fetchAll();
+}
+
+/**
+ * Lấy danh sách đặc điểm phòng tập.
+ */
+function gf_list_features(): array
+{
+    try {
+        return gf_pdo()->query('SELECT * FROM features ORDER BY name')->fetchAll();
+    } catch (Throwable $e) {
+        return [];
+    }
 }
 
 /**

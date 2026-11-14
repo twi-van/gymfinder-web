@@ -51,6 +51,7 @@ function gf_db_init(array $config): void
     gf_db_ensure_remember_tokens($pdo);
     gf_db_ensure_admin_invite_columns($pdo);
     gf_db_ensure_ai_chat_sessions($pdo);
+    gf_db_ensure_features($pdo);
     gf_db_ensure_category_labels_vi($pdo);
     gf_db_ensure_premium_exclusive($pdo);
     $GLOBALS['GF_PDO'] = $pdo;
@@ -741,6 +742,122 @@ function gf_db_ensure_ai_chat_sessions(PDO $pdo): void
         );
     } catch (Throwable $e) {
         error_log('GYMFINDER ai_chat_sessions ensure failed: ' . $e->getMessage());
+    }
+}
+
+/** Catalog đặc điểm phòng tập + gắn gym (idempotent). */
+function gf_db_ensure_features(PDO $pdo): void
+{
+    $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+    try {
+        if ($driver === 'sqlite') {
+            $pdo->exec(
+                'CREATE TABLE IF NOT EXISTS features (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  name TEXT NOT NULL UNIQUE,
+                  slug TEXT NOT NULL UNIQUE
+                )'
+            );
+            $pdo->exec(
+                'CREATE TABLE IF NOT EXISTS gym_features (
+                  gym_id INTEGER NOT NULL,
+                  feature_id INTEGER NOT NULL,
+                  PRIMARY KEY (gym_id, feature_id),
+                  FOREIGN KEY (gym_id) REFERENCES gyms(id) ON DELETE CASCADE,
+                  FOREIGN KEY (feature_id) REFERENCES features(id) ON DELETE RESTRICT
+                )'
+            );
+        } else {
+            $st = $pdo->query("SHOW TABLES LIKE 'features'");
+            if (!$st || !$st->fetch()) {
+                $pdo->exec(
+                    "CREATE TABLE features (
+                      id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                      name VARCHAR(100) NOT NULL,
+                      slug VARCHAR(120) NOT NULL,
+                      PRIMARY KEY (id),
+                      UNIQUE KEY uq_features_name (name),
+                      UNIQUE KEY uq_features_slug (slug)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+                );
+            }
+            $st = $pdo->query("SHOW TABLES LIKE 'gym_features'");
+            if (!$st || !$st->fetch()) {
+                $pdo->exec(
+                    "CREATE TABLE gym_features (
+                      gym_id INT UNSIGNED NOT NULL,
+                      feature_id INT UNSIGNED NOT NULL,
+                      PRIMARY KEY (gym_id, feature_id),
+                      KEY idx_gf_feature (feature_id),
+                      CONSTRAINT fk_gf_gym FOREIGN KEY (gym_id) REFERENCES gyms(id) ON DELETE CASCADE,
+                      CONSTRAINT fk_gf_feature FOREIGN KEY (feature_id) REFERENCES features(id) ON DELETE RESTRICT
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+                );
+            }
+        }
+
+        $defaults = [
+            ['Mở cửa 24/7', 'open-247'],
+            ['Có huấn luyện viên (PT)', 'has-pt'],
+            ['Hỗ trợ giảm cân', 'ho-tro-giam-can'],
+        ];
+        $find = $pdo->prepare('SELECT id FROM features WHERE slug = ? LIMIT 1');
+        $ins = $pdo->prepare('INSERT INTO features (name, slug) VALUES (?, ?)');
+        foreach ($defaults as [$name, $slug]) {
+            $find->execute([$slug]);
+            if (!$find->fetchColumn()) {
+                try {
+                    $ins->execute([$name, $slug]);
+                } catch (Throwable $e) {
+                    // tên trùng — bỏ qua
+                }
+            }
+        }
+
+        // Gán lần đầu theo heuristic (chỉ khi chưa có liên kết nào).
+        $linked = (int) $pdo->query('SELECT COUNT(*) FROM gym_features')->fetchColumn();
+        if ($linked > 0) {
+            return;
+        }
+        $bySlug = [];
+        foreach ($pdo->query('SELECT id, slug FROM features') as $row) {
+            $bySlug[(string) $row['slug']] = (int) $row['id'];
+        }
+        $link = $pdo->prepare('INSERT OR IGNORE INTO gym_features (gym_id, feature_id) VALUES (?, ?)');
+        if ($driver !== 'sqlite') {
+            $link = $pdo->prepare('INSERT IGNORE INTO gym_features (gym_id, feature_id) VALUES (?, ?)');
+        }
+        if (!empty($bySlug['open-247'])) {
+            $fid = $bySlug['open-247'];
+            foreach ($pdo->query("SELECT id FROM gyms WHERE opening_hours LIKE '%24/7%'") as $g) {
+                $link->execute([(int) $g['id'], $fid]);
+            }
+        }
+        if (!empty($bySlug['has-pt'])) {
+            $fid = $bySlug['has-pt'];
+            $sql = "SELECT DISTINCT gt.gym_id AS id
+                    FROM gym_trainers gt
+                    JOIN trainers t ON t.id = gt.trainer_id
+                    WHERE t.status = 'active'
+                      AND EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id = t.id)";
+            foreach ($pdo->query($sql) as $g) {
+                $link->execute([(int) $g['id'], $fid]);
+            }
+        }
+        if (!empty($bySlug['ho-tro-giam-can'])) {
+            $fid = $bySlug['ho-tro-giam-can'];
+            $sql = "SELECT DISTINCT gt.gym_id AS id
+                    FROM gym_trainers gt
+                    JOIN trainers t ON t.id = gt.trainer_id
+                    JOIN trainer_specialties ts ON ts.trainer_id = t.id
+                    JOIN specialties s ON s.id = ts.specialty_id
+                    WHERE t.status = 'active' AND s.slug = 'cardio-giam-can'";
+            foreach ($pdo->query($sql) as $g) {
+                $link->execute([(int) $g['id'], $fid]);
+            }
+        }
+    } catch (Throwable $e) {
+        error_log('GYMFINDER features ensure failed: ' . $e->getMessage());
     }
 }
 

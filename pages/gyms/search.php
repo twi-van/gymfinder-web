@@ -28,10 +28,7 @@ $filters = [
     'category_ids' => is_array($_GET['category_ids'] ?? null) ? array_values(array_filter(array_map('intval', $_GET['category_ids']))) : [],
     'amenity_options' => is_array($_GET['amenities'] ?? null) ? array_values(array_map('strval', $_GET['amenities'])) : [],
     'amenity_ids' => is_array($_GET['amenity_ids'] ?? null) ? array_values(array_filter(array_map('intval', $_GET['amenity_ids']))) : [],
-    'has_pt' => $_GET['has_pt'] ?? '',
-    'open_247' => $_GET['open_247'] ?? '',
-    'women' => $_GET['women'] ?? '',
-    'weight_loss' => $_GET['weight_loss'] ?? '',
+    'feature_ids' => is_array($_GET['feature_ids'] ?? null) ? array_values(array_filter(array_map('intval', $_GET['feature_ids']))) : [],
     'featured' => $_GET['featured'] ?? '',
     'price_range' => $selectedPriceRange,
     'price_min' => $selectedPriceRange !== '' ? '' : $customPriceMin,
@@ -43,6 +40,7 @@ $filters = [
 $districts = gf_list_districts();
 $categories = gf_list_categories();
 $amenities = gf_list_amenities();
+$features = gf_list_features();
 $legacyAmenitySlugs = [
     'sauna' => 'xong-hoi',
     'steam' => 'xong-hoi',
@@ -74,6 +72,38 @@ $filters['category_ids'] = array_values(array_filter(
     $filters['category_ids'],
     static fn ($id) => in_array((int) $id, $knownCategoryIds, true)
 ));
+$featureIdsBySlug = [];
+foreach ($features as $feature) {
+    $featureIdsBySlug[(string) $feature['slug']] = (int) $feature['id'];
+}
+// Legacy query flags → feature_ids (catalog).
+$legacyFeatureMap = [
+    'open_247' => 'open-247',
+    'has_pt' => 'has-pt',
+    'weight_loss' => 'ho-tro-giam-can',
+];
+foreach ($legacyFeatureMap as $legacyKey => $slug) {
+    if (!empty($_GET[$legacyKey]) && isset($featureIdsBySlug[$slug])) {
+        $filters['feature_ids'][] = $featureIdsBySlug[$slug];
+    }
+}
+$knownFeatureIds = array_map(static fn ($feature) => (int) $feature['id'], $features);
+$filters['feature_ids'] = array_values(array_unique(array_filter(
+    $filters['feature_ids'],
+    static fn ($id) => in_array((int) $id, $knownFeatureIds, true)
+)));
+// Legacy ?women=1 → dùng loại phòng tập "Gym cho nữ" (tránh trùng mục Đặc điểm).
+if (!empty($_GET['women'])) {
+    foreach ($categories as $cat) {
+        if ((string) ($cat['slug'] ?? '') === 'gym-cho-nu') {
+            $womenCatId = (int) $cat['id'];
+            if (!in_array($womenCatId, $filters['category_ids'], true)) {
+                $filters['category_ids'][] = $womenCatId;
+            }
+            break;
+        }
+    }
+}
 
 $gymPage = gf_search_gyms_paged($filters);
 // Tự động lùi về trang hợp lệ gần nhất nếu trang hiện tại bị rỗng
@@ -147,37 +177,23 @@ if (!empty($filters['category_ids'])) {
         }
     }
 }
-if (!empty($filters['has_pt'])) {
-    $q = $_GET;
-    unset($q['has_pt'], $q['page']);
-    $activeChips[] = [
-        'label' => 'Có PT',
-        'remove_url' => '?' . http_build_query($q),
-    ];
-}
-if (!empty($filters['open_247'])) {
-    $q = $_GET;
-    unset($q['open_247'], $q['page']);
-    $activeChips[] = [
-        'label' => 'Mở cửa 24/7',
-        'remove_url' => '?' . http_build_query($q),
-    ];
-}
-if (!empty($filters['women'])) {
-    $q = $_GET;
-    unset($q['women'], $q['page']);
-    $activeChips[] = [
-        'label' => 'Dành cho nữ',
-        'remove_url' => '?' . http_build_query($q),
-    ];
-}
-if (!empty($filters['weight_loss'])) {
-    $q = $_GET;
-    unset($q['weight_loss'], $q['page']);
-    $activeChips[] = [
-        'label' => 'Hỗ trợ giảm cân',
-        'remove_url' => '?' . http_build_query($q),
-    ];
+if (!empty($filters['feature_ids'])) {
+    foreach ($features as $feature) {
+        $featureId = (int) $feature['id'];
+        if (!in_array($featureId, $filters['feature_ids'], true)) {
+            continue;
+        }
+        $q = $_GET;
+        $q['feature_ids'] = array_values(array_filter($filters['feature_ids'], static fn ($id) => (int) $id !== $featureId));
+        if (empty($q['feature_ids'])) {
+            unset($q['feature_ids']);
+        }
+        unset($q['open_247'], $q['has_pt'], $q['weight_loss'], $q['page']);
+        $activeChips[] = [
+            'label' => (string) $feature['name'],
+            'remove_url' => '?' . http_build_query($q),
+        ];
+    }
 }
 if (!empty($filters['amenity_ids'])) {
     foreach ($amenities as $amenity) {
@@ -197,12 +213,6 @@ if (!empty($filters['amenity_ids'])) {
         ];
     }
 }
-$featureFlags = [
-    ['id' => 'feature_247', 'label' => 'Mở cửa 24/7', 'name' => 'open_247'],
-    ['id' => 'feature_pt', 'label' => 'Có huấn luyện viên (PT)', 'name' => 'has_pt'],
-    ['id' => 'feature_women', 'label' => 'Dành cho nữ', 'name' => 'women'],
-    ['id' => 'feature_weight_loss', 'label' => 'Hỗ trợ giảm cân', 'name' => 'weight_loss'],
-];
 $user = gf_current_user();
 $favGymIds = $user ? array_map(static fn ($g) => (int) $g['id'], gf_user_favorites((int)$user['id'])['gyms']) : [];
 $pageTitle = gf_t('Tìm kiếm phòng tập - GYMFINDER');
@@ -230,7 +240,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         <div class="col-lg-3">
             <button class="btn bg-white border shadow-sm w-100 d-lg-none mb-3 d-flex justify-content-between align-items-center fw-semibold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#filterSidebar"><span><i class="fa-solid fa-bars me-2"></i><?= gf_h(gf_t('Bộ lọc')) ?></span><i class="fa-solid fa-chevron-down"></i></button>
             <div class="collapse d-lg-block" id="filterSidebar">
-            <form method="get" class="filter-section">
+            <form method="get" class="filter-section js-filter-empty-toast">
                 <div class="filter-title"><i class="fa-solid fa-sliders text-primary"></i> <?= gf_h(gf_t('Bộ lọc')) ?></div>
                 <input type="hidden" name="keyword" value="<?= gf_h($filters['keyword']) ?>">
                 <?php if ($filters['sort'] !== ''): ?><input type="hidden" name="sort" value="<?= gf_h($filters['sort']) ?>"><?php endif; ?>
@@ -282,15 +292,17 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                     <?php endforeach; ?>
                 </div>
                 <?php endif; ?>
+                <?php if ($features): ?>
                 <div class="filter-group">
                     <div class="filter-group-title"><?= gf_h(gf_t('Đặc điểm phòng tập')) ?></div>
-                    <?php foreach ($featureFlags as $feature): $field = $feature['name']; $checked = !empty($filters[$field]); ?>
+                    <?php foreach ($features as $feature): ?>
                         <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" name="<?= gf_h($field) ?>" value="1" id="<?= gf_h($feature['id']) ?>" <?= $checked ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="<?= gf_h($feature['id']) ?>"><?= gf_h(gf_t((string) $feature['label'])) ?></label>
+                            <input class="form-check-input" type="checkbox" name="feature_ids[]" id="feature_<?= (int) $feature['id'] ?>" value="<?= (int) $feature['id'] ?>" <?= in_array((int) $feature['id'], $filters['feature_ids'], true) ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="feature_<?= (int) $feature['id'] ?>"><?= gf_h(gf_t((string) $feature['name'])) ?></label>
                         </div>
                     <?php endforeach; ?>
                 </div>
+                <?php endif; ?>
                 <?php if ($amenities): ?>
                 <div class="filter-group">
                     <div class="filter-group-title"><?= gf_h(gf_t('Tiện ích')) ?></div>

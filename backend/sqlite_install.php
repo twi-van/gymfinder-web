@@ -7,6 +7,7 @@ function gf_sqlite_install(PDO $pdo): void
     $pdo->exec(<<<'SQL'
 DROP TABLE IF EXISTS favorites;
 DROP TABLE IF EXISTS reviews;
+DROP TABLE IF EXISTS gym_features;
 DROP TABLE IF EXISTS gym_amenities;
 DROP TABLE IF EXISTS gym_categories;
 DROP TABLE IF EXISTS gym_images;
@@ -15,6 +16,7 @@ DROP TABLE IF EXISTS trainer_specialties;
 DROP TABLE IF EXISTS trainers;
 DROP TABLE IF EXISTS gyms;
 DROP TABLE IF EXISTS specialties;
+DROP TABLE IF EXISTS features;
 DROP TABLE IF EXISTS amenities;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS districts;
@@ -56,6 +58,11 @@ CREATE TABLE IF NOT EXISTS amenities (
   icon TEXT
 );
 CREATE TABLE IF NOT EXISTS specialties (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE,
+  slug TEXT NOT NULL UNIQUE
+);
+CREATE TABLE IF NOT EXISTS features (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL UNIQUE,
   slug TEXT NOT NULL UNIQUE
@@ -105,6 +112,13 @@ CREATE TABLE IF NOT EXISTS gym_amenities (
   PRIMARY KEY (gym_id, amenity_id),
   FOREIGN KEY (gym_id) REFERENCES gyms(id) ON DELETE CASCADE,
   FOREIGN KEY (amenity_id) REFERENCES amenities(id) ON DELETE RESTRICT
+);
+CREATE TABLE IF NOT EXISTS gym_features (
+  gym_id INTEGER NOT NULL,
+  feature_id INTEGER NOT NULL,
+  PRIMARY KEY (gym_id, feature_id),
+  FOREIGN KEY (gym_id) REFERENCES gyms(id) ON DELETE CASCADE,
+  FOREIGN KEY (feature_id) REFERENCES features(id) ON DELETE RESTRICT
 );
 CREATE TABLE IF NOT EXISTS trainers (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -321,6 +335,17 @@ SQL);
     $insA = $pdo->prepare('INSERT INTO amenities (id, name, slug, icon) VALUES (?,?,?,?)');
     foreach ($ams as $a) {
         $insA->execute($a);
+    }
+
+    // 4b. Features
+    $feats = [
+        [1, 'Mở cửa 24/7', 'open-247'],
+        [2, 'Có huấn luyện viên (PT)', 'has-pt'],
+        [3, 'Hỗ trợ giảm cân', 'ho-tro-giam-can'],
+    ];
+    $insF = $pdo->prepare('INSERT INTO features (id, name, slug) VALUES (?,?,?)');
+    foreach ($feats as $f) {
+        $insF->execute($f);
     }
 
     // 5. Specialties

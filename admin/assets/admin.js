@@ -127,10 +127,60 @@
         setTimeout(apply, 0);
     }
 
+    /** Tra cứu: nếu ô tìm kiếm trống và không chọn bộ lọc nào → toast + không submit. */
+    function initFilterSearchToast() {
+        document.querySelectorAll('form').forEach(function (form) {
+            if (!form.querySelector('button.btn-filter, .btn-filter')) return;
+            if (form.dataset.gfFilterToastBound === '1') return;
+            form.dataset.gfFilterToastBound = '1';
+
+            form.addEventListener('submit', function (e) {
+                var q = form.querySelector('input[name="q"]');
+                if (!q) return;
+
+                var qEmpty = String(q.value || '').trim() === '';
+                var hasOtherFilter = false;
+                form.querySelectorAll('select, input').forEach(function (el) {
+                    if (el === q || el.disabled || el.type === 'hidden' || el.type === 'submit' || el.type === 'button') {
+                        return;
+                    }
+                    if (el.tagName === 'SELECT') {
+                        if (String(el.value || '') !== '') hasOtherFilter = true;
+                        return;
+                    }
+                    if (String(el.value || '').trim() !== '') hasOtherFilter = true;
+                });
+
+                if (!qEmpty || hasOtherFilter) {
+                    q.classList.remove('is-invalid');
+                    return;
+                }
+
+                e.preventDefault();
+                var msg = typeof gfT === 'function'
+                    ? gfT('Vui lòng nhập từ khóa tìm kiếm.')
+                    : 'Vui lòng nhập từ khóa tìm kiếm.';
+                if (typeof window.gfToast === 'function') {
+                    window.gfToast(msg, 'warning');
+                }
+                q.classList.add('is-invalid');
+                q.focus();
+            });
+
+            var qInput = form.querySelector('input[name="q"]');
+            if (qInput) {
+                qInput.addEventListener('input', function () {
+                    qInput.classList.remove('is-invalid');
+                });
+            }
+        });
+    }
+
     ready(function () {
         document.querySelectorAll('.admin-drag-scroll').forEach(initAdminDragScroll);
         initSidebarCollapse();
         initActionTooltips();
+        initFilterSearchToast();
 
         var sidebar = document.getElementById('sidebar');
         var overlay = document.getElementById('sidebarOverlay');

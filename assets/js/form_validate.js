@@ -89,6 +89,13 @@
                 if (bad) {
                     e.preventDefault();
                     e.stopImmediatePropagation();
+                    const msg =
+                        bad.getAttribute('data-required-msg') ||
+                        (bad.validity?.valueMissing ? gfT('Vui lòng điền thông tin này.') : null) ||
+                        messageFor(bad);
+                    if (typeof window.gfToast === 'function') {
+                        window.gfToast(msg, 'warning');
+                    }
                     bad.focus?.();
                 }
             },

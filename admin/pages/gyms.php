@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         unset($data['_csrf'], $data['id']);
         $data['category_ids'] = array_map('intval', $data['category_ids'] ?? []);
         $data['amenity_ids'] = array_map('intval', $data['amenity_ids'] ?? []);
+        $data['feature_ids'] = array_map('intval', $data['feature_ids'] ?? []);
         $data['price_min'] = (int) ($data['price_min'] ?? 0);
         $data['price_max'] = (int) ($data['price_max'] ?? 0);
         if (!empty($_POST['remove_cover'])) {
@@ -48,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         unset($data['_csrf'], $data['id']);
         $data['category_ids'] = array_map('intval', $data['category_ids'] ?? []);
         $data['amenity_ids'] = array_map('intval', $data['amenity_ids'] ?? []);
+        $data['feature_ids'] = array_map('intval', $data['feature_ids'] ?? []);
         $data['price_min'] = (int) ($data['price_min'] ?? 0);
         $data['price_max'] = (int) ($data['price_max'] ?? 0);
         if (!empty($_POST['remove_cover'])) {
@@ -105,9 +107,10 @@ if ($gymPage > 1 && empty($gymResult['items']) && (int)$gymResult['total'] > 0) 
     ]);
 }
 $rows = $gymResult['items'];
-$gymCategoryNames = $gymCategoryIds = $gymAmenityIds = $gymDescriptions = $gymGalleries = [];
+$gymCategoryNames = $gymCategoryIds = $gymAmenityIds = $gymFeatureIds = $gymFeatureNames = $gymDescriptions = $gymGalleries = [];
 $categoryQuery = gf_pdo()->prepare('SELECT c.id,c.name FROM gym_categories gc JOIN categories c ON c.id=gc.category_id WHERE gc.gym_id=? ORDER BY c.name');
 $amenityQuery = gf_pdo()->prepare('SELECT amenity_id FROM gym_amenities WHERE gym_id=?');
+$featureQuery = gf_pdo()->prepare('SELECT f.id, f.name FROM gym_features gf JOIN features f ON f.id=gf.feature_id WHERE gf.gym_id=? ORDER BY f.name');
 $descriptionQuery = gf_pdo()->prepare('SELECT description FROM gyms WHERE id=?');
 $galleryQuery = gf_pdo()->prepare('SELECT id, image_url, caption, sort_order FROM gym_images WHERE gym_id=? ORDER BY sort_order ASC');
 foreach ($rows as $gymRow) {
@@ -117,23 +120,24 @@ foreach ($rows as $gymRow) {
     $gymCategoryIds[(int)$gymRow['id']] = array_map('intval', array_column($gymCategories, 'id'));
     $amenityQuery->execute([(int)$gymRow['id']]);
     $gymAmenityIds[(int)$gymRow['id']] = array_map('intval', array_column($amenityQuery->fetchAll(), 'amenity_id'));
+    try {
+        $featureQuery->execute([(int)$gymRow['id']]);
+        $gymFeatures = $featureQuery->fetchAll();
+        $gymFeatureIds[(int)$gymRow['id']] = array_map('intval', array_column($gymFeatures, 'id'));
+        $gymFeatureNames[(int)$gymRow['id']] = array_column($gymFeatures, 'name');
+    } catch (Throwable $e) {
+        $gymFeatureIds[(int)$gymRow['id']] = [];
+        $gymFeatureNames[(int)$gymRow['id']] = [];
+    }
     $descriptionQuery->execute([(int)$gymRow['id']]);
     $gymDescriptions[(int)$gymRow['id']] = (string)($descriptionQuery->fetchColumn() ?: '');
     $galleryQuery->execute([(int)$gymRow['id']]);
     $gymGalleries[(int)$gymRow['id']] = $galleryQuery->fetchAll();
 }
 
-function gf_admin_cat_badge(string $name): string {
-    $n = mb_strtolower(trim($name), 'UTF-8');
-    if (str_contains($n, 'fit') || str_contains($n, 'gym')) return 'cat-badge-fitness';
-    if (str_contains($n, 'prem') || str_contains($n, 'vip') || str_contains($n, 'cao cấp')) return 'cat-badge-premium';
-    if (str_contains($n, 'yoga') || str_contains($n, 'pilates')) return 'cat-badge-yoga';
-    if (str_contains($n, 'cross') || str_contains($n, 'boxing') || str_contains($n, 'võ')) return 'cat-badge-crossfit';
-    return 'cat-badge-default';
-}
-
 $categories = gf_list_categories(false);
 $amenities = gf_list_amenities();
+$features = gf_list_features();
 $pageTitle = 'Phòng tập - Admin GYMFINDER';
 $extraCss = ['admin/assets/admin.css'];
 $adminActive = 'gyms';
@@ -181,7 +185,7 @@ require_once dirname(__DIR__) . '/components/table.php';
         </div>
         <div class="col-12 col-md-2">
             <button type="submit" class="btn btn-filter w-100 d-inline-flex align-items-center justify-content-center gap-2 fw-medium" style="height: 42px;">
-                <i class="fa-solid fa-arrows-rotate"></i> <?= gf_h(gf_t('Lọc')) ?>
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><?= gf_h(gf_t('Tra cứu')) ?>
             </button>
         </div>
     </div>
@@ -272,7 +276,7 @@ gf_admin_table_open([
                     <td class="text-end gym-actions pe-3 text-nowrap">
                         <div class="d-inline-flex align-items-center justify-content-end gap-2">
                             <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#gymView<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Xem chi tiết')) ?>" aria-label="<?= gf_h(gf_t('Xem chi tiết')) ?>"><i class="fa-solid fa-eye"></i></button>
-                            <button type="button" class="btn btn-action btn-action-edit" data-id="<?= (int)$r['id'] ?>" data-name="<?= gf_h($r['name']) ?>" data-phone="<?= gf_h($r['phone'] ?? '') ?>" data-address="<?= gf_h($r['address']) ?>" data-district="<?= (int)$r['district_id'] ?>" data-min="<?= (int)$r['price_min'] ?>" data-max="<?= (int)$r['price_max'] ?>" data-hours="<?= gf_h($r['opening_hours'] ?? '') ?>" data-featured="<?= (int)($r['is_featured'] ?? 0) ?>" data-description="<?= gf_h($gymDescriptions[(int)$r['id']] ?? '') ?>" data-cover="<?= gf_h($r['cover_image_url'] ?? '') ?>" data-cover-display="<?= gf_h(gf_cover_image($r['cover_image_url'] ?? null, (int)$r['id'])) ?>" data-gallery='<?= htmlspecialchars(json_encode($gymGalleries[(int)$r['id']] ?? []), ENT_QUOTES, 'UTF-8') ?>' data-categories="<?= gf_h(implode(',', $gymCategoryIds[(int)$r['id']] ?? [])) ?>" data-amenities="<?= gf_h(implode(',', $gymAmenityIds[(int)$r['id']] ?? [])) ?>" onclick="gymModalEdit(this)" title="<?= gf_h(gf_t('Chỉnh sửa')) ?>" aria-label="<?= gf_h(gf_t('Chỉnh sửa')) ?>"><i class="fa-solid fa-pen"></i></button>
+                            <button type="button" class="btn btn-action btn-action-edit" data-id="<?= (int)$r['id'] ?>" data-name="<?= gf_h($r['name']) ?>" data-phone="<?= gf_h($r['phone'] ?? '') ?>" data-address="<?= gf_h($r['address']) ?>" data-district="<?= (int)$r['district_id'] ?>" data-min="<?= (int)$r['price_min'] ?>" data-max="<?= (int)$r['price_max'] ?>" data-hours="<?= gf_h($r['opening_hours'] ?? '') ?>" data-featured="<?= (int)($r['is_featured'] ?? 0) ?>" data-description="<?= gf_h($gymDescriptions[(int)$r['id']] ?? '') ?>" data-cover="<?= gf_h($r['cover_image_url'] ?? '') ?>" data-cover-display="<?= gf_h(gf_cover_image($r['cover_image_url'] ?? null, (int)$r['id'])) ?>" data-gallery='<?= htmlspecialchars(json_encode($gymGalleries[(int)$r['id']] ?? []), ENT_QUOTES, 'UTF-8') ?>' data-categories="<?= gf_h(implode(',', $gymCategoryIds[(int)$r['id']] ?? [])) ?>" data-amenities="<?= gf_h(implode(',', $gymAmenityIds[(int)$r['id']] ?? [])) ?>" data-features="<?= gf_h(implode(',', $gymFeatureIds[(int)$r['id']] ?? [])) ?>" onclick="gymModalEdit(this)" title="<?= gf_h(gf_t('Chỉnh sửa')) ?>" aria-label="<?= gf_h(gf_t('Chỉnh sửa')) ?>"><i class="fa-solid fa-pen"></i></button>
                             <form method="post" class="d-inline m-0 p-0" onsubmit="return handleGymStatusSubmit(this);">
                                 <?= gf_csrf_field() ?>
                                 <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
@@ -374,7 +378,7 @@ gf_admin_table_close([
                             </div>
                         <?php endif; ?>
                         
-                        <div>
+                        <div class="mb-3">
                             <div class="small fw-bold text-dark mb-1"><?= gf_h(gf_t('Danh mục:')) ?></div>
                             <div class="d-flex flex-wrap gap-1">
                                 <?php foreach ($gymCategoryNames[(int)$r['id']] ?? [] as $categoryName): ?>
@@ -382,6 +386,16 @@ gf_admin_table_close([
                                 <?php endforeach; ?>
                             </div>
                         </div>
+                        <?php if (!empty($gymFeatureNames[(int)$r['id']])): ?>
+                        <div>
+                            <div class="small fw-bold text-dark mb-1"><?= gf_h(gf_t('Đặc điểm:')) ?></div>
+                            <div class="d-flex flex-wrap gap-1">
+                                <?php foreach ($gymFeatureNames[(int)$r['id']] as $featureName): ?>
+                                    <span class="admin-badge badge-neutral"><?= gf_h($featureName) ?></span>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -426,14 +440,15 @@ gf_admin_table_close([
                         </div>
                     </div>
                     <div class="col-12"><label class="form-label"><?= gf_h(gf_t('Mô tả')) ?></label><textarea class="form-control admin-input" name="description" id="gym-description" rows="3"></textarea></div>
-                    <div class="col-md-6"><label class="form-label fw-semibold"><?= gf_h(gf_t('Danh mục')) ?></label><div><?php foreach ($categories as $c): ?><label class="form-check"><input class="form-check-input gym-category" type="checkbox" name="category_ids[]" value="<?= (int)$c['id'] ?>"><span class="form-check-label"><?= gf_h($c['name']) ?></span></label><?php endforeach; ?></div></div>
-                    <div class="col-md-6"><label class="form-label fw-semibold"><?= gf_h(gf_t('Tiện ích')) ?></label><div><?php foreach ($amenities as $a): ?><label class="form-check"><input class="form-check-input gym-amenity" type="checkbox" name="amenity_ids[]" value="<?= (int)$a['id'] ?>"><span class="form-check-label"><?= gf_h($a['name']) ?></span></label><?php endforeach; ?></div></div>
+                    <div class="col-md-4"><label class="form-label fw-semibold"><?= gf_h(gf_t('Danh mục')) ?></label><div><?php foreach ($categories as $c): ?><label class="form-check"><input class="form-check-input gym-category" type="checkbox" name="category_ids[]" value="<?= (int)$c['id'] ?>"><span class="form-check-label"><?= gf_h($c['name']) ?></span></label><?php endforeach; ?></div></div>
+                    <div class="col-md-4"><label class="form-label fw-semibold"><?= gf_h(gf_t('Tiện ích')) ?></label><div><?php foreach ($amenities as $a): ?><label class="form-check"><input class="form-check-input gym-amenity" type="checkbox" name="amenity_ids[]" value="<?= (int)$a['id'] ?>"><span class="form-check-label"><?= gf_h($a['name']) ?></span></label><?php endforeach; ?></div></div>
+                    <div class="col-md-4"><label class="form-label fw-semibold"><?= gf_h(gf_t('Đặc điểm')) ?></label><div><?php foreach ($features as $ft): ?><label class="form-check"><input class="form-check-input gym-feature" type="checkbox" name="feature_ids[]" value="<?= (int)$ft['id'] ?>"><span class="form-check-label"><?= gf_h($ft['name']) ?></span></label><?php endforeach; ?></div></div>
 
                     <!-- UPLOAD COVER SECTION -->
                     <div class="col-12 pt-3 border-top">
                         <label class="form-label fw-bold d-block mb-2"><?= gf_h(gf_t('Ảnh bìa phòng tập')) ?></label>
                         <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
-                            <img id="gym-cover-preview" src="<?= gf_h(gf_cover_image(null, 1)) ?>" class="rounded-3 shadow-sm object-fit-cover" style="width:110px;height:80px;flex:0 0 110px;" alt="<?= gf_h(gf_t('Xem trước ảnh bìa')) ?>">
+                            <img id="gym-cover-preview" src="<?= gf_h(gf_url('assets/images/gym-placeholder.svg')) ?>" class="rounded-3 shadow-sm object-fit-cover" style="width:110px;height:80px;flex:0 0 110px;background:#eef2f6;" alt="<?= gf_h(gf_t('Chưa chọn ảnh bìa')) ?>">
                             <div class="flex-grow-1">
                                 <div class="d-flex flex-wrap gap-2 mb-2">
                                     <input type="file" id="gym-cover-file" name="cover_file" accept="image/jpeg,image/png,image/webp" class="d-none" onchange="previewGymCover(this)">
@@ -475,7 +490,8 @@ gf_admin_table_close([
 <script>
 const uploadApiUrl = '<?= gf_url('api/uploads/images') ?>';
 const csrfToken = '<?= gf_csrf_token() ?>';
-const defaultCoverPlaceholder = '<?= gf_cover_image(null, 1) ?>';
+// Placeholder rõ ràng (không dùng ảnh demo Unsplash — dễ nhầm là ảnh bìa thật).
+const defaultCoverPlaceholder = '<?= gf_url('assets/images/gym-placeholder.svg') ?>';
 
 let originalCoverUrl = '';
 let originalCoverDisplay = '';
@@ -540,9 +556,10 @@ function gymModalEdit(b){
     document.getElementById('gym-error-alert').classList.add('d-none');
     document.getElementById('gym-save').disabled = false;
     
-    const cats=b.dataset.categories.split(',').filter(Boolean),amens=b.dataset.amenities.split(',').filter(Boolean);
+    const cats=b.dataset.categories.split(',').filter(Boolean),amens=b.dataset.amenities.split(',').filter(Boolean),feats=(b.dataset.features||'').split(',').filter(Boolean);
     f.querySelectorAll('.gym-category').forEach(x=>x.checked=cats.includes(x.value));
     f.querySelectorAll('.gym-amenity').forEach(x=>x.checked=amens.includes(x.value));
+    f.querySelectorAll('.gym-feature').forEach(x=>x.checked=feats.includes(x.value));
     document.getElementById('gym-editor-title').textContent=gfT('Chỉnh sửa phòng tập:') + ' ' + b.dataset.name;
     document.getElementById('gym-save').textContent=gfT('Lưu thông tin');
 
@@ -746,14 +763,18 @@ async function handleGymFormSubmit(e) {
     const hasCover = !!coverFile || (document.getElementById('gym-cover-url').value.trim() !== ''
         && document.getElementById('gym-remove-cover').value !== '1');
     if (!hasCover) {
-        errAlert.textContent = gfT('Vui lòng chọn một ảnh bìa cho phòng tập.');
+        const msg = gfT('Vui lòng chọn một ảnh bìa cho phòng tập.');
+        errAlert.textContent = msg;
         errAlert.classList.remove('d-none');
+        if (typeof window.gfToast === 'function') window.gfToast(msg, 'warning');
         document.getElementById('gym-cover-file').focus();
         return false;
     }
     if (galleryItems.length < 3 || galleryItems.length > 8) {
-        errAlert.textContent = gfT('Thư viện cần từ 3 đến 8 ảnh. Phòng tập nổi bật nên có 6 ảnh.');
+        const msg = gfT('Thư viện cần từ 3 đến 8 ảnh. Phòng tập nổi bật nên có 6 ảnh.');
+        errAlert.textContent = msg;
         errAlert.classList.remove('d-none');
+        if (typeof window.gfToast === 'function') window.gfToast(msg, 'warning');
         document.getElementById('gym-gallery-add-btn').focus();
         return false;
     }

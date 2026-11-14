@@ -185,10 +185,68 @@
         });
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', wireConfirmForms);
-    } else {
+    /**
+     * Form lọc (user): submit khi không có từ khóa/bộ lọc nào → toast + chặn gửi.
+     * Đánh dấu form bằng class js-filter-empty-toast.
+     */
+    function formHasActiveFilter(form) {
+        const ignoreNames = { sort: true, page: true, _csrf: true };
+        let active = false;
+        form.querySelectorAll('input, select, textarea').forEach((el) => {
+            if (active || el.disabled) return;
+            const name = String(el.name || '');
+            if (!name || ignoreNames[name]) return;
+            const type = (el.type || '').toLowerCase();
+            if (type === 'submit' || type === 'button' || type === 'reset' || type === 'file' || type === 'image') {
+                return;
+            }
+            if (type === 'checkbox' || type === 'radio') {
+                if (el.checked && String(el.value || '').trim() !== '') {
+                    active = true;
+                }
+                return;
+            }
+            if (String(el.value || '').trim() !== '') {
+                active = true;
+            }
+        });
+        return active;
+    }
+
+    function wireEmptyFilterToast() {
+        document.querySelectorAll('form.js-filter-empty-toast').forEach((form) => {
+            if (form.dataset.gfEmptyFilterBound === '1') return;
+            form.dataset.gfEmptyFilterBound = '1';
+            form.addEventListener('submit', (event) => {
+                if (formHasActiveFilter(form)) return;
+                event.preventDefault();
+                const msg =
+                    typeof gfT === 'function'
+                        ? gfT('Vui lòng nhập từ khóa hoặc chọn ít nhất một bộ lọc.')
+                        : 'Vui lòng nhập từ khóa hoặc chọn ít nhất một bộ lọc.';
+                if (typeof window.gfToast === 'function') {
+                    window.gfToast(msg, 'warning');
+                }
+                const focusEl =
+                    form.querySelector('input[name="keyword"]:not([type="hidden"])') ||
+                    form.querySelector('input[name="q"]:not([type="hidden"])') ||
+                    form.querySelector('select:not([disabled])') ||
+                    form.querySelector('input:not([type="hidden"]):not([type="submit"]):not([type="button"])');
+                focusEl?.focus?.();
+            });
+        });
+    }
+
+    function bootUiFeedback() {
         wireConfirmForms();
+        wireEmptyFilterToast();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bootUiFeedback);
+    } else {
+        bootUiFeedback();
     }
     window.gfWireConfirmForms = wireConfirmForms;
+    window.gfWireEmptyFilterToast = wireEmptyFilterToast;
 })();

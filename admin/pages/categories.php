@@ -8,6 +8,7 @@ gf_require_admin();
 
 $tabs = [
     'categories'  => ['label' => 'Loại phòng tập', 'icon' => 'fa-tags', 'table' => 'categories'],
+    'features'    => ['label' => 'Đặc điểm', 'icon' => 'fa-sliders', 'table' => 'features'],
     'specialties' => ['label' => 'Chuyên môn', 'icon' => 'fa-person-running', 'table' => 'specialties'],
     'amenities'   => ['label' => 'Tiện ích', 'icon' => 'fa-shower', 'table' => 'amenities'],
     'districts'   => ['label' => 'Khu vực', 'icon' => 'fa-map-location-dot', 'table' => 'districts'],
@@ -147,6 +148,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if ($used > 0) {
                         throw new RuntimeException('Không thể xóa: còn ' . $used . ' phòng tập đang gắn tiện ích này.');
                     }
+                } elseif ($table === 'features') {
+                    $st = gf_pdo()->prepare('SELECT COUNT(*) FROM gym_features WHERE feature_id=?');
+                    $st->execute([$id]);
+                    $used = (int) $st->fetchColumn();
+                    if ($used > 0) {
+                        throw new RuntimeException('Không thể xóa: còn ' . $used . ' phòng tập đang gắn đặc điểm này.');
+                    }
                 } elseif ($table === 'districts') {
                     $st = gf_pdo()->prepare('SELECT COUNT(*) FROM gyms WHERE district_id=?');
                     $st->execute([$id]);
@@ -178,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $dupSt = gf_pdo()->prepare($dupSql);
             $dupSt->execute($dupParams);
             if ($dupSt->fetch()) {
-                throw new RuntimeException('Tên đã tồn tại.');
+                throw new RuntimeException('Tên "' . $name . '" đã tồn tại trong danh mục này.');
             }
 
             if ($id > 0) {
@@ -187,7 +195,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 gf_admin_catalog_redirect($tab, 'updated');
             }
 
-            $prefix = $tab === 'amenities' ? 'amenity' : ($tab === 'districts' ? 'district' : 'specialty');
+            $prefix = match ($tab) {
+                'amenities' => 'amenity',
+                'features' => 'feature',
+                'districts' => 'district',
+                default => 'specialty',
+            };
             $baseSlug = gf_slugify($name, $prefix);
             $slug = $baseSlug;
             $slugSt = gf_pdo()->prepare("SELECT id FROM {$table} WHERE slug=?");
@@ -271,6 +284,8 @@ if ($tab === 'categories') {
         ) AS specialty_usage GROUP BY rid');
     } elseif ($table === 'amenities') {
         $st = gf_pdo()->query('SELECT amenity_id AS rid, COUNT(*) AS total FROM gym_amenities GROUP BY amenity_id');
+    } elseif ($table === 'features') {
+        $st = gf_pdo()->query('SELECT feature_id AS rid, COUNT(*) AS total FROM gym_features GROUP BY feature_id');
     } else {
         $st = gf_pdo()->query('SELECT district_id AS rid, COUNT(*) AS total FROM gyms GROUP BY district_id');
     }
@@ -303,10 +318,10 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
         <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;"><?= gf_h(gf_t('Danh mục')) ?></h2>
-        <p class="text-secondary mb-0 small"><?= gf_h(gf_t('Quản lý loại phòng tập, chuyên môn huấn luyện viên, tiện ích và khu vực')) ?></p>
+        <p class="text-secondary mb-0 small"><?= gf_h(gf_t('Quản lý loại phòng tập, đặc điểm, chuyên môn huấn luyện viên, tiện ích và khu vực')) ?></p>
     </div>
     <button class="btn btn-primary px-3 rounded-3" data-bs-toggle="modal" data-bs-target="#catalogCreate">
-        <i class="fa-solid fa-plus me-2"></i><?= gf_h(gf_t('Thêm')) ?> <?= gf_h($tabs[$tab]['label']) ?>
+        <i class="fa-solid fa-plus me-2"></i><?= gf_h(gf_t('Thêm')) ?> <?= gf_h(gf_t($tabs[$tab]['label'])) ?>
     </button>
 </div>
 
@@ -315,7 +330,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
         <li class="nav-item">
             <a class="nav-link rounded-pill px-3 <?= $key === $tab ? 'active' : 'bg-white border text-secondary' ?>"
                href="<?= gf_h(gf_url('admin/pages/categories.php?tab=' . urlencode($key))) ?>">
-                <i class="fa-solid <?= gf_h($meta['icon']) ?> me-2"></i><?= gf_h($meta['label']) ?>
+                <i class="fa-solid <?= gf_h($meta['icon']) ?> me-2"></i><?= gf_h(gf_t($meta['label'])) ?>
             </a>
         </li>
     <?php endforeach; ?>
@@ -329,16 +344,16 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 <div class="modal fade" id="catalogCreate" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 rounded-4">
-            <form method="post" class="js-form-validate" novalidate>
+            <form method="post" class="js-form-validate" novalidate autocomplete="off">
                 <?= gf_csrf_field() ?>
                 <input type="hidden" name="action" value="save">
                 <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold"><?= gf_h(gf_t('Thêm')) ?> <?= gf_h($tabs[$tab]['label']) ?></h5>
+                    <h5 class="modal-title fw-bold"><?= gf_h(gf_t('Thêm')) ?> <?= gf_h(gf_t($tabs[$tab]['label'])) ?></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <label class="form-label"><?= gf_h(gf_t('Tên *')) ?></label>
-                    <input class="form-control admin-input mb-3" name="name" required maxlength="100" data-required-msg="<?= gf_h(gf_t('Vui lòng nhập tên danh mục.')) ?>" placeholder="<?= gf_h(gf_t('Nhập tên')) ?>">
+                    <input class="form-control admin-input mb-3" name="name" required maxlength="100" autocomplete="new-password" data-lpignore="true" data-1p-ignore="true" data-required-msg="<?= gf_h(gf_t('Vui lòng nhập tên danh mục.')) ?>" placeholder="<?= gf_h(gf_t('Nhập tên')) ?>">
                     <?php if ($tab === 'categories'): ?>
                         <label class="form-label"><?= gf_h(gf_t('Mô tả')) ?></label>
                         <textarea class="form-control admin-input" name="description" rows="3"></textarea>
@@ -355,9 +370,18 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 
 <form method="get" class="admin-card p-3 mb-4">
     <input type="hidden" name="tab" value="<?= gf_h($tab) ?>">
-    <div class="position-relative">
-        <i class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-        <input class="form-control admin-input ps-5" name="q" value="<?= gf_h($q) ?>" placeholder="<?= gf_h(gf_t('Tìm kiếm')) ?>">
+    <div class="row g-3 align-items-center">
+        <div class="col-12 col-md-9">
+            <div class="position-relative">
+                <i class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary" aria-hidden="true"></i>
+                <input class="form-control admin-input ps-5" name="q" value="<?= gf_h($q) ?>" placeholder="<?= gf_h(gf_t('Tìm kiếm')) ?>" aria-label="<?= gf_h(gf_t('Tìm kiếm')) ?>" style="height:42px;">
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <button type="submit" class="btn btn-filter w-100 d-inline-flex align-items-center justify-content-center gap-2 fw-medium" style="height:42px;">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><?= gf_h(gf_t('Tra cứu')) ?>
+            </button>
+        </div>
     </div>
 </form>
 
@@ -462,6 +486,12 @@ $colspan = count($columns);
             'Cannot delete: %d gyms still use this amenity.',
             $usedCount
         );
+    } elseif ($tab === 'features' && $usedCount > 0) {
+        $blocked = gf_admin_catalog_used_message(
+            'Không thể xóa: còn %d phòng tập đang gắn đặc điểm này.',
+            'Cannot delete: %d gyms still use this feature.',
+            $usedCount
+        );
     } elseif ($tab === 'districts' && $usedCount > 0) {
         $blocked = gf_admin_catalog_used_message(
             'Không thể xóa: còn %d phòng tập thuộc khu vực này.',
@@ -515,17 +545,17 @@ gf_admin_table_close([
 <div class="modal fade" id="catalogEdit<?= (int)$r['id'] ?>" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 rounded-4">
-            <form method="post" class="js-form-validate" novalidate>
+            <form method="post" class="js-form-validate" novalidate autocomplete="off">
                 <?= gf_csrf_field() ?>
                 <input type="hidden" name="action" value="save">
                 <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
                 <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold"><?= gf_h(gf_t('Sửa')) ?> <?= gf_h($tabs[$tab]['label']) ?></h5>
+                    <h5 class="modal-title fw-bold"><?= gf_h(gf_t('Sửa')) ?> <?= gf_h(gf_t($tabs[$tab]['label'])) ?></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <label class="form-label"><?= gf_h(gf_t('Tên *')) ?></label>
-                    <input class="form-control admin-input mb-3" name="name" value="<?= $tab === 'districts' ? htmlspecialchars((string) $r['name'], ENT_QUOTES, 'UTF-8') : gf_h($r['name']) ?>" required maxlength="100" data-required-msg="<?= gf_h(gf_t('Vui lòng nhập tên danh mục.')) ?>">
+                    <input class="form-control admin-input mb-3" name="name" value="<?= $tab === 'districts' ? htmlspecialchars((string) $r['name'], ENT_QUOTES, 'UTF-8') : gf_h($r['name']) ?>" required maxlength="100" autocomplete="new-password" data-lpignore="true" data-1p-ignore="true" data-required-msg="<?= gf_h(gf_t('Vui lòng nhập tên danh mục.')) ?>">
                     <?php if ($tab === 'categories'): ?>
                         <label class="form-label"><?= gf_h(gf_t('Mô tả')) ?></label>
                         <textarea class="form-control admin-input mb-3" name="description" rows="3"><?= gf_h($r['description'] ?? '') ?></textarea>

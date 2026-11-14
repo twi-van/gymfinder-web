@@ -70,21 +70,10 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
 require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 ?>
 
-<!-- TIÊU ĐỀ TRANG VÀ THỜI GIAN CẬP NHẬT -->
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-    <div>
-        <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;"><?= gf_h(gf_t('Tổng quan')) ?></h2>
-        <p class="text-secondary mb-0 small"><?= gf_h(gf_t('Theo dõi và quản lý hoạt động toàn hệ thống GYMFINDER')) ?></p>
-    </div>
-    <div class="d-flex align-items-center gap-2">
-        <div class="text-secondary small bg-white border px-3 py-2 rounded-3 shadow-sm d-flex align-items-center">
-            <i class="fa-regular fa-clock me-2 text-primary"></i>
-            <span><?= gf_h(gf_t('Cập nhật:')) ?> <strong class="text-dark"><?= date('H:i - d/m/Y') ?></strong></span>
-        </div>
-        <button type="button" class="btn bg-white border shadow-sm rounded-3 py-2 px-3 text-secondary" onclick="window.location.reload()" title="<?= gf_h(gf_t('Làm mới dữ liệu')) ?>">
-            <i class="fa-solid fa-rotate-right"></i>
-        </button>
-    </div>
+<!-- TIÊU ĐỀ TRANG -->
+<div class="mb-4">
+    <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;"><?= gf_h(gf_t('Tổng quan')) ?></h2>
+    <p class="text-secondary mb-0 small"><?= gf_h(gf_t('Theo dõi và quản lý hoạt động toàn hệ thống GYMFINDER')) ?></p>
 </div>
 
 <!-- THÔNG BÁO HỆ THỐNG / VIỆC CẦN XỬ LÝ (CHỈ HIỂN THỊ KHI CÓ ĐÁNH GIÁ CHỜ DUYỆT THẬT) -->
@@ -155,10 +144,10 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
                 </div>
             </div>
             <div>
-                <h3 class="fw-bold mb-1 text-dark"><?= number_format((int)$stats['users']) ?></h3>
+                <h3 class="fw-bold mb-1 text-dark"><?= number_format((int)$stats['total_users']) ?></h3>
                 <div class="text-secondary small d-flex align-items-center gap-1">
                     <i class="fa-solid fa-user-check text-primary" style="font-size: 11px;"></i>
-                    <span><?= gf_h(gf_t('Tài khoản hội viên')) ?></span>
+                    <span><strong><?= (int)$stats['users'] ?></strong> <?= gf_h(gf_t('hội viên')) ?> / <strong><?= (int)$stats['admins'] ?></strong> <?= gf_h(gf_t('quản trị viên')) ?></span>
                 </div>
             </div>
         </a>
@@ -405,5 +394,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+<?php require dirname(__DIR__, 2) . '/includes/ui_feedback.php'; ?>
 </body></html>
 

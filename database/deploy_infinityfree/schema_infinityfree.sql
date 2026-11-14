@@ -103,6 +103,20 @@ CREATE TABLE specialties (
   DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================================
+-- 5b. features (đặc điểm phòng tập)
+-- =====================================================================
+CREATE TABLE features (
+  id   INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  name VARCHAR(100) NOT NULL,
+  slug VARCHAR(120) NOT NULL,
+
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_features_name (name),
+  UNIQUE KEY uq_features_slug (slug)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================================
 -- 6. gyms
 -- ON DELETE RESTRICT cho FK districts 
 -- Không khai báo ON UPDATE 
@@ -216,6 +230,23 @@ CREATE TABLE gym_amenities (
     FOREIGN KEY (gym_id)     REFERENCES gyms(id)      ON DELETE CASCADE,
   CONSTRAINT fk_ga_amenity
     FOREIGN KEY (amenity_id) REFERENCES amenities(id) ON DELETE RESTRICT
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================================
+-- 9b. gym_features
+-- =====================================================================
+CREATE TABLE gym_features (
+  gym_id     INT UNSIGNED NOT NULL,
+  feature_id INT UNSIGNED NOT NULL,
+
+  PRIMARY KEY (gym_id, feature_id),
+  KEY idx_gf_feature (feature_id),
+
+  CONSTRAINT fk_gf_gym
+    FOREIGN KEY (gym_id)     REFERENCES gyms(id)     ON DELETE CASCADE,
+  CONSTRAINT fk_gf_feature
+    FOREIGN KEY (feature_id) REFERENCES features(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

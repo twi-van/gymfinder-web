@@ -117,6 +117,14 @@ INSERT INTO amenities (id, name, slug, icon) VALUES
 (7, 'Nước uống miễn phí', 'nuoc-uong-mien-phi', 'fa-bottle-water');
 
 -- =====================================================================
+-- FEATURES
+-- =====================================================================
+INSERT INTO features (id, name, slug) VALUES
+(1, 'Mở cửa 24/7', 'open-247'),
+(2, 'Có huấn luyện viên (PT)', 'has-pt'),
+(3, 'Hỗ trợ giảm cân', 'ho-tro-giam-can');
+
+-- =====================================================================
 -- SPECIALTIES
 -- =====================================================================
 INSERT INTO specialties (id, name, slug) VALUES
@@ -1422,6 +1430,32 @@ WHERE g.id BETWEEN 1 AND 64
   AND NOT EXISTS (SELECT 1 FROM reviews r WHERE r.gym_id=g.id AND r.status='approved')
   AND EXISTS (SELECT 1 FROM users u WHERE u.role='user'
     AND NOT EXISTS (SELECT 1 FROM reviews prior WHERE prior.user_id=u.id AND prior.gym_id=g.id));
+
+-- =====================================================================
+-- GYM_FEATURES
+-- =====================================================================
+INSERT IGNORE INTO gym_features (gym_id, feature_id)
+SELECT g.id, f.id
+FROM gyms g
+JOIN features f ON f.slug = 'open-247'
+WHERE g.opening_hours LIKE '%24/7%';
+
+INSERT IGNORE INTO gym_features (gym_id, feature_id)
+SELECT DISTINCT gt.gym_id, f.id
+FROM gym_trainers gt
+JOIN trainers t ON t.id = gt.trainer_id
+JOIN features f ON f.slug = 'has-pt'
+WHERE t.status = 'active'
+  AND EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id = t.id);
+
+INSERT IGNORE INTO gym_features (gym_id, feature_id)
+SELECT DISTINCT gt.gym_id, f.id
+FROM gym_trainers gt
+JOIN trainers t ON t.id = gt.trainer_id
+JOIN trainer_specialties ts ON ts.trainer_id = t.id
+JOIN specialties s ON s.id = ts.specialty_id
+JOIN features f ON f.slug = 'ho-tro-giam-can'
+WHERE t.status = 'active' AND s.slug = 'cardio-giam-can';
 
 -- =====================================================================
 -- FAVORITES

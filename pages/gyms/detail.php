@@ -92,15 +92,98 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         <li class="breadcrumb-item"><a href="<?= gf_h(gf_url('pages/gyms/search.php')) ?>" class="text-secondary text-decoration-none"><?= gf_h(gf_t('Phòng tập')) ?></a></li>
         <li class="breadcrumb-item active text-dark fw-semibold"><?= gf_h($gym['name']) ?></li>
     </ol></nav>
-    <div class="row g-3 mb-4">
+    <?php
+    $coverUrl = (string) $gym['cover'];
+    $galleryItems = [];
+    foreach ($images as $img) {
+        $raw = (string) ($img['image_url'] ?? '');
+        $resolved = gf_resolve_image_url($raw) ?? $raw;
+        if ($resolved === '') {
+            continue;
+        }
+        $galleryItems[] = [
+            'url' => $resolved,
+            'caption' => trim((string) ($img['caption'] ?? '')),
+        ];
+    }
+    ?>
+    <?php
+    $galleryEsc = static fn (string $u): string => htmlspecialchars($u, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $galleryLarge = static function (string $url): string {
+        // Unsplash demo: ưu tiên bản lớn khi xem hero / lightbox
+        if (str_contains($url, 'images.unsplash.com') && str_contains($url, 'w=800')) {
+            return str_replace('w=800', 'w=1200', $url);
+        }
+        return $url;
+    };
+    // Thumbnail: cover + gallery, tối đa 6 ô (2×3) để không để trống góc lưới.
+    $thumbItems = [['url' => $coverUrl, 'caption' => '', 'is_cover' => true]];
+    foreach ($galleryItems as $gItem) {
+        $thumbItems[] = [
+            'url' => $gItem['url'],
+            'caption' => $gItem['caption'],
+            'is_cover' => false,
+        ];
+    }
+    $thumbExtra = max(0, count($thumbItems) - 6);
+    $thumbItems = array_slice($thumbItems, 0, 6);
+    ?>
+    <div class="row g-3 mb-4 align-items-stretch" id="gymGalleryViewer" data-cover-url="<?= $galleryEsc($coverUrl) ?>">
         <div class="col-lg-8">
-            <img src="<?= gf_h($gym['cover']) ?>" class="w-100 rounded-4 gf-detail-cover" alt="<?= gf_h($gym['name']) ?>" onerror="this.onerror=null;this.src='<?= gf_h(gf_cover_image(null, (int)$gym['id'])) ?>';">
+            <button type="button"
+                    class="gf-gallery-hero-btn border-0 p-0 w-100 rounded-4 overflow-hidden h-100"
+                    id="gymHeroOpen"
+                    data-full-src="<?= $galleryEsc($galleryLarge($coverUrl)) ?>"
+                    aria-label="<?= gf_h(gf_t('Phóng to ảnh đang xem')) ?>">
+                <img id="gymHeroImage"
+                     src="<?= $galleryEsc($coverUrl) ?>"
+                     class="w-100 gf-detail-cover"
+                     alt="<?= gf_h($gym['name']) ?>"
+                     data-fallback="<?= $galleryEsc(gf_cover_image(null, (int) $gym['id'])) ?>"
+                     onerror="if(!this.dataset.failed){this.dataset.failed='1';this.src=this.dataset.fallback||'<?= $galleryEsc(gf_url('assets/images/gym-placeholder.svg')) ?>';}">
+            </button>
         </div>
         <div class="col-lg-4">
-            <div class="row g-3">
-                <?php foreach ($images as $img): ?>
-                    <div class="col-6"><img src="<?= gf_h($img['image_url']) ?>" class="w-100 rounded-3" style="height:120px;object-fit:cover;" alt="<?= gf_h(gf_t('Ảnh phòng tập ' . $gym['name'])) ?>" onerror="if(this.dataset.fallbackStage){this.onerror=null;this.src='<?= gf_h(gf_url('assets/images/gym-placeholder.svg')) ?>';}else{this.dataset.fallbackStage='1';this.src='<?= gf_h($gym['cover']) ?>';}"></div>
+            <div class="gf-gallery-thumbs">
+                <?php foreach ($thumbItems as $idx => $tItem):
+                    $isFirst = $idx === 0;
+                    $isLast = $idx === count($thumbItems) - 1;
+                    $showMore = $isLast && $thumbExtra > 0;
+                    $label = !empty($tItem['is_cover'])
+                        ? gf_t('Xem ảnh bìa')
+                        : gf_t('Xem ảnh thư viện') . ' ' . $idx;
+                    $alt = $tItem['caption'] !== ''
+                        ? $tItem['caption']
+                        : (!empty($tItem['is_cover']) ? gf_t('Ảnh bìa') : gf_t('Ảnh phòng tập ' . $gym['name']));
+                    ?>
+                    <button type="button"
+                            class="gf-gallery-thumb border-0 p-0 rounded-3 overflow-hidden<?= $isFirst ? ' is-active' : '' ?>"
+                            data-full-src="<?= $galleryEsc($tItem['url']) ?>"
+                            data-large-src="<?= $galleryEsc($galleryLarge($tItem['url'])) ?>"
+                            aria-label="<?= gf_h($label) ?>"
+                            aria-pressed="<?= $isFirst ? 'true' : 'false' ?>">
+                        <img src="<?= $galleryEsc($tItem['url']) ?>"
+                             alt="<?= gf_h($alt) ?>"
+                             loading="lazy"
+                             onerror="if(this.dataset.fallbackStage){this.onerror=null;this.src='<?= $galleryEsc(gf_url('assets/images/gym-placeholder.svg')) ?>';}else{this.dataset.fallbackStage='1';this.src='<?= $galleryEsc($coverUrl) ?>';}">
+                        <?php if ($showMore): ?>
+                            <span class="gf-gallery-more">+<?= (int) $thumbExtra ?></span>
+                        <?php endif; ?>
+                    </button>
                 <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="gymGalleryLightbox" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content bg-transparent border-0 shadow-none">
+                <div class="d-flex justify-content-end mb-2">
+                    <button type="button" class="btn btn-light btn-sm rounded-circle" data-bs-dismiss="modal" aria-label="<?= gf_h(gf_t('Đóng')) ?>">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <img id="gymLightboxImage" src="" alt="" class="w-100 rounded-4 gf-gallery-lightbox-img">
             </div>
         </div>
     </div>
@@ -296,6 +379,14 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 <h3 class="fw-bold mb-3"><?= gf_h(gf_t('Thông tin phòng tập')) ?></h3>
                 <p class="d-flex justify-content-between"><span class="text-secondary"><?= gf_h(gf_t('Giờ hoạt động')) ?></span><strong><?= gf_h(gf_t((string) ($gym['opening_hours'] ?? ''))) ?></strong></p>
                 <p class="d-flex justify-content-between"><span class="text-secondary"><?= gf_h(gf_t('Khu vực')) ?></span><strong><?= gf_h(gf_place_name((string) ($gym['district_name'] ?? ''))) ?></strong></p>
+                <?php if (!empty($gym['features'])): ?>
+                <h5 class="fw-bold mt-4"><?= gf_h(gf_t('Đặc điểm')) ?></h5>
+                <ul class="list-unstyled">
+                    <?php foreach ($gym['features'] as $ft): ?>
+                        <li class="mb-2"><i class="fa-solid fa-check text-primary me-2"></i><?= gf_h(gf_t((string) $ft['name'])) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+                <?php endif; ?>
                 <h5 class="fw-bold mt-4"><?= gf_h(gf_t('Tiện ích')) ?></h5>
                 <ul class="list-unstyled">
                     <?php foreach ($gym['amenities'] as $a): ?>
@@ -311,4 +402,93 @@ require dirname(__DIR__, 2) . '/includes/header.php';
     </div>
 </div>
 <script src="<?= gf_h(gf_url('assets/js/rating-filter.js')) ?>" defer></script>
+<script>
+(function () {
+    const root = document.getElementById('gymGalleryViewer');
+    const hero = document.getElementById('gymHeroImage');
+    const heroOpen = document.getElementById('gymHeroOpen');
+    const lightboxEl = document.getElementById('gymGalleryLightbox');
+    const lightboxImg = document.getElementById('gymLightboxImage');
+    if (!root || !hero) return;
+
+    const thumbs = Array.from(root.querySelectorAll('.gf-gallery-thumb[data-full-src]'));
+
+    function getLightbox() {
+        if (!lightboxEl || !window.bootstrap || typeof bootstrap.Modal !== 'function') {
+            return null;
+        }
+        return bootstrap.Modal.getOrCreateInstance(lightboxEl);
+    }
+
+    function largeSrc(btn) {
+        return (btn && (btn.getAttribute('data-large-src') || btn.getAttribute('data-full-src'))) || '';
+    }
+
+    function setActive(btn) {
+        thumbs.forEach((t) => {
+            const on = t === btn;
+            t.classList.toggle('is-active', on);
+            t.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+    }
+
+    function showInHero(src, large) {
+        if (!src) return;
+        const next = large || src;
+        hero.dataset.failed = '';
+        hero.style.opacity = '0.35';
+        const apply = () => {
+            hero.setAttribute('src', src);
+            hero.src = src;
+            hero.style.opacity = '1';
+            if (heroOpen) {
+                heroOpen.setAttribute('data-full-src', next);
+            }
+        };
+        window.setTimeout(apply, 60);
+    }
+
+    function openLightbox(src, alt) {
+        if (!src || !lightboxImg) return;
+        lightboxImg.src = src;
+        lightboxImg.alt = alt || '';
+        const show = () => {
+            const modal = getLightbox();
+            if (modal) modal.show();
+        };
+        // Bootstrap thường load ở footer sau script này
+        if (window.bootstrap && typeof bootstrap.Modal === 'function') {
+            show();
+        } else {
+            window.addEventListener('load', show, { once: true });
+            setTimeout(show, 0);
+        }
+    }
+
+    thumbs.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const src = btn.getAttribute('data-full-src') || '';
+            const large = largeSrc(btn);
+            const alt = (btn.querySelector('img') && btn.querySelector('img').alt) || '';
+            setActive(btn);
+            // Đổi ảnh lớn (hero) đúng theo thumbnail — không giữ cứng ảnh bìa.
+            showInHero(src, large);
+            if (hero && typeof hero.scrollIntoView === 'function') {
+                hero.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+            // Mobile / muốn xem full: mở lightbox đúng ảnh vừa chọn.
+            if (window.matchMedia && window.matchMedia('(max-width: 991.98px)').matches) {
+                openLightbox(large || src, alt);
+            }
+        });
+    });
+
+    if (heroOpen) {
+        heroOpen.addEventListener('click', () => {
+            const src = heroOpen.getAttribute('data-full-src') || hero.getAttribute('src') || '';
+            openLightbox(src, hero.alt || '');
+        });
+    }
+})();
+</script>
 <?php require dirname(__DIR__, 2) . '/includes/footer.php'; ?>

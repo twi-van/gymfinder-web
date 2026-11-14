@@ -13,6 +13,7 @@ function gf_admin_stats(): array
         'gyms'                  => (int) $p->query('SELECT COUNT(*) FROM gyms')->fetchColumn(),
         'trainers'              => (int) $p->query('SELECT COUNT(*) FROM trainers')->fetchColumn(),
         'users'                 => (int) $p->query("SELECT COUNT(*) FROM users WHERE role='user'")->fetchColumn(),
+        'admins'                => (int) $p->query("SELECT COUNT(*) FROM users WHERE role='admin'")->fetchColumn(),
         'reviews'               => (int) $p->query('SELECT COUNT(*) FROM reviews')->fetchColumn(),
         'pending_reviews'       => (int) $p->query("SELECT COUNT(*) FROM reviews WHERE status='pending'")->fetchColumn(),
         'total_users'           => (int) $p->query('SELECT COUNT(*) FROM users')->fetchColumn(),

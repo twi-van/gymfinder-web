@@ -88,6 +88,8 @@ return [
     'Dành cho nữ' => 'For women',
     'Hỗ trợ giảm cân' => 'Weight-loss support',
     'Khoảng giá (VNĐ/tháng)' => 'Price (VND / month)',
+    'Đặc điểm' => 'Features',
+    'Đặc điểm:' => 'Features:',
     'Đặc điểm phòng tập' => 'Gym features',
     'Tiện ích' => 'Amenities',
     'Hoặc khoảng giá tùy chỉnh:' => 'Or a custom range:',

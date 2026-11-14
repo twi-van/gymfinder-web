@@ -141,7 +141,7 @@
 | ADM-012 | Admin | Reviews moderation UI | P0 | Admin | reviews | Duyệt/từ chối | Như REV-006/007/008 |
 | ADM-013 | Admin | Profile admin | P1 | Admin | profile | Đổi tên/MK | Thành công theo rule |
 | ADM-014 | Admin | Không có nút xóa cứng gym/PT/user | P1 | Admin | UI | Quan sát | Chỉ ẩn/khóa theo đặc tả |
-| ADM-015 | Admin | Timestamp “Cập nhật” | P2 | Admin | dashboard | Quan sát + refresh | = giờ render; reload đổi giờ |
+| ADM-015 | Admin | Dashboard không còn đồng hồ “Cập nhật” giả | P2 | Admin | dashboard | Quan sát | Không hiện timestamp live-clock; số liệu lấy từ DB qua `gf_admin_stats` |
 
 ---
 

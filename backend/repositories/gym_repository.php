@@ -20,6 +20,14 @@ function gf_attach_gym_extras(array $gym): array
     $st->execute([$id]);
     $gym['amenities'] = $st->fetchAll();
 
+    try {
+        $st = gf_pdo()->prepare('SELECT f.* FROM features f JOIN gym_features gf ON gf.feature_id = f.id WHERE gf.gym_id = ? ORDER BY f.name');
+        $st->execute([$id]);
+        $gym['features'] = $st->fetchAll();
+    } catch (Throwable $e) {
+        $gym['features'] = [];
+    }
+
     $st = gf_pdo()->prepare('SELECT * FROM gym_images WHERE gym_id = ? ORDER BY sort_order');
     $st->execute([$id]);
     $gym['images'] = $st->fetchAll();
@@ -123,6 +131,20 @@ function gf_search_gyms_paged(array $f): array
     foreach ($amIds as $aid) {
         $sql     .= ' AND EXISTS (SELECT 1 FROM gym_amenities ga WHERE ga.gym_id = g.id AND ga.amenity_id = ?)';
         $params[] = (int) $aid;
+    }
+
+    // Lọc theo đặc điểm (catalog features)
+    $featIds = [];
+    if (!empty($f['feature_ids'])) {
+        $featIds = is_array($f['feature_ids']) ? $f['feature_ids'] : array_map('intval', explode(',', (string) $f['feature_ids']));
+    }
+    foreach ($featIds as $fid) {
+        $fid = (int) $fid;
+        if ($fid < 1) {
+            continue;
+        }
+        $sql     .= ' AND EXISTS (SELECT 1 FROM gym_features gf WHERE gf.gym_id = g.id AND gf.feature_id = ?)';
+        $params[] = $fid;
     }
 
     if (isset($f['has_pt']) && $f['has_pt'] !== '') {
@@ -279,6 +301,19 @@ function gf_sync_gym_relations(int $gymId, array $d, string $cover): array
         }
     }
 
+    if (array_key_exists('feature_ids', $d)) {
+        if (!is_array($d['feature_ids'])) {
+            gf_api_error('VALIDATION_ERROR', 'Dữ liệu không hợp lệ.', 422, ['feature_ids' => 'Phải là mảng.']);
+        }
+        $ids = array_values(array_unique(array_map('intval', $d['feature_ids'])));
+        gf_assert_ids_exist($ids, 'features', 'feature_ids');
+        gf_pdo()->prepare('DELETE FROM gym_features WHERE gym_id=?')->execute([$gymId]);
+        $ins = gf_pdo()->prepare('INSERT INTO gym_features (gym_id, feature_id) VALUES (?,?)');
+        foreach ($ids as $fid) {
+            $ins->execute([$gymId, $fid]);
+        }
+    }
+
     if (array_key_exists('images', $d)) {
         if (!is_array($d['images']) || count($d['images']) > 8) {
             gf_api_error('VALIDATION_ERROR', 'Dữ liệu không hợp lệ.', 422, ['images' => 'Tối đa 8 ảnh.']);
@@ -316,7 +351,7 @@ function gf_sync_gym_relations(int $gymId, array $d, string $cover): array
                 if (isset($img['image_url']) && $img['image_url'] !== $row['image_url']) {
                     gf_api_error('VALIDATION_ERROR', 'Dữ liệu không hợp lệ.', 422, ['images' => 'Không đổi image_url khi có id.']);
                 }
-                if ($url === '' || !gf_uploads_url_ok($url) && $url !== (string) $row['image_url']) {
+                if ($url === '' || (!gf_uploads_url_ok($url) && $url !== (string) $row['image_url'])) {
                     gf_api_error('VALIDATION_ERROR', 'Dữ liệu không hợp lệ.', 422, ['images' => 'Ảnh mới phải nằm trong /uploads/...']);
                 }
                 gf_pdo()->prepare('UPDATE gym_images SET caption=?, sort_order=? WHERE id=?')->execute([$caption, $sort, $imgId]);

@@ -28,6 +28,7 @@ $GLOBALS['gf_ui_feedback_rendered'] = true;
     </div>
 </div>
 <script src="<?= gf_h(gf_url('assets/js/ui-feedback.js')) ?>"></script>
+<script src="<?= gf_h(gf_url('assets/js/form_validate.js')) ?>?v=<?= gf_h((string) @filemtime(dirname(__DIR__) . '/assets/js/form_validate.js')) ?>"></script>
 <?php if (!empty($_SESSION['gf_flash']) && is_array($_SESSION['gf_flash'])): ?>
 <script>
 window.addEventListener('DOMContentLoaded', () => {

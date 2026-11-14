@@ -246,6 +246,36 @@ function gf_uploads_url_ok(?string $url): bool
     return (bool) preg_match('#^/uploads/[A-Za-z0-9._-]+\.(jpg|jpeg|png|webp)$#i', $url);
 }
 
+/** Màu badge danh mục phòng tập / chuyên môn HLV (admin). */
+function gf_admin_cat_badge(string $name): string
+{
+    $n = mb_strtolower(trim($name), 'UTF-8');
+    if (str_contains($n, 'yoga') || str_contains($n, 'pilates') || str_contains($n, 'phục hồi') || str_contains($n, 'phuc hoi')) {
+        return 'cat-badge-yoga';
+    }
+    if (str_contains($n, 'cross') || str_contains($n, 'boxing') || str_contains($n, 'võ') || str_contains($n, 'doi khang') || str_contains($n, 'đối kháng') || str_contains($n, 'combat')) {
+        return 'cat-badge-crossfit';
+    }
+    if (str_contains($n, 'prem') || str_contains($n, 'vip') || str_contains($n, 'cao cấp') || str_contains($n, 'cao cap')) {
+        return 'cat-badge-premium';
+    }
+    if (
+        str_contains($n, 'fit')
+        || str_contains($n, 'gym')
+        || str_contains($n, 'cardio')
+        || str_contains($n, 'sức mạnh')
+        || str_contains($n, 'suc manh')
+        || str_contains($n, 'tăng cơ')
+        || str_contains($n, 'tang co')
+        || str_contains($n, 'giảm cân')
+        || str_contains($n, 'giam can')
+        || str_contains($n, 'strength')
+    ) {
+        return 'cat-badge-fitness';
+    }
+    return 'cat-badge-default';
+}
+
 function gf_like_contains(string $q): string
 {
     return '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $q) . '%';
