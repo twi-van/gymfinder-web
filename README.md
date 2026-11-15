@@ -69,7 +69,7 @@ GYMFINDER là nền tảng **tra cứu và đánh giá** — người dùng tự
 | Backend   | PHP 8.0+ (thuần, không bắt buộc Composer)                       |
 | CSDL      | **MySQL** (mặc định, XAMPP) — SQLite tuỳ chọn                   |
 | API       | REST gateway `api/` (favorites, reviews, AI, …)                 |
-| AI        | Groq Chat Completions (cấu hình `backend/ai.local.php`)         |
+| AI        | Groq Chat Completions (cấu hình `GF_AI_*` trong `.env`)         |
 | Công cụ   | Git / GitHub, XAMPP, Docker / Railway (deploy demo)             |
 
 
@@ -164,9 +164,7 @@ GYMFINDER/
 │   ├── mailer.php
 │   ├── ai_client.php         # Groq recommend + rate-limit
 │   ├── sqlite_install.php    # Cài SQLite + seed (tuỳ chọn)
-│   ├── ai.local.php.example  # Mẫu key AI (file thật gitignore)
-│   ├── google.local.php.example
-│   ├── smtp.local.php.example
+│   ├── env.php               # Load file `.env` → getenv
 │   ├── repositories/         # Truy vấn PDO
 │   │   ├── gym_repository.php
 │   │   ├── trainer_repository.php
@@ -226,10 +224,9 @@ GYMFINDER/
 │   └── en_pages.php
 │
 ├── database/
-│   ├── schema.sql            # MySQL 16 bảng
+│   ├── schema.sql            # MySQL schema hiện tại (gồm features / gym_features)
 │   ├── seed.sql              # Dữ liệu mẫu TP.HCM
-│   ├── migrations/           # Các bản vá schema theo sprint
-│   └── deploy_infinityfree/  # Schema/seed rút gọn (hosting phụ)
+│   └── migrations/           # Các bản vá schema theo sprint
 │
 ├── docker/
 │   └── apache-start.sh       # Entrypoint Apache trên container
@@ -239,24 +236,19 @@ GYMFINDER/
 └── docs/                     # Tài liệu đồ án (không phải mã chạy)
     ├── PROJECT_STRUCTURE.md
     ├── specs/
-    │   ├── GYMFINDER_dacta.docx
-    │   ├── GYMFINDER_CSDL.docx
-    │   ├── GymFinder_Report.docx          # Báo cáo đồ án hiện tại
-    │   ├── GymFinder_HuongDanChay.md
-    │   ├── GymFinder_HuongDan_Railway.md
-    │   ├── GymFinder_KichBanDemo_Local_Deploy.md
-    │   ├── GymFinder_AI_Chat_Sprints.md
-    │   ├── GymFinder_QuyDinh_Anh_Va_Form.md
-    │   ├── figures/                       # Hình UML + screenshot Ch.5
-    │   │   ├── uc_*.png
-    │   │   ├── activity_*.png
-    │   │   └── ch5/
-    │   └── tdtu_logo.jpg|png
+    │   ├── GYMFINDER_dacta.docx           # Đặc tả yêu cầu
+    │   ├── GymFinder_Report.docx          # Báo cáo đồ án (đủ chương + phụ lục)
+    │   ├── GymFinder_HuongDanChay.md      # Hướng dẫn chạy local
+    │   └── figures/                       # Hình UML + screenshot Ch.5
+    │       ├── uc_*.png
+    │       ├── activity_*.png
+    │       └── ch5/                       # Ảnh UI Chương 5
     └── qa/
         ├── TEST_PLAN.md
         ├── TEST_CASES.md
         ├── TEST_EXECUTION_REPORT.md
         ├── BUG_REPORT.md
+        ├── _admin_ui_probe.php
         ├── _ai_smoke.php
         ├── _full_site_smoke.php
         └── _round3_smoke.php
@@ -289,7 +281,7 @@ php -S localhost:8000 router.php
 → [http://localhost:8000](http://localhost:8000)
 
 Chi tiết, SQLite tuỳ chọn, AI/Google, xử lý sự cố: `[docs/specs/GymFinder_HuongDanChay.md](docs/specs/GymFinder_HuongDanChay.md)`.  
-Deploy Railway: `[docs/specs/GymFinder_HuongDan_Railway.md](docs/specs/GymFinder_HuongDan_Railway.md)`.
+Deploy demo: dùng `Dockerfile` / Railway Variables (`GF_DB_*`, `GF_AI_API_KEY`, …) — xem README mục công nghệ và `.env.example`.
 
 ### Tài khoản demo
 
@@ -307,18 +299,16 @@ Deploy Railway: `[docs/specs/GymFinder_HuongDan_Railway.md](docs/specs/GymFinder
 ## Tài liệu dự án
 
 
-| Tài liệu                                                                               | Mô tả                     |
-| -------------------------------------------------------------------------------------- | ------------------------- |
-| `[docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md)`                               | Bản đồ thư mục            |
-| `[docs/specs/GymFinder_Report.docx](docs/specs/GymFinder_Report.docx)`                 | Báo cáo đồ án (đủ chương) |
-| `[docs/specs/GYMFINDER_dacta.docx](docs/specs/GYMFINDER_dacta.docx)`                   | Đặc tả yêu cầu & phạm vi  |
-| `[docs/specs/GYMFINDER_CSDL.docx](docs/specs/GYMFINDER_CSDL.docx)`                     | Thiết kế CSDL             |
-| `[docs/specs/GymFinder_HuongDanChay.md](docs/specs/GymFinder_HuongDanChay.md)`         | Hướng dẫn chạy local      |
-| `[docs/specs/GymFinder_HuongDan_Railway.md](docs/specs/GymFinder_HuongDan_Railway.md)` | Hướng dẫn deploy Railway  |
-| `[docs/qa/TEST_PLAN.md](docs/qa/TEST_PLAN.md)`                                         | Kế hoạch kiểm thử QA      |
-| `[docs/qa/TEST_CASES.md](docs/qa/TEST_CASES.md)`                                       | Bộ test case              |
-| `[docs/qa/TEST_EXECUTION_REPORT.md](docs/qa/TEST_EXECUTION_REPORT.md)`                 | Báo cáo thực thi          |
-| `[docs/qa/BUG_REPORT.md](docs/qa/BUG_REPORT.md)`                                       | Danh sách lỗi / rủi ro    |
+| Tài liệu                                                               | Mô tả                          |
+| ---------------------------------------------------------------------- | ------------------------------ |
+| `[docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md)`               | Bản đồ thư mục                 |
+| `[docs/specs/GymFinder_Report.docx](docs/specs/GymFinder_Report.docx)` | Báo cáo đồ án (đủ chương + PL) |
+| `[docs/specs/GYMFINDER_dacta.docx](docs/specs/GYMFINDER_dacta.docx)`   | Đặc tả yêu cầu & phạm vi       |
+| `[docs/specs/GymFinder_HuongDanChay.md](docs/specs/GymFinder_HuongDanChay.md)` | Hướng dẫn chạy local     |
+| `[docs/qa/TEST_PLAN.md](docs/qa/TEST_PLAN.md)`                         | Kế hoạch kiểm thử QA           |
+| `[docs/qa/TEST_CASES.md](docs/qa/TEST_CASES.md)`                       | Bộ test case                   |
+| `[docs/qa/TEST_EXECUTION_REPORT.md](docs/qa/TEST_EXECUTION_REPORT.md)` | Báo cáo thực thi               |
+| `[docs/qa/BUG_REPORT.md](docs/qa/BUG_REPORT.md)`                       | Danh sách lỗi / rủi ro         |
 
 
 ---

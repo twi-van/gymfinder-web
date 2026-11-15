@@ -124,8 +124,8 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                 <?php if (!$aiReady): ?>
                     <div class="alert alert-warning gf-ai-chat-alert mb-0">
                         <strong><?= gf_h(gf_t('AI chưa cấu hình.')) ?></strong>
-                        Copy <code>backend/ai.local.php.example</code> → <code>ai.local.php</code> và thêm API key,
-                        hoặc đặt <code>GF_AI_API_KEY</code> trên Railway.
+                        Copy <code>.env.example</code> → <code>.env</code> và thêm <code>GF_AI_API_KEY</code>,
+                        hoặc đặt biến môi trường tương ứng trên Railway.
                     </div>
                 <?php endif; ?>
 

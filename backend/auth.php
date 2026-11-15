@@ -643,10 +643,10 @@ function gf_password_reset_begin(string $login): array
     // demo_otp=true → hiện OTP trên UI, không gửi mail (ưu tiên hơn SMTP).
     $useEmail = $smtpConfigured && !$demoAllowed;
     if (!$useEmail && !$demoAllowed && !$smtpPartiallyConfigured) {
-        return ['ok' => false, 'error' => 'Chưa cấu hình SMTP để gửi OTP. Hãy cấu hình backend/smtp.local.php rồi thử lại.'];
+        return ['ok' => false, 'error' => 'Chưa cấu hình SMTP để gửi OTP. Hãy điền GF_SMTP_* trong file .env rồi thử lại.'];
     }
     if (!$useEmail && !$demoAllowed && $smtpPartiallyConfigured) {
-        return ['ok' => false, 'error' => 'Cấu hình SMTP chưa đầy đủ. Vui lòng kiểm tra backend/smtp.local.php.'];
+        return ['ok' => false, 'error' => 'Cấu hình SMTP chưa đầy đủ. Vui lòng kiểm tra GF_SMTP_* trong file .env.'];
     }
 
     $st = gf_pdo()->prepare('SELECT * FROM users WHERE email = ? LIMIT 1');

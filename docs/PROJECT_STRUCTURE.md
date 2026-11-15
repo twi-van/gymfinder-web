@@ -60,14 +60,14 @@ GYMFINDER/
 │   ├── config.php · env.php · db.php · auth.php · helpers.php
 │   ├── google_auth.php · mailer.php · i18n.php · ai_client.php
 │   ├── sqlite_install.php
-│   ├── *.local.php.example   # AI / Google / SMTP (file thật gitignore)
+│   ├── env.php               # Load `.env` → getenv
 │   ├── repositories/         # SQL PDO
 │   └── resources/            # nghiệp vụ API & admin
 │
 ├── includes/                 # header, footer, cards, ai_widget, admin_layout…
 ├── assets/                   # css/ · js/ · images/
 ├── lang/                     # en.php · en_pages.php
-├── database/                 # schema.sql · seed.sql · migrations/ · deploy_infinityfree/
+├── database/                 # schema.sql · seed.sql · migrations/
 ├── docker/                   # apache-start.sh
 ├── uploads/                  # runtime (không commit)
 │

@@ -192,7 +192,7 @@
 
 ## M. Trợ lý AI Chat (bổ sung)
 
-**Auto:** `php docs/qa/_ai_smoke.php` (cần `php -S localhost:8000 router.php`; LLM cần `backend/ai.local.php`).  
+**Auto:** `php docs/qa/_ai_smoke.php` (cần `php -S localhost:8000 router.php`; LLM cần `GF_AI_API_KEY` trong `.env`).  
 **Bỏ LLM:** `GF_QA_SKIP_LLM=1 php docs/qa/_ai_smoke.php`
 
 | ID | Module | Test name | Priority | Preconditions | Test data | Steps | Expected |

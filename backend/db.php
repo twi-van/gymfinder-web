@@ -589,7 +589,7 @@ function gf_db_ensure_password_reset_otps(PDO $pdo): void
         $users = $pdo->query("SHOW TABLES LIKE 'users'");
         if (!$users || !$users->fetch()) {
             throw new RuntimeException(
-                'Chưa có bảng users — import database/deploy_infinityfree/schema_infinityfree.sql rồi seed_infinityfree.sql'
+                'Chưa có bảng users — import database/schema.sql rồi database/seed.sql'
             );
         }
         $pdo->exec(
@@ -644,7 +644,7 @@ function gf_db_ensure_remember_tokens(PDO $pdo): void
         $users = $pdo->query("SHOW TABLES LIKE 'users'");
         if (!$users || !$users->fetch()) {
             throw new RuntimeException(
-                'Chưa có bảng users — import database/schema.sql (hoặc schema_infinityfree.sql) rồi seed.'
+                'Chưa có bảng users — import database/schema.sql rồi database/seed.sql'
             );
         }
         $pdo->exec(

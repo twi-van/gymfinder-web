@@ -376,7 +376,7 @@ function gf_ai_public_error(string $raw): string
 function gf_ai_chat(array $messages, int $maxTokens = 700): array
 {
     if (!gf_ai_is_configured()) {
-        return ['ok' => false, 'error' => 'AI chưa được cấu hình. Hãy tạo backend/ai.local.php từ example và thêm API key.'];
+        return ['ok' => false, 'error' => 'AI chưa được cấu hình. Hãy copy .env.example thành .env và điền GF_AI_API_KEY.'];
     }
 
     $ai = gf_ai_config();
@@ -662,7 +662,7 @@ function gf_ai_recommend_gyms(string $userMessage): array
     }
 
     if (!gf_ai_is_configured()) {
-        return ['ok' => false, 'error' => 'AI chưa cấu hình. Tạo backend/ai.local.php (copy từ ai.local.php.example) và thêm API key.'];
+        return ['ok' => false, 'error' => 'AI chưa cấu hình. Copy .env.example thành .env và thêm GF_AI_API_KEY.'];
     }
 
     $hints = gf_ai_parse_question_hints($userMessage);

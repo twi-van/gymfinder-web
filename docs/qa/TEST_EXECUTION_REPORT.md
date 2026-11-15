@@ -34,7 +34,7 @@
 ## Vòng AI Chat (2026-10-26)
 
 **Công cụ:** `php docs/qa/_ai_smoke.php`  
-**Môi trường:** `php -S 127.0.0.1:8000 router.php` · SQLite · Groq `qwen/qwen3.8-27b` · `ai.local.php`
+**Môi trường:** `php -S 127.0.0.1:8000 router.php` · SQLite · Groq `qwen/qwen3.8-27b` · `.env` (`GF_AI_*`)
 
 | ID | Status | Actual |
 | --- | --- | --- |
@@ -157,4 +157,4 @@ Một số kết quả vòng 1 **lệch thiết kế hiện tại** (đã supers
 
 1. ~~N–N thiếu trên SQLite~~ — đã rebuild; máy khác nhớ xóa `gymfinder.sqlite*` nếu lệch.  
 2. Seed soft-hide: gym hidden **id=3**, trainer hidden **id=28** (không cố định id=7).  
-3. Demo OTP: `demo_otp` trong `smtp.local.php` — không bắt buộc SMTP thật.
+3. Demo OTP: `GF_SMTP_DEMO_OTP=true` trong `.env` — không bắt buộc SMTP thật.

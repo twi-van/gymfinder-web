@@ -2,94 +2,54 @@
 declare(strict_types=1);
 
 /**
- * GYMFINDER – cấu hình (Sprint 0 / TV2 Backend + Database)
+ * GYMFINDER – cấu hình
  * Mặc định local/demo: MySQL qua XAMPP (schema/seed: database/schema.sql + seed.sql)
  * Tuỳ chọn: SQLite — đặt GF_DB_DRIVER=sqlite (tự tạo database/gymfinder.sqlite)
  *
  * Nguồn cấu hình (ưu tiên cao → thấp):
  *   1) Env hệ thống / Railway Variables
  *   2) File `.env` (root dự án) — copy từ `.env.example`
- *   3) backend/ai.local.php , backend/smtp.local.php
- *   4) Giá trị mặc định bên dưới
+ *   3) Giá trị mặc định bên dưới
  */
 require_once __DIR__ . '/env.php';
 gf_load_dotenv();
 
-$smtpLocal = [];
-$smtpLocalFile = __DIR__ . DIRECTORY_SEPARATOR . 'smtp.local.php';
-if (is_file($smtpLocalFile)) {
-    $loadedSmtp = require $smtpLocalFile;
-    if (is_array($loadedSmtp)) {
-        $smtpLocal = $loadedSmtp;
-    }
-}
-
-$aiLocal = [];
-$aiLocalFile = __DIR__ . DIRECTORY_SEPARATOR . 'ai.local.php';
-if (is_file($aiLocalFile)) {
-    $loadedAi = require $aiLocalFile;
-    if (is_array($loadedAi)) {
-        $aiLocal = $loadedAi;
-    }
-}
-
-$smtpValue = static function (string $envName, string $key, mixed $default = '') use ($smtpLocal): mixed {
-    $value = getenv($envName);
-    return $value !== false && $value !== '' ? $value : ($smtpLocal[$key] ?? $default);
-};
-
-$aiValue = static function (string $envName, string $key, mixed $default = '') use ($aiLocal): mixed {
-    $value = getenv($envName);
-    return $value !== false && $value !== '' ? $value : ($aiLocal[$key] ?? $default);
-};
-
-$googleLocal = [];
-$googleLocalFile = __DIR__ . DIRECTORY_SEPARATOR . 'google.local.php';
-if (is_file($googleLocalFile)) {
-    $loadedGoogle = require $googleLocalFile;
-    if (is_array($loadedGoogle)) {
-        $googleLocal = $loadedGoogle;
-    }
-}
-$googleValue = static function (string $envName, string $key) use ($googleLocal): string {
-    $value = getenv($envName);
-    if ($value !== false && $value !== '') {
-        return (string) $value;
-    }
-    return (string) ($googleLocal[$key] ?? '');
+$env = static function (string $name, mixed $default = ''): mixed {
+    $value = getenv($name);
+    return $value !== false && $value !== '' ? $value : $default;
 };
 
 return [
-    'driver' => getenv('GF_DB_DRIVER') ?: 'mysql',
+    'driver' => $env('GF_DB_DRIVER', 'mysql'),
     'sqlite_path' => dirname(__DIR__) . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'gymfinder.sqlite',
     'mysql' => [
-        'host' => getenv('GF_DB_HOST') ?: '127.0.0.1',
-        'port' => getenv('GF_DB_PORT') ?: '3306',
-        'database' => getenv('GF_DB_NAME') ?: 'gymfinder',
-        'username' => getenv('GF_DB_USER') ?: 'root',
-        'password' => getenv('GF_DB_PASS') ?: '',
+        'host' => (string) $env('GF_DB_HOST', '127.0.0.1'),
+        'port' => (string) $env('GF_DB_PORT', '3306'),
+        'database' => (string) $env('GF_DB_NAME', 'gymfinder'),
+        'username' => (string) $env('GF_DB_USER', 'root'),
+        'password' => (string) $env('GF_DB_PASS', ''),
         'charset' => 'utf8mb4',
     ],
     'smtp' => [
-        'host' => (string) $smtpValue('GF_SMTP_HOST', 'host'),
-        'port' => (int) $smtpValue('GF_SMTP_PORT', 'port', 587),
-        'encryption' => strtolower((string) $smtpValue('GF_SMTP_ENCRYPTION', 'encryption', 'tls')),
-        'username' => (string) $smtpValue('GF_SMTP_USERNAME', 'username'),
+        'host' => (string) $env('GF_SMTP_HOST', ''),
+        'port' => (int) $env('GF_SMTP_PORT', 587),
+        'encryption' => strtolower((string) $env('GF_SMTP_ENCRYPTION', 'tls')),
+        'username' => (string) $env('GF_SMTP_USERNAME', ''),
         // Google displays App Passwords in four-character groups; strip pasted spaces.
-        'password' => preg_replace('/\s+/', '', (string) $smtpValue('GF_SMTP_PASSWORD', 'password')) ?? '',
-        'from_email' => (string) $smtpValue('GF_SMTP_FROM_EMAIL', 'from_email'),
-        'from_name' => (string) $smtpValue('GF_SMTP_FROM_NAME', 'from_name', 'GYMFINDER'),
-        'demo_otp' => filter_var($smtpValue('GF_SMTP_DEMO_OTP', 'demo_otp', false), FILTER_VALIDATE_BOOL),
+        'password' => preg_replace('/\s+/', '', (string) $env('GF_SMTP_PASSWORD', '')) ?? '',
+        'from_email' => (string) $env('GF_SMTP_FROM_EMAIL', ''),
+        'from_name' => (string) $env('GF_SMTP_FROM_NAME', 'GYMFINDER'),
+        'demo_otp' => filter_var($env('GF_SMTP_DEMO_OTP', false), FILTER_VALIDATE_BOOL),
     ],
     'ai' => [
-        'provider' => strtolower((string) $aiValue('GF_AI_PROVIDER', 'provider', 'groq')),
-        'api_key' => (string) $aiValue('GF_AI_API_KEY', 'api_key'),
-        'model' => (string) $aiValue('GF_AI_MODEL', 'model', 'qwen/qwen3.8-27b'),
-        'base_url' => (string) $aiValue('GF_AI_BASE_URL', 'base_url'),
-        'enabled' => filter_var($aiValue('GF_AI_ENABLED', 'enabled', true), FILTER_VALIDATE_BOOL),
+        'provider' => strtolower((string) $env('GF_AI_PROVIDER', 'groq')),
+        'api_key' => (string) $env('GF_AI_API_KEY', ''),
+        'model' => (string) $env('GF_AI_MODEL', 'qwen/qwen3.8-27b'),
+        'base_url' => (string) $env('GF_AI_BASE_URL', ''),
+        'enabled' => filter_var($env('GF_AI_ENABLED', true), FILTER_VALIDATE_BOOL),
     ],
     'google' => [
-        'client_id' => $googleValue('GF_GOOGLE_CLIENT_ID', 'client_id'),
-        'client_secret' => $googleValue('GF_GOOGLE_CLIENT_SECRET', 'client_secret'),
+        'client_id' => (string) $env('GF_GOOGLE_CLIENT_ID', ''),
+        'client_secret' => (string) $env('GF_GOOGLE_CLIENT_SECRET', ''),
     ],
 ];

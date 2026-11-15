@@ -139,7 +139,7 @@ return [
     'Chưa cấu hình AI' => 'AI is not configured',
     'Xóa hội thoại đang mở' => 'Clear this chat',
     'AI chưa cấu hình.' => 'AI is not configured.',
-    'Copy backend/ai.local.php.example → ai.local.php và thêm API key, hoặc đặt GF_AI_API_KEY trên Railway.' => 'Copy backend/ai.local.php.example to ai.local.php and add an API key, or set GF_AI_API_KEY on Railway.',
+    'Copy .env.example → .env và thêm GF_AI_API_KEY, hoặc đặt biến môi trường tương ứng trên Railway.' => 'Copy .env.example to .env and add GF_AI_API_KEY, or set the matching variable on Railway.',
     'Trợ lý' => 'Assistant',
     'Bạn' => 'You',
     'Xin chào! Mình gợi ý phòng tập và HLV trong hệ thống GYMFINDER (TP.HCM). Hỏi theo quận, giá, Yoga… hoặc chọn gợi ý bên dưới.' => 'Hi! I can suggest gyms and trainers in GYMFINDER (TP.HCM). Ask by district, price, Yoga… or pick a suggestion below.',

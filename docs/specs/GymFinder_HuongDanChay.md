@@ -131,8 +131,8 @@ GF_DB_DRIVER=sqlite php -S localhost:8000 router.php
 Gợi ý **phòng tập** và **HLV (PT)** bằng chat tiếng Việt. **Không bắt buộc** cho đặc tả lõi.
 
 ```bash
-cp backend/ai.local.php.example backend/ai.local.php
-# Mở ai.local.php → dán API key Groq/Gemini (không commit file này)
+cp .env.example .env
+# Mở .env → điền GF_AI_API_KEY (Groq/Gemini). Không commit file .env
 ```
 
 
@@ -154,19 +154,18 @@ Trên Apache: thêm prefix `/GYMFINDER` vào URL (vd. `/GYMFINDER/pages/ai/chat.
 
 ## 5. Quên mật khẩu / OTP email
 
-Luồng OTP (3 bước) thuộc chức năng chính. **Demo/chấm local:** `'demo_otp' => true` → hiện mã trên UI, **không gửi mail** (ưu tiên hơn SMTP). **Gửi mail thật:** cấu hình SMTP và `'demo_otp' => false`.
+Luồng OTP (3 bước) thuộc chức năng chính. **Demo local:** `GF_SMTP_DEMO_OTP=true` trong `.env` → hiện mã trên UI, **không gửi mail**. **Gửi mail thật:** điền `GF_SMTP_*` và đặt `GF_SMTP_DEMO_OTP=false`.
 
 ```bash
-cp backend/smtp.local.php.example backend/smtp.local.php
+cp .env.example .env
+# Điền GF_SMTP_* ; bật/tắt GF_SMTP_DEMO_OTP. Không commit file .env
 ```
 
-Chỉnh `backend/smtp.local.php` (file này **đã gitignore — không commit**):
 
-
-| Mục                             | Ý nghĩa                                          |
-| ------------------------------- | ------------------------------------------------ |
-| `demo_otp` => `true`            | Hiện OTP trên trang verify (không cần đọc inbox) |
-| `demo_otp` => `false` + SMTP đủ | Gửi OTP qua email thật                           |
+| Mục trong `.env`                         | Ý nghĩa                                          |
+| ---------------------------------------- | ------------------------------------------------ |
+| `GF_SMTP_DEMO_OTP=true`                  | Hiện OTP trên trang verify (không cần đọc inbox) |
+| `GF_SMTP_DEMO_OTP=false` + SMTP đủ       | Gửi OTP qua email thật                           |
 
 
 ---
@@ -285,7 +284,7 @@ chmod 775 uploads
 
 ### Quên mật khẩu báo chưa cấu hình SMTP
 
-Tạo `backend/smtp.local.php` từ example; hoặc đặt `'demo_otp' => true` để hiện OTP trên UI.
+Copy `.env.example` → `.env` và điền `GF_SMTP_*`; hoặc đặt `GF_SMTP_DEMO_OTP=true` để hiện OTP trên UI.
 
 ### Safari favicon cũ
 
@@ -303,7 +302,7 @@ Incognito (`Cmd+Shift+N`) hoặc xóa cache favicon Safari.
 | `[README.md](../../README.md)`                            | Tổng quan + tài khoản demo ngắn |
 | `[docs/PROJECT_STRUCTURE.md](../PROJECT_STRUCTURE.md)`    | Bản đồ thư mục                  |
 | `[docs/specs/GYMFINDER_dacta.docx](GYMFINDER_dacta.docx)` | Đặc tả                          |
-| `[docs/specs/GYMFINDER_CSDL.docx](GYMFINDER_CSDL.docx)`   | Thiết kế CSDL                   |
+| `[docs/specs/GymFinder_Report.docx](GymFinder_Report.docx)` | Báo cáo đồ án (gồm thiết kế CSDL) |
 | `[docs/qa/](../qa/)`                                      | Test plan / cases / bug report  |
 
 

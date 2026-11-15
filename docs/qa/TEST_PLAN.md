@@ -2,7 +2,7 @@
 
 **Phiên bản:** 1.1  
 **Ngày lập:** 2026-10-19 · **Cập nhật:** 2026-10-21  
-**Nguồn đối chiếu:** `docs/specs/GYMFINDER_dacta.docx`, `docs/specs/GYMFINDER_CSDL.docx`, `README.md`, `docs/specs/GymFinder_HuongDanChay.md`, mã nguồn `pages/`, `admin/`, `backend/`, `api/`  
+**Nguồn đối chiếu:** `docs/specs/GYMFINDER_dacta.docx`, `README.md`, `docs/specs/GymFinder_HuongDanChay.md`, mã nguồn `pages/`, `admin/`, `backend/`, `api/`  
 **Phạm vi:** Đồ án web cuối kỳ — UI, functional, phân quyền, luồng nghiệp vụ trong đặc tả. **Không** kiểm thử bản đồ / đặt lịch / thanh toán / chat (ngoài phạm vi).
 
 ---

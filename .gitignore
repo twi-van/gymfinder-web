@@ -19,11 +19,13 @@ node_modules/
 ehthumbs.db
 Thumbs.db
 
-# Environment variables
+# Environment variables (secrets) — never commit .env
+.env
 .env.*
-!.env
 !.env.example
-backend/smtp.local.php
+
+# Legacy local PHP config (đã chuyển sang .env — giữ ignore nếu còn sót)
+backend/*.local.php
 
 # Office / Temporary files
 ~$*
@@ -41,9 +43,6 @@ docs/specs/GymFinder_BaoCao_Khung.docx
 docs/specs/Report_Vy.docx
 docs/specs/TỔNG LIÊN ĐOÀN LAO ĐỘNG VIỆT NAM.docx
 docs/specs/maudocx.docx
-
-backend/ai.local.php
-backend/google.local.php
 
 # Temp capture / audit scratch (do not commit)
 .tmp_*/

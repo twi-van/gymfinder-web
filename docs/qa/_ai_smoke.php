@@ -3,7 +3,7 @@
  * QA AI Chat smoke — chạy: php docs/qa/_ai_smoke.php
  *
  * - Luôn chạy: parse hints, catalog pre-filter, trang chat GET (cần server)
- * - Có mạng + ai.local.php: gọi gf_ai_recommend_gyms (AI-001…003)
+ * - Có mạng + GF_AI_API_KEY trong .env: gọi gf_ai_recommend_gyms (AI-001…003)
  *
  * Env:
  *   GF_QA_BASE=http://127.0.0.1:8000
@@ -225,7 +225,7 @@ $aiReady = gf_ai_is_configured();
 if ($skipLlm) {
     qa_log('SKIP', 'AI-001', 'GF_QA_SKIP_LLM=1');
 } elseif (!$aiReady) {
-    qa_log('BLOCKED', 'AI-001', 'Thiếu backend/ai.local.php hoặc api_key');
+    qa_log('BLOCKED', 'AI-001', 'Thiếu GF_AI_API_KEY trong .env');
 } else {
     $r = gf_ai_recommend_gyms('Gym Quận 7 giá dưới 500 nghìn');
     if (!empty($r['ok']) && trim((string) ($r['reply'] ?? '')) !== '') {
