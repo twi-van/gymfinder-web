@@ -20,8 +20,8 @@ ehthumbs.db
 Thumbs.db
 
 # Environment variables
-.env
 .env.*
+!.env
 !.env.example
 backend/smtp.local.php
 

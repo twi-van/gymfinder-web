@@ -54,6 +54,7 @@ function gf_db_init(array $config): void
     gf_db_ensure_features($pdo);
     gf_db_ensure_category_labels_vi($pdo);
     gf_db_ensure_premium_exclusive($pdo);
+    gf_db_ensure_demo_gym_addresses($pdo);
     $GLOBALS['GF_PDO'] = $pdo;
 }
 
@@ -899,6 +900,120 @@ function gf_db_ensure_premium_exclusive(PDO $pdo): void
         $st->execute([$fitnessId, $premiumId]);
     } catch (Throwable $e) {
         // Bảng chưa sẵn sàng — bỏ qua
+    }
+}
+
+/** Đồng bộ địa chỉ và mô tả 64 phòng tập demo (bỏ tên gym bị ghép vào sau chữ "Đường " ở DB cũ). */
+function gf_db_ensure_demo_gym_addresses(PDO $pdo): void
+{
+    try {
+        $hasLegacy = (int) $pdo->query(
+            "SELECT COUNT(*) FROM gyms
+             WHERE id BETWEEN 1 AND 64
+               AND email LIKE 'contact.gym%@gymfinder.test'
+               AND address LIKE CONCAT('Số % Đường ', name, ', %')"
+        )->fetchColumn();
+    } catch (Throwable $e) {
+        // Fallback cho SQLite hoặc DB cũ
+        try {
+            $hasLegacy = (int) $pdo->query(
+                "SELECT COUNT(*) FROM gyms
+                 WHERE id BETWEEN 1 AND 64
+                   AND email LIKE 'contact.gym%@gymfinder.test'
+                   AND address LIKE ('Số % Đường ' || name || ', %')"
+            )->fetchColumn();
+        } catch (Throwable $e2) {
+            return;
+        }
+    }
+    if ($hasLegacy < 1) {
+        return;
+    }
+
+    $canonical = [
+        1 => ['The New Gym', 'the-new-gym-nguyen-thi-minh-khai-quan-1-1', 'Số 13 Đường Nguyễn Thị Minh Khai, Quận 1', 1],
+        2 => ['California Centuryon', 'california-centuryon-le-thanh-ton-quan-1-2', 'Số 16 Đường Lê Thánh Tôn, Quận 1', 1],
+        3 => ['Fit Center', 'fit-center-ham-nghi-quan-1-3', 'Số 19 Đường Hàm Nghi, Quận 1', 1],
+        4 => ['MMA Gym Fitness', 'mma-gym-fitness-nguyen-thi-thap-quan-7-4', 'Số 22 Đường Nguyễn Thị Thập, Quận 7', 2],
+        5 => ['Advance Fitness & Gym', 'advance-fitness-gym-huynh-tan-phat-quan-7-5', 'Số 25 Đường Huỳnh Tấn Phát, Quận 7', 2],
+        6 => ['Curves', 'curves-nguyen-luong-bang-quan-7-6', 'Số 28 Đường Nguyễn Lương Bằng, Quận 7', 2],
+        7 => ['S Fitness', 's-fitness-vo-van-ngan-tp-thu-duc-7', 'Số 31 Đường Võ Văn Ngân, TP Thủ Đức', 3],
+        8 => ['Diamond Fitness Center', 'diamond-fitness-center-kha-van-can-tp-thu-duc-8', 'Số 34 Đường Kha Vạn Cân, TP Thủ Đức', 3],
+        9 => ['CityGym', 'citygym-dang-van-bi-tp-thu-duc-9', 'Số 37 Đường Đặng Văn Bi, TP Thủ Đức', 3],
+        10 => ['Ares Gym & Fitness', 'ares-gym-fitness-cao-thang-quan-3-10', 'Số 40 Đường Cao Thắng, Quận 3', 4],
+        11 => ['Power Gym', 'power-gym-vo-van-tan-quan-3-11', 'Số 43 Đường Võ Văn Tần, Quận 3', 4],
+        12 => ['Boutique Fitness', 'boutique-fitness-hoang-dieu-quan-4-12', 'Số 46 Đường Hoàng Diệu, Quận 4', 5],
+        13 => ['Victory Gym & Yoga', 'victory-gym-yoga-khanh-hoi-quan-4-13', 'Số 49 Đường Khánh Hội, Quận 4', 5],
+        14 => ['ProGym', 'progym-ben-van-don-quan-4-14', 'Số 52 Đường Bến Vân Đồn, Quận 4', 5],
+        15 => ['Gym Tài Nguyên', 'gym-tai-nguyen-tran-hung-dao-quan-5-15', 'Số 55 Đường Trần Hưng Đạo, Quận 5', 6],
+        16 => ['V-Fitness', 'v-fitness-an-duong-vuong-quan-5-16', 'Số 58 Đường An Dương Vương, Quận 5', 6],
+        17 => ['CLB Thể Hình', 'clb-the-hinh-hong-bang-quan-5-17', 'Số 61 Đường Hồng Bàng, Quận 5', 6],
+        18 => ['Olympia Gym', 'olympia-gym-hau-giang-quan-6-18', 'Số 64 Đường Hậu Giang, Quận 6', 7],
+        19 => ['KingSport Fitness', 'kingsport-fitness-binh-phu-quan-6-19', 'Số 67 Đường Bình Phú, Quận 6', 7],
+        20 => ['Fit24 Fitness & Yoga', 'fit24-fitness-yoga-pham-van-chi-quan-6-20', 'Số 70 Đường Phạm Văn Chí, Quận 6', 7],
+        21 => ['UFC Gym', 'ufc-gym-pham-hung-quan-8-21', 'Số 73 Đường Phạm Hùng, Quận 8', 8],
+        22 => ['Bodyfit Fitness & Yoga', 'bodyfit-fitness-yoga-ta-quang-buu-quan-8-22', 'Số 76 Đường Tạ Quang Bửu, Quận 8', 8],
+        23 => ['B-Fit Center', 'b-fit-center-3-thang-2-quan-10-23', 'Số 79 Đường 3 Tháng 2, Quận 10', 9],
+        24 => ['Elite Fitness', 'elite-fitness-su-van-hanh-quan-10-24', 'Số 82 Đường Sư Vạn Hạnh, Quận 10', 9],
+        25 => ['Lion Gym', 'lion-gym-to-hien-thanh-quan-10-25', 'Số 85 Đường Tô Hiến Thành, Quận 10', 9],
+        26 => ['Star Fitness', 'star-fitness-lac-long-quan-quan-11-26', 'Số 88 Đường Lạc Long Quân, Quận 11', 10],
+        27 => ['Zen Yoga & Fitness', 'zen-yoga-fitness-le-dai-hanh-quan-11-27', 'Số 91 Đường Lê Đại Hành, Quận 11', 10],
+        28 => ['California Fitness', 'california-fitness-hoa-binh-quan-11-28', 'Số 94 Đường Hòa Bình, Quận 11', 10],
+        29 => ['K-Gym', 'k-gym-le-van-khuong-quan-12-29', 'Số 97 Đường Lê Văn Khương, Quận 12', 11],
+        30 => ['Fit Center', 'fit-center-to-ky-quan-12-30', 'Số 100 Đường Tô Ký, Quận 12', 11],
+        31 => ['CLB Thể Dục', 'clb-the-duc-ten-lua-binh-tan-31', 'Số 103 Đường Tên Lửa, Bình Tân', 12],
+        32 => ['MegaFit', 'megafit-kinh-duong-vuong-binh-tan-32', 'Số 106 Đường Kinh Dương Vương, Bình Tân', 12],
+        33 => ['Gold Gym', 'gold-gym-ma-lo-binh-tan-33', 'Số 109 Đường Mã Lò, Bình Tân', 12],
+        34 => ['Titan Gym', 'titan-gym-dien-bien-phu-binh-thanh-34', 'Số 112 Đường Điện Biên Phủ, Bình Thạnh', 13],
+        35 => ['The New Gym', 'the-new-gym-bach-dang-binh-thanh-35', 'Số 115 Đường Bạch Đằng, Bình Thạnh', 13],
+        36 => ['Level Fitness & Yoga', 'level-fitness-yoga-phan-van-tri-binh-thanh-36', 'Số 118 Đường Phan Văn Trị, Bình Thạnh', 13],
+        37 => ['Vinhomes Fitness Club', 'vinhomes-fitness-club-quang-trung-go-vap-37', 'Số 121 Đường Quang Trung, Gò Vấp', 14],
+        38 => ['Stronger Gym', 'stronger-gym-phan-van-tri-go-vap-38', 'Số 124 Đường Phan Văn Trị, Gò Vấp', 14],
+        39 => ['CLB Thể Hình', 'clb-the-hinh-le-duc-tho-go-vap-39', 'Số 127 Đường Lê Đức Thọ, Gò Vấp', 14],
+        40 => ['Titan Fitness', 'titan-fitness-phan-xich-long-phu-nhuan-40', 'Số 130 Đường Phan Xích Long, Phú Nhuận', 15],
+        41 => ['Aura Gym', 'aura-gym-nguyen-van-troi-phu-nhuan-41', 'Số 133 Đường Nguyễn Văn Trỗi, Phú Nhuận', 15],
+        42 => ['California Fitness', 'california-fitness-cong-hoa-tan-binh-42', 'Số 136 Đường Cộng Hòa, Tân Bình', 16],
+        43 => ['The New Gym', 'the-new-gym-truong-chinh-tan-binh-43', 'Số 139 Đường Trường Chinh, Tân Bình', 16],
+        44 => ['Fit Center', 'fit-center-hoang-hoa-tham-tan-binh-44', 'Số 142 Đường Hoàng Hoa Thám, Tân Bình', 16],
+        45 => ['Hoàng Long Fitness', 'hoang-long-fitness-luy-ban-bich-tan-phu-45', 'Số 145 Đường Lũy Bán Bích, Tân Phú', 17],
+        46 => ['CLB Gym Thống Nhất', 'clb-gym-thong-nhat-thoai-ngoc-hau-tan-phu-46', 'Số 148 Đường Thoại Ngọc Hầu, Tân Phú', 17],
+        47 => ['Gym New Life', 'gym-new-life-tan-son-nhi-tan-phu-47', 'Số 151 Đường Tân Sơn Nhì, Tân Phú', 17],
+        48 => ['Phòng Gym Hoàng Gia', 'phong-gym-hoang-gia-quoc-lo-50-huyen-binh-chanh-48', 'Số 154 Đường Quốc Lộ 50, Huyện Bình Chánh', 18],
+        49 => ['Fit Center', 'fit-center-nguyen-huu-tri-huyen-binh-chanh-49', 'Số 157 Đường Nguyễn Hữu Trí, Huyện Bình Chánh', 18],
+        50 => ['The New Gym', 'the-new-gym-dinh-duc-thien-huyen-binh-chanh-50', 'Số 160 Đường Đinh Đức Thiện, Huyện Bình Chánh', 18],
+        51 => ['Body Shape Fitness', 'body-shape-fitness-duyen-hai-huyen-can-gio-51', 'Số 163 Đường Duyên Hải, Huyện Cần Giờ', 19],
+        52 => ['Khang Gym', 'khang-gym-rung-sac-huyen-can-gio-52', 'Số 166 Đường Rừng Sác, Huyện Cần Giờ', 19],
+        53 => ['Thủ Đức Fitness Center', 'thu-duc-fitness-center-tinh-lo-8-huyen-cu-chi-53', 'Số 169 Đường Tỉnh Lộ 8, Huyện Củ Chi', 20],
+        54 => ['Rạng Đông Gym', 'rang-dong-gym-lieu-binh-huong-huyen-cu-chi-54', 'Số 172 Đường Liêu Bình Hương, Huyện Củ Chi', 20],
+        55 => ['The Gym House', 'the-gym-house-nguyen-thi-ranh-huyen-cu-chi-55', 'Số 175 Đường Nguyễn Thị Rành, Huyện Củ Chi', 20],
+        56 => ['Sparta Gym & Boxing', 'sparta-gym-boxing-quang-trung-huyen-hoc-mon-56', 'Số 178 Đường Quang Trung, Huyện Hóc Môn', 21],
+        57 => ['S-Fitness', 's-fitness-le-loi-huyen-hoc-mon-57', 'Số 181 Đường Lê Lợi, Huyện Hóc Môn', 21],
+        58 => ['King Gym', 'king-gym-dang-thuc-vinh-huyen-hoc-mon-58', 'Số 184 Đường Đặng Thúc Vịnh, Huyện Hóc Môn', 21],
+        59 => ['Aeon Mall Fitness Club', 'aeon-mall-fitness-club-nguyen-huu-tho-huyen-nha-be-59', 'Số 187 Đường Nguyễn Hữu Thọ, Huyện Nhà Bè', 22],
+        60 => ['Strong Gym', 'strong-gym-huynh-tan-phat-huyen-nha-be-60', 'Số 190 Đường Huỳnh Tấn Phát, Huyện Nhà Bè', 22],
+        61 => ['The New Gym', 'the-new-gym-xuan-thuy-quan-2-61', 'Số 193 Đường Xuân Thủy, Quận 2', 23],
+        62 => ['CityGym', 'citygym-song-hanh-quan-2-62', 'Số 196 Đường Song Hành, Quận 2', 23],
+        63 => ['Fit24', 'fit24-mai-chi-tho-quan-2-63', 'Số 199 Đường Mai Chí Thọ, Quận 2', 23],
+        64 => ['Elite Fitness', 'elite-fitness-nguyen-co-thach-quan-2-64', 'Số 202 Đường Nguyễn Cơ Thạch, Quận 2', 23],
+    ];
+
+    try {
+        $distNames = [];
+        foreach ($pdo->query('SELECT id, name FROM districts') as $d) {
+            $distNames[(int) $d['id']] = (string) $d['name'];
+        }
+        $st = $pdo->prepare(
+            "UPDATE gyms
+             SET name = ?, slug = ?, address = ?, district_id = ?, description = ?
+             WHERE id = ? AND email = ?"
+        );
+        foreach ($canonical as $id => [$name, $slug, $address, $distId]) {
+            $dName = $distNames[$distId] ?? '';
+            $desc = "Phòng tập {$name} tại {$dName} sở hữu không gian tập luyện chuyên nghiệp, trang bị máy tập cao cấp, không gian rộng rãi thoáng mát cùng nhiều tiện ích đẳng cấp.";
+            $st->execute([$name, $slug, $address, $distId, $desc, $id, "contact.gym{$id}@gymfinder.test"]);
+        }
+    } catch (Throwable $e) {
+        error_log('GYMFINDER demo gym addresses sync failed: ' . $e->getMessage());
     }
 }
 

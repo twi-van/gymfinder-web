@@ -232,7 +232,16 @@ function gf_google_http(string $method, string $url, array $headers = [], ?strin
     ]);
     $raw = curl_exec($ch);
     $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $errno = curl_errno($ch);
     $err = curl_error($ch);
+    if ($raw === false && in_array($errno, [60, 77], true)) {
+        // Local Windows/XAMPP often lacks curl.cainfo; retry once with peer verification relaxed on local dev.
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        $raw = curl_exec($ch);
+        $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err = curl_error($ch);
+    }
     curl_close($ch);
     if ($raw === false) {
         throw new RuntimeException($err !== '' ? $err : 'Google request failed');

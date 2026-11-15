@@ -1,10 +1,10 @@
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS
   ai_chat_sessions, remember_tokens, password_reset_otps, favorites, reviews,
-  gym_amenities, gym_categories, gym_images,
+  gym_features, gym_amenities, gym_categories, gym_images,
   gym_trainers, trainer_specialties,
   trainers, gyms,
-  specialties, amenities, categories, districts,
+  features, specialties, amenities, categories, districts,
   users;
 SET FOREIGN_KEY_CHECKS = 1;
 
