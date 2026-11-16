@@ -1,11 +1,9 @@
 # Screenshots
 screenshots/
-docs/screenshots_raw/
-database/*.sqlite
-database/*.sqlite-*
+report/screenshots_raw/
 
 # User uploads (runtime files, not committed)
-uploads/
+source/uploads/
 
 # Dependencies
 node_modules/
@@ -20,12 +18,13 @@ ehthumbs.db
 Thumbs.db
 
 # Environment variables (secrets) — never commit .env
+source/.env
 .env
 .env.*
-!.env.example
+!source/.env.example
 
-# Legacy local PHP config (đã chuyển sang .env — giữ ignore nếu còn sót)
-backend/*.local.php
+# Legacy local PHP config
+source/backend/*.local.php
 
 # Office / Temporary files
 ~$*
@@ -37,23 +36,23 @@ scratch/
 # Gemini / IDE
 .gemini/
 
-
 # Báo cáo / mẫu local (không commit)
-docs/specs/GymFinder_BaoCao_Khung.docx
-docs/specs/Report_Vy.docx
-docs/specs/TỔNG LIÊN ĐOÀN LAO ĐỘNG VIỆT NAM.docx
-docs/specs/maudocx.docx
+report/*BaoCao*
+report/*Khung*
+report/Report_Vy.docx
+report/maudocx.docx
+
+# Kịch bản demo — giữ local, không nộp / không commit
+report/GymFinder_KichBan_ThuyetTrinh_Demo*.md
 
 # Temp capture / audit scratch (do not commit)
 .tmp_*/
 .tmp_ch5_shot/
 .tmp_report_audit/
 
-# Local Chrome capture profiles for screenshots (do not commit)
-docs/specs/figures/ch5/_chrome_*/
-
 # Cursor IDE
 .cursor/
 
 # Word backup copies
-docs/specs/*.bak_*
+report/*.bak_*
+report/**/*.bak_*
