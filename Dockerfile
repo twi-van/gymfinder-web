@@ -1,5 +1,5 @@
 # GYMFINDER — PHP 8.2 + Apache (Railway / Docker)
-# Đặt Root Directory = source trên Railway (build context = thư mục này).
+# Build context = repo root (Railway mặc định). Mã app nằm trong source/
 FROM php:8.2-apache
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -26,13 +26,13 @@ RUN printf '%s\n' \
     && a2enconf gymfinder
 
 WORKDIR /var/www/html
-COPY . /var/www/html/
+COPY source/ /var/www/html/
 
 RUN mkdir -p /var/www/html/uploads \
     && chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/uploads
 
-COPY docker/apache-start.sh /usr/local/bin/apache-start.sh
+COPY source/docker/apache-start.sh /usr/local/bin/apache-start.sh
 RUN chmod +x /usr/local/bin/apache-start.sh \
     && sed -i 's/\r$//' /usr/local/bin/apache-start.sh
 

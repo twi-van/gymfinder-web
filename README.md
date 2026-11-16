@@ -64,7 +64,7 @@ GYMFINDER là nền tảng **tra cứu và đánh giá** — người dùng tự
 | **AI**               | Groq Chat Completions (`GF_AI_`*), grounding catalog gym/PT                     |
 | **i18n**             | VI mặc định trong trang; EN qua `lang/en.php`, `lang/en_pages.php`              |
 | **Local**            | XAMPP (Apache + MySQL) hoặc `php -S … router.php`                               |
-| **Deploy**           | Docker (`source/Dockerfile`, PHP 8.2 Apache) → **Railway** + MySQL plugin       |
+| **Deploy**           | Docker (`Dockerfile` ở root, PHP 8.2 Apache) → **Railway** + MySQL plugin       |
 | **Cấu hình**         | `.env` / Railway Variables (`GF_DB_`*, `GF_AI_`*, `GF_SMTP_*`, `GF_GOOGLE_*`)   |
 | **Công cụ**          | Git / GitHub                                                                    |
 
@@ -92,11 +92,11 @@ Repo tách **mã nguồn** và **báo cáo**:
 ```text
 GYMFINDER/
 ├── README.md
+├── Dockerfile                # Build Railway/Docker — COPY source/
+├── .dockerignore
 ├── .gitignore
 │
 ├── source/                   # TOÀN BỘ MÃ CHẠY (document root)
-│   ├── Dockerfile            # Build Railway/Docker — Root Directory = source
-│   ├── .dockerignore
 │   ├── index.php
 │   ├── router.php            # php -S … router.php
 │   ├── health.php
@@ -147,7 +147,7 @@ php -S localhost:8000 router.php
 
 → [http://localhost:8000](http://localhost:8000)
 
-Deploy Railway: Root Directory = `source` (dùng `source/Dockerfile`); Variables `GF_DB_*`, `GF_AI_API_KEY`, …
+Deploy Railway: `Dockerfile` ở root (`COPY source/`); Variables `GF_DB_*`, `GF_AI_API_KEY`, …
 
 ### Tài khoản demo
 

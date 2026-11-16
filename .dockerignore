@@ -1,0 +1,17 @@
+.git
+.cursor
+.venv
+node_modules
+report
+screenshots
+scratch
+source/database/*.sqlite
+source/database/*.sqlite-*
+source/uploads/*
+!source/uploads/.gitkeep
+source/backend/ai.local.php
+source/backend/smtp.local.php
+source/.env
+source/.env.*
+**/.DS_Store
+**/~$*
