@@ -307,7 +307,12 @@ require dirname(__DIR__, 2) . '/includes/header.php';
     <div class="profile-panel">
         <div class="profile-hero">
             <div class="profile-avatar-wrap">
-                <img id="profileAvatar" src="<?= gf_h(gf_avatar($user['avatar_url'] ?? null, !empty($user['avatar_url']) ? (int)$user['id'] : 0, $user['full_name'])) ?>" class="profile-avatar" alt="Avatar">
+                <img id="profileAvatar"
+                    src="<?= gf_h(gf_avatar($user['avatar_url'] ?? null, !empty($user['avatar_url']) ? (int)$user['id'] : 0, $user['full_name'])) ?>"
+                    class="profile-avatar"
+                    alt="<?= gf_h(gf_t('Ảnh đại diện')) ?>"
+                    referrerpolicy="no-referrer"
+                    onerror="this.onerror=null;this.src='<?= gf_h(gf_avatar_fallback($user['full_name'])) ?>';">
                 <button class="avatar-camera edit-only-element" type="button" aria-label="<?= gf_h(gf_t('Chọn ảnh đại diện')) ?>" onclick="document.getElementById('avatarFile').click()"><i class="fa-solid fa-camera"></i></button>
             </div>
             <div>
@@ -465,7 +470,11 @@ require dirname(__DIR__, 2) . '/includes/header.php';
         <h3 class="fw-bold fs-5 mb-1 text-dark"><?= gf_h(gf_t('Tài khoản')) ?></h3>
         <p class="text-secondary small mb-4"><?= gf_h(gf_t('Kết thúc phiên đăng nhập của bạn trên thiết bị này')) ?></p>
         <div>
-            <form method="post" action="<?= gf_h(gf_url('pages/auth/logout.php')) ?>">
+            <form method="post" action="<?= gf_h(gf_url('pages/auth/logout.php')) ?>" class="js-confirm-submit"
+                data-confirm-title="<?= gf_h(gf_t('Đăng xuất')) ?>"
+                data-confirm-message="<?= gf_h(gf_t('Bạn có chắc muốn đăng xuất khỏi tài khoản này?')) ?>"
+                data-confirm-label="<?= gf_h(gf_t('Đăng xuất')) ?>"
+                data-confirm-danger="1">
                 <?= gf_csrf_field() ?>
                 <button class="btn btn-logout" type="submit">
                     <i class="fa-solid fa-arrow-right-from-bracket me-2"></i><?= gf_h(gf_t('Đăng xuất')) ?>

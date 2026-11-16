@@ -34,7 +34,7 @@ $isAdmin = ($user && ($user['role'] ?? '') === 'admin');
                     <?php endif; ?>
                     <div class="dropdown w-100 w-lg-auto navbar-user-dropdown">
                         <a href="#" class="d-flex align-items-center gap-2 text-decoration-none text-dark dropdown-toggle min-w-0" data-bs-toggle="dropdown">
-                            <img src="<?= gf_h(gf_avatar($user['avatar_url'] ?? null, !empty($user['avatar_url']) ? (int) $user['id'] : 0, $user['full_name'])) ?>" alt="" width="36" height="36" class="rounded-circle shadow-sm" style="width:36px;height:36px;object-fit:cover;object-position:center;aspect-ratio:1/1;flex:0 0 36px" onerror="this.onerror=null;this.src='<?= gf_h(gf_avatar_fallback($user['full_name'])) ?>';">
+                            <img src="<?= gf_h(gf_avatar($user['avatar_url'] ?? null, !empty($user['avatar_url']) ? (int) $user['id'] : 0, $user['full_name'])) ?>" alt="" width="36" height="36" class="rounded-circle shadow-sm" style="width:36px;height:36px;object-fit:cover;object-position:center;aspect-ratio:1/1;flex:0 0 36px" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='<?= gf_h(gf_avatar_fallback($user['full_name'])) ?>';">
                             <span class="fw-semibold text-truncate" style="font-size: 14px; max-width: 160px;"><?= gf_h($user['full_name']) ?></span>
                             <?php if ($isAdmin): ?>
                                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle flex-shrink-0" style="font-size: 11px;"><?= gf_h(gf_t('Quản trị viên')) ?></span>
@@ -52,7 +52,11 @@ $isAdmin = ($user && ($user['role'] ?? '') === 'admin');
                             <li><a class="dropdown-item py-2" href="<?= gf_h(gf_url('pages/user/profile.php')) ?>"><i class="fa-regular fa-user me-2 text-secondary"></i><?= gf_h(gf_t('Hồ sơ cá nhân')) ?></a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <form method="post" action="<?= gf_h(gf_url('pages/auth/logout.php')) ?>">
+                                <form method="post" action="<?= gf_h(gf_url('pages/auth/logout.php')) ?>" class="js-confirm-submit"
+                                    data-confirm-title="<?= gf_h(gf_t('Đăng xuất')) ?>"
+                                    data-confirm-message="<?= gf_h(gf_t('Bạn có chắc muốn đăng xuất khỏi tài khoản này?')) ?>"
+                                    data-confirm-label="<?= gf_h(gf_t('Đăng xuất')) ?>"
+                                    data-confirm-danger="1">
                                     <?= gf_csrf_field() ?>
                                     <button class="dropdown-item py-2 text-danger" type="submit"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i><?= gf_h(gf_t('Đăng xuất')) ?></button>
                                 </form>

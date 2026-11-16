@@ -136,9 +136,18 @@ function gf_admin_invite_admin(string $fullName, string $email): array
     if (!gf_smtp_is_configured()) {
         return ['ok' => false, 'error' => 'Chưa cấu hình gửi email, nên chưa tạo được tài khoản.'];
     }
-    $exists = gf_pdo()->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
+    $exists = gf_pdo()->prepare('SELECT id, full_name, role, must_change_password FROM users WHERE email = ? LIMIT 1');
     $exists->execute([$email]);
-    if ($exists->fetch()) {
+    $existing = $exists->fetch(PDO::FETCH_ASSOC);
+    if ($existing) {
+        // Admin đã mời nhưng chưa đổi mật khẩu (kể cả hết hạn 5 phút) → gửi mật khẩu tạm mới.
+        if (($existing['role'] ?? '') === 'admin' && (int) ($existing['must_change_password'] ?? 0) === 1) {
+            if ($fullName !== '' && $fullName !== (string) ($existing['full_name'] ?? '')) {
+                gf_pdo()->prepare('UPDATE users SET full_name = ? WHERE id = ? AND role = \'admin\' AND must_change_password = 1')
+                    ->execute([$fullName, (int) $existing['id']]);
+            }
+            return gf_admin_resend_temp_password((int) $existing['id']);
+        }
         return ['ok' => false, 'error' => 'Email này đã có tài khoản.'];
     }
 

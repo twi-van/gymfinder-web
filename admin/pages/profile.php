@@ -134,11 +134,13 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
     <div class="col-lg-4 col-xl-3">
         <div class="admin-card text-center p-4">
             <div class="position-relative d-inline-block mb-3">
-                <img id="adminAvatarPreview" 
-                     src="<?= gf_h(gf_avatar($adminUser['avatar_url'] ?? null, !empty($adminUser['avatar_url']) ? (int)$adminUser['id'] : 0, $adminUser['full_name'])) ?>" 
-                     class="rounded-circle shadow-sm" 
-                     style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #f8fafc;" 
-                     alt="<?= gf_h($adminUser['full_name']) ?>">
+                <img id="adminAvatarPreview"
+                     src="<?= gf_h(gf_avatar($adminUser['avatar_url'] ?? null, !empty($adminUser['avatar_url']) ? (int)$adminUser['id'] : 0, $adminUser['full_name'])) ?>"
+                     class="rounded-circle shadow-sm"
+                     style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #f8fafc;"
+                     alt="<?= gf_h($adminUser['full_name']) ?>"
+                     referrerpolicy="no-referrer"
+                     onerror="this.onerror=null;this.src='<?= gf_h(gf_avatar_fallback($adminUser['full_name'])) ?>';">
             </div>
             <h5 class="fw-bold text-dark mb-1"><?= gf_h($adminUser['full_name']) ?></h5>
             <div class="text-secondary small mb-3"><?= gf_h($adminUser['email']) ?></div>

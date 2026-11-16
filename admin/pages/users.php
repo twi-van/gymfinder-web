@@ -70,7 +70,7 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
 <?php if ($error): ?><div class="alert alert-danger"><?= gf_h(gf_t($error)) ?></div><?php endif; ?>
 <div class="admin-card p-3 mb-4">
     <h3 class="fw-bold mb-1" style="font-size:18px;"><?= gf_h(gf_t('Thêm quản trị viên')) ?></h3>
-    <p class="text-secondary small mb-3"><?= gf_h(gf_t('Nhập tên tài khoản và email. Thư gửi đúng tên tài khoản đã nhập, cùng mật khẩu tạm có hiệu lực 5 phút. Lần đăng nhập đầu bắt buộc đổi mật khẩu và không được giữ mật khẩu do hệ thống cấp.')) ?></p>
+    <p class="text-secondary small mb-3"><?= gf_h(gf_t('Nhập tên tài khoản và email. Thư gửi đúng tên tài khoản đã nhập, cùng mật khẩu tạm có hiệu lực 5 phút. Lần đăng nhập đầu bắt buộc đổi mật khẩu và không được giữ mật khẩu do hệ thống cấp. Nếu admin mới chưa đổi mật khẩu (hoặc đã hết hạn), gửi lại cùng email sẽ tạo mật khẩu tạm mới.')) ?></p>
     <form method="post" class="row g-3 align-items-end js-form-validate" novalidate>
         <?= gf_csrf_field() ?>
         <input type="hidden" name="action" value="invite_admin">

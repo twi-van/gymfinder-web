@@ -66,7 +66,11 @@ require dirname(__DIR__, 2) . '/includes/layout_head.php';
                             <?= gf_h(gf_t('Lưu mật khẩu mới')) ?> <i class="fa-solid fa-arrow-right"></i>
                         </button>
                     </form>
-                    <form method="post" action="<?= gf_h(gf_url('pages/auth/logout.php')) ?>" class="text-center mt-3">
+                    <form method="post" action="<?= gf_h(gf_url('pages/auth/logout.php')) ?>" class="text-center mt-3 js-confirm-submit"
+                        data-confirm-title="<?= gf_h(gf_t('Đăng xuất')) ?>"
+                        data-confirm-message="<?= gf_h(gf_t('Bạn có chắc muốn đăng xuất khỏi tài khoản này?')) ?>"
+                        data-confirm-label="<?= gf_h(gf_t('Đăng xuất')) ?>"
+                        data-confirm-danger="1">
                         <?= gf_csrf_field() ?>
                         <button class="btn btn-link text-secondary" type="submit"><?= gf_h(gf_t('Đăng xuất')) ?></button>
                     </form>

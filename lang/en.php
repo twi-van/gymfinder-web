@@ -11,6 +11,7 @@ return [
     'Đăng nhập' => 'Log in',
     'Đăng ký' => 'Sign up',
     'Đăng xuất' => 'Log out',
+    'Bạn có chắc muốn đăng xuất khỏi tài khoản này?' => 'Are you sure you want to log out of this account?',
     'Khu vực quản trị' => 'Admin',
     'Quản trị viên' => 'Administrator',
     'Hồ sơ cá nhân' => 'Profile',

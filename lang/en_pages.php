@@ -471,6 +471,7 @@ return [
     'Chờ đổi mật khẩu' => 'Waiting for a new password',
     'Đã gửi email tài khoản quản trị. Mật khẩu tạm có hiệu lực 5 phút.' => 'The admin account email was sent. The temporary password works for 5 minutes.',
     'Đã gửi lại mật khẩu tạm. Mật khẩu mới có hiệu lực 5 phút.' => 'A new temporary password was sent. It works for 5 minutes.',
+    'Nhập tên tài khoản và email. Thư gửi đúng tên tài khoản đã nhập, cùng mật khẩu tạm có hiệu lực 5 phút. Lần đăng nhập đầu bắt buộc đổi mật khẩu và không được giữ mật khẩu do hệ thống cấp. Nếu admin mới chưa đổi mật khẩu (hoặc đã hết hạn), gửi lại cùng email sẽ tạo mật khẩu tạm mới.' => 'Enter a username and email. The message uses that username and a temporary password that lasts 5 minutes. The first login must set a new password. If the invited admin has not changed the password yet (or it expired), submitting the same email sends a new temporary password.',
     'Chưa cấu hình gửi email, nên chưa tạo được tài khoản.' => 'Email is not configured, so the account was not created.',
     'Chưa cấu hình gửi email, nên chưa gửi lại được mật khẩu.' => 'Email is not configured, so the password was not sent again.',
     'Không gửi được email. Tài khoản chưa được tạo.' => 'The email could not be sent. The account was not created.',
