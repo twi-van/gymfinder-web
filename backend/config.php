@@ -18,6 +18,10 @@ $env = static function (string $name, mixed $default = ''): mixed {
     $value = getenv($name);
     return $value !== false && $value !== '' ? $value : $default;
 };
+// Railway / paste often wraps values in quotes; strip for SMTP string fields.
+$smtpStr = static function (string $name, string $default = '') use ($env): string {
+    return trim((string) $env($name, $default), " \t\"'");
+};
 
 return [
     'driver' => $env('GF_DB_DRIVER', 'mysql'),
@@ -31,14 +35,14 @@ return [
         'charset' => 'utf8mb4',
     ],
     'smtp' => [
-        'host' => (string) $env('GF_SMTP_HOST', ''),
+        'host' => $smtpStr('GF_SMTP_HOST'),
         'port' => (int) $env('GF_SMTP_PORT', 587),
-        'encryption' => strtolower((string) $env('GF_SMTP_ENCRYPTION', 'tls')),
-        'username' => (string) $env('GF_SMTP_USERNAME', ''),
+        'encryption' => strtolower($smtpStr('GF_SMTP_ENCRYPTION', 'tls')),
+        'username' => $smtpStr('GF_SMTP_USERNAME'),
         // Google displays App Passwords in four-character groups; strip pasted spaces.
-        'password' => preg_replace('/\s+/', '', (string) $env('GF_SMTP_PASSWORD', '')) ?? '',
-        'from_email' => (string) $env('GF_SMTP_FROM_EMAIL', ''),
-        'from_name' => (string) $env('GF_SMTP_FROM_NAME', 'GYMFINDER'),
+        'password' => preg_replace('/\s+/', '', $smtpStr('GF_SMTP_PASSWORD')) ?? '',
+        'from_email' => $smtpStr('GF_SMTP_FROM_EMAIL'),
+        'from_name' => $smtpStr('GF_SMTP_FROM_NAME', 'GYMFINDER') ?: 'GYMFINDER',
         'demo_otp' => filter_var($env('GF_SMTP_DEMO_OTP', false), FILTER_VALIDATE_BOOL),
     ],
     'ai' => [

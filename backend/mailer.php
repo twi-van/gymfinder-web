@@ -43,7 +43,11 @@ function gf_smtp_command($socket, string $command, array $expectedCodes): string
     }
     [$code, $response] = gf_smtp_read_response($socket);
     if (!in_array($code, $expectedCodes, true)) {
-        throw new RuntimeException('SMTP command failed with response ' . $code . '.');
+        $snippet = preg_replace('/\s+/', ' ', $response) ?? $response;
+        if (strlen($snippet) > 180) {
+            $snippet = substr($snippet, 0, 180) . '…';
+        }
+        throw new RuntimeException('SMTP command failed with response ' . $code . ': ' . $snippet);
     }
     return $response;
 }
@@ -141,26 +145,37 @@ function gf_smtp_send(string $recipient, string $subjectText, string $plain, str
             throw new RuntimeException('SMTP server did not accept the connection.');
         }
 
-        $clientName = preg_replace('/[^a-zA-Z0-9.-]/', '', (string) ($_SERVER['SERVER_NAME'] ?? 'localhost')) ?: 'localhost';
+        // Prefer public host (Railway) over empty/invalid SERVER_NAME → localhost.
+        $clientName = (string) ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost');
+        $clientName = preg_replace('/:\d+$/', '', $clientName) ?? 'localhost';
+        $clientName = preg_replace('/[^a-zA-Z0-9.-]/', '', $clientName) ?: 'localhost';
         gf_smtp_command($socket, 'EHLO ' . $clientName, [250]);
         if ($encryption === 'tls') {
             gf_smtp_command($socket, 'STARTTLS', [220]);
             $crypto = stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
             if ($crypto !== true) {
-                throw new RuntimeException('Could not establish SMTP TLS encryption.');
+                throw new RuntimeException('Could not establish SMTP TLS encryption (check CA certificates / openssl on the host).');
             }
             gf_smtp_command($socket, 'EHLO ' . $clientName, [250]);
         }
 
         gf_smtp_command($socket, 'AUTH LOGIN', [334]);
-        gf_smtp_command($socket, base64_encode((string) $smtp['username']), [334]);
-        gf_smtp_command($socket, base64_encode((string) $smtp['password']), [235]);
+        $smtpUser = trim((string) $smtp['username']);
+        $smtpPass = (string) $smtp['password'];
+        // Railway/UI sometimes wraps values in quotes when pasting.
+        $smtpUser = trim($smtpUser, "\"'");
+        $smtpPass = trim($smtpPass, "\"'");
+        if ($smtpUser === '' || $smtpPass === '') {
+            throw new RuntimeException('SMTP username/password is empty after trimming.');
+        }
+        gf_smtp_command($socket, base64_encode($smtpUser), [334]);
+        gf_smtp_command($socket, base64_encode($smtpPass), [235]);
 
         // Gmail only delivers mail sent as the authenticated account. from_email is
         // kept as a fallback when it is not a mailbox address.
-        $fromEmail = (string) $smtp['username'];
+        $fromEmail = $smtpUser;
         if (!filter_var($fromEmail, FILTER_VALIDATE_EMAIL)) {
-            $fromEmail = (string) $smtp['from_email'];
+            $fromEmail = trim((string) $smtp['from_email'], "\"'");
         }
         gf_smtp_command($socket, 'MAIL FROM:<' . $fromEmail . '>', [250]);
         gf_smtp_command($socket, 'RCPT TO:<' . $recipient . '>', [250, 251]);

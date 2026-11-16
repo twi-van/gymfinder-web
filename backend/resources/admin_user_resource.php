@@ -166,15 +166,18 @@ function gf_admin_invite_admin(string $fullName, string $email): array
         throw $e;
     }
 
+    $mailError = '';
     try {
         $sent = gf_send_admin_invite_email($email, $fullName, $tempPassword);
     } catch (Throwable $e) {
-        error_log('GYMFINDER admin invite mail failed: ' . $e->getMessage());
+        $mailError = $e->getMessage();
+        error_log('GYMFINDER admin invite mail failed: ' . $mailError);
         $sent = false;
     }
     if (!$sent) {
         gf_pdo()->prepare('DELETE FROM users WHERE id = ? AND must_change_password = 1')->execute([$id]);
-        return ['ok' => false, 'error' => 'Không gửi được email. Tài khoản chưa được tạo.'];
+        $hint = $mailError !== '' ? (' Chi tiết: ' . $mailError) : '';
+        return ['ok' => false, 'error' => 'Không gửi được email. Tài khoản chưa được tạo.' . $hint];
     }
     return ['ok' => true, 'message' => 'Đã gửi email tài khoản quản trị. Mật khẩu tạm có hiệu lực 5 phút.'];
 }
@@ -197,16 +200,19 @@ function gf_admin_resend_temp_password(int $id): array
     $previousExpiry = $user['temp_password_expires_at'];
     gf_pdo()->prepare('UPDATE users SET password_hash=?, temp_password_expires_at=? WHERE id=?')
         ->execute([password_hash($tempPassword, PASSWORD_BCRYPT), $expiresAt, $id]);
+    $mailError = '';
     try {
         $sent = gf_send_admin_invite_email((string) $user['email'], (string) $user['full_name'], $tempPassword);
     } catch (Throwable $e) {
-        error_log('GYMFINDER admin resend mail failed: ' . $e->getMessage());
+        $mailError = $e->getMessage();
+        error_log('GYMFINDER admin resend mail failed: ' . $mailError);
         $sent = false;
     }
     if (!$sent) {
         gf_pdo()->prepare('UPDATE users SET password_hash=?, temp_password_expires_at=? WHERE id=?')
             ->execute([$previousHash, $previousExpiry, $id]);
-        return ['ok' => false, 'error' => 'Không gửi được email. Mật khẩu tạm cũ vẫn giữ nguyên.'];
+        $hint = $mailError !== '' ? (' Chi tiết: ' . $mailError) : '';
+        return ['ok' => false, 'error' => 'Không gửi được email. Mật khẩu tạm cũ vẫn giữ nguyên.' . $hint];
     }
     return ['ok' => true, 'message' => 'Đã gửi lại mật khẩu tạm. Mật khẩu mới có hiệu lực 5 phút.'];
 }

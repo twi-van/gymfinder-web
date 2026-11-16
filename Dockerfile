@@ -2,8 +2,11 @@
 FROM php:8.2-apache
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        openssl \
         libzip-dev \
         unzip \
+    && update-ca-certificates \
     && docker-php-ext-install pdo pdo_mysql \
     # PHP module cần mpm_prefork — tắt MPM khác để tránh AH00534
     && a2dismod mpm_event mpm_worker 2>/dev/null || true \
