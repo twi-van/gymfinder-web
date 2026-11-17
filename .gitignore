@@ -42,8 +42,11 @@ report/*Khung*
 report/Report_Vy.docx
 report/maudocx.docx
 
-# Kịch bản demo — giữ local, không nộp / không commit
+# Kịch bản demo / ảnh UML tạm / screenshot scratch — không nộp
 report/GymFinder_KichBan_ThuyetTrinh_Demo*.md
+report/activity_new/
+report/ui_en/
+report/uc_user_portal.*
 
 # Temp capture / audit scratch (do not commit)
 .tmp_*/
