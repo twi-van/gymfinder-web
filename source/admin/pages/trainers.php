@@ -175,7 +175,36 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
     </div>
     <div class="d-flex justify-content-end gap-2 mt-4"><button type="button" class="btn btn-light" data-bs-dismiss="modal"><?= gf_h(gf_t('Hủy')) ?></button><button type="submit" class="btn btn-primary" id="trainerSubmit"><?= gf_h(gf_t('Lưu thông tin')) ?></button></div>
 </form></div></div></div></div>
-<form method="get" class="admin-card p-3 mb-4"><div class="row g-3 align-items-center"><div class="col-md-5"><input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q']??'') ?>" placeholder="<?= gf_h(gf_t('⌕  Tìm kiếm huấn luyện viên...')) ?>" style="height:42px;"></div><div class="col-md-3"><select class="form-select admin-input" name="specialty_id" style="height:42px;"><option value=""><?= gf_h(gf_t('Tất cả chuyên môn')) ?></option><?php foreach($specs as $s): ?><option value="<?= (int)$s['id'] ?>" <?= (string)($_GET['specialty_id']??'')===(string)$s['id']?'selected':'' ?>><?= gf_h($s['name']) ?></option><?php endforeach; ?></select></div><div class="col-md-2"><select class="form-select admin-input" name="status" style="height:42px;"><option value="" <?= empty($_GET['status'])?'selected':'' ?>><?= gf_h(gf_t('Trạng thái')) ?></option><option value="active" <?= ($_GET['status']??'')==='active'?'selected':'' ?>><?= gf_h(gf_t('Hoạt động')) ?></option><option value="hidden" <?= ($_GET['status']??'')==='hidden'?'selected':'' ?>><?= gf_h(gf_t('Tạm ẩn')) ?></option></select></div><div class="col-md-2"><button type="submit" class="btn btn-filter w-100 d-inline-flex align-items-center justify-content-center gap-2 fw-medium" style="height:42px;"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><?= gf_h(gf_t('Tra cứu')) ?></button></div></div></form>
+<form method="get" class="admin-card p-3 mb-4 shadow-sm border">
+    <div class="row g-3 align-items-center">
+        <div class="col-12 col-md-4">
+            <div class="position-relative">
+                <i class="fa-solid fa-magnifying-glass text-secondary position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none;"></i>
+                <input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q'] ?? '') ?>" placeholder="<?= gf_h(gf_t('Tìm kiếm huấn luyện viên...')) ?>" style="padding-left: 38px; height: 42px;">
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+            <select class="form-select admin-input" name="specialty_id" style="height: 42px;">
+                <option value=""><?= gf_h(gf_t('Tất cả chuyên môn')) ?></option>
+                <?php foreach ($specs as $s): ?>
+                    <option value="<?= (int)$s['id'] ?>" <?= (string)($_GET['specialty_id'] ?? '') === (string)$s['id'] ? 'selected' : '' ?>><?= gf_h($s['name']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+            <select class="form-select admin-input" name="status" style="height: 42px;">
+                <option value="" <?= empty($_GET['status']) ? 'selected' : '' ?>><?= gf_h(gf_t('Tất cả trạng thái')) ?></option>
+                <option value="active" <?= ($_GET['status'] ?? '') === 'active' ? 'selected' : '' ?>><?= gf_h(gf_t('Hoạt động')) ?></option>
+                <option value="hidden" <?= ($_GET['status'] ?? '') === 'hidden' ? 'selected' : '' ?>><?= gf_h(gf_t('Tạm ẩn')) ?></option>
+            </select>
+        </div>
+        <div class="col-12 col-md-2">
+            <button type="submit" class="btn btn-filter w-100 d-inline-flex align-items-center justify-content-center gap-2 fw-medium" style="height: 42px;">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><?= gf_h(gf_t('Tra cứu')) ?>
+            </button>
+        </div>
+    </div>
+</form>
 <?php
 $trainerPaginationHtml = gf_render_admin_pagination(
     $trainerPage,

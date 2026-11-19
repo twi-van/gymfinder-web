@@ -627,7 +627,7 @@ SQL);
     // Keep an active trainer available for every seeded gym.
     $activeTrainerIds = $pdo->query("SELECT t.id FROM trainers t WHERE t.status='active' AND EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id=t.id) ORDER BY t.id")->fetchAll(PDO::FETCH_COLUMN);
     $hasActiveTrainer = $pdo->prepare("SELECT 1 FROM trainers t JOIN gym_trainers gt ON gt.trainer_id=t.id WHERE gt.gym_id=? AND t.status='active' AND EXISTS (SELECT 1 FROM trainer_specialties ts WHERE ts.trainer_id=t.id) LIMIT 1");
-    foreach (range(1, count($allGymNames)) as $gymId) {
+    foreach (array_keys($gymsMeta) as $gymId) {
         $hasActiveTrainer->execute([$gymId]);
         if (!$hasActiveTrainer->fetchColumn() && $activeTrainerIds) {
             $trainerId = (int) $activeTrainerIds[($gymId - 1) % count($activeTrainerIds)];
@@ -721,7 +721,7 @@ SQL);
     // Ensure every seeded gym has an approved review for ratings and suggestions.
     $approvedReviewCheck = $pdo->prepare("SELECT 1 FROM reviews WHERE gym_id=? AND status='approved' LIMIT 1");
     $userReviewCheck = $pdo->prepare('SELECT 1 FROM reviews WHERE user_id=? AND gym_id=? LIMIT 1');
-    for ($gymId = 1; $gymId <= count($allGymNames); $gymId++) {
+    foreach (array_keys($gymsMeta) as $gymId) {
         $approvedReviewCheck->execute([$gymId]);
         if ($approvedReviewCheck->fetchColumn()) {
             continue;

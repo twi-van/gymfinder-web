@@ -825,6 +825,14 @@ body {
     padding: 8px 12px;
     font-size: 14px;
 }
+/* Keep room for Bootstrap chevron so long labels (e.g. "Tất cả trạng thái") are not clipped */
+select.form-select.admin-input {
+    padding-left: 0.55rem;
+    padding-right: 1.75rem;
+    background-position: right 0.45rem center;
+    font-size: 13px;
+    text-overflow: ellipsis;
+}
 .admin-input:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px var(--primary-light);

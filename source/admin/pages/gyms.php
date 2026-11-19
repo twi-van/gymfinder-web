@@ -162,7 +162,7 @@ require_once dirname(__DIR__) . '/components/table.php';
 
 <form method="get" class="admin-card p-3 mb-4 shadow-sm border">
     <div class="row g-3 align-items-center">
-        <div class="col-12 col-md-5">
+        <div class="col-12 col-md-4">
             <div class="position-relative">
                 <i class="fa-solid fa-magnifying-glass text-secondary position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none;"></i>
                 <input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q'] ?? '') ?>" placeholder="<?= gf_h(gf_t('Tìm kiếm phòng tập...')) ?>" style="padding-left: 38px; height: 42px;">
@@ -176,7 +176,7 @@ require_once dirname(__DIR__) . '/components/table.php';
                 <?php endforeach; ?>
             </select>
         </div>
-        <div class="col-12 col-sm-6 col-md-2">
+        <div class="col-12 col-sm-6 col-md-3">
             <select class="form-select admin-input" name="status" style="height: 42px;">
                 <option value=""><?= gf_h(gf_t('Tất cả trạng thái')) ?></option>
                 <option value="active" <?= ($_GET['status'] ?? '') === 'active' ? 'selected' : '' ?>><?= gf_h(gf_t('Hoạt động')) ?></option>

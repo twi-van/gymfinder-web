@@ -45,7 +45,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                     <label for="filter-specialty"><?= gf_h(gf_t('Chuyên môn')) ?></label>
                     <div class="gf-select-wrap">
                         <select id="filter-specialty" name="specialty_id" class="form-select gf-filter-select">
-                            <option value=""><?= gf_h(gf_t('Tất cả')) ?></option>
+                            <option value=""><?= gf_h(gf_t('Tất cả chuyên môn')) ?></option>
                             <?php foreach ($specialties as $s): ?>
                                 <option value="<?= (int)$s['id'] ?>" <?= (string)$filters['specialty_id']===(string)$s['id']?'selected':'' ?>><?= gf_h(gf_t((string) $s['name'])) ?></option>
                             <?php endforeach; ?>
@@ -56,7 +56,7 @@ require dirname(__DIR__, 2) . '/includes/header.php';
                     <label for="filter-district"><?= gf_h(gf_t('Khu vực')) ?></label>
                     <div class="gf-select-wrap">
                         <select id="filter-district" name="district_id" class="form-select gf-filter-select">
-                            <option value=""><?= gf_h(gf_t('Tất cả')) ?></option>
+                            <option value=""><?= gf_h(gf_t('Tất cả khu vực')) ?></option>
                             <?php foreach ($districts as $d): ?>
                                 <option value="<?= (int)$d['id'] ?>" <?= (string)$filters['district_id']===(string)$d['id']?'selected':'' ?>><?= gf_h(gf_place_name((string) $d['name'])) ?></option>
                             <?php endforeach; ?>
