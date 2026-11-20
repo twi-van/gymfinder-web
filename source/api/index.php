@@ -49,7 +49,6 @@ function gf_api_csrf_mutating(string $method, string $path): void
     if (!in_array($method, ['POST', 'PATCH', 'PUT', 'DELETE'], true)) {
         return;
     }
-    // Guest được phép: login/register + AI recommend/history (widget + trang chat).
     $guestOkPaths = ['/auth/login', '/auth/register', '/ai/recommend', '/ai/history'];
     if (!in_array($path, $guestOkPaths, true) && !gf_current_user()) {
         gf_api_error('AUTH_REQUIRED', 'Cần đăng nhập.', 401);
@@ -89,7 +88,7 @@ function gf_api_require_admin(): array
 gf_api_csrf_mutating($method, $path);
 
 // =========================================================================
-// 1. AUTHENTICATION & PROFILE APIS (Sprint 1)
+// Auth & profile
 // =========================================================================
 
 if ($path === '/auth/csrf' && $method === 'GET') {
@@ -97,7 +96,6 @@ if ($path === '/auth/csrf' && $method === 'GET') {
 }
 
 if ($path === '/auth/register' && $method === 'POST') {
-    // Đặc tả: email bắt buộc; phone tuỳ chọn. (login vẫn dùng email hoặc SĐT)
     gf_require_known_body($body, ['full_name', 'email', 'phone', 'password'], ['id', 'role', 'status', 'avatar_url', 'created_at', 'updated_at', 'email_or_phone']);
     $res = gf_register(
         (string) ($body['full_name'] ?? ''),
@@ -241,7 +239,7 @@ if ($path === '/profile' && $method === 'PATCH') {
 }
 
 // =========================================================================
-// 2. IMAGE UPLOAD API (Sprint 1, 2, 3 & Admin)
+// Image upload
 // =========================================================================
 
 if ($path === '/uploads/images' && $method === 'POST') {
@@ -256,7 +254,7 @@ if ($path === '/uploads/images' && $method === 'POST') {
 }
 
 // =========================================================================
-// 3. TAXONOMY APIS (Sprint 2 & 3)
+// Taxonomy
 // =========================================================================
 
 if ($path === '/districts' && $method === 'GET') {
@@ -280,7 +278,7 @@ if ($path === '/specialties' && $method === 'GET') {
 }
 
 // =========================================================================
-// 4. PUBLIC GYM APIS (Sprint 2)
+// Public gyms
 // =========================================================================
 
 if ($path === '/gyms' && $method === 'GET') {
@@ -322,7 +320,7 @@ if (preg_match('#^/gyms/([^/]+)$#', $path, $m) && $method === 'GET') {
 }
 
 // =========================================================================
-// 5. PUBLIC TRAINER APIS (Sprint 3)
+// Public trainers
 // =========================================================================
 
 if ($path === '/trainers' && $method === 'GET') {
@@ -364,7 +362,7 @@ if (preg_match('#^/trainers/([^/]+)$#', $path, $m) && $method === 'GET') {
 }
 
 // =========================================================================
-// 6. FAVORITES APIS (Sprint 3)
+// Favorites
 // =========================================================================
 
 if ($path === '/favorites' && $method === 'GET') {
@@ -430,7 +428,7 @@ if ($path === '/favorites/sync' && $method === 'POST') {
 }
 
 // =========================================================================
-// 7. USER REVIEWS APIS (Sprint 3)
+// User reviews
 // =========================================================================
 
 if ($path === '/reviews' && $method === 'POST') {
@@ -503,7 +501,7 @@ if (preg_match('#^/reviews/(\d+)$#', $path, $m)) {
 }
 
 // =========================================================================
-// 8. ADMIN DASHBOARD & CRUD APIS (Sprint 2, 3, 4)
+// Admin
 // =========================================================================
 
 if ($path === '/admin/dashboard' && $method === 'GET') {
@@ -668,7 +666,6 @@ if (preg_match('#^/admin/users/(\d+)$#', $path, $m)) {
         gf_json(['data' => $updated]);
     }
     if ($method === 'DELETE') {
-        // Đặc tả / BR: không xóa cứng tài khoản trên UI — chỉ Khóa / Mở khóa (status).
         gf_api_require_admin();
         gf_api_error(
             'BUSINESS_RULE',
@@ -679,9 +676,7 @@ if (preg_match('#^/admin/users/(\d+)$#', $path, $m)) {
     }
 }
 
-// =========================================================================
-// AI sessions (user login only) + recommend/history (guest OK)
-// =========================================================================
+// AI chat
 if ($path === '/ai/sessions' && $method === 'GET') {
     $user = gf_api_require_user();
     gf_json(['data' => ['sessions' => gf_ai_sessions_list((int) $user['id'])]]);
@@ -700,7 +695,6 @@ if (preg_match('#^/ai/sessions/(\d+)$#', $path, $m) && $method === 'GET') {
     if ($session === null) {
         gf_api_error('NOT_FOUND', 'Không tìm thấy phiên chat.', 404);
     }
-    // Đồng bộ widget ↔ trang chat trong cùng phiên trình duyệt.
     $rawTurns = is_array($session['turns'] ?? null) ? $session['turns'] : [];
     gf_ai_chat_history_set($rawTurns);
     gf_json(['data' => $session]);
@@ -726,7 +720,6 @@ if ($path === '/ai/history' && $method === 'DELETE') {
     if ($user && $sessionId > 0) {
         $deleted = gf_ai_session_delete((int) $user['id'], $sessionId);
     }
-    // Luôn xóa lịch sử phiên PHP để widget và trang chat cùng trống.
     gf_ai_chat_history_clear();
     gf_json([
         'data' => [
@@ -738,14 +731,12 @@ if ($path === '/ai/history' && $method === 'DELETE') {
 }
 
 if ($path === '/ai/recommend' && $method === 'POST') {
-    // Guest/User đều được; Admin portal-only nên ít khi gọi từ đây.
     $message = trim((string) ($body['message'] ?? $body['question'] ?? ''));
     if ($message === '') {
         gf_api_error('VALIDATION_ERROR', 'Vui lòng nhập câu hỏi.', 422, ['message' => 'Bắt buộc.']);
     }
     $sessionId = (int) ($body['session_id'] ?? 0);
     $user = gf_api_user();
-    // Trang chat user ghi DB; mọi nguồn (widget/guest/user) luôn mirror PHP session.
     $persistDb = $user
         && ($user['role'] ?? '') === 'user'
         && ($sessionId > 0 || !empty($body['persist_session']));
@@ -756,32 +747,12 @@ if ($path === '/ai/recommend' && $method === 'POST') {
         $outSessionId = null;
         gf_ai_chat_history_append($message, $errMsg, [], [], true);
         if ($persistDb && $user) {
-            if ($sessionId <= 0) {
-                $created = gf_ai_session_create((int) $user['id'], $message);
-                $sessionId = (int) $created['id'];
-            }
-            $saved = gf_ai_session_replace_turns(
-                (int) $user['id'],
-                $sessionId,
-                gf_ai_chat_history_get_raw(),
-                $message
-            );
-            if ($saved === null) {
-                $created = gf_ai_session_create((int) $user['id'], $message);
-                $sessionId = (int) $created['id'];
-                $saved = gf_ai_session_replace_turns(
-                    (int) $user['id'],
-                    $sessionId,
-                    gf_ai_chat_history_get_raw(),
-                    $message
-                );
-            }
-            $outSessionId = $saved['id'] ?? $sessionId;
+            $saved = gf_ai_session_sync_from_php_history((int) $user['id'], $sessionId, $message);
+            $outSessionId = (int) ($saved['id'] ?? 0) ?: null;
         }
         gf_api_error('AI_ERROR', $errMsg, 503, $outSessionId ? ['session_id' => $outSessionId] : []);
     }
 
-    // Trả raw fields — JS mapTrainerCard/mapGymCard áp gfT/gfPlace theo lang hiện tại.
     $gymPayload = [];
     foreach ($res['gyms'] ?? [] as $g) {
         $id = (int) ($g['id'] ?? 0);
@@ -829,7 +800,6 @@ if ($path === '/ai/recommend' && $method === 'POST') {
     $suggestRefine = !empty($res['suggest_refine']);
     $outSessionId = null;
 
-    // Mirror chung cho widget ↔ /ai/chat trong cùng phiên trình duyệt.
     gf_ai_chat_history_append(
         $message,
         (string) ($res['reply'] ?? ''),
@@ -841,27 +811,8 @@ if ($path === '/ai/recommend' && $method === 'POST') {
     );
 
     if ($persistDb && $user) {
-        if ($sessionId <= 0) {
-            $created = gf_ai_session_create((int) $user['id'], $message);
-            $sessionId = (int) $created['id'];
-        }
-        $saved = gf_ai_session_replace_turns(
-            (int) $user['id'],
-            $sessionId,
-            gf_ai_chat_history_get_raw(),
-            $message
-        );
-        if ($saved === null) {
-            $created = gf_ai_session_create((int) $user['id'], $message);
-            $sessionId = (int) $created['id'];
-            $saved = gf_ai_session_replace_turns(
-                (int) $user['id'],
-                $sessionId,
-                gf_ai_chat_history_get_raw(),
-                $message
-            );
-        }
-        $outSessionId = $saved['id'] ?? $sessionId;
+        $saved = gf_ai_session_sync_from_php_history((int) $user['id'], $sessionId, $message);
+        $outSessionId = (int) ($saved['id'] ?? 0) ?: null;
     }
 
     gf_json([

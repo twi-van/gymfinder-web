@@ -1,10 +1,6 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Floating AI chat widget (homepage / public portal).
- * Requires bootstrap already loaded.
- */
 $aiWidgetEnabled = function_exists('gf_ai_is_configured') && gf_ai_is_configured();
 $aiWidgetCssVer = (string) @filemtime(dirname(__DIR__) . '/assets/css/ai_widget.css');
 $aiWidgetJsVer = (string) @filemtime(dirname(__DIR__) . '/assets/js/ai_widget.js');
@@ -17,7 +13,6 @@ $aiWidgetUser = function_exists('gf_current_user') ? gf_current_user() : null;
 $aiWidgetCanPersist = $aiWidgetUser
     && ($aiWidgetUser['role'] ?? '') === 'user'
     && ($aiWidgetUser['status'] ?? '') === 'active';
-// User: SSR lịch sử PHP session. Guest: để JS lấy từ sessionStorage (theo tab).
 $aiWidgetHistory = ($aiWidgetCanPersist && function_exists('gf_ai_chat_history_get'))
     ? gf_ai_chat_history_get()
     : [];

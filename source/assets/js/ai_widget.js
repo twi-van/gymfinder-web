@@ -192,7 +192,6 @@
 
     function renderTurns(turns) {
         if (!Array.isArray(turns) || turns.length === 0) return false;
-        // Giữ lời chào mở đầu, rồi append lịch sử bên dưới (Guest + User).
         clearMessagesKeepWelcome();
         turns.forEach((turn) => {
             const userText = (turn?.user || '').trim();
@@ -240,19 +239,16 @@
         if (seeded) return;
         seeded = true;
 
-        // Guest: lịch sử theo tab (sessionStorage). Đóng tab là mất.
         if (!canPersist) {
             const localTurns = readGuestTurns();
             if (localTurns.length) {
                 renderTurns(localTurns);
                 return;
             }
-            // Tab mới / chưa chat: bỏ lịch sử PHPSESSID cũ (nếu còn).
             await clearServerHistorySoft();
             return;
         }
 
-        // User: SSR / API PHP session (dùng chung widget ↔ trang chat).
         const embedded = root.dataset.historyJson;
         if (embedded) {
             try {
@@ -304,8 +300,7 @@
                     Accept: 'application/json',
                     'X-CSRF-Token': csrf,
                 },
-                // save_history giữ tương thích; API luôn mirror PHP session.
-                body: JSON.stringify({ message: text, save_history: true }),
+                body: JSON.stringify({ message: text }),
             });
             const json = await res.json().catch(() => ({}));
             loading.remove();
@@ -394,6 +389,5 @@
         }
     });
 
-    // Prefetch shared history so opening panel feels instant.
     loadSharedHistory();
 })();

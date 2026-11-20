@@ -1,6 +1,4 @@
--- Đồng bộ tài khoản demo (giống local). Mật khẩu: password
--- Railway: railway run -s MySQL -- bash -c 'mysql -h "$MYSQLHOST" -P "$MYSQLPORT" -u "$MYSQLUSER" -p"$MYSQLPASSWORD" "$MYSQLDATABASE" < database/seed_demo_users.sql'
-
+-- Demo accounts (password: password)
 SET NAMES utf8mb4;
 
 INSERT INTO users (full_name, email, phone, password_hash, role, status, created_at) VALUES

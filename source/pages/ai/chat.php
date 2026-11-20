@@ -12,8 +12,6 @@ $currentUser = gf_current_user();
 $canPersist = $currentUser && ($currentUser['role'] ?? '') === 'user' && ($currentUser['status'] ?? '') === 'active';
 $sessions = [];
 $activeSessionId = 0;
-// User đăng nhập: lịch sử đang mở mirror PHP session (dùng chung widget).
-// Guest: không SSR lịch sử — JS khôi phục từ sessionStorage (mất khi đóng tab).
 $history = [];
 
 if ($canPersist) {

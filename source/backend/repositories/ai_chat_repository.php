@@ -1,9 +1,7 @@
 <?php
 declare(strict_types=1);
 
-/** Số phiên tối đa mỗi user; vượt thì xóa phiên cũ nhất. */
 const GF_AI_SESSION_MAX_PER_USER = 20;
-/** Số lượt tối đa trong một phiên. */
 const GF_AI_SESSION_MAX_TURNS = 30;
 
 /**
@@ -137,8 +135,6 @@ function gf_ai_session_append_turn(
 }
 
 /**
- * Ghi đè toàn bộ lượt của phiên (đồng bộ từ lịch sử PHP session / widget).
- *
  * @param list<array<string,mixed>> $turns
  * @return array{id:int,title:string,turns:list<array<string,mixed>>}|null
  */
@@ -221,6 +217,22 @@ function gf_ai_sessions_prune_excess(int $userId): void
         "DELETE FROM ai_chat_sessions WHERE user_id = ? AND id IN ($placeholders)"
     );
     $del->execute(array_merge([$userId], $drop));
+}
+
+/** @return array{id:int,title?:string,turns?:list<array<string,mixed>>} */
+function gf_ai_session_sync_from_php_history(int $userId, int $sessionId, string $titleHint): array
+{
+    if ($sessionId <= 0) {
+        $created = gf_ai_session_create($userId, $titleHint);
+        $sessionId = (int) $created['id'];
+    }
+    $saved = gf_ai_session_replace_turns($userId, $sessionId, gf_ai_chat_history_get_raw(), $titleHint);
+    if ($saved === null) {
+        $created = gf_ai_session_create($userId, $titleHint);
+        $sessionId = (int) $created['id'];
+        $saved = gf_ai_session_replace_turns($userId, $sessionId, gf_ai_chat_history_get_raw(), $titleHint);
+    }
+    return $saved ?? ['id' => $sessionId];
 }
 
 function gf_ai_session_normalize_title(string $text): string

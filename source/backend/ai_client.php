@@ -1,10 +1,7 @@
 <?php
 declare(strict_types=1);
 
-/**
- * GYMFINDER AI chat client (Groq / OpenAI-compatible / Ollama).
- * AI chỉ được chọn gym / trainer trong catalog lấy từ DB — không bịa id.
- */
+/** AI recommend client — catalog từ DB, model chỉ chọn id. */
 
 function gf_ai_config(): array
 {
@@ -25,7 +22,7 @@ function gf_ai_is_configured(): bool
 }
 
 /**
- * Parse gợi ý thô từ câu hỏi (quận / giá / loại hình) để pre-filter catalog.
+ * Regex/keyword → filter catalog (quận, giá, loại hình, gym/HLV).
  *
  * @return array{
  *   district_ids: list<int>,
@@ -52,7 +49,6 @@ function gf_ai_parse_question_hints(string $message): array
         if ($nameNorm !== '' && mb_strpos($norm, $nameNorm) !== false) {
             $matched = true;
         }
-        // "q7", "quan 7", "quận 7"
         if (preg_match('/qu[aậ]n\s*(\d{1,2})\b/u', $norm, $m) || preg_match('/\bq\s*(\d{1,2})\b/u', $norm, $m)) {
             $num = (int) $m[1];
             if (preg_match('/\bqu[aậ]n\s*' . $num . '\b/u', $nameNorm) || preg_match('/^qu[aậ]n\s*' . $num . '$/u', $nameNorm)) {
@@ -71,7 +67,6 @@ function gf_ai_parse_question_hints(string $message): array
     $districtNames = array_values(array_unique($districtNames));
 
     $maxPrice = null;
-    // dưới 500k / dưới 500 nghìn / dưới 500.000 / < 500000
     if (preg_match('/(?:duoi|dưới|<|max|toi da|tối đa)\s*(\d{1,3}(?:[.,]\d{3})*|\d+)\s*(k|nghin|nghìn|ngàn|ngan|vnd|đ|d)?/ui', $message, $pm)
         || preg_match('/(\d{1,3}(?:[.,]\d{3})*|\d+)\s*(k|nghin|nghìn)\b/ui', $message, $pm)
     ) {
@@ -81,7 +76,6 @@ function gf_ai_parse_question_hints(string $message): array
         if ($unit === 'k' || str_contains($unit, 'ngh') || str_contains($unit, 'ngan')) {
             $n *= 1000;
         } elseif ($n > 0 && $n < 10000) {
-            // "500" trong ngữ cảnh giá gym thường là 500k
             $n *= 1000;
         }
         if ($n >= 50000 && $n <= 20000000) {
@@ -91,7 +85,7 @@ function gf_ai_parse_question_hints(string $message): array
 
     $categoryKeywords = [];
     $specialtyKeywords = [];
-    // [sql LIKE needle, detect needles in question, apply to category?, specialty?]
+    // [LIKE needle, question needles, category?, specialty?]
     $keywordMap = [
         ['Yoga', ['yoga'], true, true],
         ['Boxing', ['boxing'], true, true],
@@ -166,7 +160,7 @@ function gf_ai_catalog_gyms(int $limit = 40, array $filters = []): array
 
     $maxPrice = isset($filters['max_price']) ? (int) $filters['max_price'] : 0;
     if ($maxPrice > 0) {
-        // Gym có ít nhất một đầu giá trong tầm (không chỉ toàn bộ khoảng đắt hơn max)
+        // Khoảng giá giao với max (không bắt buộc cả khoảng ≤ max)
         $sql .= ' AND g.price_min <= ?';
         $params[] = $maxPrice;
     }
@@ -425,7 +419,6 @@ function gf_ai_chat(array $messages, int $maxTokens = 700): array
     $message = $data['choices'][0]['message'] ?? [];
     $content = trim((string) ($message['content'] ?? ''));
     if ($content === '') {
-        // Một số model reasoning để trống content; thử lấy từ reasoning nếu có JSON.
         $content = trim((string) ($message['reasoning'] ?? ''));
     }
     if ($content === '') {
@@ -569,9 +562,6 @@ function gf_ai_extract_json_object(string $text): ?array
     return null;
 }
 
-/**
- * Câu hỏi về chính sách / FAQ site (không phải gợi ý gym/PT).
- */
 function gf_ai_is_site_faq_question(string $message): bool
 {
     $m = mb_strtolower(str_replace(['đ', 'Đ'], ['d', 'd'], $message));
@@ -590,12 +580,7 @@ function gf_ai_is_site_faq_question(string $message): bool
     return false;
 }
 
-/**
- * Kiến thức site (điều khoản, bảo mật, FAQ vận hành) — không phải dữ liệu bảo mật nội bộ.
- * Dùng khi user hỏi chính sách / cách dùng website; không thay catalog gym/PT.
- *
- * @return array<string,mixed>
- */
+/** @return array<string,mixed> */
 function gf_ai_site_knowledge(): array
 {
     $termsUrl = function_exists('gf_url') ? gf_url('pages/legal/terms.php') : '/pages/legal/terms.php';
@@ -642,9 +627,7 @@ function gf_ai_site_knowledge(): array
 }
 
 /**
- * Gợi ý gym và/hoặc HLV từ câu hỏi user. Luôn map lại DB.
- *
- * @return array{ok:bool, reply?:string, gyms?:list<array>, trainers?:list<array>, error?:string}
+ * @return array{ok:bool, reply?:string, gyms?:list<array>, trainers?:list<array>, suggest_refine?:bool, error?:string}
  */
 function gf_ai_recommend_gyms(string $userMessage): array
 {
@@ -682,7 +665,7 @@ function gf_ai_recommend_gyms(string $userMessage): array
 
     if (!empty($hints['want_gym'])) {
         $gymCatalog = gf_ai_catalog_gyms(20, $gymFilters);
-        // Pre-filter quá chặt → nới (bỏ category, giữ quận/giá) rồi mới unfiltered
+        // Filter quá chặt → nới dần
         if ($gymCatalog === [] && ($hints['district_ids'] !== [] || $hints['max_price'] || $hints['category_keywords'] !== [])) {
             $gymCatalog = gf_ai_catalog_gyms(20, [
                 'district_ids' => $hints['district_ids'],
@@ -831,7 +814,6 @@ PROMPT;
     $gyms = gf_ai_pick_ids_from_catalog($parsed['gym_ids'] ?? [], $allowedGyms, 3);
     $trainers = gf_ai_pick_ids_from_catalog($parsed['trainer_ids'] ?? [], $allowedTrainers, 3);
 
-    // Gợi ý refine chỉ khi đang hỏi tìm gym/PT mà chưa gắn được card (không hiện với FAQ/chính sách).
     $suggestRefine = $gyms === [] && $trainers === [] && !gf_ai_is_site_faq_question($userMessage);
 
     return [
@@ -869,10 +851,7 @@ function gf_ai_pick_ids_from_catalog(mixed $ids, array $allowed, int $max): arra
     return array_values($picked);
 }
 
-/** @return list<array<string,mixed>> */
 /**
- * Bổ sung URL ảnh tuyệt đối cho gym/HLV trong lịch sử (phiên cũ thiếu field image).
- *
  * @param array<string,mixed> $turn
  * @return array<string,mixed>
  */
@@ -957,14 +936,6 @@ function gf_ai_chat_history_clear(): void
 }
 
 /**
- * Lưu 1 lượt user + bot vào session (giữ tối đa $maxTurns lượt).
- *
- * @param list<array<string,mixed>> $gyms
- * @param list<array<string,mixed>> $trainers
- */
-/**
- * Chuẩn hóa 1 lượt chat (session PHP hoặc DB).
- *
  * @param list<array<string,mixed>> $gyms
  * @param list<array<string,mixed>> $trainers
  * @return array<string,mixed>

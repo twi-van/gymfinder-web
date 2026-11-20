@@ -2,7 +2,7 @@
 
 Website tìm kiếm, đánh giá phòng tập và huấn luyện viên cá nhân (PT) tại **TP. Hồ Chí Minh**.
 
-GYMFINDER là nền tảng **tra cứu và đánh giá** — người dùng tự liên hệ phòng tập/PT qua thông tin được công bố. Hệ thống **không** bao gồm đặt lịch, thanh toán, chat realtime hay bản đồ/chỉ đường.
+GYMFINDER là nền tảng **tra cứu và đánh giá** — người dùng tự liên hệ phòng tập/PT qua thông tin công bố. Hệ thống **không** bao gồm đặt lịch, thanh toán, chat realtime hay bản đồ/chỉ đường.
 
 **Demo online (Railway):** [https://gymfinder-wed.up.railway.app](https://gymfinder-wed.up.railway.app)
 
@@ -10,21 +10,15 @@ GYMFINDER là nền tảng **tra cứu và đánh giá** — người dùng tự
 
 ## Vai trò
 
-
 | Vai trò   | Quyền chính                                                                                           |
 | --------- | ----------------------------------------------------------------------------------------------------- |
 | **Guest** | Xem nội dung công khai; tìm kiếm/lọc phòng tập & PT; xem chi tiết và đánh giá đã duyệt; hỏi Trợ lý AI |
 | **User**  | Thêm quyền Guest; hồ sơ cá nhân; yêu thích; gửi/sửa/xóa đánh giá của mình; lưu phiên chat AI          |
 | **Admin** | Dashboard; quản lý phòng tập, PT, danh mục; mời Admin; khóa/mở khóa user; kiểm duyệt đánh giá         |
 
-
 ---
 
-
-
 ## Chức năng chính
-
-
 
 ### Người dùng (User Portal)
 
@@ -35,20 +29,16 @@ GYMFINDER là nền tảng **tra cứu và đánh giá** — người dùng tự
 - Chi tiết gym/PT + modal liên hệ (tự gọi/sao chép SĐT)
 - Yêu thích, hồ sơ, đánh giá có kiểm duyệt
 - Soft-gate Guest trên yêu thích/hồ sơ (CTA đăng nhập, không redirect cứng)
-- Trợ lý AI (widget + `/ai/chat`, Groq, grounding catalog)
+- Trợ lý AI (widget + `/ai/chat`) — **Groq**, gợi ý theo catalog DB
 - Chuyển ngôn ngữ VI/EN
-
-
 
 ### Quản trị (Admin Portal)
 
 - Dashboard chỉ số tổng quan
-- Phòng tập / HLV: thêm, sửa, tạm ẩn / kích hoạt lại (soft-hide); xóa cứng phòng tập khi chưa gắn HLV / xóa cứng HLV khi chưa gắn phòng tập (`gym_trainers` trống); gắn đặc điểm (`features`) cho gym
+- Phòng tập / HLV: thêm, sửa, tạm ẩn / kích hoạt lại (soft-hide); xóa cứng khi chưa gắn quan hệ `gym_trainers`; gắn đặc điểm (`features`) cho gym
 - Danh mục: loại phòng tập, chuyên môn, tiện ích, **đặc điểm**, khu vực
 - Người dùng: khóa / mở khóa; mời Admin (mật khẩu tạm 5 phút + buộc đổi MK)
 - Kiểm duyệt đánh giá: duyệt / từ chối (bắt buộc lý do khi từ chối)
-
-
 
 ### Ngoài phạm vi
 
@@ -58,10 +48,7 @@ GYMFINDER là nền tảng **tra cứu và đánh giá** — người dùng tự
 
 ---
 
-
-
 ## Tech Stack
-
 
 | Tầng                     | Công nghệ                                                                       |
 | ------------------------ | ------------------------------------------------------------------------------- |
@@ -71,13 +58,12 @@ GYMFINDER là nền tảng **tra cứu và đánh giá** — người dùng tự
 | **Truy cập dữ liệu**     | PDO (`pdo_mysql` / `pdo_sqlite`), repositories + resources                      |
 | **API**                  | REST gateway `api/` (auth, favorites, reviews, upload, AI, …)                   |
 | **Auth**                 | Session + CSRF; OTP email (SMTP); Google OAuth 2.0 + PKCE; remember-me tokens   |
-| **AI**                   | Groq Chat Completions (`GF_AI_`*), grounding catalog gym/PT                     |
+| **AI**                   | **Groq** Chat Completions (OpenAI-compatible); catalog gym/PT từ DB             |
 | **Internationalization** | VI mặc định trong trang; EN qua `lang/en.php`, `lang/en_pages.php`              |
 | **Local**                | XAMPP (Apache + MySQL) hoặc `php -S … router.php`                               |
 | **Deploy**               | Docker (`Dockerfile` ở root, PHP 8.2 Apache) → **Railway** + MySQL plugin       |
-| **Cấu hình**             | `.env` / Railway Variables (`GF_DB_`*,* `GF_AI_`, `GF_SMTP_`*, `GF_GOOGLE_*`)   |
+| **Cấu hình**             | `.env` / Railway Variables (`GF_DB_*`, `GF_AI_*`, `GF_SMTP_*`, `GF_GOOGLE_*`)   |
 | **Công cụ**              | Git / GitHub                                                                    |
-
 
 ```text
         Guest / User / Admin
@@ -95,9 +81,25 @@ GYMFINDER là nền tảng **tra cứu và đánh giá** — người dùng tự
 
 ---
 
-## Cấu trúc thư mục
+## Trợ lý AI (Groq)
 
-Repo tách **mã nguồn** và **báo cáo**:
+Luồng gợi ý: PHP parse hints từ câu hỏi → lấy catalog gym/HLV active từ CSDL → gọi **Groq** → model trả JSON (`reply`, `gym_ids`, `trainer_ids`) → PHP chỉ nhận id có trong catalog rồi hiện card.
+
+Cấu hình trong `source/.env` (mẫu: `source/.env.example`):
+
+| Biến              | Mặc định            | Ý nghĩa                                      |
+| ----------------- | ------------------- | -------------------------------------------- |
+| `GF_AI_ENABLED`   | `true`              | Bật/tắt trợ lý                               |
+| `GF_AI_PROVIDER`  | `groq`              | Provider mặc định của đồ án                  |
+| `GF_AI_API_KEY`   | *(bắt buộc)*        | API key Groq                                 |
+| `GF_AI_MODEL`     | `qwen/qwen3.8-27b`  | Model trên Groq                              |
+| `GF_AI_BASE_URL`  | *(trống)*           | Mặc định `https://api.groq.com/openai/v1`    |
+
+Endpoint chính: `POST /api/ai/recommend`. Guest được hỏi; User đăng nhập có thể lưu phiên trên trang `/ai/chat`.
+
+---
+
+## Cấu trúc thư mục
 
 ```text
 GYMFINDER/
@@ -123,7 +125,7 @@ GYMFINDER/
 │   ├── docker/
 │   └── uploads/              # Runtime (gitignore)
 │
-└── report/                   # BÁO CÁO 
+└── report/                   # Báo cáo
     └── GymFinder_Report.docx
 ```
 
@@ -139,9 +141,9 @@ GYMFINDER/
 ln -sfn ~/Projects/GYMFINDER/source /Applications/XAMPP/xamppfiles/htdocs/GYMFINDER
 ```
 
-1. Mở [http://localhost/GYMFINDER/](http://localhost/GYMFINDER/).
+4. Copy `source/.env.example` → `source/.env`, điền `GF_AI_API_KEY` (và SMTP / Google nếu cần).
+5. Mở [http://localhost/GYMFINDER/](http://localhost/GYMFINDER/).
 
-Cấu hình: copy `source/.env.example` → `source/.env` (AI / SMTP / Google).  
 `backend/config.php` mặc định MySQL `root` / mật khẩu rỗng.
 
 DB cũ thiếu `features` / `gym_features`: chạy `source/database/migrations/010_features.mysql.sql`, hoặc import lại schema + seed.
@@ -157,10 +159,9 @@ php -S localhost:8000 router.php
 
 → [http://localhost:8000](http://localhost:8000)
 
-Deploy Railway: `Dockerfile` ở root (`COPY source/`); Variables `GF_DB_*`, `GF_AI_API_KEY`, …
+**Deploy Railway:** `Dockerfile` ở root (`COPY source/`); Variables `GF_DB_*`, `GF_AI_API_KEY`, `GF_AI_PROVIDER=groq`, …
 
 ### Tài khoản demo
-
 
 | Vai trò     | Email                | Mật khẩu   | Ghi chú                                   |
 | ----------- | -------------------- | ---------- | ----------------------------------------- |
@@ -168,24 +169,17 @@ Deploy Railway: `Dockerfile` ở root (`COPY source/`); Variables `GF_DB_*`, `GF
 | User        | `u02@gymfinder.test` | `password` | Favorites, review, hồ sơ                  |
 | User (khóa) | `u25@gymfinder.test` | `password` | Tài khoản `locked` — không đăng nhập được |
 
-
 Đồng bộ nhanh 3 tài khoản: `source/database/seed_demo_users.sql`.
 
 ---
 
-
-
 ## Tài liệu dự án
 
-
-| Tài liệu                                                       | Mô tả                          |
-| -------------------------------------------------------------- | ------------------------------ |
-| `[report/GymFinder_Report.docx](report/GymFinder_Report.docx)` | Báo cáo đồ án (đủ chương + PL) |
-
+| Tài liệu                                                     | Mô tả                          |
+| ------------------------------------------------------------ | ------------------------------ |
+| [report/GymFinder_Report.docx](report/GymFinder_Report.docx) | Báo cáo đồ án (đủ chương + PL) |
 
 ---
-
-
 
 ## Giấy phép / đồ án
 

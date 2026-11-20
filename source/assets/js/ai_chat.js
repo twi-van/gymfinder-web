@@ -315,7 +315,6 @@
 
     function renderTurns(turns) {
         const list = Array.isArray(turns) ? turns : [];
-        // Luôn giữ lời chào mở đầu (Guest + User), kể cả khi đã có lịch sử hội thoại.
         resetThreadToWelcome();
         if (!list.length) return;
         list.forEach((turn) => {
@@ -428,7 +427,6 @@
     }
 
     async function startNewSession() {
-        // Xóa lịch sử đang mở (PHP + guest tab storage); không xóa các phiên DB đã lưu khác.
         try {
             await refreshCsrf();
             await fetch(historyUrl, {
@@ -526,11 +524,7 @@
 
         try {
             await refreshCsrf();
-            const payload = {
-                message,
-                // Luôn mirror PHP session để widget ↔ trang chat cùng lịch sử trong 1 phiên.
-                save_history: true,
-            };
+            const payload = { message };
             if (canPersist) {
                 payload.persist_session = true;
                 if (sessionId > 0) payload.session_id = sessionId;
@@ -721,13 +715,11 @@
         }
     });
 
-    // Guest: khôi phục hội thoại trong tab (sessionStorage), dùng chung với widget.
     if (!canPersist) {
         const localTurns = readGuestTurns();
         if (localTurns.length) {
             renderTurns(localTurns);
         } else {
-            // Tab mới: dọn PHPSESSID cũ nếu còn, UI giữ welcome SSR.
             (async () => {
                 try {
                     await refreshCsrf();
