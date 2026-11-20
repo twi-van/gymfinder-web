@@ -416,6 +416,8 @@ return [
     'VD: 06:00–22:00 hoặc 24/7' => 'e.g. 06:00–22:00 or 24/7',
     'Giá từ' => 'Price from',
     'Giá đến' => 'Price to',
+    'Nổi bật' => 'Featured',
+    'Không nổi bật' => 'Not featured',
     'Nổi bật trên trang chủ' => 'Featured on the home page',
     'Mô tả' => 'Description',
     'Ảnh bìa' => 'Cover photo',
