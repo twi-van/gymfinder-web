@@ -939,4 +939,11 @@ return [
     'Duyệt đánh giá' => 'Approve review',
     'Xem ảnh lớn' => 'View larger image',
     'Phóng to ảnh đang xem' => 'Enlarge the current photo',
+
+    // --- Admin toast EN ---
+    'Đã ẩn danh mục.' => 'Category hidden.',
+    'Đã hiện danh mục.' => 'Category shown.',
+    'Không thể duyệt đánh giá.' => 'Could not approve the review.',
+    'Không thể từ chối đánh giá.' => 'Could not reject the review.',
+    'Không thể hủy lời mời.' => 'Could not cancel the invite.',
 ];

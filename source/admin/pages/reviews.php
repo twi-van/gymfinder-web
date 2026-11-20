@@ -5,7 +5,7 @@ $me = gf_require_admin();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['action'])) {
     gf_require_csrf();
     if ($_POST['action'] === 'delete') {
-        gf_admin_delete_review((int)$_POST['id']);
+        gf_admin_delete_review((int) $_POST['id']);
         gf_flash_redirect(gf_url('admin/pages/reviews.php'), 'Đã xóa đánh giá.');
     }
     $status = $_POST['action'] === 'reject' ? 'rejected' : 'approved';
@@ -15,7 +15,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['action'
         $body['reject_reason'] = trim((string) ($_POST['reason'] ?? ''));
     }
     gf_admin_moderate_review((int) $_POST['id'], $body, $me);
-    gf_redirect(gf_url('admin/pages/reviews.php'));
+    gf_flash_redirect(
+        gf_url('admin/pages/reviews.php'),
+        $status === 'rejected' ? 'Đã từ chối đánh giá.' : 'Đã duyệt đánh giá.'
+    );
 }
 $reviewPage = max(1, (int)($_GET['page'] ?? 1));
 $reviewLimit = 8;

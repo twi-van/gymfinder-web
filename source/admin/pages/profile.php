@@ -2,7 +2,6 @@
 require_once dirname(__DIR__, 2) . '/backend/bootstrap.php';
 $adminUser = gf_require_admin();
 
-$msg = '';
 $error = '';
 $activeTab = 'info';
 
@@ -54,8 +53,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     gf_delete_unreferenced_files([$oldAvatar]);
                 }
 
-                $adminUser = gf_current_user();
-                $msg = 'Đã cập nhật thông tin hồ sơ quản trị viên thành công.';
+                gf_flash_redirect(
+                    gf_url('admin/pages/profile.php'),
+                    'Đã cập nhật thông tin hồ sơ quản trị viên thành công.'
+                );
             }
         }
     } elseif ($action === 'change_password') {
@@ -76,7 +77,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Xác thực và đổi mật khẩu cho chính tài khoản Admin hiện tại
             $res = gf_change_password((int)$adminUser['id'], $currentPassword, $newPassword);
             if ($res['ok']) {
-                $msg = 'Đổi mật khẩu tài khoản quản trị thành công.';
+                gf_flash_redirect(
+                    gf_url('admin/pages/profile.php') . '?tab=security',
+                    'Đổi mật khẩu tài khoản quản trị thành công.'
+                );
             } else {
                 $error = $res['error'] ?? 'Không thể đổi mật khẩu.';
             }
@@ -90,6 +94,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             gf_redirect(gf_url('pages/auth/login.php'));
         }
     }
+}
+
+if ($error !== '') {
+    gf_flash($error, 'danger');
+    $error = '';
+}
+
+if (($_GET['tab'] ?? '') === 'security') {
+    $activeTab = 'security';
 }
 
 $canDeleteOwnAdmin = gf_count_activated_admins() > 1;
@@ -113,20 +126,6 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
         </span>
     </div>
 </div>
-
-<?php if ($msg): ?>
-    <div class="alert alert-success d-flex align-items-center mb-4 rounded-3 shadow-sm border-0 bg-success-subtle text-success">
-        <i class="fa-solid fa-circle-check fs-5 me-2"></i>
-        <div><?= gf_h(gf_t((string) $msg)) ?></div>
-    </div>
-<?php endif; ?>
-
-<?php if ($error): ?>
-    <div class="alert alert-danger d-flex align-items-center mb-4 rounded-3 shadow-sm border-0 bg-danger-subtle text-danger">
-        <i class="fa-solid fa-circle-exclamation fs-5 me-2"></i>
-        <div><?= gf_h(gf_t((string) $error)) ?></div>
-    </div>
-<?php endif; ?>
 
 <div class="row g-4">
     <!-- CỘT TRÁI: THẺ THÔNG TIN TÓM TẮT -->

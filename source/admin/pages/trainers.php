@@ -105,7 +105,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!empty($res['ok'])) {
             gf_flash_redirect(gf_url('admin/pages/trainers.php'), 'Đã xóa huấn luyện viên thành công.');
         }
-        $err = (string) ($res['error'] ?? 'Không thể xóa huấn luyện viên.');
+        gf_flash_redirect(
+            gf_url('admin/pages/trainers.php'),
+            (string) ($res['error'] ?? 'Không thể xóa huấn luyện viên.'),
+            'danger'
+        );
     } elseif (!empty($_POST['id']) && isset($_POST['status']) && !isset($_POST['full_name'])) {
         // Toggle ẩn/hiện only — must not catch create/edit form (has empty id + status select).
         $newStatus = $_POST['status'] === 'hidden' ? 'hidden' : 'active';
@@ -779,8 +783,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const errAlert = document.getElementById('trainer-error-alert');
     if (errAlert) {
-        errAlert.textContent = serverMsg;
+        errAlert.textContent = typeof gfT === 'function' ? gfT(serverMsg) : serverMsg;
         errAlert.classList.remove('d-none');
+    }
+    if (serverMsg && typeof window.gfToast === 'function') {
+        window.gfToast(typeof gfT === 'function' ? gfT(serverMsg) : serverMsg, 'danger');
     }
 });
 <?php endif; ?>
@@ -790,7 +797,7 @@ document.querySelectorAll('[data-delete-blocked]').forEach((button) => {
     button.addEventListener('click', () => {
         const message = button.getAttribute('data-delete-blocked') || '';
         if (typeof window.gfToast === 'function') {
-            window.gfToast(message, 'warning');
+            window.gfToast(typeof gfT === 'function' ? gfT(message) : message, 'warning');
         }
     });
 });

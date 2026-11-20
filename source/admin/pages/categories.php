@@ -32,6 +32,8 @@ function gf_admin_catalog_redirect(string $tab, string $flag = ''): void
         'created' => 'Đã thêm thành công.',
         'updated' => 'Đã cập nhật thành công.',
         'deleted' => 'Đã xóa thành công.',
+        'hidden' => 'Đã ẩn danh mục.',
+        'shown' => 'Đã hiện danh mục.',
     ];
     if ($flag !== '' && isset($messages[$flag])) {
         gf_flash($messages[$flag], 'success');
@@ -84,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($action === 'toggle' && $id > 0) {
                 $on = (string) ($_POST['is_active'] ?? '0') === '1';
                 gf_admin_save_category(['is_active' => $on ? 1 : 0], $id);
-                gf_admin_catalog_redirect('categories');
+                gf_admin_catalog_redirect('categories', $on ? 'shown' : 'hidden');
             }
             if ($action === 'delete' && $id > 0) {
                 $st = gf_pdo()->prepare('SELECT COUNT(*) FROM gym_categories WHERE category_id=?');
@@ -585,7 +587,7 @@ document.querySelectorAll('[data-delete-blocked]').forEach((button) => {
     button.addEventListener('click', () => {
         const message = button.getAttribute('data-delete-blocked') || '';
         if (typeof window.gfToast === 'function') {
-            window.gfToast(message, 'warning');
+            window.gfToast(typeof gfT === 'function' ? gfT(message) : message, 'warning');
         }
     });
 });
