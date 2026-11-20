@@ -96,29 +96,57 @@
         return `/pages/gyms/detail.php?id=${n}`;
     }
 
+    function gfPlace(name) {
+        const text = String(name || '');
+        if (window.GF_LANG !== 'en') return text;
+        const match = text.match(/^Quận\s+(\d+)$/);
+        if (match) return 'District ' + match[1];
+        const places = {
+            'Huyện Bình Chánh': 'Binh Chanh District',
+            'Huyện Cần Giờ': 'Can Gio District',
+            'Huyện Củ Chi': 'Cu Chi District',
+            'Huyện Hóc Môn': 'Hoc Mon District',
+            'Huyện Nhà Bè': 'Nha Be District',
+            'Bình Tân': 'Binh Tan District',
+            'Bình Thạnh': 'Binh Thanh District',
+            'Gò Vấp': 'Go Vap District',
+            'Phú Nhuận': 'Phu Nhuan District',
+            'Tân Bình': 'Tan Binh District',
+            'Tân Phú': 'Tan Phu District',
+            'TP Thủ Đức': 'Thu Duc City',
+            'Thủ Đức': 'Thu Duc City',
+            'TP. Hồ Chí Minh': 'Ho Chi Minh City',
+            'TP.HCM': 'Ho Chi Minh City',
+            'TPHCM': 'Ho Chi Minh City',
+        };
+        return places[text] || text;
+    }
+
     function mapGymCard(g) {
-        if (g && g.title) return g;
+        const hasRaw = g?.name || Array.isArray(g?.categories) || g?.district;
+        if (!hasRaw && g?.title) return g;
         const cats = Array.isArray(g?.categories) ? g.categories : [];
         return {
             id: g?.id,
             title: g?.name || g?.title || '',
-            subtitle: [g?.district || '', cats.slice(0, 2).join(', ')].filter(Boolean).join(' · '),
+            subtitle: [gfPlace(g?.district || ''), cats.slice(0, 2).map((n) => gfT(String(n))).join(', ')].filter(Boolean).join(' · '),
             image: g?.image || '',
             url: g?.url || detailUrl('gym', g?.id),
         };
     }
 
     function mapTrainerCard(t) {
-        if (t && t.title) return t;
+        const hasRaw = t?.full_name || Array.isArray(t?.specialties) || Array.isArray(t?.districts) || t?.years_experience != null;
+        if (!hasRaw && t?.title) return t;
         const specs = Array.isArray(t?.specialties) ? t.specialties : [];
         const districts = Array.isArray(t?.districts) ? t.districts : [];
         return {
             id: t?.id,
             title: t?.full_name || t?.title || '',
             subtitle: [
-                districts.slice(0, 2).join(', '),
-                t?.years_experience != null ? `${t.years_experience} năm KN` : '',
-                specs.slice(0, 2).join(' · '),
+                districts.slice(0, 2).map((n) => gfPlace(String(n))).join(', '),
+                t?.years_experience != null ? `${t.years_experience} ${gfT('năm KN')}` : '',
+                specs.slice(0, 2).map((n) => gfT(String(n))).join(' · '),
             ]
                 .filter(Boolean)
                 .join(' · '),

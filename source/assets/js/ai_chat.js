@@ -182,7 +182,8 @@
     }
 
     function mapGymCard(g) {
-        if (g.title) return g;
+        const hasRaw = g.name || Array.isArray(g.categories) || g.district || g.price_min != null;
+        if (!hasRaw && g.title) return g;
         const cats = Array.isArray(g.categories) ? g.categories : [];
         const priceMin = Number(g.price_min || 0);
         const priceMax = Number(g.price_max || 0);
@@ -199,26 +200,30 @@
         const catLabel = cats.slice(0, 2).map((name) => gfT(String(name))).join(', ');
         return {
             id: g.id,
-            title: g.name || '',
-            subtitle: [gfPlace(g.district || ''), catLabel].filter(Boolean).join(' · '),
+            title: g.name || g.title || '',
+            subtitle: [gfPlace(g.district || ''), catLabel].filter(Boolean).join(' · ') || (g.subtitle || ''),
             meta: `${price}${price ? ' · ' : ''}★ ${Number(g.avg_rating || 0).toFixed(1)}`,
             image: g.image || g.cover_image_url || '',
+            url: g.url || '',
         };
     }
 
     function mapTrainerCard(t) {
-        if (t.title) return t;
+        const hasRaw = t.full_name || Array.isArray(t.specialties) || Array.isArray(t.districts) || t.years_experience != null;
+        if (!hasRaw && t.title) return t;
         const specs = Array.isArray(t.specialties) ? t.specialties : [];
         const districts = Array.isArray(t.districts) ? t.districts : [];
+        const years = Number(t.years_experience || 0);
         return {
             id: t.id,
-            title: t.full_name || '',
+            title: t.full_name || t.title || '',
             subtitle: [
                 districts.slice(0, 2).map((name) => gfPlace(String(name))).join(', '),
-                `${Number(t.years_experience || 0)} ${gfT('năm KN')}`,
+                `${years} ${gfT('năm KN')}`,
             ].filter(Boolean).join(' · '),
             meta: `${specs.slice(0, 2).map((name) => gfT(String(name))).join(' · ')} · ★ ${Number(t.avg_rating || 0).toFixed(1)}`,
             image: t.image || t.avatar_url || '',
+            url: t.url || '',
             is_avatar: true,
         };
     }

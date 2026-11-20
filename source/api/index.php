@@ -781,6 +781,7 @@ if ($path === '/ai/recommend' && $method === 'POST') {
         gf_api_error('AI_ERROR', $errMsg, 503, $outSessionId ? ['session_id' => $outSessionId] : []);
     }
 
+    // Trả raw fields — JS mapTrainerCard/mapGymCard áp gfT/gfPlace theo lang hiện tại.
     $gymPayload = [];
     foreach ($res['gyms'] ?? [] as $g) {
         $id = (int) ($g['id'] ?? 0);
@@ -790,15 +791,13 @@ if ($path === '/ai/recommend' && $method === 'POST') {
         $cats = is_array($g['categories'] ?? null) ? $g['categories'] : [];
         $gymPayload[] = [
             'id' => $id,
-            'title' => (string) ($g['name'] ?? ''),
-            'subtitle' => trim(
-                (string) ($g['district'] ?? '')
-                . ($cats !== [] ? ' · ' . implode(', ', array_slice($cats, 0, 2)) : '')
-            ),
-            'meta' => trim(
-                gf_format_price((int) ($g['price_min'] ?? 0), (int) ($g['price_max'] ?? 0))
-                . ' · ★ ' . number_format((float) ($g['avg_rating'] ?? 0), 1)
-            ),
+            'name' => (string) ($g['name'] ?? ''),
+            'district' => (string) ($g['district'] ?? ''),
+            'price_min' => (int) ($g['price_min'] ?? 0),
+            'price_max' => (int) ($g['price_max'] ?? 0),
+            'avg_rating' => (float) ($g['avg_rating'] ?? 0),
+            'categories' => array_values(array_map('strval', array_slice($cats, 0, 3))),
+            'cover_image_url' => $g['cover_image_url'] ?? null,
             'image' => gf_browser_media_url(gf_cover_image($g['cover_image_url'] ?? null, $id)),
             'url' => gf_absolute_url('pages/gyms/detail.php?id=' . $id),
         ];
@@ -812,20 +811,16 @@ if ($path === '/ai/recommend' && $method === 'POST') {
         }
         $specs = is_array($t['specialties'] ?? null) ? $t['specialties'] : [];
         $districts = is_array($t['districts'] ?? null) ? $t['districts'] : [];
+        $name = (string) ($t['full_name'] ?? '');
         $trainerPayload[] = [
             'id' => $id,
-            'title' => (string) ($t['full_name'] ?? ''),
-            'subtitle' => trim(
-                ($districts !== [] ? implode(', ', array_slice($districts, 0, 2)) . ' · ' : '')
-                . (int) ($t['years_experience'] ?? 0) . ' năm KN'
-            ),
-            'meta' => trim(
-                implode(' · ', array_slice($specs, 0, 2))
-                . ' · ★ ' . number_format((float) ($t['avg_rating'] ?? 0), 1)
-            ),
-            'image' => gf_browser_media_url(
-                gf_avatar($t['avatar_url'] ?? null, $id, (string) ($t['full_name'] ?? 'HLV'))
-            ),
+            'full_name' => $name,
+            'years_experience' => (int) ($t['years_experience'] ?? 0),
+            'avg_rating' => (float) ($t['avg_rating'] ?? 0),
+            'specialties' => array_values(array_map('strval', array_slice($specs, 0, 3))),
+            'districts' => array_values(array_map('strval', array_slice($districts, 0, 2))),
+            'avatar_url' => $t['avatar_url'] ?? null,
+            'image' => gf_browser_media_url(gf_avatar($t['avatar_url'] ?? null, $id, $name !== '' ? $name : 'HLV')),
             'url' => gf_absolute_url('pages/trainers/detail.php?id=' . $id),
             'is_avatar' => true,
         ];
