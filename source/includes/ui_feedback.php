@@ -29,15 +29,19 @@ $GLOBALS['gf_ui_feedback_rendered'] = true;
 </div>
 <script src="<?= gf_h(gf_url('assets/js/ui-feedback.js')) ?>"></script>
 <script src="<?= gf_h(gf_url('assets/js/form_validate.js')) ?>?v=<?= gf_h((string) @filemtime(dirname(__DIR__) . '/assets/js/form_validate.js')) ?>"></script>
-<?php if (!empty($_SESSION['gf_flash']) && is_array($_SESSION['gf_flash'])): ?>
+<?php if (!empty($_SESSION['gf_flash']) && is_array($_SESSION['gf_flash'])):
+    $gfFlashMsg = (string) ($_SESSION['gf_flash']['message'] ?? '');
+    $gfFlashType = (string) ($_SESSION['gf_flash']['type'] ?? 'warning');
+    unset($_SESSION['gf_flash']);
+?>
 <script>
 window.addEventListener('DOMContentLoaded', () => {
     if (typeof window.gfToast === 'function') {
         window.gfToast(
-            <?= json_encode((string) ($_SESSION['gf_flash']['message'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
-            <?= json_encode((string) ($_SESSION['gf_flash']['type'] ?? 'warning')) ?>
+            <?= json_encode(gf_t($gfFlashMsg), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+            <?= json_encode($gfFlashType, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
         );
     }
 });
 </script>
-<?php unset($_SESSION['gf_flash']); endif; ?>
+<?php endif; ?>

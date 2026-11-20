@@ -28,11 +28,15 @@ function gf_admin_catalog_used_message(string $vi, string $en, int $count): stri
 
 function gf_admin_catalog_redirect(string $tab, string $flag = ''): void
 {
-    $url = 'admin/pages/categories.php?tab=' . urlencode($tab);
-    if ($flag !== '') {
-        $url .= '&' . $flag . '=1';
+    $messages = [
+        'created' => 'Đã thêm thành công.',
+        'updated' => 'Đã cập nhật thành công.',
+        'deleted' => 'Đã xóa thành công.',
+    ];
+    if ($flag !== '' && isset($messages[$flag])) {
+        gf_flash($messages[$flag], 'success');
     }
-    gf_redirect(gf_url($url));
+    gf_redirect(gf_url('admin/pages/categories.php?tab=' . urlencode($tab)));
 }
 
 /** Gán icon Font Awesome theo tên/slug tiện ích; không khớp thì dùng fa-check. */
@@ -336,10 +340,12 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
     <?php endforeach; ?>
 </ul>
 
-<?php if (!empty($_GET['created'])): ?><div class="alert alert-success"><i class="fa-solid fa-circle-check me-2"></i><?= gf_h(gf_t('Đã thêm thành công.')) ?></div><?php endif; ?>
-<?php if (!empty($_GET['updated'])): ?><div class="alert alert-success"><i class="fa-solid fa-circle-check me-2"></i><?= gf_h(gf_t('Đã cập nhật thành công.')) ?></div><?php endif; ?>
-<?php if (!empty($_GET['deleted'])): ?><div class="alert alert-success"><i class="fa-solid fa-circle-check me-2"></i><?= gf_h(gf_t('Đã xóa thành công.')) ?></div><?php endif; ?>
-<?php if ($err): ?><div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation me-2"></i><?= gf_h($err) ?></div><?php endif; ?>
+<?php
+if ($err !== '') {
+    gf_flash($err, 'danger');
+    $err = '';
+}
+?>
 
 <div class="modal fade" id="catalogCreate" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -368,17 +374,15 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
     </div>
 </div>
 
-<form method="get" class="admin-card p-3 mb-4">
+<form method="get" class="admin-card admin-filter-bar p-3 mb-4 shadow-sm border">
     <input type="hidden" name="tab" value="<?= gf_h($tab) ?>">
-    <div class="row g-3 align-items-center">
-        <div class="col-12 col-md-9">
-            <div class="position-relative">
-                <i class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary" aria-hidden="true"></i>
-                <input class="form-control admin-input ps-5" name="q" value="<?= gf_h($q) ?>" placeholder="<?= gf_h(gf_t('Tìm kiếm')) ?>" aria-label="<?= gf_h(gf_t('Tìm kiếm')) ?>" style="height:42px;">
-            </div>
+    <div class="admin-filter-bar__grid admin-filter-bar__grid--2">
+        <div class="admin-filter-bar__search position-relative">
+            <i class="fa-solid fa-magnifying-glass text-secondary position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none;"></i>
+            <input class="form-control admin-input" name="q" value="<?= gf_h($q) ?>" placeholder="<?= gf_h(gf_t('Tìm kiếm')) ?>" aria-label="<?= gf_h(gf_t('Tìm kiếm')) ?>" style="padding-left: 38px;" autocomplete="off">
         </div>
-        <div class="col-12 col-md-3">
-            <button type="submit" class="btn btn-filter w-100 d-inline-flex align-items-center justify-content-center gap-2 fw-medium" style="height:42px;">
+        <div class="admin-filter-bar__submit">
+            <button type="submit" class="btn btn-filter d-inline-flex align-items-center justify-content-center gap-2 fw-medium">
                 <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><?= gf_h(gf_t('Tra cứu')) ?>
             </button>
         </div>

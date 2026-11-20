@@ -41,7 +41,7 @@
         el.innerHTML = `
             <i class="fa-solid ${icons[kind]} flex-shrink-0"></i>
             <div class="gf-toast-text"></div>
-            <button type="button" class="btn-close btn-close-sm" aria-label=gfT("Đóng")></button>
+            <button type="button" class="btn-close btn-close-sm" aria-label="${gfT('Đóng')}"></button>
         `;
         el.querySelector('.gf-toast-text').textContent = text;
 
@@ -52,7 +52,17 @@
         el.querySelector('.btn-close')?.addEventListener('click', close);
         host.appendChild(el);
         window.requestAnimationFrame(() => el.classList.add('gf-toast-show'));
-        window.setTimeout(close, Math.max(2000, durationMs || 4200));
+
+        // success: auto-hide; warning/danger: stay until user closes (validation must be readable)
+        let ms = durationMs;
+        if (ms == null) {
+            if (kind === 'success') ms = 5000;
+            else if (kind === 'info') ms = 4500;
+            else ms = 0; // warning + danger
+        }
+        if (ms > 0) {
+            window.setTimeout(close, Math.max(2000, ms));
+        }
     };
 
     let confirmResolver = null;

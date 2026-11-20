@@ -207,8 +207,8 @@ function gf_admin_save_gym(array $d, ?int $id): array
         }
         if ($imageCount !== null && $imageCount < 3) {
             $details['images'] = 'Thư viện cần tối thiểu 3 ảnh.';
-        } elseif ($imageCount !== null && $imageCount > 8) {
-            $details['images'] = 'Tối đa 8 ảnh trong thư viện.';
+        } elseif ($imageCount !== null && $imageCount > 6) {
+            $details['images'] = 'Tối đa 6 ảnh trong thư viện.';
         }
         if ($details) {
             $pdo->rollBack();
@@ -281,6 +281,78 @@ function gf_admin_save_gym(array $d, ?int $id): array
         return ['ok' => true, 'id' => $newId];
     } catch (\Throwable $e) {
         if ($pdo->inTransaction()) { $pdo->rollBack(); }
+        return ['ok' => false, 'http' => 500, 'code' => 'SERVER_ERROR', 'error' => 'Lỗi máy chủ.'];
+    }
+}
+
+
+/**
+ * Xóa phòng tập khi không còn HLV liên kết (gym_trainers trống).
+ * @return array{ok:bool,error?:string,http?:int,code?:string}
+ */
+function gf_admin_delete_gym(int $id): array
+{
+    if ($id < 1) {
+        return ['ok' => false, 'http' => 422, 'code' => 'VALIDATION_ERROR', 'error' => 'ID phòng tập không hợp lệ.'];
+    }
+
+    $pdo = gf_pdo();
+    $pdo->beginTransaction();
+    try {
+        $gym = gf_lock_row('gyms', $id);
+        if (!$gym) {
+            $pdo->rollBack();
+            return ['ok' => false, 'http' => 404, 'code' => 'NOT_FOUND', 'error' => 'Không tìm thấy phòng tập.'];
+        }
+
+        $linked = $pdo->prepare('SELECT COUNT(*) FROM gym_trainers WHERE gym_id=?');
+        $linked->execute([$id]);
+        $ptCount = (int) $linked->fetchColumn();
+        if ($ptCount > 0) {
+            $pdo->rollBack();
+            return [
+                'ok' => false,
+                'http' => 422,
+                'code' => 'BUSINESS_RULE',
+                'error' => 'Không thể xóa: còn ' . $ptCount . ' HLV đang liên kết với phòng tập này. Hãy gỡ HLV khỏi phòng tập hoặc dùng Tạm ẩn.',
+            ];
+        }
+
+        $files = [];
+        if (!empty($gym['cover_image_url'])) {
+            $files[] = (string) $gym['cover_image_url'];
+        }
+        $imgSt = $pdo->prepare('SELECT image_url FROM gym_images WHERE gym_id=?');
+        $imgSt->execute([$id]);
+        foreach ($imgSt->fetchAll(\PDO::FETCH_COLUMN) as $url) {
+            if ($url) {
+                $files[] = (string) $url;
+            }
+        }
+
+        $pdo->prepare('DELETE FROM gym_images WHERE gym_id=?')->execute([$id]);
+        $pdo->prepare('DELETE FROM gym_categories WHERE gym_id=?')->execute([$id]);
+        $pdo->prepare('DELETE FROM gym_amenities WHERE gym_id=?')->execute([$id]);
+        try {
+            $pdo->prepare('DELETE FROM gym_features WHERE gym_id=?')->execute([$id]);
+        } catch (\Throwable $e) {
+            // gym_features may be absent on older DBs
+        }
+        $pdo->prepare('DELETE FROM favorites WHERE gym_id=?')->execute([$id]);
+        $pdo->prepare('DELETE FROM reviews WHERE gym_id=?')->execute([$id]);
+        // Legacy column — clear before delete (ON DELETE SET NULL may be off on SQLite)
+        $pdo->prepare('UPDATE trainers SET gym_id=NULL WHERE gym_id=?')->execute([$id]);
+        $pdo->prepare('DELETE FROM gyms WHERE id=?')->execute([$id]);
+
+        $pdo->commit();
+        if ($files !== []) {
+            gf_delete_unreferenced_files($files);
+        }
+        return ['ok' => true, 'id' => $id];
+    } catch (\Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
         return ['ok' => false, 'http' => 500, 'code' => 'SERVER_ERROR', 'error' => 'Lỗi máy chủ.'];
     }
 }

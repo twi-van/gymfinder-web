@@ -140,7 +140,6 @@ function gf_admin_save_trainer(array $d, ?int $id): array
         if ($hasGymSelection) {
             $value = array_key_exists('gym_ids', $d) ? $d['gym_ids'] : [$d['gym_id']];
             $rawGyms = is_array($value) ? $value : explode(',', (string) $value);
-            if ($rawGyms === []) { $details['gym_ids'] = 'Chọn ít nhất một phòng tập.'; }
         } elseif ($id) {
             $current = $pdo->prepare('SELECT gym_id FROM gym_trainers WHERE trainer_id=? ORDER BY gym_id');
             $current->execute([$id]);
@@ -148,6 +147,9 @@ function gf_admin_save_trainer(array $d, ?int $id): array
         }
         $gymIds = [];
         foreach ($rawGyms as $gid) {
+            if ($gid === '' || $gid === null) {
+                continue;
+            }
             if (!gf_integer_like($gid) || (int) $gid < 1 || !gf_exists_id('gyms', (int) $gid)) {
                 $details['gym_ids'] = 'Phòng tập liên kết không tồn tại.';
                 break;
@@ -155,7 +157,10 @@ function gf_admin_save_trainer(array $d, ?int $id): array
             $gymIds[] = (int) $gid;
         }
         $gymIds = array_values(array_unique($gymIds));
-        if ($gymIds === []) { $details['gym_ids'] ??= 'Mỗi HLV cần liên kết ít nhất một phòng tập.'; }
+        // Thêm mới bắt buộc ≥1 phòng tập; khi sửa được phép gỡ hết để đủ điều kiện xóa cứng.
+        if ($gymIds === [] && !$id) {
+            $details['gym_ids'] ??= 'Mỗi HLV cần liên kết ít nhất một phòng tập.';
+        }
         $gymId = $gymIds[0] ?? 0;
         $gym = $gymId > 0 ? gf_lock_row('gyms', $gymId) : null;
 
@@ -201,13 +206,14 @@ function gf_admin_save_trainer(array $d, ?int $id): array
                 }
             }
 
-            // Sync gym_trainers
+            // Sync gym_trainers (+ legacy trainers.gym_id)
             if ($hasGymSelection) {
                 $pdo->prepare('DELETE FROM gym_trainers WHERE trainer_id=?')->execute([$id]);
                 $insGT = $pdo->prepare('INSERT INTO gym_trainers (gym_id, trainer_id) VALUES (?,?)');
                 foreach ($gymIds as $gid) {
                     $insGT->execute([$gid, $id]);
                 }
+                $pdo->prepare('UPDATE trainers SET gym_id=? WHERE id=?')->execute([$gymId > 0 ? $gymId : null, $id]);
             }
 
             $oldAvatar = $existing['avatar_url'] ?? null;
@@ -251,6 +257,59 @@ function gf_admin_save_trainer(array $d, ?int $id): array
         return ['ok' => true, 'id' => $newId];
     } catch (\Throwable $e) {
         if ($pdo->inTransaction()) { $pdo->rollBack(); }
+        return ['ok' => false, 'http' => 500, 'code' => 'SERVER_ERROR', 'error' => 'Lỗi máy chủ.'];
+    }
+}
+
+
+/**
+ * Xóa HLV khi không còn phòng tập liên kết (gym_trainers trống).
+ * @return array{ok:bool,error?:string,http?:int,code?:string,id?:int}
+ */
+function gf_admin_delete_trainer(int $id): array
+{
+    if ($id < 1) {
+        return ['ok' => false, 'http' => 422, 'code' => 'VALIDATION_ERROR', 'error' => 'ID huấn luyện viên không hợp lệ.'];
+    }
+
+    $pdo = gf_pdo();
+    $pdo->beginTransaction();
+    try {
+        $trainer = gf_lock_row('trainers', $id);
+        if (!$trainer) {
+            $pdo->rollBack();
+            return ['ok' => false, 'http' => 404, 'code' => 'NOT_FOUND', 'error' => 'Không tìm thấy huấn luyện viên.'];
+        }
+
+        $linked = $pdo->prepare('SELECT COUNT(*) FROM gym_trainers WHERE trainer_id=?');
+        $linked->execute([$id]);
+        $gymCount = (int) $linked->fetchColumn();
+        if ($gymCount > 0) {
+            $pdo->rollBack();
+            return [
+                'ok' => false,
+                'http' => 422,
+                'code' => 'BUSINESS_RULE',
+                'error' => 'Không thể xóa: còn ' . $gymCount . ' phòng tập đang liên kết với HLV này. Hãy gỡ phòng tập khỏi hồ sơ hoặc dùng Tạm ẩn.',
+            ];
+        }
+
+        // trainer_specialties / gym_trainers: ON DELETE RESTRICT — gỡ trước khi xóa HLV
+        $pdo->prepare('DELETE FROM trainer_specialties WHERE trainer_id=?')->execute([$id]);
+        $pdo->prepare('DELETE FROM gym_trainers WHERE trainer_id=?')->execute([$id]);
+        $pdo->prepare('DELETE FROM favorites WHERE trainer_id=?')->execute([$id]);
+        $pdo->prepare('DELETE FROM reviews WHERE trainer_id=?')->execute([$id]);
+        $pdo->prepare('DELETE FROM trainers WHERE id=?')->execute([$id]);
+
+        $pdo->commit();
+        if (!empty($trainer['avatar_url'])) {
+            gf_delete_unreferenced_files([(string) $trainer['avatar_url']]);
+        }
+        return ['ok' => true, 'id' => $id];
+    } catch (\Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
         return ['ok' => false, 'http' => 500, 'code' => 'SERVER_ERROR', 'error' => 'Lỗi máy chủ.'];
     }
 }

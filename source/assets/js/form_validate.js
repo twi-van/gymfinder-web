@@ -82,25 +82,31 @@
         if (form.dataset.gfValidateBound === '1') return;
         form.dataset.gfValidateBound = '1';
         form.setAttribute('novalidate', 'novalidate');
-        form.addEventListener(
-            'submit',
-            (e) => {
-                const bad = validateForm(form);
-                if (bad) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    const msg =
-                        bad.getAttribute('data-required-msg') ||
-                        (bad.validity?.valueMissing ? gfT('Vui lòng điền thông tin này.') : null) ||
-                        messageFor(bad);
-                    if (typeof window.gfToast === 'function') {
-                        window.gfToast(msg, 'warning');
+
+        // Admin modal forms (data-inline-errors): only red under fields via page script — no toast outside.
+        const inlineOnly = form.getAttribute('data-inline-errors') === '1';
+
+        if (!inlineOnly) {
+            form.addEventListener(
+                'submit',
+                (e) => {
+                    const bad = validateForm(form);
+                    if (bad) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        const msg =
+                            bad.getAttribute('data-required-msg') ||
+                            (bad.validity?.valueMissing ? gfT('Vui lòng điền thông tin này.') : null) ||
+                            messageFor(bad);
+                        if (typeof window.gfToast === 'function') {
+                            window.gfToast(msg, 'warning');
+                        }
+                        bad.focus?.();
                     }
-                    bad.focus?.();
-                }
-            },
-            true
-        );
+                },
+                true
+            );
+        }
         form.querySelectorAll('input, select, textarea').forEach((input) => {
             input.addEventListener('input', () => clearField(input));
             input.addEventListener('change', () => clearField(input));

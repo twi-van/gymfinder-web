@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['action'
     gf_require_csrf();
     if ($_POST['action'] === 'delete') {
         gf_admin_delete_review((int)$_POST['id']);
-        gf_redirect(gf_url('admin/pages/reviews.php?deleted=1'));
+        gf_flash_redirect(gf_url('admin/pages/reviews.php'), 'Đã xóa đánh giá.');
     }
     $status = $_POST['action'] === 'reject' ? 'rejected' : 'approved';
     $body = ['status' => $status];
@@ -58,8 +58,27 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
     <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;"><?= gf_h(gf_t('Quản lý đánh giá')) ?></h2>
     <p class="text-secondary mb-0 small"><?= gf_h(gf_t('Duyệt, từ chối hoặc xóa đánh giá của người dùng về phòng tập và huấn luyện viên')) ?></p>
 </div>
-<?php if (!empty($_GET['deleted'])): ?><div class="alert alert-success"><?= gf_h(gf_t('Đã xóa đánh giá.')) ?></div><?php endif; ?>
-<form method="get" class="admin-card p-3 mb-4"><div class="row g-3 align-items-center"><div class="col-md-7"><input class="form-control admin-input" name="q" value="<?= gf_h($reviewSearch) ?>" placeholder="<?= gf_h(gf_t('⌕  Tìm kiếm nội dung đánh giá...')) ?>" style="height:42px;"></div><div class="col-md-3"><select name="status" class="form-select admin-input" style="height:42px;"><option value=""><?= gf_h(gf_t('Tất cả trạng thái')) ?></option><?php foreach(['pending'=>'Chờ duyệt','approved'=>'Đã duyệt','rejected'=>'Từ chối'] as $sv=>$sl): ?><option value="<?= $sv ?>" <?= $reviewStatus===$sv?'selected':'' ?>><?= gf_h($sl) ?></option><?php endforeach; ?></select></div><div class="col-md-2"><button type="submit" class="btn btn-filter w-100 d-inline-flex align-items-center justify-content-center gap-2 fw-medium" style="height:42px;"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><?= gf_h(gf_t('Tra cứu')) ?></button></div></div></form>
+<form method="get" class="admin-card admin-filter-bar p-3 mb-4 shadow-sm border">
+    <div class="admin-filter-bar__grid admin-filter-bar__grid--3">
+        <div class="admin-filter-bar__search position-relative">
+            <i class="fa-solid fa-magnifying-glass text-secondary position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none;"></i>
+            <input class="form-control admin-input" name="q" value="<?= gf_h($reviewSearch) ?>" placeholder="<?= gf_h(gf_t('Tìm kiếm nội dung đánh giá...')) ?>" style="padding-left: 38px;" autocomplete="off">
+        </div>
+        <div class="admin-filter-bar__field">
+            <select name="status" class="form-select admin-input" aria-label="<?= gf_h(gf_t('Lọc theo trạng thái')) ?>">
+                <option value=""><?= gf_h(gf_t('Tất cả trạng thái')) ?></option>
+                <?php foreach (['pending' => 'Chờ duyệt', 'approved' => 'Đã duyệt', 'rejected' => 'Từ chối'] as $sv => $sl): ?>
+                    <option value="<?= $sv ?>" <?= $reviewStatus === $sv ? 'selected' : '' ?>><?= gf_h(gf_t($sl)) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="admin-filter-bar__submit">
+            <button type="submit" class="btn btn-filter d-inline-flex align-items-center justify-content-center gap-2 fw-medium">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><?= gf_h(gf_t('Tra cứu')) ?>
+            </button>
+        </div>
+    </div>
+</form>
 <?php
 gf_admin_table_open([
     'id'        => 'reviewsTable',

@@ -4,6 +4,17 @@ declare(strict_types=1);
 // Admin resource: users.
 
 /**
+ * Số quản trị viên đã kích hoạt (đã đổi mật khẩu tạm).
+ * Bản ghi mời còn must_change_password=1 chưa được tính là admin vận hành.
+ */
+function gf_count_activated_admins(): int
+{
+    return (int) gf_pdo()
+        ->query("SELECT COUNT(*) FROM users WHERE role = 'admin' AND COALESCE(must_change_password, 0) = 0")
+        ->fetchColumn();
+}
+
+/**
  * Admin xem danh sách user, có filter & phân trang.
  */
 function gf_admin_users_paged(array $q): array
@@ -179,7 +190,10 @@ function gf_admin_invite_admin(string $fullName, string $email): array
         $hint = $mailError !== '' ? (' Chi tiết: ' . $mailError) : '';
         return ['ok' => false, 'error' => 'Không gửi được email. Tài khoản chưa được tạo.' . $hint];
     }
-    return ['ok' => true, 'message' => 'Đã gửi email tài khoản quản trị. Mật khẩu tạm có hiệu lực 5 phút.'];
+    return [
+        'ok' => true,
+        'message' => 'Đã gửi email mời. Tài khoản chỉ trở thành quản trị viên sau khi đăng nhập và đổi mật khẩu tạm (kích hoạt). Mật khẩu tạm có hiệu lực 5 phút.',
+    ];
 }
 
 /** Issue a new 5-minute password when the invited admin has not finished the first login. */
@@ -218,8 +232,30 @@ function gf_admin_resend_temp_password(int $id): array
 }
 
 /**
+ * Hủy lời mời admin chưa kích hoạt (chưa đổi mật khẩu tạm).
+ */
+function gf_admin_cancel_pending_invite(int $id, array $admin): array
+{
+    if ($id < 1) {
+        return ['ok' => false, 'error' => 'ID không hợp lệ.'];
+    }
+    if ((int) ($admin['id'] ?? 0) === $id) {
+        return ['ok' => false, 'error' => 'Không thể hủy lời mời của chính tài khoản đang đăng nhập.'];
+    }
+    $st = gf_pdo()->prepare('SELECT id, role, must_change_password FROM users WHERE id = ? LIMIT 1');
+    $st->execute([$id]);
+    $row = $st->fetch(PDO::FETCH_ASSOC);
+    if (!$row || ($row['role'] ?? '') !== 'admin' || (int) ($row['must_change_password'] ?? 0) !== 1) {
+        return ['ok' => false, 'error' => 'Chỉ hủy được lời mời quản trị viên chưa kích hoạt.'];
+    }
+    gf_pdo()->prepare("DELETE FROM users WHERE id = ? AND role = 'admin' AND must_change_password = 1")->execute([$id]);
+    return ['ok' => true, 'message' => 'Đã hủy lời mời quản trị viên chưa kích hoạt.'];
+}
+
+/**
  * Chỉ quản trị viên đang đăng nhập được xóa tài khoản quản trị của chính mình.
  * Tài khoản hội viên vẫn chỉ khóa hoặc mở khóa.
+ * Chỉ đếm admin đã kích hoạt (đã đổi mật khẩu) — lời mời chưa kích hoạt không tính.
  */
 function gf_admin_delete_own_account(int $id, array $admin): array
 {
@@ -230,13 +266,15 @@ function gf_admin_delete_own_account(int $id, array $admin): array
     if (!$user || ($user['role'] ?? '') !== 'admin') {
         return ['ok' => false, 'error' => 'Chỉ được xóa tài khoản quản trị của chính mình.'];
     }
-    $adminCount = (int) gf_pdo()->query("SELECT COUNT(*) FROM users WHERE role = 'admin'")->fetchColumn();
-    if ($adminCount <= 1) {
+    if ((int) ($admin['must_change_password'] ?? 0) === 1) {
+        return ['ok' => false, 'error' => 'Hoàn tất đổi mật khẩu trước khi xóa tài khoản.'];
+    }
+    if (gf_count_activated_admins() <= 1) {
         return ['ok' => false, 'error' => 'Không thể xóa quản trị viên cuối cùng.'];
     }
     $pdo = gf_pdo();
     $pdo->prepare('UPDATE reviews SET reviewed_by = NULL WHERE reviewed_by = ?')->execute([$id]);
-    $pdo->prepare("DELETE FROM users WHERE id = ? AND role = 'admin'")->execute([$id]);
+    $pdo->prepare("DELETE FROM users WHERE id = ? AND role = 'admin' AND COALESCE(must_change_password, 0) = 0")->execute([$id]);
     return ['ok' => true];
 }
 

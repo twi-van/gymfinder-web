@@ -20,7 +20,11 @@ GYMFINDER là nền tảng **tra cứu và đánh giá** — người dùng tự
 
 ---
 
+
+
 ## Chức năng chính
+
+
 
 ### Người dùng (User Portal)
 
@@ -34,13 +38,17 @@ GYMFINDER là nền tảng **tra cứu và đánh giá** — người dùng tự
 - Trợ lý AI (widget + `/ai/chat`, Groq, grounding catalog)
 - Chuyển ngôn ngữ VI/EN
 
+
+
 ### Quản trị (Admin Portal)
 
 - Dashboard chỉ số tổng quan
-- Phòng tập / HLV: thêm, sửa, tạm ẩn / kích hoạt lại (soft-hide); gắn đặc điểm (`features`) cho gym
+- Phòng tập / HLV: thêm, sửa, tạm ẩn / kích hoạt lại (soft-hide); xóa cứng phòng tập khi chưa gắn HLV / xóa cứng HLV khi chưa gắn phòng tập (`gym_trainers` trống); gắn đặc điểm (`features`) cho gym
 - Danh mục: loại phòng tập, chuyên môn, tiện ích, **đặc điểm**, khu vực
 - Người dùng: khóa / mở khóa; mời Admin (mật khẩu tạm 5 phút + buộc đổi MK)
 - Kiểm duyệt đánh giá: duyệt / từ chối (bắt buộc lý do khi từ chối)
+
+
 
 ### Ngoài phạm vi
 
@@ -50,23 +58,25 @@ GYMFINDER là nền tảng **tra cứu và đánh giá** — người dùng tự
 
 ---
 
+
+
 ## Tech Stack
 
 
-| Tầng                 | Công nghệ                                                                       |
-| -------------------- | ------------------------------------------------------------------------------- |
-| **Frontend**         | PHP SSR, HTML5, CSS3, **Bootstrap 5.3**, JavaScript (vanilla), Font Awesome 6   |
-| **Backend**          | **PHP 8.0+** (khuyến nghị 8.2), thuần — không bắt buộc Composer                 |
-| **CSDL**             | **MySQL** / MariaDB (mặc định, XAMPP) — SQLite tuỳ chọn (`GF_DB_DRIVER=sqlite`) |
-| **Truy cập dữ liệu** | PDO (`pdo_mysql` / `pdo_sqlite`), repositories + resources                      |
-| **API**              | REST gateway `api/` (auth, favorites, reviews, upload, AI, …)                   |
-| **Auth**             | Session + CSRF; OTP email (SMTP); Google OAuth 2.0 + PKCE; remember-me tokens   |
-| **AI**               | Groq Chat Completions (`GF_AI_`*), grounding catalog gym/PT                     |
-| **i18n**             | VI mặc định trong trang; EN qua `lang/en.php`, `lang/en_pages.php`              |
-| **Local**            | XAMPP (Apache + MySQL) hoặc `php -S … router.php`                               |
-| **Deploy**           | Docker (`Dockerfile` ở root, PHP 8.2 Apache) → **Railway** + MySQL plugin       |
-| **Cấu hình**         | `.env` / Railway Variables (`GF_DB_`*, `GF_AI_`*, `GF_SMTP_*`, `GF_GOOGLE_*`)   |
-| **Công cụ**          | Git / GitHub                                                                    |
+| Tầng                     | Công nghệ                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------- |
+| **Frontend**             | PHP SSR, HTML5, CSS3, **Bootstrap 5.3**, JavaScript (vanilla), Font Awesome 6   |
+| **Backend**              | **PHP 8.0+** (khuyến nghị 8.2), thuần — không bắt buộc Composer                 |
+| **CSDL**                 | **MySQL** / MariaDB (mặc định, XAMPP) — SQLite tuỳ chọn (`GF_DB_DRIVER=sqlite`) |
+| **Truy cập dữ liệu**     | PDO (`pdo_mysql` / `pdo_sqlite`), repositories + resources                      |
+| **API**                  | REST gateway `api/` (auth, favorites, reviews, upload, AI, …)                   |
+| **Auth**                 | Session + CSRF; OTP email (SMTP); Google OAuth 2.0 + PKCE; remember-me tokens   |
+| **AI**                   | Groq Chat Completions (`GF_AI_`*), grounding catalog gym/PT                     |
+| **Internationalization** | VI mặc định trong trang; EN qua `lang/en.php`, `lang/en_pages.php`              |
+| **Local**                | XAMPP (Apache + MySQL) hoặc `php -S … router.php`                               |
+| **Deploy**               | Docker (`Dockerfile` ở root, PHP 8.2 Apache) → **Railway** + MySQL plugin       |
+| **Cấu hình**             | `.env` / Railway Variables (`GF_DB_`*,* `GF_AI_`, `GF_SMTP_`*, `GF_GOOGLE_*`)   |
+| **Công cụ**              | Git / GitHub                                                                    |
 
 
 ```text
@@ -113,7 +123,7 @@ GYMFINDER/
 │   ├── docker/
 │   └── uploads/              # Runtime (gitignore)
 │
-└── report/                   # BÁO CÁO (không chạy app)
+└── report/                   # BÁO CÁO 
     └── GymFinder_Report.docx
 ```
 
@@ -123,13 +133,13 @@ GYMFINDER/
 
 1. Bật **Apache** + **MySQL** trong XAMPP.
 2. phpMyAdmin: tạo DB `gymfinder` → import `source/database/schema.sql` rồi `source/database/seed.sql`.
-3. Symlink **thư mục `source/`** vào htdocs:
+3. Symlink **thư mục** `source/` vào htdocs:
 
 ```bash
 ln -sfn ~/Projects/GYMFINDER/source /Applications/XAMPP/xamppfiles/htdocs/GYMFINDER
 ```
 
-4. Mở [http://localhost/GYMFINDER/](http://localhost/GYMFINDER/).
+1. Mở [http://localhost/GYMFINDER/](http://localhost/GYMFINDER/).
 
 Cấu hình: copy `source/.env.example` → `source/.env` (AI / SMTP / Google).  
 `backend/config.php` mặc định MySQL `root` / mật khẩu rỗng.
@@ -163,6 +173,8 @@ Deploy Railway: `Dockerfile` ở root (`COPY source/`); Variables `GF_DB_*`, `GF
 
 ---
 
+
+
 ## Tài liệu dự án
 
 
@@ -172,6 +184,8 @@ Deploy Railway: `Dockerfile` ở root (`COPY source/`); Variables `GF_DB_*`, `GF
 
 
 ---
+
+
 
 ## Giấy phép / đồ án
 

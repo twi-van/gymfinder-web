@@ -124,12 +124,21 @@ function gf_api_error(string $code, string $message, int $http, array $details =
     // Admin pages are HTML forms; keep domain errors in the rendered UI instead
     // of returning a raw JSON document as the browser page.
     if ($isAdminFormPost && session_status() === PHP_SESSION_ACTIVE) {
-        $_SESSION['gf_flash'] = [
-            'type' => $http >= 500 ? 'danger' : 'warning',
-            'message' => $message,
-        ];
-        $query = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_QUERY);
-        gf_redirect($path . ($query ? '?' . $query : ''));
+        $flashMsg = $message;
+        if ($details !== []) {
+            $parts = [];
+            foreach ($details as $field => $why) {
+                $parts[] = is_string($field) && $field !== ''
+                    ? $field . ': ' . (string) $why
+                    : (string) $why;
+            }
+            if ($parts !== []) {
+                $flashMsg .= ' (' . implode('; ', $parts) . ')';
+            }
+        }
+        gf_flash($flashMsg, $http >= 500 ? 'danger' : 'warning');
+        // Drop success query flags so error toast is not mixed with a stale green banner.
+        gf_redirect($path);
     }
 
     gf_json(['error' => ['code' => $code, 'message' => $message, 'details' => $details ?: new stdClass()]], $http);
@@ -332,6 +341,29 @@ function gf_redirect(string $path): void
 {
     header('Location: ' . $path);
     exit;
+}
+
+/**
+ * Flash toast message (rendered once by includes/ui_feedback.php via gfToast).
+ * Prefer this over sticky ?created=1 alert banners on admin pages.
+ */
+function gf_flash(string $message, string $type = 'success'): void
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        return;
+    }
+    $kind = in_array($type, ['success', 'danger', 'warning', 'info'], true) ? $type : 'info';
+    $_SESSION['gf_flash'] = [
+        'message' => $message,
+        'type' => $kind,
+    ];
+}
+
+/** Flash success then redirect (admin CRUD confirmation). */
+function gf_flash_redirect(string $path, string $message, string $type = 'success'): void
+{
+    gf_flash($message, $type);
+    gf_redirect($path);
 }
 
 function gf_resolve_image_url(?string $url): ?string

@@ -315,8 +315,8 @@ function gf_sync_gym_relations(int $gymId, array $d, string $cover): array
     }
 
     if (array_key_exists('images', $d)) {
-        if (!is_array($d['images']) || count($d['images']) > 8) {
-            gf_api_error('VALIDATION_ERROR', 'Dữ liệu không hợp lệ.', 422, ['images' => 'Tối đa 8 ảnh.']);
+        if (!is_array($d['images']) || count($d['images']) > 6) {
+            gf_api_error('VALIDATION_ERROR', 'Dữ liệu không hợp lệ.', 422, ['images' => 'Tối đa 6 ảnh.']);
         }
         $keepIds = [];
         $urls    = [];

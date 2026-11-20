@@ -92,8 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$adminCount = (int) gf_pdo()->query("SELECT COUNT(*) FROM users WHERE role = 'admin'")->fetchColumn();
-$canDeleteOwnAdmin = $adminCount > 1;
+$canDeleteOwnAdmin = gf_count_activated_admins() > 1;
 
 $pageTitle = 'Hồ sơ cá nhân - Admin GYMFINDER';
 $extraCss = ['admin/assets/admin.css'];

@@ -38,7 +38,7 @@ function gf_lang_apply_request(): void
 }
 
 /** @return array<string,string> */
-function gf_i18n_en(): array
+function gf_internationalization_en(): array
 {
     static $dict = null;
     if ($dict === null) {
@@ -59,14 +59,14 @@ function gf_t(string $vi, ?string $en = null): string
     if ($en !== null && $en !== '') {
         return gf_place_phrase($en);
     }
-    $mapped = gf_i18n_en()[$vi] ?? null;
+    $mapped = gf_internationalization_en()[$vi] ?? null;
     if ($mapped !== null && $mapped !== '') {
         return gf_place_phrase($mapped);
     }
-    return gf_place_phrase(gf_i18n_pattern($vi));
+    return gf_place_phrase(gf_internationalization_pattern($vi));
 }
 
-function gf_i18n_pattern(string $text): string
+function gf_internationalization_pattern(string $text): string
 {
     if (preg_match('/^Phòng tập (.+) tại (.+) có khu tập luyện tiện nghi, nhiều mức giá, đánh giá hội viên và HLV hỗ trợ\.$/u', $text, $m)) {
         return $m[1] . ' in ' . gf_place_name($m[2]) . ' has a well-equipped training floor, several price levels, member reviews, and trainer support.';

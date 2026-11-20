@@ -2,34 +2,44 @@
 require_once dirname(__DIR__, 2) . '/backend/bootstrap.php';
 require_once dirname(__DIR__) . '/components/table.php';
 $me = gf_require_admin();
-$notice = (string) ($_SESSION['admin_users_notice'] ?? '');
-$error = (string) ($_SESSION['admin_users_error'] ?? '');
-unset($_SESSION['admin_users_notice'], $_SESSION['admin_users_error']);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     gf_require_csrf();
     $action = (string) ($_POST['action'] ?? '');
     if ($action === 'invite_admin') {
         $res = gf_admin_invite_admin((string) ($_POST['full_name'] ?? ''), (string) ($_POST['email'] ?? ''));
-        $_SESSION[$res['ok'] ? 'admin_users_notice' : 'admin_users_error'] = (string) ($res['ok'] ? $res['message'] : $res['error']);
-        gf_redirect(gf_url('admin/pages/users.php'));
+        gf_flash_redirect(
+            gf_url('admin/pages/users.php'),
+            (string) ($res['ok'] ? $res['message'] : $res['error']),
+            !empty($res['ok']) ? 'success' : 'danger'
+        );
     }
     if ($action === 'resend_admin_password') {
         $res = gf_admin_resend_temp_password((int) ($_POST['id'] ?? 0));
-        $_SESSION[$res['ok'] ? 'admin_users_notice' : 'admin_users_error'] = (string) ($res['ok'] ? $res['message'] : $res['error']);
-        gf_redirect(gf_url('admin/pages/users.php'));
+        gf_flash_redirect(
+            gf_url('admin/pages/users.php'),
+            (string) ($res['ok'] ? $res['message'] : $res['error']),
+            !empty($res['ok']) ? 'success' : 'danger'
+        );
+    }
+    if ($action === 'cancel_pending_admin') {
+        $res = gf_admin_cancel_pending_invite((int) ($_POST['id'] ?? 0), $me);
+        gf_flash_redirect(
+            gf_url('admin/pages/users.php'),
+            (string) ($res['ok'] ? ($res['message'] ?? 'Đã hủy lời mời.') : ($res['error'] ?? 'Không thể hủy lời mời.')),
+            !empty($res['ok']) ? 'success' : 'danger'
+        );
     }
     if ($action === 'delete_own_admin') {
         $res = gf_admin_delete_own_account((int) ($_POST['id'] ?? 0), $me);
         if (!$res['ok']) {
-            $_SESSION['admin_users_error'] = (string) $res['error'];
-            gf_redirect(gf_url('admin/pages/users.php'));
+            gf_flash_redirect(gf_url('admin/pages/users.php'), (string) $res['error'], 'danger');
         }
         gf_logout();
         gf_redirect(gf_url('pages/auth/login.php'));
     }
     if (isset($_POST['id'], $_POST['status'])) {
         gf_admin_patch_user((int)$_POST['id'], ['status' => $_POST['status'] === 'locked' ? 'locked' : 'active'], $me);
-        gf_redirect(gf_url('admin/pages/users.php'));
+        gf_flash_redirect(gf_url('admin/pages/users.php'), 'Đã cập nhật trạng thái người dùng.');
     }
 }
 $userPage = max(1, (int)($_GET['page'] ?? 1));
@@ -49,6 +59,7 @@ if ($userPage > 1 && empty($userResult['items']) && (int)$userResult['total'] > 
     $userResult = gf_admin_users_paged($userFilters);
 }
 $rows = $userResult['items'];
+$canDeleteOwnAdmin = gf_count_activated_admins() > 1;
 $userPaginationHtml = gf_render_admin_pagination(
     $userPage,
     $userLimit,
@@ -66,11 +77,9 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
     <h2 class="fw-bold mb-1 text-dark" style="font-size: 24px; letter-spacing: -0.3px;"><?= gf_h(gf_t('Quản lý người dùng')) ?></h2>
     <p class="text-secondary mb-0 small"><?= gf_h(gf_t('Theo dõi tài khoản, vai trò và khóa/mở khóa người dùng trên hệ thống')) ?></p>
 </div>
-<?php if ($notice): ?><div class="alert alert-success"><?= gf_h(gf_t($notice)) ?></div><?php endif; ?>
-<?php if ($error): ?><div class="alert alert-danger"><?= gf_h(gf_t($error)) ?></div><?php endif; ?>
 <div class="admin-card p-3 mb-4">
     <h3 class="fw-bold mb-1" style="font-size:18px;"><?= gf_h(gf_t('Thêm quản trị viên')) ?></h3>
-    <p class="text-secondary small mb-3"><?= gf_h(gf_t('Nhập tên tài khoản và email. Thư gửi đúng tên tài khoản đã nhập, cùng mật khẩu tạm có hiệu lực 5 phút. Lần đăng nhập đầu bắt buộc đổi mật khẩu và không được giữ mật khẩu do hệ thống cấp. Nếu admin mới chưa đổi mật khẩu (hoặc đã hết hạn), gửi lại cùng email sẽ tạo mật khẩu tạm mới.')) ?></p>
+    <p class="text-secondary small mb-3"><?= gf_h(gf_t('Nhập tên tài khoản và email. Hệ thống gửi mật khẩu tạm (5 phút). Người được mời phải đăng nhập và đổi mật khẩu mới được kích hoạt thành quản trị viên trên hệ thống. Lời mời chưa kích hoạt không tính vào số admin vận hành. Gửi lại cùng email sẽ cấp mật khẩu tạm mới.')) ?></p>
     <form method="post" class="row g-3 align-items-end js-form-validate" novalidate>
         <?= gf_csrf_field() ?>
         <input type="hidden" name="action" value="invite_admin">
@@ -87,7 +96,33 @@ require dirname(__DIR__, 2) . '/includes/admin_layout.php';
         </div>
     </form>
 </div>
-<form method="get" class="admin-card p-3 mb-4"><div class="row g-3 align-items-center"><div class="col-md-5"><input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q']??'') ?>" placeholder="<?= gf_h(gf_t('⌕  Tìm theo tên, email, số điện thoại...')) ?>" style="height:42px;"></div><div class="col-md-3"><select class="form-select admin-input" name="role" style="height:42px;"><option value=""><?= gf_h(gf_t('Tất cả vai trò')) ?></option><option value="admin"<?= (($_GET['role']??'')==='admin')?' selected':'' ?>><?= gf_h(gf_t('Quản trị viên')) ?></option><option value="user"<?= (($_GET['role']??'')==='user')?' selected':'' ?>><?= gf_h(gf_t('Người dùng')) ?></option></select></div><div class="col-md-2"><select class="form-select admin-input" name="status" style="height:42px;"><option value=""><?= gf_h(gf_t('Trạng thái')) ?></option><option value="active"<?= (($_GET['status']??'')==='active')?' selected':'' ?>><?= gf_h(gf_t('Hoạt động')) ?></option><option value="locked"<?= (($_GET['status']??'')==='locked')?' selected':'' ?>><?= gf_h(gf_t('Bị khóa')) ?></option></select></div><div class="col-md-2"><button type="submit" class="btn btn-filter w-100 d-inline-flex align-items-center justify-content-center gap-2 fw-medium" style="height:42px;"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><?= gf_h(gf_t('Tra cứu')) ?></button></div></div></form>
+<form method="get" class="admin-card admin-filter-bar p-3 mb-4 shadow-sm border">
+    <div class="admin-filter-bar__grid admin-filter-bar__grid--4">
+        <div class="admin-filter-bar__search position-relative">
+            <i class="fa-solid fa-magnifying-glass text-secondary position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none;"></i>
+            <input class="form-control admin-input" name="q" value="<?= gf_h($_GET['q'] ?? '') ?>" placeholder="<?= gf_h(gf_t('Tìm theo tên, email, số điện thoại...')) ?>" style="padding-left: 38px;" autocomplete="off">
+        </div>
+        <div class="admin-filter-bar__field">
+            <select class="form-select admin-input" name="role" aria-label="<?= gf_h(gf_t('Lọc theo vai trò')) ?>">
+                <option value=""><?= gf_h(gf_t('Tất cả vai trò')) ?></option>
+                <option value="admin"<?= (($_GET['role'] ?? '') === 'admin') ? ' selected' : '' ?>><?= gf_h(gf_t('Quản trị viên')) ?></option>
+                <option value="user"<?= (($_GET['role'] ?? '') === 'user') ? ' selected' : '' ?>><?= gf_h(gf_t('Người dùng')) ?></option>
+            </select>
+        </div>
+        <div class="admin-filter-bar__field">
+            <select class="form-select admin-input" name="status" aria-label="<?= gf_h(gf_t('Lọc theo trạng thái')) ?>">
+                <option value=""><?= gf_h(gf_t('Tất cả trạng thái')) ?></option>
+                <option value="active"<?= (($_GET['status'] ?? '') === 'active') ? ' selected' : '' ?>><?= gf_h(gf_t('Hoạt động')) ?></option>
+                <option value="locked"<?= (($_GET['status'] ?? '') === 'locked') ? ' selected' : '' ?>><?= gf_h(gf_t('Bị khóa')) ?></option>
+            </select>
+        </div>
+        <div class="admin-filter-bar__submit">
+            <button type="submit" class="btn btn-filter d-inline-flex align-items-center justify-content-center gap-2 fw-medium">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><?= gf_h(gf_t('Tra cứu')) ?>
+            </button>
+        </div>
+    </div>
+</form>
 <?php
 gf_admin_table_open([
     'id'        => 'usersTable',
@@ -111,20 +146,41 @@ gf_admin_table_open([
     <td><span class="admin-cell-title"><?= gf_h($r['full_name']) ?></span></td>
     <td><span class="text-secondary"><?= gf_h($r['email']) ?></span></td>
     <td><span class="text-secondary text-nowrap"><?= gf_h($r['phone']??'—') ?></span></td>
-    <td class="text-center"><span class="admin-badge <?= $r['role']==='admin'?'badge-warning':'badge-neutral' ?>"><?= gf_h(gf_role_label($r['role']??'')) ?></span></td>
+    <?php
+    $isPendingAdmin = ($r['role'] ?? '') === 'admin' && !empty($r['must_change_password']);
+    $isActivatedAdmin = ($r['role'] ?? '') === 'admin' && empty($r['must_change_password']);
+    ?>
+    <td class="text-center">
+        <?php if ($isPendingAdmin): ?>
+            <span class="admin-badge badge-warning"><?= gf_h(gf_t('Chờ kích hoạt')) ?></span>
+        <?php else: ?>
+            <span class="admin-badge <?= $isActivatedAdmin ? 'badge-warning' : 'badge-neutral' ?>"><?= gf_h(gf_role_label($r['role'] ?? '')) ?></span>
+        <?php endif; ?>
+    </td>
     <td class="text-center text-secondary text-nowrap"><?= gf_h(date('d/m/Y',strtotime($r['created_at']??'now'))) ?></td>
-    <td class="text-center"><?php if (!empty($r['must_change_password'])): ?><span class="admin-badge badge-warning"><?= gf_h(gf_t('Chờ đổi mật khẩu')) ?></span><?php else: ?><span class="admin-badge <?= $r['status']==='active'?'badge-success':'badge-danger' ?>"><?= gf_h(gf_t($r['status']==='active'?'Hoạt động':'Bị khóa')) ?></span><?php endif; ?></td>
+    <td class="text-center"><?php if ($isPendingAdmin): ?><span class="admin-badge badge-warning"><?= gf_h(gf_t('Chưa đổi mật khẩu')) ?></span><?php else: ?><span class="admin-badge <?= $r['status']==='active'?'badge-success':'badge-danger' ?>"><?= gf_h(gf_t($r['status']==='active'?'Hoạt động':'Bị khóa')) ?></span><?php endif; ?></td>
     <td class="text-end pe-3 text-nowrap">
         <button type="button" class="btn btn-action btn-action-view" data-bs-toggle="modal" data-bs-target="#userModal<?= (int)$r['id'] ?>" title="<?= gf_h(gf_t('Xem chi tiết')) ?>" aria-label="<?= gf_h(gf_t('Xem chi tiết')) ?>"><i class="fa-solid fa-eye"></i></button>
-        <?php if (!empty($r['must_change_password'])): ?>
+        <?php if ($isPendingAdmin): ?>
         <form method="post" class="d-inline">
             <?= gf_csrf_field() ?>
             <input type="hidden" name="action" value="resend_admin_password">
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
             <button class="btn btn-action btn-action-edit" title="<?= gf_h(gf_t('Gửi lại mật khẩu tạm')) ?>" aria-label="<?= gf_h(gf_t('Gửi lại mật khẩu tạm')) ?>"><i class="fa-solid fa-paper-plane"></i></button>
         </form>
+        <?php if ((int) $r['id'] !== (int) $me['id']): ?>
+        <form method="post" class="d-inline js-confirm-submit"
+            data-confirm-title="<?= gf_h(gf_t('Hủy lời mời?')) ?>"
+            data-confirm-message="<?= gf_h(gf_t('Hủy lời mời quản trị viên chưa kích hoạt này? Người được mời sẽ không đăng nhập được bằng mật khẩu tạm.')) ?>"
+            data-confirm-label="<?= gf_h(gf_t('Hủy lời mời')) ?>"
+            data-confirm-danger="1">
+            <?= gf_csrf_field() ?>
+            <input type="hidden" name="action" value="cancel_pending_admin">
+            <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
+            <button class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t('Hủy lời mời')) ?>" aria-label="<?= gf_h(gf_t('Hủy lời mời')) ?>"><i class="fa-solid fa-trash"></i></button>
+        </form>
         <?php endif; ?>
-        <?php if ($r['role'] !== 'admin'): ?>
+        <?php elseif ($r['role'] !== 'admin'): ?>
         <form method="post" class="d-inline js-confirm-submit"
             data-confirm-title="<?= gf_h(gf_t($r['status']==='active'?'Khóa tài khoản':'Mở khóa tài khoản')) ?>"
             data-confirm-message="<?= gf_h(gf_t($r['status']==='active' ? 'Khóa tài khoản này sẽ ngăn người dùng đăng nhập và sử dụng các chức năng trên hệ thống. Lịch sử đánh giá/yêu thích được giữ nguyên.' : 'Mở khóa tài khoản này để người dùng có thể đăng nhập và sử dụng lại các chức năng.')) ?>"
@@ -136,6 +192,7 @@ gf_admin_table_open([
             <button class="btn btn-action <?= $r['status']==='active'?'btn-action-delete':'btn-action-edit' ?>" title="<?= gf_h(gf_t($r['status']==='active'?'Khóa tài khoản':'Mở khóa tài khoản')) ?>" aria-label="<?= gf_h(gf_t($r['status']==='active'?'Khóa tài khoản':'Mở khóa tài khoản')) ?>"><i class="fa-solid <?= $r['status']==='active'?'fa-lock':'fa-lock-open' ?>"></i></button>
         </form>
         <?php elseif ((int) $r['id'] === (int) $me['id']): ?>
+            <?php if ($canDeleteOwnAdmin): ?>
         <form method="post" class="d-inline js-confirm-submit"
             data-confirm-title="<?= gf_h(gf_t('Xóa tài khoản quản trị')) ?>"
             data-confirm-message="<?= gf_h(gf_t('Xóa tài khoản quản trị của chính bạn. Sau khi xóa, bạn không đăng nhập bằng tài khoản này được nữa.')) ?>"
@@ -146,6 +203,9 @@ gf_admin_table_open([
             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
             <button class="btn btn-action btn-action-delete" title="<?= gf_h(gf_t('Xóa tài khoản của tôi')) ?>" aria-label="<?= gf_h(gf_t('Xóa tài khoản của tôi')) ?>"><i class="fa-solid fa-trash"></i></button>
         </form>
+            <?php else: ?>
+        <button type="button" class="btn btn-action btn-action-delete is-blocked" title="<?= gf_h(gf_t('Không thể xóa quản trị viên cuối cùng.')) ?>" aria-label="<?= gf_h(gf_t('Không thể xóa quản trị viên cuối cùng.')) ?>" data-delete-blocked="<?= gf_h(gf_t('Không thể xóa quản trị viên cuối cùng.')) ?>"><i class="fa-solid fa-trash"></i></button>
+            <?php endif; ?>
         <?php else: ?><button class="btn btn-action btn-action-delete" disabled title="<?= gf_h(gf_t('Chỉ quản trị viên đó được xóa tài khoản của chính mình')) ?>" aria-label="<?= gf_h(gf_t('Chỉ quản trị viên đó được xóa tài khoản của chính mình')) ?>"><i class="fa-solid fa-lock"></i></button>
         <?php endif; ?>
     </td>
@@ -174,8 +234,20 @@ gf_admin_table_close([
                     <p class="mb-2"><strong><?= gf_h(gf_t('Họ tên:')) ?></strong> <?= gf_h($r['full_name']) ?></p>
                     <p class="mb-2"><strong><?= gf_h(gf_t('Email đăng nhập:')) ?></strong> <?= gf_h($r['email']) ?></p>
                     <p class="mb-2"><strong><?= gf_h(gf_t('Số điện thoại:')) ?></strong> <?= gf_h($r['phone']??'—') ?></p>
-                    <p class="mb-2"><strong><?= gf_h(gf_t('Vai trò:')) ?></strong> <span class="admin-badge <?= $r['role']==='admin'?'badge-warning':'badge-neutral' ?>"><?= gf_h(gf_role_label($r['role']??'')) ?></span></p>
-                    <p class="mb-0"><strong><?= gf_h(gf_t('Trạng thái:')) ?></strong> <span class="admin-badge <?= $r['status']==='active'?'badge-success':'badge-danger' ?>"><?= gf_h(gf_t($r['status']==='active'?'Hoạt động':'Bị khóa')) ?></span></p>
+                    <p class="mb-2"><strong><?= gf_h(gf_t('Vai trò:')) ?></strong>
+                        <?php if (($r['role'] ?? '') === 'admin' && !empty($r['must_change_password'])): ?>
+                            <span class="admin-badge badge-warning"><?= gf_h(gf_t('Chờ kích hoạt')) ?></span>
+                        <?php else: ?>
+                            <span class="admin-badge <?= ($r['role'] ?? '') === 'admin' ? 'badge-warning' : 'badge-neutral' ?>"><?= gf_h(gf_role_label($r['role'] ?? '')) ?></span>
+                        <?php endif; ?>
+                    </p>
+                    <p class="mb-0"><strong><?= gf_h(gf_t('Trạng thái:')) ?></strong>
+                        <?php if (($r['role'] ?? '') === 'admin' && !empty($r['must_change_password'])): ?>
+                            <span class="admin-badge badge-warning"><?= gf_h(gf_t('Chưa đổi mật khẩu')) ?></span>
+                        <?php else: ?>
+                            <span class="admin-badge <?= $r['status']==='active'?'badge-success':'badge-danger' ?>"><?= gf_h(gf_t($r['status']==='active'?'Hoạt động':'Bị khóa')) ?></span>
+                        <?php endif; ?>
+                    </p>
                 </div>
             </div>
             <div class="modal-footer border-top-0 pt-0">
@@ -187,5 +259,15 @@ gf_admin_table_close([
 <?php endforeach; ?>
 </main></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.querySelectorAll('[data-delete-blocked]').forEach((button) => {
+    button.addEventListener('click', () => {
+        const message = button.getAttribute('data-delete-blocked') || '';
+        if (typeof window.gfToast === 'function') {
+            window.gfToast(message, 'warning');
+        }
+    });
+});
+</script>
 <?php require dirname(__DIR__, 2) . '/includes/ui_feedback.php'; ?>
 </body></html>
